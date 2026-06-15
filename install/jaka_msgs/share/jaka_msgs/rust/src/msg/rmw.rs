@@ -1,0 +1,1 @@
+/home/newtonrattapong/jaka_ws/build/jaka_msgs/rosidl_generator_rs/jaka_msgs/rust/src/msg/rmw.rs

@@ -1,0 +1,29 @@
+running develop
+running egg_info
+writing jaka_coop_monitor.egg-info/PKG-INFO
+writing dependency_links to jaka_coop_monitor.egg-info/dependency_links.txt
+writing entry points to jaka_coop_monitor.egg-info/entry_points.txt
+writing requirements to jaka_coop_monitor.egg-info/requires.txt
+writing top-level names to jaka_coop_monitor.egg-info/top_level.txt
+reading manifest file 'jaka_coop_monitor.egg-info/SOURCES.txt'
+writing manifest file 'jaka_coop_monitor.egg-info/SOURCES.txt'
+running build_ext
+Creating /home/newtonrattapong/jaka_ws/install/jaka_coop_monitor/lib/python3.10/site-packages/jaka-coop-monitor.egg-link (link to .)
+Installing dual_jacobian_monitor script to /home/newtonrattapong/jaka_ws/install/jaka_coop_monitor/lib/jaka_coop_monitor
+Installing dual_jacobian_velocity_logger script to /home/newtonrattapong/jaka_ws/install/jaka_coop_monitor/lib/jaka_coop_monitor
+Installing dual_jacobian_velocity_monitor script to /home/newtonrattapong/jaka_ws/install/jaka_coop_monitor/lib/jaka_coop_monitor
+Installing dual_relative_jacobian_monitor script to /home/newtonrattapong/jaka_ws/install/jaka_coop_monitor/lib/jaka_coop_monitor
+Installing dual_relative_pose_logger script to /home/newtonrattapong/jaka_ws/install/jaka_coop_monitor/lib/jaka_coop_monitor
+Installing dual_relative_pose_monitor script to /home/newtonrattapong/jaka_ws/install/jaka_coop_monitor/lib/jaka_coop_monitor
+Installing ee_pose_monitor script to /home/newtonrattapong/jaka_ws/install/jaka_coop_monitor/lib/jaka_coop_monitor
+Installing joint_limit_logger script to /home/newtonrattapong/jaka_ws/install/jaka_coop_monitor/lib/jaka_coop_monitor
+Installing joint_limit_monitor script to /home/newtonrattapong/jaka_ws/install/jaka_coop_monitor/lib/jaka_coop_monitor
+Installing object_grasp_error_logger script to /home/newtonrattapong/jaka_ws/install/jaka_coop_monitor/lib/jaka_coop_monitor
+Installing object_grasp_error_monitor script to /home/newtonrattapong/jaka_ws/install/jaka_coop_monitor/lib/jaka_coop_monitor
+Installing object_grasp_frame_publisher script to /home/newtonrattapong/jaka_ws/install/jaka_coop_monitor/lib/jaka_coop_monitor
+Installing pose_error_logger script to /home/newtonrattapong/jaka_ws/install/jaka_coop_monitor/lib/jaka_coop_monitor
+Installing pose_error_monitor script to /home/newtonrattapong/jaka_ws/install/jaka_coop_monitor/lib/jaka_coop_monitor
+Installing virtual_object_frame_publisher script to /home/newtonrattapong/jaka_ws/install/jaka_coop_monitor/lib/jaka_coop_monitor
+
+Installed /home/newtonrattapong/jaka_ws/build/jaka_coop_monitor
+running symlink_data

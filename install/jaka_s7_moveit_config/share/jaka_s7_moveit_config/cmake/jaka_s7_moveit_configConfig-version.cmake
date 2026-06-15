@@ -1,0 +1,1 @@
+/home/newtonrattapong/jaka_ws/build/jaka_s7_moveit_config/ament_cmake_core/jaka_s7_moveit_configConfig-version.cmake

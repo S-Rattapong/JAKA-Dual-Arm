@@ -1,0 +1,4 @@
+source;share/jaka_a20_moveit_config/local_setup.bash
+source;share/jaka_a20_moveit_config/local_setup.dsv
+source;share/jaka_a20_moveit_config/local_setup.sh
+source;share/jaka_a20_moveit_config/local_setup.zsh

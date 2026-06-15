@@ -1,0 +1,258 @@
+{
+	"configurations" : 
+	[
+		{
+			"directories" : 
+			[
+				{
+					"build" : ".",
+					"childIndexes" : 
+					[
+						1,
+						2
+					],
+					"hasInstallRule" : true,
+					"jsonFile" : "directory-.-30e4b335c460d2fdaffa.json",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "3.12"
+					},
+					"projectIndex" : 0,
+					"source" : ".",
+					"targetIndexes" : 
+					[
+						0,
+						1,
+						2,
+						3,
+						5,
+						6,
+						7,
+						8,
+						9,
+						10,
+						11,
+						12,
+						13,
+						14,
+						15,
+						17,
+						18
+					]
+				},
+				{
+					"build" : "jaka_msgs__py",
+					"jsonFile" : "directory-jaka_msgs__py-bc1d58c4097a386b1405.json",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "3.12"
+					},
+					"parentIndex" : 0,
+					"projectIndex" : 0,
+					"source" : "/home/newtonrattapong/jaka_ws/build/jaka_msgs/jaka_msgs__py",
+					"targetIndexes" : 
+					[
+						4
+					]
+				},
+				{
+					"build" : "jaka_msgs__rs",
+					"jsonFile" : "directory-jaka_msgs__rs-ab2c58e1101e0571f2a8.json",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "3.12"
+					},
+					"parentIndex" : 0,
+					"projectIndex" : 0,
+					"source" : "/home/newtonrattapong/jaka_ws/build/jaka_msgs/jaka_msgs__rs",
+					"targetIndexes" : 
+					[
+						16
+					]
+				}
+			],
+			"name" : "",
+			"projects" : 
+			[
+				{
+					"directoryIndexes" : 
+					[
+						0,
+						1,
+						2
+					],
+					"name" : "jaka_msgs",
+					"targetIndexes" : 
+					[
+						0,
+						1,
+						2,
+						3,
+						4,
+						5,
+						6,
+						7,
+						8,
+						9,
+						10,
+						11,
+						12,
+						13,
+						14,
+						15,
+						16,
+						17,
+						18
+					]
+				}
+			],
+			"targets" : 
+			[
+				{
+					"directoryIndex" : 0,
+					"id" : "ament_cmake_python_build_jaka_msgs_egg::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-ament_cmake_python_build_jaka_msgs_egg-db23b834aec57d4ad0d6.json",
+					"name" : "ament_cmake_python_build_jaka_msgs_egg",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "ament_cmake_python_symlink_jaka_msgs::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-ament_cmake_python_symlink_jaka_msgs-24fa010998afae4a9738.json",
+					"name" : "ament_cmake_python_symlink_jaka_msgs",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "jaka_msgs::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-jaka_msgs-14ba1a594737cb57323e.json",
+					"name" : "jaka_msgs",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "jaka_msgs__cpp::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-jaka_msgs__cpp-f5f6129b408fda4e8e1d.json",
+					"name" : "jaka_msgs__cpp",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 1,
+					"id" : "jaka_msgs__py::@81e7028f6c656377465b",
+					"jsonFile" : "target-jaka_msgs__py-ea4f06d6075c0eb41838.json",
+					"name" : "jaka_msgs__py",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "jaka_msgs__rosidl_generator_c::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-jaka_msgs__rosidl_generator_c-b8f8c752ddf59f2fd72e.json",
+					"name" : "jaka_msgs__rosidl_generator_c",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "jaka_msgs__rosidl_generator_py::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-jaka_msgs__rosidl_generator_py-e56fdd934950d00fc639.json",
+					"name" : "jaka_msgs__rosidl_generator_py",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "jaka_msgs__rosidl_typesupport_c::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-jaka_msgs__rosidl_typesupport_c-248bef9f8db30ee05788.json",
+					"name" : "jaka_msgs__rosidl_typesupport_c",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "jaka_msgs__rosidl_typesupport_c__pyext::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-jaka_msgs__rosidl_typesupport_c__pyext-2239392de0d2cdee929a.json",
+					"name" : "jaka_msgs__rosidl_typesupport_c__pyext",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "jaka_msgs__rosidl_typesupport_cpp::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-jaka_msgs__rosidl_typesupport_cpp-84e6c9654f1b5c002c7e.json",
+					"name" : "jaka_msgs__rosidl_typesupport_cpp",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "jaka_msgs__rosidl_typesupport_fastrtps_c::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-jaka_msgs__rosidl_typesupport_fastrtps_c-11a54b7443009463c2f5.json",
+					"name" : "jaka_msgs__rosidl_typesupport_fastrtps_c",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "jaka_msgs__rosidl_typesupport_fastrtps_c__pyext::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-jaka_msgs__rosidl_typesupport_fastrtps_c__pyext-ed20747151bfb52be7d4.json",
+					"name" : "jaka_msgs__rosidl_typesupport_fastrtps_c__pyext",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "jaka_msgs__rosidl_typesupport_fastrtps_cpp::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-jaka_msgs__rosidl_typesupport_fastrtps_cpp-08f98e34e21e64f06f8f.json",
+					"name" : "jaka_msgs__rosidl_typesupport_fastrtps_cpp",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "jaka_msgs__rosidl_typesupport_introspection_c::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-jaka_msgs__rosidl_typesupport_introspection_c-a751b4aba8de3c214387.json",
+					"name" : "jaka_msgs__rosidl_typesupport_introspection_c",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "jaka_msgs__rosidl_typesupport_introspection_c__pyext::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-jaka_msgs__rosidl_typesupport_introspection_c__pyext-55ccbd8376cec1d16169.json",
+					"name" : "jaka_msgs__rosidl_typesupport_introspection_c__pyext",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "jaka_msgs__rosidl_typesupport_introspection_cpp::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-jaka_msgs__rosidl_typesupport_introspection_cpp-be5e5ebf3634cf43e236.json",
+					"name" : "jaka_msgs__rosidl_typesupport_introspection_cpp",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 2,
+					"id" : "jaka_msgs__rs::@b8695c946e4619330f7d",
+					"jsonFile" : "target-jaka_msgs__rs-5fa6c6698cbb7744895e.json",
+					"name" : "jaka_msgs__rs",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "jaka_msgs_uninstall::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-jaka_msgs_uninstall-6f0628655d100ddd0819.json",
+					"name" : "jaka_msgs_uninstall",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "uninstall::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-uninstall-6d927b41c477e75f5786.json",
+					"name" : "uninstall",
+					"projectIndex" : 0
+				}
+			]
+		}
+	],
+	"kind" : "codemodel",
+	"paths" : 
+	{
+		"build" : "/home/newtonrattapong/jaka_ws/build/jaka_msgs",
+		"source" : "/home/newtonrattapong/jaka_ws/src/jaka_ros2/src/jaka_msgs"
+	},
+	"version" : 
+	{
+		"major" : 2,
+		"minor" : 3
+	}
+}

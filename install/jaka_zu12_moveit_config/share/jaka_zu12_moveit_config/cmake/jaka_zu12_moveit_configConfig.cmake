@@ -1,0 +1,1 @@
+/home/newtonrattapong/jaka_ws/build/jaka_zu12_moveit_config/ament_cmake_core/jaka_zu12_moveit_configConfig.cmake

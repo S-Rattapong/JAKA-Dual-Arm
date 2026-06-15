@@ -1,0 +1,1 @@
+/home/newtonrattapong/jaka_ws/src/jaka_ros2/src/jaka_description/launch/jaka_zu12_rviz_control_launch.py

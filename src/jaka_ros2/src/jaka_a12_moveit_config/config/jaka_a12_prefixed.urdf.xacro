@@ -1,0 +1,247 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro">
+  <xacro:property name="jaka_a12_mesh_path" value="package://jaka_description/meshes/jaka_a12_meshes"/>
+
+  <xacro:macro name="jaka_a12_prefixed" params="prefix parent:=world base_xyz:='0 0 0' base_rpy:='0 0 0'">
+    <link name="${prefix}base_link">
+      <visual>
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <geometry>
+          <mesh filename="${jaka_a12_mesh_path}/base_link.STL"/>
+        </geometry>
+        <material name="${prefix}base_material">
+          <color rgba="0.79216 0.81961 0.93333 1"/>
+        </material>
+      </visual>
+      <collision>
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <geometry>
+          <mesh filename="${jaka_a12_mesh_path}/base_link.STL"/>
+        </geometry>
+      </collision>
+    </link>
+
+    <joint name="${prefix}fixed" type="fixed">
+      <origin xyz="${base_xyz}" rpy="${base_rpy}"/>
+      <parent link="${parent}"/>
+      <child link="${prefix}base_link"/>
+    </joint>
+
+    <link name="${prefix}J1">
+      <visual>
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <geometry>
+          <mesh filename="${jaka_a12_mesh_path}/J1.STL"/>
+        </geometry>
+        <material name="${prefix}j1_material">
+          <color rgba="0.79216 0.81961 0.93333 1"/>
+        </material>
+      </visual>
+      <collision>
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <geometry>
+          <mesh filename="${jaka_a12_mesh_path}/J1.STL"/>
+        </geometry>
+      </collision>
+    </link>
+
+    <joint name="${prefix}joint_1" type="revolute">
+      <origin xyz="9.3823E-05 0 0.14265" rpy="0 0 0"/>
+      <parent link="${prefix}base_link"/>
+      <child link="${prefix}J1"/>
+      <axis xyz="0 0 1"/>
+      <limit lower="-6.28" upper="6.28" effort="2000" velocity="2.62"/>
+    </joint>
+
+    <link name="${prefix}J2">
+      <visual>
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <geometry>
+          <mesh filename="${jaka_a12_mesh_path}/J2.STL"/>
+        </geometry>
+        <material name="${prefix}j2_material">
+          <color rgba="0.86667 0.86667 0.8902 1"/>
+        </material>
+      </visual>
+      <collision>
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <geometry>
+          <mesh filename="${jaka_a12_mesh_path}/J2.STL"/>
+        </geometry>
+      </collision>
+    </link>
+
+    <joint name="${prefix}joint_2" type="revolute">
+      <origin xyz="0 0 0" rpy="1.5708 0 0"/>
+      <parent link="${prefix}J1"/>
+      <child link="${prefix}J2"/>
+      <axis xyz="0 0 1"/>
+      <limit lower="-6.28" upper="6.28" effort="8000" velocity="2.62"/>
+    </joint>
+
+    <link name="${prefix}J3">
+      <visual>
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <geometry>
+          <mesh filename="${jaka_a12_mesh_path}/J3.STL"/>
+        </geometry>
+        <material name="${prefix}j3_material">
+          <color rgba="0.86667 0.86667 0.8902 1"/>
+        </material>
+      </visual>
+      <collision>
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <geometry>
+          <mesh filename="${jaka_a12_mesh_path}/J3.STL"/>
+        </geometry>
+      </collision>
+    </link>
+
+    <joint name="${prefix}joint_3" type="revolute">
+      <origin xyz="0.77 0 0.0375" rpy="0 0 1.5708"/>
+      <parent link="${prefix}J2"/>
+      <child link="${prefix}J3"/>
+      <axis xyz="0 0 1"/>
+      <limit lower="-6.28" upper="6.28" effort="8000" velocity="3.67"/>
+    </joint>
+
+    <link name="${prefix}J4">
+      <visual>
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <geometry>
+          <mesh filename="${jaka_a12_mesh_path}/J4.STL"/>
+        </geometry>
+        <material name="${prefix}j4_material">
+          <color rgba="0.79216 0.81961 0.93333 1"/>
+        </material>
+      </visual>
+      <collision>
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <geometry>
+          <mesh filename="${jaka_a12_mesh_path}/J4.STL"/>
+        </geometry>
+      </collision>
+    </link>
+
+    <joint name="${prefix}joint_4" type="revolute">
+      <origin xyz="0 -0.5515 0" rpy="-1.5708 0 -3.1416"/>
+      <parent link="${prefix}J3"/>
+      <child link="${prefix}J4"/>
+      <axis xyz="0 0 1"/>
+      <limit lower="-6.28" upper="6.28" effort="2000" velocity="3.67"/>
+    </joint>
+
+    <link name="${prefix}J5">
+      <visual>
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <geometry>
+          <mesh filename="${jaka_a12_mesh_path}/J5.STL"/>
+        </geometry>
+        <material name="${prefix}j5_material">
+          <color rgba="0.86667 0.86667 0.8902 1"/>
+        </material>
+      </visual>
+      <collision>
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <geometry>
+          <mesh filename="${jaka_a12_mesh_path}/J5.STL"/>
+        </geometry>
+      </collision>
+    </link>
+
+    <joint name="${prefix}joint_5" type="revolute">
+      <origin xyz="0 -0.115 0" rpy="-1.5708 -1.5708 3.1416"/>
+      <parent link="${prefix}J4"/>
+      <child link="${prefix}J5"/>
+      <axis xyz="0 0 1"/>
+      <limit lower="-6.28" upper="6.28" effort="3000" velocity="3.67"/>
+    </joint>
+
+    <link name="${prefix}J6">
+      <visual>
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <geometry>
+          <mesh filename="${jaka_a12_mesh_path}/J6.STL"/>
+        </geometry>
+        <material name="${prefix}j6_material">
+          <color rgba="0.79216 0.81961 0.93333 1"/>
+        </material>
+      </visual>
+      <collision>
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <geometry>
+          <mesh filename="${jaka_a12_mesh_path}/J6.STL"/>
+        </geometry>
+      </collision>
+    </link>
+
+    <joint name="${prefix}joint_6" type="revolute">
+      <origin xyz="0 -0.1035 0" rpy="1.5708 0 0"/>
+      <parent link="${prefix}J5"/>
+      <child link="${prefix}J6"/>
+      <axis xyz="0 0 1"/>
+      <limit lower="-6.28" upper="6.28" effort="1000" velocity="3.67"/>
+    </joint>
+
+    <transmission name="${prefix}trans_joint_1">
+      <type>transmission_interface/SimpleTransmission</type>
+      <joint name="${prefix}joint_1">
+        <hardwareInterface>hardware_interface/PositionJointInterface</hardwareInterface>
+      </joint>
+      <actuator name="${prefix}joint_1_motor">
+        <hardwareInterface>hardware_interface/PositionJointInterface</hardwareInterface>
+        <mechanicalReduction>1</mechanicalReduction>
+      </actuator>
+    </transmission>
+    <transmission name="${prefix}trans_joint_2">
+      <type>transmission_interface/SimpleTransmission</type>
+      <joint name="${prefix}joint_2">
+        <hardwareInterface>hardware_interface/PositionJointInterface</hardwareInterface>
+      </joint>
+      <actuator name="${prefix}joint_2_motor">
+        <hardwareInterface>hardware_interface/PositionJointInterface</hardwareInterface>
+        <mechanicalReduction>1</mechanicalReduction>
+      </actuator>
+    </transmission>
+    <transmission name="${prefix}trans_joint_3">
+      <type>transmission_interface/SimpleTransmission</type>
+      <joint name="${prefix}joint_3">
+        <hardwareInterface>hardware_interface/PositionJointInterface</hardwareInterface>
+      </joint>
+      <actuator name="${prefix}joint_3_motor">
+        <hardwareInterface>hardware_interface/PositionJointInterface</hardwareInterface>
+        <mechanicalReduction>1</mechanicalReduction>
+      </actuator>
+    </transmission>
+    <transmission name="${prefix}trans_joint_4">
+      <type>transmission_interface/SimpleTransmission</type>
+      <joint name="${prefix}joint_4">
+        <hardwareInterface>hardware_interface/PositionJointInterface</hardwareInterface>
+      </joint>
+      <actuator name="${prefix}joint_4_motor">
+        <hardwareInterface>hardware_interface/PositionJointInterface</hardwareInterface>
+        <mechanicalReduction>1</mechanicalReduction>
+      </actuator>
+    </transmission>
+    <transmission name="${prefix}trans_joint_5">
+      <type>transmission_interface/SimpleTransmission</type>
+      <joint name="${prefix}joint_5">
+        <hardwareInterface>hardware_interface/PositionJointInterface</hardwareInterface>
+      </joint>
+      <actuator name="${prefix}joint_5_motor">
+        <hardwareInterface>hardware_interface/PositionJointInterface</hardwareInterface>
+        <mechanicalReduction>1</mechanicalReduction>
+      </actuator>
+    </transmission>
+    <transmission name="${prefix}trans_joint_6">
+      <type>transmission_interface/SimpleTransmission</type>
+      <joint name="${prefix}joint_6">
+        <hardwareInterface>hardware_interface/PositionJointInterface</hardwareInterface>
+      </joint>
+      <actuator name="${prefix}joint_6_motor">
+        <hardwareInterface>hardware_interface/PositionJointInterface</hardwareInterface>
+        <mechanicalReduction>1</mechanicalReduction>
+      </actuator>
+    </transmission>
+  </xacro:macro>
+</robot>

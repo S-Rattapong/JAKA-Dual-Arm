@@ -1,0 +1,1 @@
+/home/newtonrattapong/jaka_ws/src/jaka_ros2/src/jaka_c7_moveit_config/launch/moveit_rviz.launch.py

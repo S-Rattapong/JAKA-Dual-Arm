@@ -1,0 +1,560 @@
+[0.005s] Invoking command in '/home/newtonrattapong/jaka_ws/build/jaka_msgs': CMAKE_PREFIX_PATH=/opt/ros/humble /usr/bin/cmake /home/newtonrattapong/jaka_ws/src/jaka_ros2/src/jaka_msgs -DAMENT_CMAKE_SYMLINK_INSTALL=1 -DCMAKE_INSTALL_PREFIX=/home/newtonrattapong/jaka_ws/install/jaka_msgs
+[0.083s] -- The C compiler identification is GNU 11.4.0
+[0.130s] -- The CXX compiler identification is GNU 11.4.0
+[0.137s] -- Detecting C compiler ABI info
+[0.186s] -- Detecting C compiler ABI info - done
+[0.191s] -- Check for working C compiler: /usr/bin/cc - skipped
+[0.192s] -- Detecting C compile features
+[0.193s] -- Detecting C compile features - done
+[0.195s] -- Detecting CXX compiler ABI info
+[0.250s] -- Detecting CXX compiler ABI info - done
+[0.257s] -- Check for working CXX compiler: /usr/bin/c++ - skipped
+[0.257s] -- Detecting CXX compile features
+[0.257s] -- Detecting CXX compile features - done
+[0.262s] -- Found ament_cmake: 1.3.14 (/opt/ros/humble/share/ament_cmake/cmake)
+[0.362s] -- Found Python3: /usr/bin/python3 (found version "3.10.12") found components: Interpreter 
+[0.404s] -- Override CMake install command with custom implementation using symlinks instead of copying resources
+[0.428s] -- Found rosidl_default_generators: 1.2.1 (/opt/ros/humble/share/rosidl_default_generators/cmake)
+[0.431s] -- Using all available rosidl_typesupport_c: rosidl_typesupport_fastrtps_c;rosidl_typesupport_introspection_c
+[0.436s] -- Found rosidl_adapter: 3.1.8 (/opt/ros/humble/share/rosidl_adapter/cmake)
+[0.464s] -- Using all available rosidl_typesupport_cpp: rosidl_typesupport_fastrtps_cpp;rosidl_typesupport_introspection_cpp
+[0.491s] -- Found std_msgs: 4.9.1 (/opt/ros/humble/share/std_msgs/cmake)
+[0.511s] -- Found rclcpp: 16.0.19 (/opt/ros/humble/share/rclcpp/cmake)
+[0.539s] -- Found rmw_implementation_cmake: 6.1.2 (/opt/ros/humble/share/rmw_implementation_cmake/cmake)
+[0.541s] -- Found rmw_fastrtps_cpp: 6.2.10 (/opt/ros/humble/share/rmw_fastrtps_cpp/cmake)
+[0.602s] -- Found OpenSSL: /usr/lib/x86_64-linux-gnu/libcrypto.so (found version "3.0.2")  
+[0.619s] -- Found FastRTPS: /opt/ros/humble/include  
+[0.644s] -- Using RMW implementation 'rmw_fastrtps_cpp' as default
+[0.651s] -- Looking for pthread.h
+[0.700s] -- Looking for pthread.h - found
+[0.700s] -- Performing Test CMAKE_HAVE_LIBC_PTHREAD
+[0.752s] -- Performing Test CMAKE_HAVE_LIBC_PTHREAD - Success
+[0.753s] -- Found Threads: TRUE  
+[0.784s] -- Found std_srvs: 4.9.1 (/opt/ros/humble/share/std_srvs/cmake)
+[1.004s] -- Found ament_cmake_ros: 0.10.0 (/opt/ros/humble/share/ament_cmake_ros/cmake)
+[1.150s] -- Using all available rosidl_typesupport_c: rosidl_typesupport_fastrtps_c;rosidl_typesupport_introspection_c
+[1.337s] -- Using all available rosidl_typesupport_cpp: rosidl_typesupport_fastrtps_cpp;rosidl_typesupport_introspection_cpp
+[1.352s] -- Found PythonInterp: /usr/bin/python3 (found suitable version "3.10.12", minimum required is "3.6") 
+[1.353s] -- Found python_cmake_module: 0.10.0 (/opt/ros/humble/share/python_cmake_module/cmake)
+[1.369s] -- Found PythonLibs: /usr/lib/x86_64-linux-gnu/libpython3.10.so (found suitable version "3.10.12", minimum required is "3.5") 
+[1.369s] -- Using PYTHON_EXECUTABLE: /usr/bin/python3
+[1.370s] -- Using PYTHON_INCLUDE_DIRS: /usr/include/python3.10
+[1.370s] -- Using PYTHON_LIBRARIES: /usr/lib/x86_64-linux-gnu/libpython3.10.so
+[1.384s] -- Found PythonExtra: .so  
+[1.470s] -- Configuring done
+[1.498s] -- Generating done
+[1.505s] -- Build files have been written to: /home/newtonrattapong/jaka_ws/build/jaka_msgs
+[1.513s] Invoked command in '/home/newtonrattapong/jaka_ws/build/jaka_msgs' returned '0': CMAKE_PREFIX_PATH=/opt/ros/humble /usr/bin/cmake /home/newtonrattapong/jaka_ws/src/jaka_ros2/src/jaka_msgs -DAMENT_CMAKE_SYMLINK_INSTALL=1 -DCMAKE_INSTALL_PREFIX=/home/newtonrattapong/jaka_ws/install/jaka_msgs
+[1.514s] Invoking command in '/home/newtonrattapong/jaka_ws/build/jaka_msgs': CMAKE_PREFIX_PATH=/opt/ros/humble /usr/bin/cmake --build /home/newtonrattapong/jaka_ws/build/jaka_msgs -- -j16 -l16
+[1.541s] [  1%] [34m[1mGenerating C code for ROS interfaces[0m
+[1.547s] [  1%] [34m[1mGenerating C++ code for ROS interfaces[0m
+[1.550s] [  2%] [34m[1mGenerating Rust code for ROS interfaces[0m
+[1.550s] [  2%] Built target ament_cmake_python_symlink_jaka_msgs
+[1.679s] running egg_info
+[1.679s] creating jaka_msgs.egg-info
+[1.679s] writing jaka_msgs.egg-info/PKG-INFO
+[1.680s] writing dependency_links to jaka_msgs.egg-info/dependency_links.txt
+[1.680s] writing top-level names to jaka_msgs.egg-info/top_level.txt
+[1.680s] writing manifest file 'jaka_msgs.egg-info/SOURCES.txt'
+[1.681s] reading manifest file 'jaka_msgs.egg-info/SOURCES.txt'
+[1.681s] writing manifest file 'jaka_msgs.egg-info/SOURCES.txt'
+[1.698s] [  2%] Built target ament_cmake_python_build_jaka_msgs_egg
+[1.813s] [  2%] Built target jaka_msgs__rs
+[2.606s] [  2%] [32mBuilding C object CMakeFiles/jaka_msgs__rosidl_generator_c.dir/rosidl_generator_c/jaka_msgs/srv/detail/move__functions.c.o[0m
+[2.606s] [  3%] [32mBuilding C object CMakeFiles/jaka_msgs__rosidl_generator_c.dir/rosidl_generator_c/jaka_msgs/msg/detail/robot_msg__functions.c.o[0m
+[2.606s] [  4%] [32mBuilding C object CMakeFiles/jaka_msgs__rosidl_generator_c.dir/rosidl_generator_c/jaka_msgs/srv/detail/servo_move__functions.c.o[0m
+[2.606s] [  5%] [32mBuilding C object CMakeFiles/jaka_msgs__rosidl_generator_c.dir/rosidl_generator_c/jaka_msgs/srv/detail/servo_move_enable__functions.c.o[0m
+[2.606s] [  5%] [32mBuilding C object CMakeFiles/jaka_msgs__rosidl_generator_c.dir/rosidl_generator_c/jaka_msgs/srv/detail/set_payload__functions.c.o[0m
+[2.607s] [  6%] [32mBuilding C object CMakeFiles/jaka_msgs__rosidl_generator_c.dir/rosidl_generator_c/jaka_msgs/srv/detail/set_user_frame__functions.c.o[0m
+[2.607s] [  7%] [32mBuilding C object CMakeFiles/jaka_msgs__rosidl_generator_c.dir/rosidl_generator_c/jaka_msgs/srv/detail/set_tcp_frame__functions.c.o[0m
+[2.611s] [  8%] [32mBuilding C object CMakeFiles/jaka_msgs__rosidl_generator_c.dir/rosidl_generator_c/jaka_msgs/srv/detail/set_io__functions.c.o[0m
+[2.611s] [  9%] [32mBuilding C object CMakeFiles/jaka_msgs__rosidl_generator_c.dir/rosidl_generator_c/jaka_msgs/srv/detail/set_collision__functions.c.o[0m
+[2.612s] [  8%] Built target jaka_msgs__cpp
+[2.612s] [ 10%] [32mBuilding C object CMakeFiles/jaka_msgs__rosidl_generator_c.dir/rosidl_generator_c/jaka_msgs/srv/detail/get_io__functions.c.o[0m
+[2.613s] [ 10%] [32mBuilding C object CMakeFiles/jaka_msgs__rosidl_generator_c.dir/rosidl_generator_c/jaka_msgs/srv/detail/clear_error__functions.c.o[0m
+[2.633s] [ 11%] [34m[1mGenerating C++ type support dispatch for ROS interfaces[0m
+[2.633s] [ 12%] [32mBuilding C object CMakeFiles/jaka_msgs__rosidl_generator_c.dir/rosidl_generator_c/jaka_msgs/srv/detail/get_fk__functions.c.o[0m
+[2.633s] [ 13%] [34m[1mGenerating C++ type support for eProsima Fast-RTPS[0m
+[2.633s] [ 14%] [34m[1mGenerating C++ introspection for ROS interfaces[0m
+[2.640s] [ 15%] [32mBuilding C object CMakeFiles/jaka_msgs__rosidl_generator_c.dir/rosidl_generator_c/jaka_msgs/srv/detail/get_ik__functions.c.o[0m
+[2.707s] [ 16%] [32m[1mLinking C shared library libjaka_msgs__rosidl_generator_c.so[0m
+[2.743s] [ 16%] Built target jaka_msgs__rosidl_generator_c
+[2.749s] [ 17%] [34m[1mGenerating C type support for eProsima Fast-RTPS[0m
+[2.749s] [ 18%] [34m[1mGenerating C introspection for ROS interfaces[0m
+[2.749s] [ 19%] [34m[1mGenerating C type support dispatch for ROS interfaces[0m
+[3.230s] [ 19%] [32mBuilding CXX object CMakeFiles/jaka_msgs__rosidl_typesupport_cpp.dir/rosidl_typesupport_cpp/jaka_msgs/srv/move__type_support.cpp.o[0m
+[3.230s] [ 20%] [32mBuilding CXX object CMakeFiles/jaka_msgs__rosidl_typesupport_cpp.dir/rosidl_typesupport_cpp/jaka_msgs/msg/robot_msg__type_support.cpp.o[0m
+[3.234s] [ 21%] [32mBuilding CXX object CMakeFiles/jaka_msgs__rosidl_typesupport_cpp.dir/rosidl_typesupport_cpp/jaka_msgs/srv/servo_move__type_support.cpp.o[0m
+[3.234s] [ 22%] [32mBuilding CXX object CMakeFiles/jaka_msgs__rosidl_typesupport_cpp.dir/rosidl_typesupport_cpp/jaka_msgs/srv/set_tcp_frame__type_support.cpp.o[0m
+[3.235s] [ 23%] [32mBuilding CXX object CMakeFiles/jaka_msgs__rosidl_typesupport_cpp.dir/rosidl_typesupport_cpp/jaka_msgs/srv/servo_move_enable__type_support.cpp.o[0m
+[3.239s] [ 24%] [32mBuilding CXX object CMakeFiles/jaka_msgs__rosidl_typesupport_cpp.dir/rosidl_typesupport_cpp/jaka_msgs/srv/set_collision__type_support.cpp.o[0m
+[3.243s] [ 25%] [32mBuilding CXX object CMakeFiles/jaka_msgs__rosidl_typesupport_cpp.dir/rosidl_typesupport_cpp/jaka_msgs/srv/set_payload__type_support.cpp.o[0m
+[3.243s] [ 25%] [32mBuilding CXX object CMakeFiles/jaka_msgs__rosidl_typesupport_cpp.dir/rosidl_typesupport_cpp/jaka_msgs/srv/set_user_frame__type_support.cpp.o[0m
+[3.244s] [ 27%] [32mBuilding CXX object CMakeFiles/jaka_msgs__rosidl_typesupport_cpp.dir/rosidl_typesupport_cpp/jaka_msgs/srv/get_io__type_support.cpp.o[0m
+[3.247s] [ 26%] [32mBuilding CXX object CMakeFiles/jaka_msgs__rosidl_typesupport_cpp.dir/rosidl_typesupport_cpp/jaka_msgs/srv/set_io__type_support.cpp.o[0m
+[3.251s] [ 27%] [32mBuilding CXX object CMakeFiles/jaka_msgs__rosidl_typesupport_cpp.dir/rosidl_typesupport_cpp/jaka_msgs/srv/clear_error__type_support.cpp.o[0m
+[3.571s] [ 27%] [32mBuilding CXX object CMakeFiles/jaka_msgs__rosidl_typesupport_c.dir/rosidl_typesupport_c/jaka_msgs/msg/robot_msg__type_support.cpp.o[0m
+[3.571s] [ 28%] [32mBuilding CXX object CMakeFiles/jaka_msgs__rosidl_typesupport_cpp.dir/rosidl_typesupport_cpp/jaka_msgs/srv/get_fk__type_support.cpp.o[0m
+[3.577s] [ 29%] [32mBuilding CXX object CMakeFiles/jaka_msgs__rosidl_typesupport_cpp.dir/rosidl_typesupport_cpp/jaka_msgs/srv/get_ik__type_support.cpp.o[0m
+[3.578s] [ 30%] [32mBuilding CXX object CMakeFiles/jaka_msgs__rosidl_typesupport_c.dir/rosidl_typesupport_c/jaka_msgs/srv/move__type_support.cpp.o[0m
+[3.603s] [ 31%] [32mBuilding CXX object CMakeFiles/jaka_msgs__rosidl_typesupport_c.dir/rosidl_typesupport_c/jaka_msgs/srv/servo_move__type_support.cpp.o[0m
+[3.610s] [ 32%] [32mBuilding CXX object CMakeFiles/jaka_msgs__rosidl_typesupport_c.dir/rosidl_typesupport_c/jaka_msgs/srv/servo_move_enable__type_support.cpp.o[0m
+[3.614s] [ 32%] [32mBuilding CXX object CMakeFiles/jaka_msgs__rosidl_typesupport_c.dir/rosidl_typesupport_c/jaka_msgs/srv/set_tcp_frame__type_support.cpp.o[0m
+[3.647s] [ 33%] [32mBuilding CXX object CMakeFiles/jaka_msgs__rosidl_typesupport_c.dir/rosidl_typesupport_c/jaka_msgs/srv/set_payload__type_support.cpp.o[0m
+[3.648s] [ 34%] [32mBuilding CXX object CMakeFiles/jaka_msgs__rosidl_typesupport_c.dir/rosidl_typesupport_c/jaka_msgs/srv/set_user_frame__type_support.cpp.o[0m
+[3.650s] [ 35%] [32mBuilding CXX object CMakeFiles/jaka_msgs__rosidl_typesupport_introspection_cpp.dir/rosidl_typesupport_introspection_cpp/jaka_msgs/msg/detail/robot_msg__type_support.cpp.o[0m
+[3.659s] [ 36%] [32mBuilding CXX object CMakeFiles/jaka_msgs__rosidl_typesupport_c.dir/rosidl_typesupport_c/jaka_msgs/srv/set_collision__type_support.cpp.o[0m
+[3.660s] [ 36%] [32mBuilding CXX object CMakeFiles/jaka_msgs__rosidl_typesupport_introspection_cpp.dir/rosidl_typesupport_introspection_cpp/jaka_msgs/srv/detail/move__type_support.cpp.o[0m
+[3.673s] [ 37%] [32mBuilding CXX object CMakeFiles/jaka_msgs__rosidl_typesupport_introspection_cpp.dir/rosidl_typesupport_introspection_cpp/jaka_msgs/srv/detail/servo_move_enable__type_support.cpp.o[0m
+[3.681s] [ 38%] [32mBuilding CXX object CMakeFiles/jaka_msgs__rosidl_typesupport_c.dir/rosidl_typesupport_c/jaka_msgs/srv/set_io__type_support.cpp.o[0m
+[3.682s] [ 38%] [32mBuilding CXX object CMakeFiles/jaka_msgs__rosidl_typesupport_c.dir/rosidl_typesupport_c/jaka_msgs/srv/get_io__type_support.cpp.o[0m
+[3.682s] [ 39%] [32mBuilding CXX object CMakeFiles/jaka_msgs__rosidl_typesupport_c.dir/rosidl_typesupport_c/jaka_msgs/srv/clear_error__type_support.cpp.o[0m
+[3.687s] [ 40%] [32mBuilding CXX object CMakeFiles/jaka_msgs__rosidl_typesupport_c.dir/rosidl_typesupport_c/jaka_msgs/srv/get_fk__type_support.cpp.o[0m
+[3.697s] [ 41%] [32mBuilding CXX object CMakeFiles/jaka_msgs__rosidl_typesupport_introspection_cpp.dir/rosidl_typesupport_introspection_cpp/jaka_msgs/srv/detail/servo_move__type_support.cpp.o[0m
+[3.697s] [ 42%] [32mBuilding CXX object CMakeFiles/jaka_msgs__rosidl_typesupport_c.dir/rosidl_typesupport_c/jaka_msgs/srv/get_ik__type_support.cpp.o[0m
+[3.717s] [ 43%] [32mBuilding CXX object CMakeFiles/jaka_msgs__rosidl_typesupport_introspection_cpp.dir/rosidl_typesupport_introspection_cpp/jaka_msgs/srv/detail/set_tcp_frame__type_support.cpp.o[0m
+[3.717s] [ 43%] [32mBuilding CXX object CMakeFiles/jaka_msgs__rosidl_typesupport_introspection_cpp.dir/rosidl_typesupport_introspection_cpp/jaka_msgs/srv/detail/set_user_frame__type_support.cpp.o[0m
+[3.737s] [ 44%] [32mBuilding CXX object CMakeFiles/jaka_msgs__rosidl_typesupport_introspection_cpp.dir/rosidl_typesupport_introspection_cpp/jaka_msgs/srv/detail/set_payload__type_support.cpp.o[0m
+[3.739s] [ 44%] [32m[1mLinking CXX shared library libjaka_msgs__rosidl_typesupport_c.so[0m
+[3.740s] [ 45%] [32mBuilding CXX object CMakeFiles/jaka_msgs__rosidl_typesupport_introspection_cpp.dir/rosidl_typesupport_introspection_cpp/jaka_msgs/srv/detail/set_collision__type_support.cpp.o[0m
+[3.751s] [ 46%] [32mBuilding CXX object CMakeFiles/jaka_msgs__rosidl_typesupport_introspection_cpp.dir/rosidl_typesupport_introspection_cpp/jaka_msgs/srv/detail/set_io__type_support.cpp.o[0m
+[3.758s] [ 47%] [32mBuilding CXX object CMakeFiles/jaka_msgs__rosidl_typesupport_introspection_cpp.dir/rosidl_typesupport_introspection_cpp/jaka_msgs/srv/detail/get_io__type_support.cpp.o[0m
+[3.776s] [ 47%] [32mBuilding C object CMakeFiles/jaka_msgs__rosidl_typesupport_introspection_c.dir/rosidl_typesupport_introspection_c/jaka_msgs/msg/detail/robot_msg__type_support.c.o[0m
+[3.807s] [ 48%] [32mBuilding C object CMakeFiles/jaka_msgs__rosidl_typesupport_introspection_c.dir/rosidl_typesupport_introspection_c/jaka_msgs/srv/detail/move__type_support.c.o[0m
+[3.835s] [ 48%] Built target jaka_msgs__rosidl_typesupport_c
+[3.848s] [ 49%] [32mBuilding C object CMakeFiles/jaka_msgs__rosidl_typesupport_introspection_c.dir/rosidl_typesupport_introspection_c/jaka_msgs/srv/detail/servo_move_enable__type_support.c.o[0m
+[3.905s] [ 50%] [32mBuilding C object CMakeFiles/jaka_msgs__rosidl_typesupport_introspection_c.dir/rosidl_typesupport_introspection_c/jaka_msgs/srv/detail/servo_move__type_support.c.o[0m
+[3.911s] [ 50%] [32mBuilding CXX object CMakeFiles/jaka_msgs__rosidl_typesupport_introspection_cpp.dir/rosidl_typesupport_introspection_cpp/jaka_msgs/srv/detail/clear_error__type_support.cpp.o[0m
+[3.911s] [ 51%] [32m[1mLinking CXX shared library libjaka_msgs__rosidl_typesupport_cpp.so[0m
+[3.917s] [ 52%] [32mBuilding CXX object CMakeFiles/jaka_msgs__rosidl_typesupport_introspection_cpp.dir/rosidl_typesupport_introspection_cpp/jaka_msgs/srv/detail/get_fk__type_support.cpp.o[0m
+[3.960s] [ 52%] [32mBuilding C object CMakeFiles/jaka_msgs__rosidl_typesupport_introspection_c.dir/rosidl_typesupport_introspection_c/jaka_msgs/srv/detail/set_tcp_frame__type_support.c.o[0m
+[3.996s] [ 52%] Built target jaka_msgs__rosidl_typesupport_cpp
+[4.014s] [ 53%] [32mBuilding CXX object CMakeFiles/jaka_msgs__rosidl_typesupport_introspection_cpp.dir/rosidl_typesupport_introspection_cpp/jaka_msgs/srv/detail/get_ik__type_support.cpp.o[0m
+[4.027s] [ 54%] [32mBuilding C object CMakeFiles/jaka_msgs__rosidl_typesupport_introspection_c.dir/rosidl_typesupport_introspection_c/jaka_msgs/srv/detail/set_user_frame__type_support.c.o[0m
+[4.053s] [ 55%] [32mBuilding CXX object CMakeFiles/jaka_msgs__rosidl_typesupport_fastrtps_cpp.dir/rosidl_typesupport_fastrtps_cpp/jaka_msgs/msg/detail/dds_fastrtps/robot_msg__type_support.cpp.o[0m
+[4.075s] [ 56%] [32mBuilding C object CMakeFiles/jaka_msgs__rosidl_typesupport_introspection_c.dir/rosidl_typesupport_introspection_c/jaka_msgs/srv/detail/set_payload__type_support.c.o[0m
+[4.107s] [ 56%] [32mBuilding CXX object CMakeFiles/jaka_msgs__rosidl_typesupport_fastrtps_c.dir/rosidl_typesupport_fastrtps_c/jaka_msgs/msg/detail/robot_msg__type_support_c.cpp.o[0m
+[4.120s] [ 57%] [32mBuilding C object CMakeFiles/jaka_msgs__rosidl_typesupport_introspection_c.dir/rosidl_typesupport_introspection_c/jaka_msgs/srv/detail/set_collision__type_support.c.o[0m
+[4.123s] [ 58%] [32mBuilding C object CMakeFiles/jaka_msgs__rosidl_typesupport_introspection_c.dir/rosidl_typesupport_introspection_c/jaka_msgs/srv/detail/set_io__type_support.c.o[0m
+[4.147s] [ 58%] [32mBuilding C object CMakeFiles/jaka_msgs__rosidl_typesupport_introspection_c.dir/rosidl_typesupport_introspection_c/jaka_msgs/srv/detail/get_io__type_support.c.o[0m
+[4.154s] [ 58%] [32mBuilding CXX object CMakeFiles/jaka_msgs__rosidl_typesupport_fastrtps_cpp.dir/rosidl_typesupport_fastrtps_cpp/jaka_msgs/srv/detail/dds_fastrtps/move__type_support.cpp.o[0m
+[4.166s] [ 59%] [32mBuilding CXX object CMakeFiles/jaka_msgs__rosidl_typesupport_fastrtps_cpp.dir/rosidl_typesupport_fastrtps_cpp/jaka_msgs/srv/detail/dds_fastrtps/servo_move_enable__type_support.cpp.o[0m
+[4.166s] [ 60%] [32mBuilding CXX object CMakeFiles/jaka_msgs__rosidl_typesupport_fastrtps_c.dir/rosidl_typesupport_fastrtps_c/jaka_msgs/srv/detail/move__type_support_c.cpp.o[0m
+[4.169s] [ 61%] [32mBuilding CXX object CMakeFiles/jaka_msgs__rosidl_typesupport_fastrtps_c.dir/rosidl_typesupport_fastrtps_c/jaka_msgs/srv/detail/servo_move_enable__type_support_c.cpp.o[0m
+[4.203s] [ 62%] [32mBuilding CXX object CMakeFiles/jaka_msgs__rosidl_typesupport_fastrtps_cpp.dir/rosidl_typesupport_fastrtps_cpp/jaka_msgs/srv/detail/dds_fastrtps/servo_move__type_support.cpp.o[0m
+[4.211s] [ 63%] [32mBuilding C object CMakeFiles/jaka_msgs__rosidl_typesupport_introspection_c.dir/rosidl_typesupport_introspection_c/jaka_msgs/srv/detail/clear_error__type_support.c.o[0m
+[4.217s] [ 64%] [32mBuilding CXX object CMakeFiles/jaka_msgs__rosidl_typesupport_fastrtps_cpp.dir/rosidl_typesupport_fastrtps_cpp/jaka_msgs/srv/detail/dds_fastrtps/set_tcp_frame__type_support.cpp.o[0m
+[4.247s] [ 65%] [32mBuilding C object CMakeFiles/jaka_msgs__rosidl_typesupport_introspection_c.dir/rosidl_typesupport_introspection_c/jaka_msgs/srv/detail/get_fk__type_support.c.o[0m
+[4.263s] [ 66%] [32mBuilding CXX object CMakeFiles/jaka_msgs__rosidl_typesupport_fastrtps_c.dir/rosidl_typesupport_fastrtps_c/jaka_msgs/srv/detail/servo_move__type_support_c.cpp.o[0m
+[4.265s] [ 66%] [32mBuilding CXX object CMakeFiles/jaka_msgs__rosidl_typesupport_fastrtps_c.dir/rosidl_typesupport_fastrtps_c/jaka_msgs/srv/detail/set_tcp_frame__type_support_c.cpp.o[0m
+[4.281s] [ 66%] [32mBuilding CXX object CMakeFiles/jaka_msgs__rosidl_typesupport_fastrtps_cpp.dir/rosidl_typesupport_fastrtps_cpp/jaka_msgs/srv/detail/dds_fastrtps/set_user_frame__type_support.cpp.o[0m
+[4.283s] [ 67%] [32mBuilding C object CMakeFiles/jaka_msgs__rosidl_typesupport_introspection_c.dir/rosidl_typesupport_introspection_c/jaka_msgs/srv/detail/get_ik__type_support.c.o[0m
+[4.287s] [ 68%] [32mBuilding CXX object CMakeFiles/jaka_msgs__rosidl_typesupport_fastrtps_c.dir/rosidl_typesupport_fastrtps_c/jaka_msgs/srv/detail/set_user_frame__type_support_c.cpp.o[0m
+[4.328s] [ 68%] [32m[1mLinking C shared library libjaka_msgs__rosidl_typesupport_introspection_c.so[0m
+[4.389s] [ 68%] Built target jaka_msgs__rosidl_typesupport_introspection_c
+[4.403s] [ 69%] [32mBuilding CXX object CMakeFiles/jaka_msgs__rosidl_typesupport_fastrtps_cpp.dir/rosidl_typesupport_fastrtps_cpp/jaka_msgs/srv/detail/dds_fastrtps/set_payload__type_support.cpp.o[0m
+[4.407s] [ 70%] [32mBuilding CXX object CMakeFiles/jaka_msgs__rosidl_typesupport_fastrtps_cpp.dir/rosidl_typesupport_fastrtps_cpp/jaka_msgs/srv/detail/dds_fastrtps/set_collision__type_support.cpp.o[0m
+[4.420s] [ 71%] [32mBuilding CXX object CMakeFiles/jaka_msgs__rosidl_typesupport_fastrtps_cpp.dir/rosidl_typesupport_fastrtps_cpp/jaka_msgs/srv/detail/dds_fastrtps/set_io__type_support.cpp.o[0m
+[4.438s] [ 72%] [32mBuilding CXX object CMakeFiles/jaka_msgs__rosidl_typesupport_fastrtps_cpp.dir/rosidl_typesupport_fastrtps_cpp/jaka_msgs/srv/detail/dds_fastrtps/get_io__type_support.cpp.o[0m
+[4.538s] [ 72%] [32mBuilding CXX object CMakeFiles/jaka_msgs__rosidl_typesupport_fastrtps_cpp.dir/rosidl_typesupport_fastrtps_cpp/jaka_msgs/srv/detail/dds_fastrtps/clear_error__type_support.cpp.o[0m
+[4.540s] [ 73%] [32m[1mLinking CXX shared library libjaka_msgs__rosidl_typesupport_introspection_cpp.so[0m
+[4.556s] [ 74%] [32mBuilding CXX object CMakeFiles/jaka_msgs__rosidl_typesupport_fastrtps_c.dir/rosidl_typesupport_fastrtps_c/jaka_msgs/srv/detail/set_payload__type_support_c.cpp.o[0m
+[4.575s] [ 75%] [32mBuilding CXX object CMakeFiles/jaka_msgs__rosidl_typesupport_fastrtps_cpp.dir/rosidl_typesupport_fastrtps_cpp/jaka_msgs/srv/detail/dds_fastrtps/get_fk__type_support.cpp.o[0m
+[4.602s] [ 76%] [32mBuilding CXX object CMakeFiles/jaka_msgs__rosidl_typesupport_fastrtps_c.dir/rosidl_typesupport_fastrtps_c/jaka_msgs/srv/detail/set_collision__type_support_c.cpp.o[0m
+[4.634s] [ 77%] [32mBuilding CXX object CMakeFiles/jaka_msgs__rosidl_typesupport_fastrtps_cpp.dir/rosidl_typesupport_fastrtps_cpp/jaka_msgs/srv/detail/dds_fastrtps/get_ik__type_support.cpp.o[0m
+[4.636s] [ 77%] Built target jaka_msgs__rosidl_typesupport_introspection_cpp
+[4.644s] [ 78%] [32mBuilding CXX object CMakeFiles/jaka_msgs__rosidl_typesupport_fastrtps_c.dir/rosidl_typesupport_fastrtps_c/jaka_msgs/srv/detail/set_io__type_support_c.cpp.o[0m
+[4.656s] [ 78%] [32mBuilding CXX object CMakeFiles/jaka_msgs__rosidl_typesupport_fastrtps_c.dir/rosidl_typesupport_fastrtps_c/jaka_msgs/srv/detail/get_io__type_support_c.cpp.o[0m
+[4.662s] [ 79%] [32mBuilding CXX object CMakeFiles/jaka_msgs__rosidl_typesupport_fastrtps_c.dir/rosidl_typesupport_fastrtps_c/jaka_msgs/srv/detail/clear_error__type_support_c.cpp.o[0m
+[4.703s] [ 80%] [32mBuilding CXX object CMakeFiles/jaka_msgs__rosidl_typesupport_fastrtps_c.dir/rosidl_typesupport_fastrtps_c/jaka_msgs/srv/detail/get_fk__type_support_c.cpp.o[0m
+[4.703s] [ 81%] [32mBuilding CXX object CMakeFiles/jaka_msgs__rosidl_typesupport_fastrtps_c.dir/rosidl_typesupport_fastrtps_c/jaka_msgs/srv/detail/get_ik__type_support_c.cpp.o[0m
+[4.958s] [ 82%] [32m[1mLinking CXX shared library libjaka_msgs__rosidl_typesupport_fastrtps_cpp.so[0m
+[5.002s] [ 82%] [32m[1mLinking CXX shared library libjaka_msgs__rosidl_typesupport_fastrtps_c.so[0m
+[5.005s] [ 82%] Built target jaka_msgs__rosidl_typesupport_fastrtps_cpp
+[5.052s] [ 82%] Built target jaka_msgs__rosidl_typesupport_fastrtps_c
+[5.065s] [ 82%] Built target jaka_msgs
+[5.086s] [ 83%] [34m[1mGenerating Python code for ROS interfaces[0m
+[6.131s] [ 83%] Built target jaka_msgs__py
+[6.149s] [ 83%] [32mBuilding C object CMakeFiles/jaka_msgs__rosidl_generator_py.dir/rosidl_generator_py/jaka_msgs/srv/_move_s.c.o[0m
+[6.149s] [ 84%] [32mBuilding C object CMakeFiles/jaka_msgs__rosidl_generator_py.dir/rosidl_generator_py/jaka_msgs/srv/_servo_move_s.c.o[0m
+[6.149s] [ 85%] [32mBuilding C object CMakeFiles/jaka_msgs__rosidl_generator_py.dir/rosidl_generator_py/jaka_msgs/srv/_set_payload_s.c.o[0m
+[6.150s] [ 85%] [32mBuilding C object CMakeFiles/jaka_msgs__rosidl_generator_py.dir/rosidl_generator_py/jaka_msgs/srv/_set_user_frame_s.c.o[0m
+[6.150s] [ 87%] [32mBuilding C object CMakeFiles/jaka_msgs__rosidl_generator_py.dir/rosidl_generator_py/jaka_msgs/msg/_robot_msg_s.c.o[0m
+[6.150s] [ 87%] [32mBuilding C object CMakeFiles/jaka_msgs__rosidl_generator_py.dir/rosidl_generator_py/jaka_msgs/srv/_set_tcp_frame_s.c.o[0m
+[6.150s] [ 88%] [32mBuilding C object CMakeFiles/jaka_msgs__rosidl_generator_py.dir/rosidl_generator_py/jaka_msgs/srv/_set_collision_s.c.o[0m
+[6.151s] [ 89%] [32mBuilding C object CMakeFiles/jaka_msgs__rosidl_generator_py.dir/rosidl_generator_py/jaka_msgs/srv/_servo_move_enable_s.c.o[0m
+[6.151s] [ 90%] [32mBuilding C object CMakeFiles/jaka_msgs__rosidl_generator_py.dir/rosidl_generator_py/jaka_msgs/srv/_get_io_s.c.o[0m
+[6.151s] [ 90%] [32mBuilding C object CMakeFiles/jaka_msgs__rosidl_generator_py.dir/rosidl_generator_py/jaka_msgs/srv/_clear_error_s.c.o[0m
+[6.151s] [ 91%] [32mBuilding C object CMakeFiles/jaka_msgs__rosidl_generator_py.dir/rosidl_generator_py/jaka_msgs/srv/_get_fk_s.c.o[0m
+[6.152s] [ 92%] [32mBuilding C object CMakeFiles/jaka_msgs__rosidl_generator_py.dir/rosidl_generator_py/jaka_msgs/srv/_get_ik_s.c.o[0m
+[6.153s] [ 93%] [32mBuilding C object CMakeFiles/jaka_msgs__rosidl_generator_py.dir/rosidl_generator_py/jaka_msgs/srv/_set_io_s.c.o[0m
+[6.253s] [ 94%] [32m[1mLinking C shared library rosidl_generator_py/jaka_msgs/libjaka_msgs__rosidl_generator_py.so[0m
+[6.284s] [ 94%] Built target jaka_msgs__rosidl_generator_py
+[6.297s] [ 95%] [32mBuilding C object CMakeFiles/jaka_msgs__rosidl_typesupport_fastrtps_c__pyext.dir/rosidl_generator_py/jaka_msgs/_jaka_msgs_s.ep.rosidl_typesupport_fastrtps_c.c.o[0m
+[6.298s] [ 96%] [32mBuilding C object CMakeFiles/jaka_msgs__rosidl_typesupport_c__pyext.dir/rosidl_generator_py/jaka_msgs/_jaka_msgs_s.ep.rosidl_typesupport_c.c.o[0m
+[6.300s] [ 97%] [32mBuilding C object CMakeFiles/jaka_msgs__rosidl_typesupport_introspection_c__pyext.dir/rosidl_generator_py/jaka_msgs/_jaka_msgs_s.ep.rosidl_typesupport_introspection_c.c.o[0m
+[6.395s] [ 98%] [32m[1mLinking C shared library rosidl_generator_py/jaka_msgs/jaka_msgs_s__rosidl_typesupport_c.cpython-310-x86_64-linux-gnu.so[0m
+[6.396s] [ 99%] [32m[1mLinking C shared library rosidl_generator_py/jaka_msgs/jaka_msgs_s__rosidl_typesupport_fastrtps_c.cpython-310-x86_64-linux-gnu.so[0m
+[6.397s] [100%] [32m[1mLinking C shared library rosidl_generator_py/jaka_msgs/jaka_msgs_s__rosidl_typesupport_introspection_c.cpython-310-x86_64-linux-gnu.so[0m
+[6.419s] [100%] Built target jaka_msgs__rosidl_typesupport_c__pyext
+[6.424s] [100%] Built target jaka_msgs__rosidl_typesupport_fastrtps_c__pyext
+[6.424s] [100%] Built target jaka_msgs__rosidl_typesupport_introspection_c__pyext
+[6.433s] Invoked command in '/home/newtonrattapong/jaka_ws/build/jaka_msgs' returned '0': CMAKE_PREFIX_PATH=/opt/ros/humble /usr/bin/cmake --build /home/newtonrattapong/jaka_ws/build/jaka_msgs -- -j16 -l16
+[6.434s] Invoking command in '/home/newtonrattapong/jaka_ws/build/jaka_msgs': CMAKE_PREFIX_PATH=/opt/ros/humble /usr/bin/cmake --install /home/newtonrattapong/jaka_ws/build/jaka_msgs
+[6.438s] -- Install configuration: ""
+[6.439s] -- Execute custom install script
+[6.439s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_msgs/share/ament_index/resource_index/rosidl_interfaces/jaka_msgs
+[6.444s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_msgs/include/jaka_msgs/jaka_msgs/msg/detail/robot_msg__functions.h
+[6.449s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_msgs/include/jaka_msgs/jaka_msgs/msg/detail/robot_msg__struct.h
+[6.454s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_msgs/include/jaka_msgs/jaka_msgs/msg/detail/robot_msg__type_support.h
+[6.459s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_msgs/include/jaka_msgs/jaka_msgs/msg/robot_msg.h
+[6.464s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_msgs/include/jaka_msgs/jaka_msgs/msg/rosidl_generator_c__visibility_control.h
+[6.469s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_msgs/include/jaka_msgs/jaka_msgs/srv/clear_error.h
+[6.474s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_msgs/include/jaka_msgs/jaka_msgs/srv/detail/clear_error__functions.h
+[6.480s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_msgs/include/jaka_msgs/jaka_msgs/srv/detail/clear_error__struct.h
+[6.485s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_msgs/include/jaka_msgs/jaka_msgs/srv/detail/clear_error__type_support.h
+[6.490s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_msgs/include/jaka_msgs/jaka_msgs/srv/detail/get_fk__functions.h
+[6.497s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_msgs/include/jaka_msgs/jaka_msgs/srv/detail/get_fk__struct.h
+[6.501s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_msgs/include/jaka_msgs/jaka_msgs/srv/detail/get_fk__type_support.h
+[6.507s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_msgs/include/jaka_msgs/jaka_msgs/srv/detail/get_ik__functions.h
+[6.511s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_msgs/include/jaka_msgs/jaka_msgs/srv/detail/get_ik__struct.h
+[6.516s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_msgs/include/jaka_msgs/jaka_msgs/srv/detail/get_ik__type_support.h
+[6.522s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_msgs/include/jaka_msgs/jaka_msgs/srv/detail/get_io__functions.h
+[6.527s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_msgs/include/jaka_msgs/jaka_msgs/srv/detail/get_io__struct.h
+[6.532s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_msgs/include/jaka_msgs/jaka_msgs/srv/detail/get_io__type_support.h
+[6.538s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_msgs/include/jaka_msgs/jaka_msgs/srv/detail/move__functions.h
+[6.544s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_msgs/include/jaka_msgs/jaka_msgs/srv/detail/move__struct.h
+[6.549s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_msgs/include/jaka_msgs/jaka_msgs/srv/detail/move__type_support.h
+[6.553s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_msgs/include/jaka_msgs/jaka_msgs/srv/detail/servo_move__functions.h
+[6.557s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_msgs/include/jaka_msgs/jaka_msgs/srv/detail/servo_move__struct.h
+[6.563s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_msgs/include/jaka_msgs/jaka_msgs/srv/detail/servo_move__type_support.h
+[6.568s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_msgs/include/jaka_msgs/jaka_msgs/srv/detail/servo_move_enable__functions.h
+[6.572s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_msgs/include/jaka_msgs/jaka_msgs/srv/detail/servo_move_enable__struct.h
+[6.579s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_msgs/include/jaka_msgs/jaka_msgs/srv/detail/servo_move_enable__type_support.h
+[6.586s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_msgs/include/jaka_msgs/jaka_msgs/srv/detail/set_collision__functions.h
+[6.592s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_msgs/include/jaka_msgs/jaka_msgs/srv/detail/set_collision__struct.h
+[6.598s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_msgs/include/jaka_msgs/jaka_msgs/srv/detail/set_collision__type_support.h
+[6.606s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_msgs/include/jaka_msgs/jaka_msgs/srv/detail/set_io__functions.h
+[6.613s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_msgs/include/jaka_msgs/jaka_msgs/srv/detail/set_io__struct.h
+[6.620s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_msgs/include/jaka_msgs/jaka_msgs/srv/detail/set_io__type_support.h
+[6.629s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_msgs/include/jaka_msgs/jaka_msgs/srv/detail/set_payload__functions.h
+[6.637s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_msgs/include/jaka_msgs/jaka_msgs/srv/detail/set_payload__struct.h
+[6.644s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_msgs/include/jaka_msgs/jaka_msgs/srv/detail/set_payload__type_support.h
+[6.649s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_msgs/include/jaka_msgs/jaka_msgs/srv/detail/set_tcp_frame__functions.h
+[6.654s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_msgs/include/jaka_msgs/jaka_msgs/srv/detail/set_tcp_frame__struct.h
+[6.659s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_msgs/include/jaka_msgs/jaka_msgs/srv/detail/set_tcp_frame__type_support.h
+[6.664s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_msgs/include/jaka_msgs/jaka_msgs/srv/detail/set_user_frame__functions.h
+[6.669s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_msgs/include/jaka_msgs/jaka_msgs/srv/detail/set_user_frame__struct.h
+[6.675s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_msgs/include/jaka_msgs/jaka_msgs/srv/detail/set_user_frame__type_support.h
+[6.680s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_msgs/include/jaka_msgs/jaka_msgs/srv/get_fk.h
+[6.685s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_msgs/include/jaka_msgs/jaka_msgs/srv/get_ik.h
+[6.691s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_msgs/include/jaka_msgs/jaka_msgs/srv/get_io.h
+[6.696s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_msgs/include/jaka_msgs/jaka_msgs/srv/move.h
+[6.701s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_msgs/include/jaka_msgs/jaka_msgs/srv/servo_move.h
+[6.707s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_msgs/include/jaka_msgs/jaka_msgs/srv/servo_move_enable.h
+[6.712s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_msgs/include/jaka_msgs/jaka_msgs/srv/set_collision.h
+[6.717s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_msgs/include/jaka_msgs/jaka_msgs/srv/set_io.h
+[6.723s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_msgs/include/jaka_msgs/jaka_msgs/srv/set_payload.h
+[6.728s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_msgs/include/jaka_msgs/jaka_msgs/srv/set_tcp_frame.h
+[6.733s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_msgs/include/jaka_msgs/jaka_msgs/srv/set_user_frame.h
+[6.739s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_msgs/share/jaka_msgs/environment/library_path.sh
+[6.744s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_msgs/share/jaka_msgs/environment/library_path.dsv
+[6.749s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_msgs/include/jaka_msgs/jaka_msgs/msg/detail/robot_msg__rosidl_typesupport_fastrtps_c.h
+[6.755s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_msgs/include/jaka_msgs/jaka_msgs/msg/rosidl_typesupport_fastrtps_c__visibility_control.h
+[6.759s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_msgs/include/jaka_msgs/jaka_msgs/srv/detail/clear_error__rosidl_typesupport_fastrtps_c.h
+[6.764s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_msgs/include/jaka_msgs/jaka_msgs/srv/detail/get_fk__rosidl_typesupport_fastrtps_c.h
+[6.769s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_msgs/include/jaka_msgs/jaka_msgs/srv/detail/get_ik__rosidl_typesupport_fastrtps_c.h
+[6.774s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_msgs/include/jaka_msgs/jaka_msgs/srv/detail/get_io__rosidl_typesupport_fastrtps_c.h
+[6.779s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_msgs/include/jaka_msgs/jaka_msgs/srv/detail/move__rosidl_typesupport_fastrtps_c.h
+[6.784s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_msgs/include/jaka_msgs/jaka_msgs/srv/detail/servo_move__rosidl_typesupport_fastrtps_c.h
+[6.789s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_msgs/include/jaka_msgs/jaka_msgs/srv/detail/servo_move_enable__rosidl_typesupport_fastrtps_c.h
+[6.794s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_msgs/include/jaka_msgs/jaka_msgs/srv/detail/set_collision__rosidl_typesupport_fastrtps_c.h
+[6.798s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_msgs/include/jaka_msgs/jaka_msgs/srv/detail/set_io__rosidl_typesupport_fastrtps_c.h
+[6.804s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_msgs/include/jaka_msgs/jaka_msgs/srv/detail/set_payload__rosidl_typesupport_fastrtps_c.h
+[6.808s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_msgs/include/jaka_msgs/jaka_msgs/srv/detail/set_tcp_frame__rosidl_typesupport_fastrtps_c.h
+[6.813s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_msgs/include/jaka_msgs/jaka_msgs/srv/detail/set_user_frame__rosidl_typesupport_fastrtps_c.h
+[6.819s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_msgs/include/jaka_msgs/jaka_msgs/msg/detail/robot_msg__rosidl_typesupport_introspection_c.h
+[6.824s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_msgs/include/jaka_msgs/jaka_msgs/msg/rosidl_typesupport_introspection_c__visibility_control.h
+[6.830s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_msgs/include/jaka_msgs/jaka_msgs/srv/detail/clear_error__rosidl_typesupport_introspection_c.h
+[6.836s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_msgs/include/jaka_msgs/jaka_msgs/srv/detail/get_fk__rosidl_typesupport_introspection_c.h
+[6.843s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_msgs/include/jaka_msgs/jaka_msgs/srv/detail/get_ik__rosidl_typesupport_introspection_c.h
+[6.851s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_msgs/include/jaka_msgs/jaka_msgs/srv/detail/get_io__rosidl_typesupport_introspection_c.h
+[6.857s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_msgs/include/jaka_msgs/jaka_msgs/srv/detail/move__rosidl_typesupport_introspection_c.h
+[6.865s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_msgs/include/jaka_msgs/jaka_msgs/srv/detail/servo_move__rosidl_typesupport_introspection_c.h
+[6.870s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_msgs/include/jaka_msgs/jaka_msgs/srv/detail/servo_move_enable__rosidl_typesupport_introspection_c.h
+[6.875s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_msgs/include/jaka_msgs/jaka_msgs/srv/detail/set_collision__rosidl_typesupport_introspection_c.h
+[6.881s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_msgs/include/jaka_msgs/jaka_msgs/srv/detail/set_io__rosidl_typesupport_introspection_c.h
+[6.887s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_msgs/include/jaka_msgs/jaka_msgs/srv/detail/set_payload__rosidl_typesupport_introspection_c.h
+[6.891s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_msgs/include/jaka_msgs/jaka_msgs/srv/detail/set_tcp_frame__rosidl_typesupport_introspection_c.h
+[6.898s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_msgs/include/jaka_msgs/jaka_msgs/srv/detail/set_user_frame__rosidl_typesupport_introspection_c.h
+[6.903s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_msgs/include/jaka_msgs/jaka_msgs/msg/detail/robot_msg__builder.hpp
+[6.908s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_msgs/include/jaka_msgs/jaka_msgs/msg/detail/robot_msg__struct.hpp
+[6.914s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_msgs/include/jaka_msgs/jaka_msgs/msg/detail/robot_msg__traits.hpp
+[6.919s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_msgs/include/jaka_msgs/jaka_msgs/msg/detail/robot_msg__type_support.hpp
+[6.924s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_msgs/include/jaka_msgs/jaka_msgs/msg/robot_msg.hpp
+[6.930s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_msgs/include/jaka_msgs/jaka_msgs/msg/rosidl_generator_cpp__visibility_control.hpp
+[6.936s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_msgs/include/jaka_msgs/jaka_msgs/srv/clear_error.hpp
+[6.941s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_msgs/include/jaka_msgs/jaka_msgs/srv/detail/clear_error__builder.hpp
+[6.948s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_msgs/include/jaka_msgs/jaka_msgs/srv/detail/clear_error__struct.hpp
+[6.953s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_msgs/include/jaka_msgs/jaka_msgs/srv/detail/clear_error__traits.hpp
+[6.959s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_msgs/include/jaka_msgs/jaka_msgs/srv/detail/clear_error__type_support.hpp
+[6.967s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_msgs/include/jaka_msgs/jaka_msgs/srv/detail/get_fk__builder.hpp
+[6.972s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_msgs/include/jaka_msgs/jaka_msgs/srv/detail/get_fk__struct.hpp
+[6.979s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_msgs/include/jaka_msgs/jaka_msgs/srv/detail/get_fk__traits.hpp
+[6.983s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_msgs/include/jaka_msgs/jaka_msgs/srv/detail/get_fk__type_support.hpp
+[6.988s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_msgs/include/jaka_msgs/jaka_msgs/srv/detail/get_ik__builder.hpp
+[6.994s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_msgs/include/jaka_msgs/jaka_msgs/srv/detail/get_ik__struct.hpp
+[6.999s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_msgs/include/jaka_msgs/jaka_msgs/srv/detail/get_ik__traits.hpp
+[7.004s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_msgs/include/jaka_msgs/jaka_msgs/srv/detail/get_ik__type_support.hpp
+[7.010s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_msgs/include/jaka_msgs/jaka_msgs/srv/detail/get_io__builder.hpp
+[7.015s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_msgs/include/jaka_msgs/jaka_msgs/srv/detail/get_io__struct.hpp
+[7.020s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_msgs/include/jaka_msgs/jaka_msgs/srv/detail/get_io__traits.hpp
+[7.026s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_msgs/include/jaka_msgs/jaka_msgs/srv/detail/get_io__type_support.hpp
+[7.031s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_msgs/include/jaka_msgs/jaka_msgs/srv/detail/move__builder.hpp
+[7.036s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_msgs/include/jaka_msgs/jaka_msgs/srv/detail/move__struct.hpp
+[7.042s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_msgs/include/jaka_msgs/jaka_msgs/srv/detail/move__traits.hpp
+[7.047s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_msgs/include/jaka_msgs/jaka_msgs/srv/detail/move__type_support.hpp
+[7.052s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_msgs/include/jaka_msgs/jaka_msgs/srv/detail/servo_move__builder.hpp
+[7.058s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_msgs/include/jaka_msgs/jaka_msgs/srv/detail/servo_move__struct.hpp
+[7.063s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_msgs/include/jaka_msgs/jaka_msgs/srv/detail/servo_move__traits.hpp
+[7.068s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_msgs/include/jaka_msgs/jaka_msgs/srv/detail/servo_move__type_support.hpp
+[7.074s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_msgs/include/jaka_msgs/jaka_msgs/srv/detail/servo_move_enable__builder.hpp
+[7.079s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_msgs/include/jaka_msgs/jaka_msgs/srv/detail/servo_move_enable__struct.hpp
+[7.084s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_msgs/include/jaka_msgs/jaka_msgs/srv/detail/servo_move_enable__traits.hpp
+[7.090s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_msgs/include/jaka_msgs/jaka_msgs/srv/detail/servo_move_enable__type_support.hpp
+[7.095s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_msgs/include/jaka_msgs/jaka_msgs/srv/detail/set_collision__builder.hpp
+[7.100s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_msgs/include/jaka_msgs/jaka_msgs/srv/detail/set_collision__struct.hpp
+[7.106s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_msgs/include/jaka_msgs/jaka_msgs/srv/detail/set_collision__traits.hpp
+[7.111s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_msgs/include/jaka_msgs/jaka_msgs/srv/detail/set_collision__type_support.hpp
+[7.116s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_msgs/include/jaka_msgs/jaka_msgs/srv/detail/set_io__builder.hpp
+[7.122s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_msgs/include/jaka_msgs/jaka_msgs/srv/detail/set_io__struct.hpp
+[7.127s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_msgs/include/jaka_msgs/jaka_msgs/srv/detail/set_io__traits.hpp
+[7.132s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_msgs/include/jaka_msgs/jaka_msgs/srv/detail/set_io__type_support.hpp
+[7.138s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_msgs/include/jaka_msgs/jaka_msgs/srv/detail/set_payload__builder.hpp
+[7.143s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_msgs/include/jaka_msgs/jaka_msgs/srv/detail/set_payload__struct.hpp
+[7.148s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_msgs/include/jaka_msgs/jaka_msgs/srv/detail/set_payload__traits.hpp
+[7.154s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_msgs/include/jaka_msgs/jaka_msgs/srv/detail/set_payload__type_support.hpp
+[7.161s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_msgs/include/jaka_msgs/jaka_msgs/srv/detail/set_tcp_frame__builder.hpp
+[7.165s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_msgs/include/jaka_msgs/jaka_msgs/srv/detail/set_tcp_frame__struct.hpp
+[7.171s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_msgs/include/jaka_msgs/jaka_msgs/srv/detail/set_tcp_frame__traits.hpp
+[7.176s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_msgs/include/jaka_msgs/jaka_msgs/srv/detail/set_tcp_frame__type_support.hpp
+[7.181s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_msgs/include/jaka_msgs/jaka_msgs/srv/detail/set_user_frame__builder.hpp
+[7.187s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_msgs/include/jaka_msgs/jaka_msgs/srv/detail/set_user_frame__struct.hpp
+[7.192s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_msgs/include/jaka_msgs/jaka_msgs/srv/detail/set_user_frame__traits.hpp
+[7.196s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_msgs/include/jaka_msgs/jaka_msgs/srv/detail/set_user_frame__type_support.hpp
+[7.202s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_msgs/include/jaka_msgs/jaka_msgs/srv/get_fk.hpp
+[7.207s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_msgs/include/jaka_msgs/jaka_msgs/srv/get_ik.hpp
+[7.212s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_msgs/include/jaka_msgs/jaka_msgs/srv/get_io.hpp
+[7.218s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_msgs/include/jaka_msgs/jaka_msgs/srv/move.hpp
+[7.223s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_msgs/include/jaka_msgs/jaka_msgs/srv/servo_move.hpp
+[7.228s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_msgs/include/jaka_msgs/jaka_msgs/srv/servo_move_enable.hpp
+[7.232s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_msgs/include/jaka_msgs/jaka_msgs/srv/set_collision.hpp
+[7.238s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_msgs/include/jaka_msgs/jaka_msgs/srv/set_io.hpp
+[7.244s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_msgs/include/jaka_msgs/jaka_msgs/srv/set_payload.hpp
+[7.250s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_msgs/include/jaka_msgs/jaka_msgs/srv/set_tcp_frame.hpp
+[7.258s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_msgs/include/jaka_msgs/jaka_msgs/srv/set_user_frame.hpp
+[7.266s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_msgs/include/jaka_msgs/jaka_msgs/msg/detail/robot_msg__rosidl_typesupport_fastrtps_cpp.hpp
+[7.273s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_msgs/include/jaka_msgs/jaka_msgs/msg/rosidl_typesupport_fastrtps_cpp__visibility_control.h
+[7.280s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_msgs/include/jaka_msgs/jaka_msgs/srv/detail/clear_error__rosidl_typesupport_fastrtps_cpp.hpp
+[7.288s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_msgs/include/jaka_msgs/jaka_msgs/srv/detail/get_fk__rosidl_typesupport_fastrtps_cpp.hpp
+[7.295s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_msgs/include/jaka_msgs/jaka_msgs/srv/detail/get_ik__rosidl_typesupport_fastrtps_cpp.hpp
+[7.301s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_msgs/include/jaka_msgs/jaka_msgs/srv/detail/get_io__rosidl_typesupport_fastrtps_cpp.hpp
+[7.307s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_msgs/include/jaka_msgs/jaka_msgs/srv/detail/move__rosidl_typesupport_fastrtps_cpp.hpp
+[7.312s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_msgs/include/jaka_msgs/jaka_msgs/srv/detail/servo_move__rosidl_typesupport_fastrtps_cpp.hpp
+[7.318s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_msgs/include/jaka_msgs/jaka_msgs/srv/detail/servo_move_enable__rosidl_typesupport_fastrtps_cpp.hpp
+[7.323s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_msgs/include/jaka_msgs/jaka_msgs/srv/detail/set_collision__rosidl_typesupport_fastrtps_cpp.hpp
+[7.328s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_msgs/include/jaka_msgs/jaka_msgs/srv/detail/set_io__rosidl_typesupport_fastrtps_cpp.hpp
+[7.333s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_msgs/include/jaka_msgs/jaka_msgs/srv/detail/set_payload__rosidl_typesupport_fastrtps_cpp.hpp
+[7.339s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_msgs/include/jaka_msgs/jaka_msgs/srv/detail/set_tcp_frame__rosidl_typesupport_fastrtps_cpp.hpp
+[7.344s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_msgs/include/jaka_msgs/jaka_msgs/srv/detail/set_user_frame__rosidl_typesupport_fastrtps_cpp.hpp
+[7.350s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_msgs/include/jaka_msgs/jaka_msgs/msg/detail/robot_msg__rosidl_typesupport_introspection_cpp.hpp
+[7.356s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_msgs/include/jaka_msgs/jaka_msgs/srv/detail/clear_error__rosidl_typesupport_introspection_cpp.hpp
+[7.361s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_msgs/include/jaka_msgs/jaka_msgs/srv/detail/get_fk__rosidl_typesupport_introspection_cpp.hpp
+[7.366s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_msgs/include/jaka_msgs/jaka_msgs/srv/detail/get_ik__rosidl_typesupport_introspection_cpp.hpp
+[7.372s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_msgs/include/jaka_msgs/jaka_msgs/srv/detail/get_io__rosidl_typesupport_introspection_cpp.hpp
+[7.377s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_msgs/include/jaka_msgs/jaka_msgs/srv/detail/move__rosidl_typesupport_introspection_cpp.hpp
+[7.382s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_msgs/include/jaka_msgs/jaka_msgs/srv/detail/servo_move__rosidl_typesupport_introspection_cpp.hpp
+[7.389s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_msgs/include/jaka_msgs/jaka_msgs/srv/detail/servo_move_enable__rosidl_typesupport_introspection_cpp.hpp
+[7.393s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_msgs/include/jaka_msgs/jaka_msgs/srv/detail/set_collision__rosidl_typesupport_introspection_cpp.hpp
+[7.399s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_msgs/include/jaka_msgs/jaka_msgs/srv/detail/set_io__rosidl_typesupport_introspection_cpp.hpp
+[7.405s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_msgs/include/jaka_msgs/jaka_msgs/srv/detail/set_payload__rosidl_typesupport_introspection_cpp.hpp
+[7.410s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_msgs/include/jaka_msgs/jaka_msgs/srv/detail/set_tcp_frame__rosidl_typesupport_introspection_cpp.hpp
+[7.415s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_msgs/include/jaka_msgs/jaka_msgs/srv/detail/set_user_frame__rosidl_typesupport_introspection_cpp.hpp
+[7.421s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_msgs/share/jaka_msgs/environment/pythonpath.sh
+[7.425s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_msgs/share/jaka_msgs/environment/pythonpath.dsv
+[7.432s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_msgs/local/lib/python3.10/dist-packages/jaka_msgs-0.0.0-py3.10.egg-info/PKG-INFO
+[7.437s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_msgs/local/lib/python3.10/dist-packages/jaka_msgs-0.0.0-py3.10.egg-info/SOURCES.txt
+[7.444s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_msgs/local/lib/python3.10/dist-packages/jaka_msgs-0.0.0-py3.10.egg-info/dependency_links.txt
+[7.450s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_msgs/local/lib/python3.10/dist-packages/jaka_msgs-0.0.0-py3.10.egg-info/top_level.txt
+[7.455s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_msgs/local/lib/python3.10/dist-packages/jaka_msgs/__init__.py
+[7.460s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_msgs/local/lib/python3.10/dist-packages/jaka_msgs/_jaka_msgs_s.ep.rosidl_typesupport_c.c
+[7.465s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_msgs/local/lib/python3.10/dist-packages/jaka_msgs/_jaka_msgs_s.ep.rosidl_typesupport_fastrtps_c.c
+[7.470s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_msgs/local/lib/python3.10/dist-packages/jaka_msgs/_jaka_msgs_s.ep.rosidl_typesupport_introspection_c.c
+[7.475s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_msgs/local/lib/python3.10/dist-packages/jaka_msgs/jaka_msgs_s__rosidl_typesupport_c.cpython-310-x86_64-linux-gnu.so
+[7.480s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_msgs/local/lib/python3.10/dist-packages/jaka_msgs/jaka_msgs_s__rosidl_typesupport_fastrtps_c.cpython-310-x86_64-linux-gnu.so
+[7.486s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_msgs/local/lib/python3.10/dist-packages/jaka_msgs/jaka_msgs_s__rosidl_typesupport_introspection_c.cpython-310-x86_64-linux-gnu.so
+[7.490s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_msgs/local/lib/python3.10/dist-packages/jaka_msgs/libjaka_msgs__rosidl_generator_py.so
+[7.496s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_msgs/local/lib/python3.10/dist-packages/jaka_msgs/msg/__init__.py
+[7.502s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_msgs/local/lib/python3.10/dist-packages/jaka_msgs/msg/_robot_msg.py
+[7.506s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_msgs/local/lib/python3.10/dist-packages/jaka_msgs/msg/_robot_msg_s.c
+[7.511s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_msgs/local/lib/python3.10/dist-packages/jaka_msgs/srv/__init__.py
+[7.517s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_msgs/local/lib/python3.10/dist-packages/jaka_msgs/srv/_clear_error.py
+[7.522s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_msgs/local/lib/python3.10/dist-packages/jaka_msgs/srv/_clear_error_s.c
+[7.528s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_msgs/local/lib/python3.10/dist-packages/jaka_msgs/srv/_get_fk.py
+[7.533s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_msgs/local/lib/python3.10/dist-packages/jaka_msgs/srv/_get_fk_s.c
+[7.538s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_msgs/local/lib/python3.10/dist-packages/jaka_msgs/srv/_get_ik.py
+[7.544s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_msgs/local/lib/python3.10/dist-packages/jaka_msgs/srv/_get_ik_s.c
+[7.549s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_msgs/local/lib/python3.10/dist-packages/jaka_msgs/srv/_get_io.py
+[7.554s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_msgs/local/lib/python3.10/dist-packages/jaka_msgs/srv/_get_io_s.c
+[7.559s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_msgs/local/lib/python3.10/dist-packages/jaka_msgs/srv/_move.py
+[7.565s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_msgs/local/lib/python3.10/dist-packages/jaka_msgs/srv/_move_s.c
+[7.570s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_msgs/local/lib/python3.10/dist-packages/jaka_msgs/srv/_servo_move.py
+[7.574s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_msgs/local/lib/python3.10/dist-packages/jaka_msgs/srv/_servo_move_enable.py
+[7.579s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_msgs/local/lib/python3.10/dist-packages/jaka_msgs/srv/_servo_move_enable_s.c
+[7.583s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_msgs/local/lib/python3.10/dist-packages/jaka_msgs/srv/_servo_move_s.c
+[7.589s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_msgs/local/lib/python3.10/dist-packages/jaka_msgs/srv/_set_collision.py
+[7.593s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_msgs/local/lib/python3.10/dist-packages/jaka_msgs/srv/_set_collision_s.c
+[7.598s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_msgs/local/lib/python3.10/dist-packages/jaka_msgs/srv/_set_io.py
+[7.602s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_msgs/local/lib/python3.10/dist-packages/jaka_msgs/srv/_set_io_s.c
+[7.608s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_msgs/local/lib/python3.10/dist-packages/jaka_msgs/srv/_set_payload.py
+[7.613s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_msgs/local/lib/python3.10/dist-packages/jaka_msgs/srv/_set_payload_s.c
+[7.618s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_msgs/local/lib/python3.10/dist-packages/jaka_msgs/srv/_set_tcp_frame.py
+[7.624s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_msgs/local/lib/python3.10/dist-packages/jaka_msgs/srv/_set_tcp_frame_s.c
+[7.629s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_msgs/local/lib/python3.10/dist-packages/jaka_msgs/srv/_set_user_frame.py
+[7.635s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_msgs/local/lib/python3.10/dist-packages/jaka_msgs/srv/_set_user_frame_s.c
+[7.642s] -- Up-to-date symlink: /home/newtonrattapong/jaka_ws/install/jaka_msgs/local/lib/python3.10/dist-packages/jaka_msgs/jaka_msgs_s__rosidl_typesupport_fastrtps_c.cpython-310-x86_64-linux-gnu.so
+[7.642s] -- Up-to-date symlink: /home/newtonrattapong/jaka_ws/install/jaka_msgs/local/lib/python3.10/dist-packages/jaka_msgs/jaka_msgs_s__rosidl_typesupport_introspection_c.cpython-310-x86_64-linux-gnu.so
+[7.642s] -- Up-to-date symlink: /home/newtonrattapong/jaka_ws/install/jaka_msgs/local/lib/python3.10/dist-packages/jaka_msgs/jaka_msgs_s__rosidl_typesupport_c.cpython-310-x86_64-linux-gnu.so
+[7.642s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_msgs/share/ament_index/resource_index/rust_packages/jaka_msgs
+[7.648s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_msgs/share/jaka_msgs/rust/Cargo.toml
+[7.653s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_msgs/share/jaka_msgs/rust/build.rs
+[7.658s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_msgs/share/jaka_msgs/rust/src/lib.rs
+[7.662s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_msgs/share/jaka_msgs/rust/src/msg.rs
+[7.667s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_msgs/share/jaka_msgs/rust/src/msg/rmw.rs
+[7.671s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_msgs/share/jaka_msgs/rust/src/srv.rs
+[7.677s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_msgs/share/jaka_msgs/rust/src/srv/rmw.rs
+[7.682s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_msgs/share/jaka_msgs/msg/RobotMsg.idl
+[7.687s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_msgs/share/jaka_msgs/srv/Move.idl
+[7.692s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_msgs/share/jaka_msgs/srv/ServoMoveEnable.idl
+[7.698s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_msgs/share/jaka_msgs/srv/ServoMove.idl
+[7.703s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_msgs/share/jaka_msgs/srv/SetTcpFrame.idl
+[7.709s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_msgs/share/jaka_msgs/srv/SetUserFrame.idl
+[7.715s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_msgs/share/jaka_msgs/srv/SetPayload.idl
+[7.720s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_msgs/share/jaka_msgs/srv/SetCollision.idl
+[7.726s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_msgs/share/jaka_msgs/srv/SetIO.idl
+[7.731s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_msgs/share/jaka_msgs/srv/GetIO.idl
+[7.735s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_msgs/share/jaka_msgs/srv/ClearError.idl
+[7.741s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_msgs/share/jaka_msgs/srv/GetFK.idl
+[7.746s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_msgs/share/jaka_msgs/srv/GetIK.idl
+[7.752s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_msgs/share/jaka_msgs/msg/RobotMsg.msg
+[7.759s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_msgs/share/jaka_msgs/srv/Move.srv
+[7.764s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_msgs/share/jaka_msgs/srv/Move_Request.msg
+[7.768s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_msgs/share/jaka_msgs/srv/Move_Response.msg
+[7.773s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_msgs/share/jaka_msgs/srv/ServoMoveEnable.srv
+[7.779s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_msgs/share/jaka_msgs/srv/ServoMoveEnable_Request.msg
+[7.784s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_msgs/share/jaka_msgs/srv/ServoMoveEnable_Response.msg
+[7.789s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_msgs/share/jaka_msgs/srv/ServoMove.srv
+[7.795s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_msgs/share/jaka_msgs/srv/ServoMove_Request.msg
+[7.800s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_msgs/share/jaka_msgs/srv/ServoMove_Response.msg
+[7.805s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_msgs/share/jaka_msgs/srv/SetTcpFrame.srv
+[7.811s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_msgs/share/jaka_msgs/srv/SetTcpFrame_Request.msg
+[7.816s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_msgs/share/jaka_msgs/srv/SetTcpFrame_Response.msg
+[7.821s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_msgs/share/jaka_msgs/srv/SetUserFrame.srv
+[7.827s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_msgs/share/jaka_msgs/srv/SetUserFrame_Request.msg
+[7.832s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_msgs/share/jaka_msgs/srv/SetUserFrame_Response.msg
+[7.837s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_msgs/share/jaka_msgs/srv/SetPayload.srv
+[7.843s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_msgs/share/jaka_msgs/srv/SetPayload_Request.msg
+[7.847s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_msgs/share/jaka_msgs/srv/SetPayload_Response.msg
+[7.853s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_msgs/share/jaka_msgs/srv/SetCollision.srv
+[7.859s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_msgs/share/jaka_msgs/srv/SetCollision_Request.msg
+[7.865s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_msgs/share/jaka_msgs/srv/SetCollision_Response.msg
+[7.869s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_msgs/share/jaka_msgs/srv/SetIO.srv
+[7.874s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_msgs/share/jaka_msgs/srv/SetIO_Request.msg
+[7.879s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_msgs/share/jaka_msgs/srv/SetIO_Response.msg
+[7.884s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_msgs/share/jaka_msgs/srv/GetIO.srv
+[7.890s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_msgs/share/jaka_msgs/srv/GetIO_Request.msg
+[7.895s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_msgs/share/jaka_msgs/srv/GetIO_Response.msg
+[7.899s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_msgs/share/jaka_msgs/srv/ClearError.srv
+[7.903s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_msgs/share/jaka_msgs/srv/ClearError_Request.msg
+[7.910s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_msgs/share/jaka_msgs/srv/ClearError_Response.msg
+[7.912s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_msgs/share/jaka_msgs/srv/GetFK.srv
+[7.918s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_msgs/share/jaka_msgs/srv/GetFK_Request.msg
+[7.923s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_msgs/share/jaka_msgs/srv/GetFK_Response.msg
+[7.928s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_msgs/share/jaka_msgs/srv/GetIK.srv
+[7.934s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_msgs/share/jaka_msgs/srv/GetIK_Request.msg
+[7.941s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_msgs/share/jaka_msgs/srv/GetIK_Response.msg
+[7.946s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_msgs/share/ament_index/resource_index/package_run_dependencies/jaka_msgs
+[7.951s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_msgs/share/ament_index/resource_index/parent_prefix_path/jaka_msgs
+[7.957s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_msgs/share/jaka_msgs/environment/ament_prefix_path.sh
+[7.962s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_msgs/share/jaka_msgs/environment/ament_prefix_path.dsv
+[7.967s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_msgs/share/jaka_msgs/environment/path.sh
+[7.973s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_msgs/share/jaka_msgs/environment/path.dsv
+[7.977s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_msgs/share/jaka_msgs/local_setup.bash
+[7.983s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_msgs/share/jaka_msgs/local_setup.sh
+[7.988s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_msgs/share/jaka_msgs/local_setup.zsh
+[7.993s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_msgs/share/jaka_msgs/local_setup.dsv
+[7.999s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_msgs/share/jaka_msgs/package.dsv
+[8.004s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_msgs/share/ament_index/resource_index/packages/jaka_msgs
+[8.009s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_msgs/share/jaka_msgs/cmake/rosidl_cmake-extras.cmake
+[8.014s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_msgs/share/jaka_msgs/cmake/ament_cmake_export_dependencies-extras.cmake
+[8.019s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_msgs/share/jaka_msgs/cmake/ament_cmake_export_include_directories-extras.cmake
+[8.025s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_msgs/share/jaka_msgs/cmake/ament_cmake_export_libraries-extras.cmake
+[8.031s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_msgs/share/jaka_msgs/cmake/ament_cmake_export_targets-extras.cmake
+[8.036s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_msgs/share/jaka_msgs/cmake/rosidl_cmake_export_typesupport_targets-extras.cmake
+[8.041s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_msgs/share/jaka_msgs/cmake/rosidl_cmake_export_typesupport_libraries-extras.cmake
+[8.046s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_msgs/share/jaka_msgs/cmake/jaka_msgsConfig.cmake
+[8.051s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_msgs/share/jaka_msgs/cmake/jaka_msgsConfig-version.cmake
+[8.055s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_msgs/share/jaka_msgs/package.xml
+[8.062s] -- Installing: /home/newtonrattapong/jaka_ws/install/jaka_msgs/lib/libjaka_msgs__rosidl_generator_c.so
+[8.062s] -- Set runtime path of "/home/newtonrattapong/jaka_ws/install/jaka_msgs/lib/libjaka_msgs__rosidl_generator_c.so" to ""
+[8.062s] -- Installing: /home/newtonrattapong/jaka_ws/install/jaka_msgs/lib/libjaka_msgs__rosidl_typesupport_fastrtps_c.so
+[8.062s] -- Set runtime path of "/home/newtonrattapong/jaka_ws/install/jaka_msgs/lib/libjaka_msgs__rosidl_typesupport_fastrtps_c.so" to ""
+[8.062s] -- Installing: /home/newtonrattapong/jaka_ws/install/jaka_msgs/lib/libjaka_msgs__rosidl_typesupport_introspection_c.so
+[8.062s] -- Set runtime path of "/home/newtonrattapong/jaka_ws/install/jaka_msgs/lib/libjaka_msgs__rosidl_typesupport_introspection_c.so" to ""
+[8.062s] -- Installing: /home/newtonrattapong/jaka_ws/install/jaka_msgs/lib/libjaka_msgs__rosidl_typesupport_c.so
+[8.062s] -- Set runtime path of "/home/newtonrattapong/jaka_ws/install/jaka_msgs/lib/libjaka_msgs__rosidl_typesupport_c.so" to ""
+[8.062s] -- Installing: /home/newtonrattapong/jaka_ws/install/jaka_msgs/lib/libjaka_msgs__rosidl_typesupport_fastrtps_cpp.so
+[8.062s] -- Set runtime path of "/home/newtonrattapong/jaka_ws/install/jaka_msgs/lib/libjaka_msgs__rosidl_typesupport_fastrtps_cpp.so" to ""
+[8.063s] -- Installing: /home/newtonrattapong/jaka_ws/install/jaka_msgs/lib/libjaka_msgs__rosidl_typesupport_introspection_cpp.so
+[8.063s] -- Set runtime path of "/home/newtonrattapong/jaka_ws/install/jaka_msgs/lib/libjaka_msgs__rosidl_typesupport_introspection_cpp.so" to ""
+[8.063s] -- Installing: /home/newtonrattapong/jaka_ws/install/jaka_msgs/lib/libjaka_msgs__rosidl_typesupport_cpp.so
+[8.063s] -- Set runtime path of "/home/newtonrattapong/jaka_ws/install/jaka_msgs/lib/libjaka_msgs__rosidl_typesupport_cpp.so" to ""
+[8.099s] Listing '/home/newtonrattapong/jaka_ws/install/jaka_msgs/local/lib/python3.10/dist-packages/jaka_msgs'...
+[8.099s] Compiling '/home/newtonrattapong/jaka_ws/install/jaka_msgs/local/lib/python3.10/dist-packages/jaka_msgs/__init__.py'...
+[8.099s] Listing '/home/newtonrattapong/jaka_ws/install/jaka_msgs/local/lib/python3.10/dist-packages/jaka_msgs/msg'...
+[8.099s] Compiling '/home/newtonrattapong/jaka_ws/install/jaka_msgs/local/lib/python3.10/dist-packages/jaka_msgs/msg/__init__.py'...
+[8.099s] Compiling '/home/newtonrattapong/jaka_ws/install/jaka_msgs/local/lib/python3.10/dist-packages/jaka_msgs/msg/_robot_msg.py'...
+[8.099s] Listing '/home/newtonrattapong/jaka_ws/install/jaka_msgs/local/lib/python3.10/dist-packages/jaka_msgs/srv'...
+[8.099s] Compiling '/home/newtonrattapong/jaka_ws/install/jaka_msgs/local/lib/python3.10/dist-packages/jaka_msgs/srv/__init__.py'...
+[8.099s] Compiling '/home/newtonrattapong/jaka_ws/install/jaka_msgs/local/lib/python3.10/dist-packages/jaka_msgs/srv/_clear_error.py'...
+[8.099s] Compiling '/home/newtonrattapong/jaka_ws/install/jaka_msgs/local/lib/python3.10/dist-packages/jaka_msgs/srv/_get_fk.py'...
+[8.099s] Compiling '/home/newtonrattapong/jaka_ws/install/jaka_msgs/local/lib/python3.10/dist-packages/jaka_msgs/srv/_get_ik.py'...
+[8.099s] Compiling '/home/newtonrattapong/jaka_ws/install/jaka_msgs/local/lib/python3.10/dist-packages/jaka_msgs/srv/_get_io.py'...
+[8.099s] Compiling '/home/newtonrattapong/jaka_ws/install/jaka_msgs/local/lib/python3.10/dist-packages/jaka_msgs/srv/_move.py'...
+[8.099s] Compiling '/home/newtonrattapong/jaka_ws/install/jaka_msgs/local/lib/python3.10/dist-packages/jaka_msgs/srv/_servo_move.py'...
+[8.099s] Compiling '/home/newtonrattapong/jaka_ws/install/jaka_msgs/local/lib/python3.10/dist-packages/jaka_msgs/srv/_servo_move_enable.py'...
+[8.099s] Compiling '/home/newtonrattapong/jaka_ws/install/jaka_msgs/local/lib/python3.10/dist-packages/jaka_msgs/srv/_set_collision.py'...
+[8.099s] Compiling '/home/newtonrattapong/jaka_ws/install/jaka_msgs/local/lib/python3.10/dist-packages/jaka_msgs/srv/_set_io.py'...
+[8.099s] Compiling '/home/newtonrattapong/jaka_ws/install/jaka_msgs/local/lib/python3.10/dist-packages/jaka_msgs/srv/_set_payload.py'...
+[8.099s] Compiling '/home/newtonrattapong/jaka_ws/install/jaka_msgs/local/lib/python3.10/dist-packages/jaka_msgs/srv/_set_tcp_frame.py'...
+[8.099s] Compiling '/home/newtonrattapong/jaka_ws/install/jaka_msgs/local/lib/python3.10/dist-packages/jaka_msgs/srv/_set_user_frame.py'...
+[8.101s] -- Installing: /home/newtonrattapong/jaka_ws/install/jaka_msgs/lib/libjaka_msgs__rosidl_generator_py.so
+[8.101s] -- Set runtime path of "/home/newtonrattapong/jaka_ws/install/jaka_msgs/lib/libjaka_msgs__rosidl_generator_py.so" to ""
+[8.101s] -- Installing: /home/newtonrattapong/jaka_ws/install/jaka_msgs/share/jaka_msgs/cmake/export_jaka_msgs__rosidl_generator_cExport.cmake
+[8.102s] -- Installing: /home/newtonrattapong/jaka_ws/install/jaka_msgs/share/jaka_msgs/cmake/export_jaka_msgs__rosidl_generator_cExport-noconfig.cmake
+[8.102s] -- Installing: /home/newtonrattapong/jaka_ws/install/jaka_msgs/share/jaka_msgs/cmake/export_jaka_msgs__rosidl_typesupport_fastrtps_cExport.cmake
+[8.102s] -- Installing: /home/newtonrattapong/jaka_ws/install/jaka_msgs/share/jaka_msgs/cmake/export_jaka_msgs__rosidl_typesupport_fastrtps_cExport-noconfig.cmake
+[8.102s] -- Installing: /home/newtonrattapong/jaka_ws/install/jaka_msgs/share/jaka_msgs/cmake/jaka_msgs__rosidl_typesupport_introspection_cExport.cmake
+[8.102s] -- Installing: /home/newtonrattapong/jaka_ws/install/jaka_msgs/share/jaka_msgs/cmake/jaka_msgs__rosidl_typesupport_introspection_cExport-noconfig.cmake
+[8.102s] -- Installing: /home/newtonrattapong/jaka_ws/install/jaka_msgs/share/jaka_msgs/cmake/jaka_msgs__rosidl_typesupport_cExport.cmake
+[8.102s] -- Installing: /home/newtonrattapong/jaka_ws/install/jaka_msgs/share/jaka_msgs/cmake/jaka_msgs__rosidl_typesupport_cExport-noconfig.cmake
+[8.102s] -- Installing: /home/newtonrattapong/jaka_ws/install/jaka_msgs/share/jaka_msgs/cmake/export_jaka_msgs__rosidl_generator_cppExport.cmake
+[8.102s] -- Installing: /home/newtonrattapong/jaka_ws/install/jaka_msgs/share/jaka_msgs/cmake/export_jaka_msgs__rosidl_typesupport_fastrtps_cppExport.cmake
+[8.102s] -- Installing: /home/newtonrattapong/jaka_ws/install/jaka_msgs/share/jaka_msgs/cmake/export_jaka_msgs__rosidl_typesupport_fastrtps_cppExport-noconfig.cmake
+[8.102s] -- Installing: /home/newtonrattapong/jaka_ws/install/jaka_msgs/share/jaka_msgs/cmake/jaka_msgs__rosidl_typesupport_introspection_cppExport.cmake
+[8.102s] -- Installing: /home/newtonrattapong/jaka_ws/install/jaka_msgs/share/jaka_msgs/cmake/jaka_msgs__rosidl_typesupport_introspection_cppExport-noconfig.cmake
+[8.102s] -- Installing: /home/newtonrattapong/jaka_ws/install/jaka_msgs/share/jaka_msgs/cmake/jaka_msgs__rosidl_typesupport_cppExport.cmake
+[8.102s] -- Installing: /home/newtonrattapong/jaka_ws/install/jaka_msgs/share/jaka_msgs/cmake/jaka_msgs__rosidl_typesupport_cppExport-noconfig.cmake
+[8.102s] -- Installing: /home/newtonrattapong/jaka_ws/install/jaka_msgs/share/jaka_msgs/cmake/export_jaka_msgs__rosidl_generator_pyExport.cmake
+[8.102s] -- Installing: /home/newtonrattapong/jaka_ws/install/jaka_msgs/share/jaka_msgs/cmake/export_jaka_msgs__rosidl_generator_pyExport-noconfig.cmake
+[8.104s] Invoked command in '/home/newtonrattapong/jaka_ws/build/jaka_msgs' returned '0': CMAKE_PREFIX_PATH=/opt/ros/humble /usr/bin/cmake --install /home/newtonrattapong/jaka_ws/build/jaka_msgs

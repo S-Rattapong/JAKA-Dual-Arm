@@ -1,0 +1,1 @@
+ament_cmake_symlink_install_targets("TARGET_FILES" "/home/newtonrattapong/jaka_ws/build/jaka_planner/moveit_server" "/home/newtonrattapong/jaka_ws/build/jaka_planner/moveit_test" "TARGETS" "moveit_server" "moveit_test" "DESTINATION" "lib/jaka_planner")

@@ -1,0 +1,88 @@
+{
+	"configurations" : 
+	[
+		{
+			"directories" : 
+			[
+				{
+					"build" : ".",
+					"hasInstallRule" : true,
+					"jsonFile" : "directory-.-Debug-6adf15a5ff0635a58d4f.json",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "3.12"
+					},
+					"projectIndex" : 0,
+					"source" : ".",
+					"targetIndexes" : 
+					[
+						0,
+						1,
+						2,
+						3
+					]
+				}
+			],
+			"name" : "Debug",
+			"projects" : 
+			[
+				{
+					"directoryIndexes" : 
+					[
+						0
+					],
+					"name" : "jaka_planner",
+					"targetIndexes" : 
+					[
+						0,
+						1,
+						2,
+						3
+					]
+				}
+			],
+			"targets" : 
+			[
+				{
+					"directoryIndex" : 0,
+					"id" : "jaka_planner_uninstall::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-jaka_planner_uninstall-Debug-86c79db199926ccada5b.json",
+					"name" : "jaka_planner_uninstall",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "moveit_server::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-moveit_server-Debug-c73bf85dbe25ccaad164.json",
+					"name" : "moveit_server",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "moveit_test::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-moveit_test-Debug-a70f65344ecfdd2f9bf6.json",
+					"name" : "moveit_test",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "uninstall::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-uninstall-Debug-381482f54d9f29caf337.json",
+					"name" : "uninstall",
+					"projectIndex" : 0
+				}
+			]
+		}
+	],
+	"kind" : "codemodel",
+	"paths" : 
+	{
+		"build" : "/home/newtonrattapong/jaka_ws/build/jaka_planner",
+		"source" : "/home/newtonrattapong/jaka_ws/src/jaka_ros2/src/jaka_planner"
+	},
+	"version" : 
+	{
+		"major" : 2,
+		"minor" : 3
+	}
+}

@@ -1,0 +1,1 @@
+/home/newtonrattapong/jaka_ws/build/jaka_pro5_moveit_config/ament_cmake_environment_hooks/local_setup.zsh

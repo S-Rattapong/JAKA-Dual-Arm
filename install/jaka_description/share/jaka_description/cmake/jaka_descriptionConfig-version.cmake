@@ -1,0 +1,1 @@
+/home/newtonrattapong/jaka_ws/build/jaka_description/ament_cmake_core/jaka_descriptionConfig-version.cmake

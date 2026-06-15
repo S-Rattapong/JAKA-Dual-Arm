@@ -1,0 +1,240 @@
+[0.008s] Invoking command in '/home/newtonrattapong/jaka_ws/build/jaka_description': CMAKE_PREFIX_PATH=/opt/ros/humble /usr/bin/cmake /home/newtonrattapong/jaka_ws/src/jaka_ros2/src/jaka_description -DAMENT_CMAKE_SYMLINK_INSTALL=1 -DCMAKE_INSTALL_PREFIX=/home/newtonrattapong/jaka_ws/install/jaka_description
+[0.088s] -- The C compiler identification is GNU 11.4.0
+[0.137s] -- The CXX compiler identification is GNU 11.4.0
+[0.142s] -- Detecting C compiler ABI info
+[0.190s] -- Detecting C compiler ABI info - done
+[0.197s] -- Check for working C compiler: /usr/bin/cc - skipped
+[0.197s] -- Detecting C compile features
+[0.198s] -- Detecting C compile features - done
+[0.200s] -- Detecting CXX compiler ABI info
+[0.256s] -- Detecting CXX compiler ABI info - done
+[0.263s] -- Check for working CXX compiler: /usr/bin/c++ - skipped
+[0.263s] -- Detecting CXX compile features
+[0.263s] -- Detecting CXX compile features - done
+[0.266s] -- Found ament_cmake: 1.3.14 (/opt/ros/humble/share/ament_cmake/cmake)
+[0.367s] -- Found Python3: /usr/bin/python3 (found version "3.10.12") found components: Interpreter 
+[0.409s] -- Override CMake install command with custom implementation using symlinks instead of copying resources
+[0.433s] -- Found urdf: 2.6.1 (/opt/ros/humble/share/urdf/cmake)
+[0.468s] -- Found xacro: 2.1.1 (/opt/ros/humble/share/xacro/cmake)
+[0.469s] -- Found ament_lint_auto: 0.12.15 (/opt/ros/humble/share/ament_lint_auto/cmake)
+[0.521s] -- Added test 'copyright' to check source files copyright and LICENSE
+[0.528s] -- Added test 'flake8' to check Python code syntax and style conventions
+[0.529s] -- Added test 'lint_cmake' to check CMake code style
+[0.530s] -- Added test 'pep257' to check Python code against some of the docstring style conventions in PEP 257
+[0.533s] -- Added test 'xmllint' to check XML markup files
+[0.534s] -- Configuring done
+[0.536s] -- Generating done
+[0.536s] -- Build files have been written to: /home/newtonrattapong/jaka_ws/build/jaka_description
+[0.542s] Invoked command in '/home/newtonrattapong/jaka_ws/build/jaka_description' returned '0': CMAKE_PREFIX_PATH=/opt/ros/humble /usr/bin/cmake /home/newtonrattapong/jaka_ws/src/jaka_ros2/src/jaka_description -DAMENT_CMAKE_SYMLINK_INSTALL=1 -DCMAKE_INSTALL_PREFIX=/home/newtonrattapong/jaka_ws/install/jaka_description
+[0.542s] Invoking command in '/home/newtonrattapong/jaka_ws/build/jaka_description': CMAKE_PREFIX_PATH=/opt/ros/humble /usr/bin/cmake --build /home/newtonrattapong/jaka_ws/build/jaka_description -- -j16 -l16
+[0.567s] Invoked command in '/home/newtonrattapong/jaka_ws/build/jaka_description' returned '0': CMAKE_PREFIX_PATH=/opt/ros/humble /usr/bin/cmake --build /home/newtonrattapong/jaka_ws/build/jaka_description -- -j16 -l16
+[0.573s] Invoking command in '/home/newtonrattapong/jaka_ws/build/jaka_description': CMAKE_PREFIX_PATH=/opt/ros/humble /usr/bin/cmake --install /home/newtonrattapong/jaka_ws/build/jaka_description
+[0.579s] -- Install configuration: "Debug"
+[0.579s] -- Execute custom install script
+[0.580s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_description/share/jaka_description/urdf/jaka_a12.urdf
+[0.585s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_description/share/jaka_description/urdf/jaka_a20.urdf
+[0.590s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_description/share/jaka_description/urdf/jaka_a5.urdf
+[0.596s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_description/share/jaka_description/urdf/jaka_c12.urdf
+[0.603s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_description/share/jaka_description/urdf/jaka_c5.urdf
+[0.609s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_description/share/jaka_description/urdf/jaka_c7.urdf
+[0.615s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_description/share/jaka_description/urdf/jaka_minicobo.urdf
+[0.621s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_description/share/jaka_description/urdf/jaka_pro12.urdf
+[0.627s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_description/share/jaka_description/urdf/jaka_pro16.urdf
+[0.633s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_description/share/jaka_description/urdf/jaka_pro18.urdf
+[0.638s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_description/share/jaka_description/urdf/jaka_pro5.urdf
+[0.645s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_description/share/jaka_description/urdf/jaka_pro7.urdf
+[0.650s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_description/share/jaka_description/urdf/jaka_s12.urdf
+[0.655s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_description/share/jaka_description/urdf/jaka_s5.urdf
+[0.660s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_description/share/jaka_description/urdf/jaka_s7.urdf
+[0.666s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_description/share/jaka_description/urdf/jaka_zu12.urdf
+[0.670s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_description/share/jaka_description/urdf/jaka_zu18.urdf
+[0.675s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_description/share/jaka_description/urdf/jaka_zu20.urdf
+[0.682s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_description/share/jaka_description/urdf/jaka_zu3.urdf
+[0.686s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_description/share/jaka_description/urdf/jaka_zu30.urdf
+[0.690s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_description/share/jaka_description/urdf/jaka_zu5.urdf
+[0.697s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_description/share/jaka_description/urdf/jaka_zu7.urdf
+[0.702s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_description/share/jaka_description/meshes/jaka_a12_meshes/J1.STL
+[0.709s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_description/share/jaka_description/meshes/jaka_a12_meshes/J2.STL
+[0.715s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_description/share/jaka_description/meshes/jaka_a12_meshes/J3.STL
+[0.722s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_description/share/jaka_description/meshes/jaka_a12_meshes/J4.STL
+[0.727s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_description/share/jaka_description/meshes/jaka_a12_meshes/J5.STL
+[0.732s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_description/share/jaka_description/meshes/jaka_a12_meshes/J6.STL
+[0.737s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_description/share/jaka_description/meshes/jaka_a12_meshes/base_link.STL
+[0.743s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_description/share/jaka_description/meshes/jaka_a20_meshes/Link_01.STL
+[0.748s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_description/share/jaka_description/meshes/jaka_a20_meshes/Link_02.STL
+[0.753s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_description/share/jaka_description/meshes/jaka_a20_meshes/Link_03.STL
+[0.758s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_description/share/jaka_description/meshes/jaka_a20_meshes/Link_04.STL
+[0.763s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_description/share/jaka_description/meshes/jaka_a20_meshes/Link_05.STL
+[0.769s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_description/share/jaka_description/meshes/jaka_a20_meshes/Link_06.STL
+[0.774s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_description/share/jaka_description/meshes/jaka_a20_meshes/base_link.STL
+[0.779s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_description/share/jaka_description/meshes/jaka_a5_meshes/J1.STL
+[0.784s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_description/share/jaka_description/meshes/jaka_a5_meshes/J2.STL
+[0.790s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_description/share/jaka_description/meshes/jaka_a5_meshes/J3.STL
+[0.795s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_description/share/jaka_description/meshes/jaka_a5_meshes/J4.STL
+[0.800s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_description/share/jaka_description/meshes/jaka_a5_meshes/J5.STL
+[0.806s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_description/share/jaka_description/meshes/jaka_a5_meshes/J6.STL
+[0.811s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_description/share/jaka_description/meshes/jaka_a5_meshes/base_link.STL
+[0.817s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_description/share/jaka_description/meshes/jaka_c12_meshes/Link_01.STL
+[0.821s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_description/share/jaka_description/meshes/jaka_c12_meshes/Link_02.STL
+[0.826s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_description/share/jaka_description/meshes/jaka_c12_meshes/Link_03.STL
+[0.832s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_description/share/jaka_description/meshes/jaka_c12_meshes/Link_04.STL
+[0.837s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_description/share/jaka_description/meshes/jaka_c12_meshes/Link_05.STL
+[0.842s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_description/share/jaka_description/meshes/jaka_c12_meshes/Link_06.STL
+[0.848s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_description/share/jaka_description/meshes/jaka_c12_meshes/base_link.STL
+[0.853s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_description/share/jaka_description/meshes/jaka_c5_meshes/Link_00.STL
+[0.858s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_description/share/jaka_description/meshes/jaka_c5_meshes/Link_01.STL
+[0.864s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_description/share/jaka_description/meshes/jaka_c5_meshes/Link_02.STL
+[0.869s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_description/share/jaka_description/meshes/jaka_c5_meshes/Link_03.STL
+[0.874s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_description/share/jaka_description/meshes/jaka_c5_meshes/Link_04.STL
+[0.880s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_description/share/jaka_description/meshes/jaka_c5_meshes/Link_05.STL
+[0.885s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_description/share/jaka_description/meshes/jaka_c5_meshes/Link_06.STL
+[0.889s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_description/share/jaka_description/meshes/jaka_c7_meshes/Link_00.STL
+[0.895s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_description/share/jaka_description/meshes/jaka_c7_meshes/Link_01.STL
+[0.900s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_description/share/jaka_description/meshes/jaka_c7_meshes/Link_02.STL
+[0.905s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_description/share/jaka_description/meshes/jaka_c7_meshes/Link_03.STL
+[0.911s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_description/share/jaka_description/meshes/jaka_c7_meshes/Link_04.STL
+[0.916s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_description/share/jaka_description/meshes/jaka_c7_meshes/Link_05.STL
+[0.921s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_description/share/jaka_description/meshes/jaka_c7_meshes/Link_06.STL
+[0.928s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_description/share/jaka_description/meshes/jaka_minicobo_meshes/Link0.STL
+[0.934s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_description/share/jaka_description/meshes/jaka_minicobo_meshes/Link1.STL
+[0.938s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_description/share/jaka_description/meshes/jaka_minicobo_meshes/Link2.STL
+[0.945s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_description/share/jaka_description/meshes/jaka_minicobo_meshes/Link3.STL
+[0.951s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_description/share/jaka_description/meshes/jaka_minicobo_meshes/Link4.STL
+[0.958s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_description/share/jaka_description/meshes/jaka_minicobo_meshes/Link5.STL
+[0.962s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_description/share/jaka_description/meshes/jaka_minicobo_meshes/Link6.STL
+[0.968s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_description/share/jaka_description/meshes/jaka_pro12_meshes/Link_01.STL
+[0.975s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_description/share/jaka_description/meshes/jaka_pro12_meshes/Link_02.STL
+[0.981s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_description/share/jaka_description/meshes/jaka_pro12_meshes/Link_03.STL
+[0.986s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_description/share/jaka_description/meshes/jaka_pro12_meshes/Link_04.STL
+[0.992s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_description/share/jaka_description/meshes/jaka_pro12_meshes/Link_05.STL
+[0.997s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_description/share/jaka_description/meshes/jaka_pro12_meshes/Link_06.STL
+[1.003s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_description/share/jaka_description/meshes/jaka_pro12_meshes/base_link.STL
+[1.008s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_description/share/jaka_description/meshes/jaka_pro16_meshes/Link_0.STL
+[1.013s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_description/share/jaka_description/meshes/jaka_pro16_meshes/Link_1.STL
+[1.018s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_description/share/jaka_description/meshes/jaka_pro16_meshes/Link_2.STL
+[1.024s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_description/share/jaka_description/meshes/jaka_pro16_meshes/Link_3.STL
+[1.030s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_description/share/jaka_description/meshes/jaka_pro16_meshes/Link_4.STL
+[1.035s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_description/share/jaka_description/meshes/jaka_pro16_meshes/Link_5.STL
+[1.041s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_description/share/jaka_description/meshes/jaka_pro16_meshes/Link_6.STL
+[1.046s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_description/share/jaka_description/meshes/jaka_pro18_meshes/Link_01.STL
+[1.050s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_description/share/jaka_description/meshes/jaka_pro18_meshes/Link_02.STL
+[1.056s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_description/share/jaka_description/meshes/jaka_pro18_meshes/Link_03.STL
+[1.060s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_description/share/jaka_description/meshes/jaka_pro18_meshes/Link_04.STL
+[1.066s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_description/share/jaka_description/meshes/jaka_pro18_meshes/Link_05.STL
+[1.072s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_description/share/jaka_description/meshes/jaka_pro18_meshes/Link_06.STL
+[1.078s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_description/share/jaka_description/meshes/jaka_pro18_meshes/base_link.STL
+[1.083s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_description/share/jaka_description/meshes/jaka_pro5_meshes/Link_00.STL
+[1.089s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_description/share/jaka_description/meshes/jaka_pro5_meshes/Link_01.STL
+[1.095s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_description/share/jaka_description/meshes/jaka_pro5_meshes/Link_02.STL
+[1.100s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_description/share/jaka_description/meshes/jaka_pro5_meshes/Link_03.STL
+[1.106s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_description/share/jaka_description/meshes/jaka_pro5_meshes/Link_04.STL
+[1.112s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_description/share/jaka_description/meshes/jaka_pro5_meshes/Link_05.STL
+[1.118s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_description/share/jaka_description/meshes/jaka_pro5_meshes/Link_06.STL
+[1.123s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_description/share/jaka_description/meshes/jaka_pro7_meshes/Link_01.STL
+[1.129s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_description/share/jaka_description/meshes/jaka_pro7_meshes/Link_02.STL
+[1.134s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_description/share/jaka_description/meshes/jaka_pro7_meshes/Link_03.STL
+[1.139s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_description/share/jaka_description/meshes/jaka_pro7_meshes/Link_04.STL
+[1.146s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_description/share/jaka_description/meshes/jaka_pro7_meshes/Link_05.STL
+[1.150s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_description/share/jaka_description/meshes/jaka_pro7_meshes/Link_06.STL
+[1.155s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_description/share/jaka_description/meshes/jaka_pro7_meshes/base_link.STL
+[1.162s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_description/share/jaka_description/meshes/jaka_s12_meshes/Link_01.STL
+[1.166s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_description/share/jaka_description/meshes/jaka_s12_meshes/Link_02.STL
+[1.171s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_description/share/jaka_description/meshes/jaka_s12_meshes/Link_03.STL
+[1.177s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_description/share/jaka_description/meshes/jaka_s12_meshes/Link_04.STL
+[1.182s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_description/share/jaka_description/meshes/jaka_s12_meshes/Link_05.STL
+[1.187s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_description/share/jaka_description/meshes/jaka_s12_meshes/Link_06.STL
+[1.193s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_description/share/jaka_description/meshes/jaka_s12_meshes/base_link.STL
+[1.198s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_description/share/jaka_description/meshes/jaka_s5_meshes/Link_00.STL
+[1.203s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_description/share/jaka_description/meshes/jaka_s5_meshes/Link_01.STL
+[1.207s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_description/share/jaka_description/meshes/jaka_s5_meshes/Link_02.STL
+[1.213s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_description/share/jaka_description/meshes/jaka_s5_meshes/Link_03.STL
+[1.217s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_description/share/jaka_description/meshes/jaka_s5_meshes/Link_04.STL
+[1.222s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_description/share/jaka_description/meshes/jaka_s5_meshes/Link_05.STL
+[1.229s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_description/share/jaka_description/meshes/jaka_s5_meshes/Link_06.STL
+[1.233s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_description/share/jaka_description/meshes/jaka_s7_meshes/Link_00.STL
+[1.238s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_description/share/jaka_description/meshes/jaka_s7_meshes/Link_01.STL
+[1.244s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_description/share/jaka_description/meshes/jaka_s7_meshes/Link_02.STL
+[1.249s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_description/share/jaka_description/meshes/jaka_s7_meshes/Link_03.STL
+[1.254s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_description/share/jaka_description/meshes/jaka_s7_meshes/Link_04.STL
+[1.260s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_description/share/jaka_description/meshes/jaka_s7_meshes/Link_05.STL
+[1.265s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_description/share/jaka_description/meshes/jaka_s7_meshes/Link_06.STL
+[1.271s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_description/share/jaka_description/meshes/jaka_zu12_meshes/1.STL
+[1.277s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_description/share/jaka_description/meshes/jaka_zu12_meshes/2.STL
+[1.283s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_description/share/jaka_description/meshes/jaka_zu12_meshes/3.STL
+[1.288s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_description/share/jaka_description/meshes/jaka_zu12_meshes/4.STL
+[1.294s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_description/share/jaka_description/meshes/jaka_zu12_meshes/5.STL
+[1.301s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_description/share/jaka_description/meshes/jaka_zu12_meshes/6.STL
+[1.307s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_description/share/jaka_description/meshes/jaka_zu12_meshes/base_link.STL
+[1.314s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_description/share/jaka_description/meshes/jaka_zu18_meshes/Link_01.STL
+[1.319s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_description/share/jaka_description/meshes/jaka_zu18_meshes/Link_02.STL
+[1.325s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_description/share/jaka_description/meshes/jaka_zu18_meshes/Link_03.STL
+[1.331s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_description/share/jaka_description/meshes/jaka_zu18_meshes/Link_04.STL
+[1.336s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_description/share/jaka_description/meshes/jaka_zu18_meshes/Link_05.STL
+[1.341s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_description/share/jaka_description/meshes/jaka_zu18_meshes/Link_06.STL
+[1.347s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_description/share/jaka_description/meshes/jaka_zu18_meshes/base_link.STL
+[1.352s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_description/share/jaka_description/meshes/jaka_zu20_meshes/Link_01.STL
+[1.358s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_description/share/jaka_description/meshes/jaka_zu20_meshes/Link_02.STL
+[1.364s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_description/share/jaka_description/meshes/jaka_zu20_meshes/Link_03.STL
+[1.369s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_description/share/jaka_description/meshes/jaka_zu20_meshes/Link_04.STL
+[1.374s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_description/share/jaka_description/meshes/jaka_zu20_meshes/Link_05.STL
+[1.381s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_description/share/jaka_description/meshes/jaka_zu20_meshes/Link_06.STL
+[1.388s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_description/share/jaka_description/meshes/jaka_zu20_meshes/base_link.STL
+[1.394s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_description/share/jaka_description/meshes/jaka_zu30_meshes/Empty_Link0.STL
+[1.399s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_description/share/jaka_description/meshes/jaka_zu30_meshes/Empty_Link1.STL
+[1.405s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_description/share/jaka_description/meshes/jaka_zu30_meshes/Empty_Link2.STL
+[1.411s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_description/share/jaka_description/meshes/jaka_zu30_meshes/Empty_Link3.STL
+[1.416s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_description/share/jaka_description/meshes/jaka_zu30_meshes/Empty_Link4.STL
+[1.422s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_description/share/jaka_description/meshes/jaka_zu30_meshes/Empty_Link5.STL
+[1.427s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_description/share/jaka_description/meshes/jaka_zu30_meshes/Empty_Link6.STL
+[1.433s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_description/share/jaka_description/meshes/jaka_zu3_meshes/Link_0.STL
+[1.439s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_description/share/jaka_description/meshes/jaka_zu3_meshes/Link_1.STL
+[1.444s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_description/share/jaka_description/meshes/jaka_zu3_meshes/Link_2.STL
+[1.449s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_description/share/jaka_description/meshes/jaka_zu3_meshes/Link_3.STL
+[1.456s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_description/share/jaka_description/meshes/jaka_zu3_meshes/Link_4.STL
+[1.462s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_description/share/jaka_description/meshes/jaka_zu3_meshes/Link_5.STL
+[1.468s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_description/share/jaka_description/meshes/jaka_zu3_meshes/Link_6.STL
+[1.475s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_description/share/jaka_description/meshes/jaka_zu5_meshes/Link1.STL
+[1.480s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_description/share/jaka_description/meshes/jaka_zu5_meshes/Link2.STL
+[1.485s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_description/share/jaka_description/meshes/jaka_zu5_meshes/Link3.STL
+[1.491s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_description/share/jaka_description/meshes/jaka_zu5_meshes/Link4.STL
+[1.496s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_description/share/jaka_description/meshes/jaka_zu5_meshes/Link5.STL
+[1.501s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_description/share/jaka_description/meshes/jaka_zu5_meshes/Link6.STL
+[1.507s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_description/share/jaka_description/meshes/jaka_zu5_meshes/link0.STL
+[1.512s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_description/share/jaka_description/meshes/jaka_zu7_meshes/Link_0.STL
+[1.518s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_description/share/jaka_description/meshes/jaka_zu7_meshes/Link_1.STL
+[1.523s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_description/share/jaka_description/meshes/jaka_zu7_meshes/Link_2.STL
+[1.530s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_description/share/jaka_description/meshes/jaka_zu7_meshes/Link_3.STL
+[1.536s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_description/share/jaka_description/meshes/jaka_zu7_meshes/Link_4.STL
+[1.542s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_description/share/jaka_description/meshes/jaka_zu7_meshes/Link_5.STL
+[1.546s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_description/share/jaka_description/meshes/jaka_zu7_meshes/Link_6.STL
+[1.551s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_description/share/jaka_description/config/jaka_minicobo_urdf.rviz
+[1.556s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_description/share/jaka_description/config/jaka_zu12_urdf.rviz
+[1.561s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_description/share/jaka_description/config/jaka_zu18_urdf.rviz
+[1.567s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_description/share/jaka_description/config/jaka_zu3_urdf.rviz
+[1.573s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_description/share/jaka_description/config/jaka_zu5_urdf.rviz
+[1.580s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_description/share/jaka_description/config/jaka_zu7_urdf.rviz
+[1.587s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_description/share/jaka_description/launch/jaka_minicobo_rviz_control_launch.py
+[1.595s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_description/share/jaka_description/launch/jaka_pro16_rviz_control_launch.py
+[1.601s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_description/share/jaka_description/launch/jaka_pro7_rviz_control_launch.py
+[1.608s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_description/share/jaka_description/launch/jaka_zu12_rviz_control_launch.py
+[1.614s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_description/share/jaka_description/launch/jaka_zu18_rviz_control_launch.py
+[1.620s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_description/share/jaka_description/launch/jaka_zu3_rviz_control_launch.py
+[1.627s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_description/share/jaka_description/launch/jaka_zu5_rviz_control_launch.py
+[1.633s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_description/share/jaka_description/launch/jaka_zu7_rviz_control_launch.py
+[1.639s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_description/share/jaka_description/launch/test_launch.py
+[1.645s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_description/share/ament_index/resource_index/package_run_dependencies/jaka_description
+[1.652s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_description/share/ament_index/resource_index/parent_prefix_path/jaka_description
+[1.658s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_description/share/jaka_description/environment/ament_prefix_path.sh
+[1.665s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_description/share/jaka_description/environment/ament_prefix_path.dsv
+[1.670s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_description/share/jaka_description/environment/path.sh
+[1.676s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_description/share/jaka_description/environment/path.dsv
+[1.683s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_description/share/jaka_description/local_setup.bash
+[1.690s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_description/share/jaka_description/local_setup.sh
+[1.697s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_description/share/jaka_description/local_setup.zsh
+[1.703s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_description/share/jaka_description/local_setup.dsv
+[1.709s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_description/share/jaka_description/package.dsv
+[1.715s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_description/share/ament_index/resource_index/packages/jaka_description
+[1.722s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_description/share/jaka_description/cmake/jaka_descriptionConfig.cmake
+[1.728s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_description/share/jaka_description/cmake/jaka_descriptionConfig-version.cmake
+[1.735s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_description/share/jaka_description/package.xml
+[1.742s] Invoked command in '/home/newtonrattapong/jaka_ws/build/jaka_description' returned '0': CMAKE_PREFIX_PATH=/opt/ros/humble /usr/bin/cmake --install /home/newtonrattapong/jaka_ws/build/jaka_description

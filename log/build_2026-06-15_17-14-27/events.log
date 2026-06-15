@@ -1,0 +1,432 @@
+[0.000000] (-) TimerEvent: {}
+[0.000163] (-) JobUnselected: {'identifier': 'jaka_a20_moveit_config'}
+[0.000473] (-) JobUnselected: {'identifier': 'jaka_a5_moveit_config'}
+[0.000739] (-) JobUnselected: {'identifier': 'jaka_c12_moveit_config'}
+[0.000762] (-) JobUnselected: {'identifier': 'jaka_c5_moveit_config'}
+[0.000771] (-) JobUnselected: {'identifier': 'jaka_c7_moveit_config'}
+[0.000780] (-) JobUnselected: {'identifier': 'jaka_description'}
+[0.000787] (-) JobUnselected: {'identifier': 'jaka_driver'}
+[0.000797] (-) JobUnselected: {'identifier': 'jaka_minicobo_moveit_config'}
+[0.000805] (-) JobUnselected: {'identifier': 'jaka_msgs'}
+[0.000812] (-) JobUnselected: {'identifier': 'jaka_planner'}
+[0.000819] (-) JobUnselected: {'identifier': 'jaka_pro12_moveit_config'}
+[0.000829] (-) JobUnselected: {'identifier': 'jaka_pro16_moveit_config'}
+[0.000836] (-) JobUnselected: {'identifier': 'jaka_pro18_moveit_config'}
+[0.000860] (-) JobUnselected: {'identifier': 'jaka_pro5_moveit_config'}
+[0.000868] (-) JobUnselected: {'identifier': 'jaka_pro7_moveit_config'}
+[0.000875] (-) JobUnselected: {'identifier': 'jaka_s12_moveit_config'}
+[0.000883] (-) JobUnselected: {'identifier': 'jaka_s5_moveit_config'}
+[0.000890] (-) JobUnselected: {'identifier': 'jaka_s7_moveit_config'}
+[0.000897] (-) JobUnselected: {'identifier': 'jaka_zu12_moveit_config'}
+[0.000933] (-) JobUnselected: {'identifier': 'jaka_zu18_moveit_config'}
+[0.000941] (-) JobUnselected: {'identifier': 'jaka_zu20_moveit_config'}
+[0.000949] (-) JobUnselected: {'identifier': 'jaka_zu30_moveit_config'}
+[0.000957] (-) JobUnselected: {'identifier': 'jaka_zu3_moveit_config'}
+[0.000965] (-) JobUnselected: {'identifier': 'jaka_zu5_moveit_config'}
+[0.000972] (-) JobUnselected: {'identifier': 'jaka_zu7_moveit_config'}
+[0.000990] (jaka_coop_monitor) JobQueued: {'identifier': 'jaka_coop_monitor', 'dependencies': OrderedDict()}
+[0.001001] (jaka_a12_moveit_config) JobQueued: {'identifier': 'jaka_a12_moveit_config', 'dependencies': OrderedDict([('jaka_description', '/home/newtonrattapong/jaka_ws/install/jaka_description')])}
+[0.001011] (jaka_coop_monitor) JobStarted: {'identifier': 'jaka_coop_monitor'}
+[0.006826] (jaka_a12_moveit_config) JobStarted: {'identifier': 'jaka_a12_moveit_config'}
+[0.099797] (-) TimerEvent: {}
+[0.196328] (jaka_a12_moveit_config) JobProgress: {'identifier': 'jaka_a12_moveit_config', 'progress': 'cmake'}
+[0.196630] (jaka_a12_moveit_config) JobProgress: {'identifier': 'jaka_a12_moveit_config', 'progress': 'build'}
+[0.197040] (jaka_a12_moveit_config) Command: {'cmd': ['/usr/bin/cmake', '--build', '/home/newtonrattapong/jaka_ws/build/jaka_a12_moveit_config', '--', '-j16', '-l16'], 'cwd': '/home/newtonrattapong/jaka_ws/build/jaka_a12_moveit_config', 'env': OrderedDict([('LESSOPEN', '| /usr/bin/lesspipe %s'), ('VSCODE_CWD', '/home/newtonrattapong/jaka_ws/src/jaka_coop_monitor'), ('VSCODE_ESM_ENTRYPOINT', 'vs/workbench/api/node/extensionHostProcess'), ('CODEX_CI', '1'), ('USER', 'newtonrattapong'), ('SNAP_COMMON', '/var/snap/code/common'), ('LC_TIME', 'th_TH.UTF-8'), ('CODEX_INTERNAL_ORIGINATOR_OVERRIDE', 'codex_vscode'), ('VSCODE_NLS_CONFIG', '{"userLocale":"en-us","osLocale":"en-us","resolvedLanguage":"en","defaultMessagesFile":"/snap/code/247/usr/share/code/resources/app/out/nls.messages.json","locale":"en-us","availableLanguages":{}}'), ('FONTCONFIG_PATH', '/etc/fonts'), ('GIO_MODULE_DIR', '/home/newtonrattapong/snap/code/common/.cache/gio-modules'), ('VSCODE_HANDLES_UNCAUGHT_ERRORS', 'true'), ('XDG_SESSION_TYPE', 'x11'), ('DEBUG', 'release'), ('SNAP_UID', '1000'), ('SHLVL', '1'), ('LD_LIBRARY_PATH', '/home/newtonrattapong/jaka_ws/install/jaka_msgs/lib:/opt/ros/humble/opt/rviz_ogre_vendor/lib:/opt/ros/humble/lib/x86_64-linux-gnu:/opt/ros/humble/lib'), ('HOME', '/home/newtonrattapong'), ('CHROME_DESKTOP', 'code.desktop'), ('SNAP_LIBRARY_PATH', '/var/lib/snapd/lib/gl:/var/lib/snapd/lib/gl32'), ('OLDPWD', '/home/newtonrattapong/jaka_ws/src'), ('DESKTOP_SESSION', 'ubuntu'), ('SNAP_USER_DATA', '/home/newtonrattapong/snap/code/247'), ('GTK_PATH', '/snap/code/247/usr/lib/x86_64-linux-gnu/gtk-3.0'), ('VSCODE_IPC_HOOK', '/run/user/1000/vscode-d16abd05-1.12-main.sock'), ('GTK_IM_MODULE_FILE', '/home/newtonrattapong/snap/code/common/.cache/immodules/immodules.cache'), ('ROS_PYTHON_VERSION', '3'), ('GNOME_SHELL_SESSION_MODE', 'ubuntu'), ('GTK_MODULES', 'gail:atk-bridge'), ('PAGER', 'cat'), ('LC_MONETARY', 'th_TH.UTF-8'), ('LC_CTYPE', 'C.UTF-8'), ('SYSTEMD_EXEC_PID', '25743'), ('NO_COLOR', '1'), ('DBUS_SESSION_BUS_ADDRESS', 'unix:path=/run/user/1000/bus'), ('SNAP_REVISION', '247'), ('COLORTERM', 'truecolor'), ('VSCODE_CRASH_REPORTER_PROCESS_TYPE', 'extensionHost'), ('COLCON_PREFIX_PATH', '/home/newtonrattapong/jaka_ws/install:/home/newtonrattapong/ros2_ws/install'), ('APPLICATION_INSIGHTS_NO_STATSBEAT', 'true'), ('ROS_DISTRO', 'humble'), ('GTK_IM_MODULE', 'ibus'), ('LOGNAME', 'newtonrattapong'), ('SNAP_CONTEXT', 'ZF2ZoGMWXd27zXznYXIa367VQ2o_8_OHcXl3m9FWOzftJTXw8P07'), ('_', '/usr/bin/colcon'), ('ROS_VERSION', '2'), ('XDG_CONFIG_DIRS_VSCODE_SNAP_ORIG', '/etc/xdg/xdg-ubuntu:/etc/xdg'), ('XDG_SESSION_CLASS', 'user'), ('SNAP_VERSION', '1b50d58d'), ('XDG_DATA_DIRS_VSCODE_SNAP_ORIG', '/usr/share/ubuntu:/usr/share/gnome:/usr/local/share/:/usr/share/:/var/lib/snapd/desktop'), ('RUST_LOG', 'warn'), ('USERNAME', 'newtonrattapong'), ('TERM', 'xterm-256color'), ('GNOME_DESKTOP_SESSION_ID', 'this-is-deprecated'), ('SNAP_INSTANCE_NAME', 'code'), ('FC_FONTATIONS', '1'), ('ROS_LOCALHOST_ONLY', '0'), ('WINDOWPATH', '2'), ('PATH', '/home/newtonrattapong/.codex/tmp/arg0/codex-arg0t4WBvB:/opt/ros/humble/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin:/snap/bin:/home/newtonrattapong/.vscode/extensions/openai.chatgpt-26.609.30741-linux-x64/bin/linux-x86_64'), ('SESSION_MANAGER', 'local/rattapongs-ASUS:@/tmp/.ICE-unix/23658,unix/rattapongs-ASUS:/tmp/.ICE-unix/23658'), ('GTK_EXE_PREFIX', '/snap/code/247/usr'), ('XDG_MENU_PREFIX', 'gnome-'), ('LC_ADDRESS', 'th_TH.UTF-8'), ('GNOME_TERMINAL_SCREEN', '/org/gnome/Terminal/screen/39bccfc9_e4cc_479f_ad5f_8e2e6bcaf66a'), ('SNAP_DATA', '/var/snap/code/247'), ('XDG_RUNTIME_DIR', '/run/user/1000'), ('GDK_BACKEND', 'x11'), ('DISPLAY', ':1'), ('LOCPATH', '/snap/code/247/usr/lib/locale'), ('CODEX_SANDBOX_NETWORK_DISABLED', '1'), ('LANG', 'en_US.UTF-8'), ('XDG_CURRENT_DESKTOP', 'ubuntu:GNOME'), ('LC_TELEPHONE', 'th_TH.UTF-8'), ('XDG_DATA_HOME', '/home/newtonrattapong/snap/code/247/.local/share'), ('XMODIFIERS', '@im=ibus'), ('GH_PAGER', 'cat'), ('XDG_SESSION_DESKTOP', 'ubuntu'), ('XAUTHORITY', '/run/user/1000/gdm/Xauthority'), ('LS_COLORS', 'rs=0:di=01;34:ln=01;36:mh=00:pi=40;33:so=01;35:do=01;35:bd=40;33;01:cd=40;33;01:or=40;31;01:mi=00:su=37;41:sg=30;43:ca=30;41:tw=30;42:ow=34;42:st=37;44:ex=01;32:*.tar=01;31:*.tgz=01;31:*.arc=01;31:*.arj=01;31:*.taz=01;31:*.lha=01;31:*.lz4=01;31:*.lzh=01;31:*.lzma=01;31:*.tlz=01;31:*.txz=01;31:*.tzo=01;31:*.t7z=01;31:*.zip=01;31:*.z=01;31:*.dz=01;31:*.gz=01;31:*.lrz=01;31:*.lz=01;31:*.lzo=01;31:*.xz=01;31:*.zst=01;31:*.tzst=01;31:*.bz2=01;31:*.bz=01;31:*.tbz=01;31:*.tbz2=01;31:*.tz=01;31:*.deb=01;31:*.rpm=01;31:*.jar=01;31:*.war=01;31:*.ear=01;31:*.sar=01;31:*.rar=01;31:*.alz=01;31:*.ace=01;31:*.zoo=01;31:*.cpio=01;31:*.7z=01;31:*.rz=01;31:*.cab=01;31:*.wim=01;31:*.swm=01;31:*.dwm=01;31:*.esd=01;31:*.jpg=01;35:*.jpeg=01;35:*.mjpg=01;35:*.mjpeg=01;35:*.gif=01;35:*.bmp=01;35:*.pbm=01;35:*.pgm=01;35:*.ppm=01;35:*.tga=01;35:*.xbm=01;35:*.xpm=01;35:*.tif=01;35:*.tiff=01;35:*.png=01;35:*.svg=01;35:*.svgz=01;35:*.mng=01;35:*.pcx=01;35:*.mov=01;35:*.mpg=01;35:*.mpeg=01;35:*.m2v=01;35:*.mkv=01;35:*.webm=01;35:*.webp=01;35:*.ogm=01;35:*.mp4=01;35:*.m4v=01;35:*.mp4v=01;35:*.vob=01;35:*.qt=01;35:*.nuv=01;35:*.wmv=01;35:*.asf=01;35:*.rm=01;35:*.rmvb=01;35:*.flc=01;35:*.avi=01;35:*.fli=01;35:*.flv=01;35:*.gl=01;35:*.dl=01;35:*.xcf=01;35:*.xwd=01;35:*.yuv=01;35:*.cgm=01;35:*.emf=01;35:*.ogv=01;35:*.ogx=01;35:*.aac=00;36:*.au=00;36:*.flac=00;36:*.m4a=00;36:*.mid=00;36:*.midi=00;36:*.mka=00;36:*.mp3=00;36:*.mpc=00;36:*.ogg=00;36:*.ra=00;36:*.wav=00;36:*.oga=00;36:*.opus=00;36:*.spx=00;36:*.xspf=00;36:'), ('GNOME_TERMINAL_SERVICE', ':1.105'), ('SSH_AGENT_LAUNCHER', 'gnome-keyring'), ('SNAP_USER_COMMON', '/home/newtonrattapong/snap/code/common'), ('SSH_AUTH_SOCK', '/run/user/1000/keyring/ssh'), ('GSETTINGS_SCHEMA_DIR', '/home/newtonrattapong/snap/code/247/.local/share/glib-2.0/schemas'), ('ROS_DOMAIN_ID', '1'), ('SNAP_ARCH', 'amd64'), ('AMENT_PREFIX_PATH', '/home/newtonrattapong/jaka_ws/install/jaka_zu7_moveit_config:/home/newtonrattapong/jaka_ws/install/jaka_zu5_moveit_config:/home/newtonrattapong/jaka_ws/install/jaka_zu3_moveit_config:/home/newtonrattapong/jaka_ws/install/jaka_zu30_moveit_config:/home/newtonrattapong/jaka_ws/install/jaka_zu20_moveit_config:/home/newtonrattapong/jaka_ws/install/jaka_zu18_moveit_config:/home/newtonrattapong/jaka_ws/install/jaka_zu12_moveit_config:/home/newtonrattapong/jaka_ws/install/jaka_s7_moveit_config:/home/newtonrattapong/jaka_ws/install/jaka_s5_moveit_config:/home/newtonrattapong/jaka_ws/install/jaka_s12_moveit_config:/home/newtonrattapong/jaka_ws/install/jaka_pro7_moveit_config:/home/newtonrattapong/jaka_ws/install/jaka_pro5_moveit_config:/home/newtonrattapong/jaka_ws/install/jaka_pro18_moveit_config:/home/newtonrattapong/jaka_ws/install/jaka_pro16_moveit_config:/home/newtonrattapong/jaka_ws/install/jaka_pro12_moveit_config:/home/newtonrattapong/jaka_ws/install/jaka_planner:/home/newtonrattapong/jaka_ws/install/jaka_driver:/home/newtonrattapong/jaka_ws/install/jaka_msgs:/home/newtonrattapong/jaka_ws/install/jaka_minicobo_moveit_config:/home/newtonrattapong/jaka_ws/install/jaka_c7_moveit_config:/home/newtonrattapong/jaka_ws/install/jaka_c5_moveit_config:/home/newtonrattapong/jaka_ws/install/jaka_c12_moveit_config:/home/newtonrattapong/jaka_ws/install/jaka_a5_moveit_config:/home/newtonrattapong/jaka_ws/install/jaka_a20_moveit_config:/home/newtonrattapong/jaka_ws/install/jaka_a12_moveit_config:/home/newtonrattapong/jaka_ws/install/jaka_description:/opt/ros/humble'), ('SNAP_COOKIE', 'ZF2ZoGMWXd27zXznYXIa367VQ2o_8_OHcXl3m9FWOzftJTXw8P07'), ('SHELL', '/bin/bash'), ('LC_NAME', 'th_TH.UTF-8'), ('GDK_PIXBUF_MODULEDIR', '/snap/code/247/usr/lib/x86_64-linux-gnu/gdk-pixbuf-2.0/2.10.0/loaders'), ('QT_ACCESSIBILITY', '1'), ('ELECTRON_RUN_AS_NODE', '1'), ('NO_AT_BRIDGE', '1'), ('GDMSESSION', 'ubuntu'), ('LESSCLOSE', '/usr/bin/lesspipe %s %s'), ('FONTCONFIG_FILE', '/etc/fonts/fonts.conf'), ('SNAP_NAME', 'code'), ('CODEX_THREAD_ID', '019ec927-93f6-7ef2-96f2-65dc6e423973'), ('LC_MEASUREMENT', 'th_TH.UTF-8'), ('GDK_PIXBUF_MODULE_FILE', '/home/newtonrattapong/snap/code/common/.cache/gdk-pixbuf-loaders.cache'), ('GPG_AGENT_INFO', '/run/user/1000/gnupg/S.gpg-agent:0:1'), ('LC_IDENTIFICATION', 'th_TH.UTF-8'), ('SNAP_LAUNCHER_ARCH_TRIPLET', 'x86_64-linux-gnu'), ('GIT_PAGER', 'cat'), ('QT_IM_MODULE', 'ibus'), ('PWD', '/home/newtonrattapong/jaka_ws/build/jaka_a12_moveit_config'), ('VSCODE_CLI', '1'), ('LC_ALL', 'en_US.UTF-8'), ('XDG_CONFIG_DIRS', '/etc/xdg/xdg-ubuntu:/etc/xdg'), ('SNAP_REAL_HOME', '/home/newtonrattapong'), ('VSCODE_CODE_CACHE_PATH', '/home/newtonrattapong/.config/Code/CachedData/1b50d58d73426c9171299ec4037d01365d995b78'), ('XDG_DATA_DIRS', '/home/newtonrattapong/snap/code/247/.local/share:/home/newtonrattapong/snap/code/247:/snap/code/247/usr/share:/usr/share/ubuntu:/usr/share/gnome:/usr/local/share/:/usr/share/:/var/lib/snapd/desktop'), ('SNAP_EUID', '1000'), ('PYTHONPATH', '/home/newtonrattapong/jaka_ws/install/jaka_msgs/local/lib/python3.10/dist-packages:/opt/ros/humble/lib/python3.10/site-packages:/opt/ros/humble/local/lib/python3.10/dist-packages'), ('SNAP', '/snap/code/247'), ('LC_NUMERIC', 'th_TH.UTF-8'), ('LC_PAPER', 'th_TH.UTF-8'), ('COLCON', '1'), ('VTE_VERSION', '6800'), ('ELECTRON_NO_ATTACH_CONSOLE', '1'), ('CMAKE_PREFIX_PATH', '/home/newtonrattapong/jaka_ws/install/jaka_description:/home/newtonrattapong/jaka_ws/install/jaka_zu7_moveit_config:/home/newtonrattapong/jaka_ws/install/jaka_zu5_moveit_config:/home/newtonrattapong/jaka_ws/install/jaka_zu3_moveit_config:/home/newtonrattapong/jaka_ws/install/jaka_zu30_moveit_config:/home/newtonrattapong/jaka_ws/install/jaka_zu20_moveit_config:/home/newtonrattapong/jaka_ws/install/jaka_zu18_moveit_config:/home/newtonrattapong/jaka_ws/install/jaka_zu12_moveit_config:/home/newtonrattapong/jaka_ws/install/jaka_s7_moveit_config:/home/newtonrattapong/jaka_ws/install/jaka_s5_moveit_config:/home/newtonrattapong/jaka_ws/install/jaka_s12_moveit_config:/home/newtonrattapong/jaka_ws/install/jaka_pro7_moveit_config:/home/newtonrattapong/jaka_ws/install/jaka_pro5_moveit_config:/home/newtonrattapong/jaka_ws/install/jaka_pro18_moveit_config:/home/newtonrattapong/jaka_ws/install/jaka_pro16_moveit_config:/home/newtonrattapong/jaka_ws/install/jaka_pro12_moveit_config:/home/newtonrattapong/jaka_ws/install/jaka_planner:/home/newtonrattapong/jaka_ws/install/jaka_driver:/home/newtonrattapong/jaka_ws/install/jaka_msgs:/home/newtonrattapong/jaka_ws/install/jaka_minicobo_moveit_config:/home/newtonrattapong/jaka_ws/install/jaka_c7_moveit_config:/home/newtonrattapong/jaka_ws/install/jaka_c5_moveit_config:/home/newtonrattapong/jaka_ws/install/jaka_c12_moveit_config:/home/newtonrattapong/jaka_ws/install/jaka_a5_moveit_config:/home/newtonrattapong/jaka_ws/install/jaka_a20_moveit_config:/home/newtonrattapong/jaka_ws/install/jaka_a12_moveit_config:/opt/ros/humble'), ('VSCODE_PID', '36262')]), 'shell': False}
+[0.199854] (-) TimerEvent: {}
+[0.228964] (jaka_a12_moveit_config) CommandEnded: {'returncode': 0}
+[0.229468] (jaka_a12_moveit_config) JobProgress: {'identifier': 'jaka_a12_moveit_config', 'progress': 'install'}
+[0.235579] (jaka_a12_moveit_config) Command: {'cmd': ['/usr/bin/cmake', '--install', '/home/newtonrattapong/jaka_ws/build/jaka_a12_moveit_config'], 'cwd': '/home/newtonrattapong/jaka_ws/build/jaka_a12_moveit_config', 'env': OrderedDict([('LESSOPEN', '| /usr/bin/lesspipe %s'), ('VSCODE_CWD', '/home/newtonrattapong/jaka_ws/src/jaka_coop_monitor'), ('VSCODE_ESM_ENTRYPOINT', 'vs/workbench/api/node/extensionHostProcess'), ('CODEX_CI', '1'), ('USER', 'newtonrattapong'), ('SNAP_COMMON', '/var/snap/code/common'), ('LC_TIME', 'th_TH.UTF-8'), ('CODEX_INTERNAL_ORIGINATOR_OVERRIDE', 'codex_vscode'), ('VSCODE_NLS_CONFIG', '{"userLocale":"en-us","osLocale":"en-us","resolvedLanguage":"en","defaultMessagesFile":"/snap/code/247/usr/share/code/resources/app/out/nls.messages.json","locale":"en-us","availableLanguages":{}}'), ('FONTCONFIG_PATH', '/etc/fonts'), ('GIO_MODULE_DIR', '/home/newtonrattapong/snap/code/common/.cache/gio-modules'), ('VSCODE_HANDLES_UNCAUGHT_ERRORS', 'true'), ('XDG_SESSION_TYPE', 'x11'), ('DEBUG', 'release'), ('SNAP_UID', '1000'), ('SHLVL', '1'), ('LD_LIBRARY_PATH', '/home/newtonrattapong/jaka_ws/install/jaka_msgs/lib:/opt/ros/humble/opt/rviz_ogre_vendor/lib:/opt/ros/humble/lib/x86_64-linux-gnu:/opt/ros/humble/lib'), ('HOME', '/home/newtonrattapong'), ('CHROME_DESKTOP', 'code.desktop'), ('SNAP_LIBRARY_PATH', '/var/lib/snapd/lib/gl:/var/lib/snapd/lib/gl32'), ('OLDPWD', '/home/newtonrattapong/jaka_ws/src'), ('DESKTOP_SESSION', 'ubuntu'), ('SNAP_USER_DATA', '/home/newtonrattapong/snap/code/247'), ('GTK_PATH', '/snap/code/247/usr/lib/x86_64-linux-gnu/gtk-3.0'), ('VSCODE_IPC_HOOK', '/run/user/1000/vscode-d16abd05-1.12-main.sock'), ('GTK_IM_MODULE_FILE', '/home/newtonrattapong/snap/code/common/.cache/immodules/immodules.cache'), ('ROS_PYTHON_VERSION', '3'), ('GNOME_SHELL_SESSION_MODE', 'ubuntu'), ('GTK_MODULES', 'gail:atk-bridge'), ('PAGER', 'cat'), ('LC_MONETARY', 'th_TH.UTF-8'), ('LC_CTYPE', 'C.UTF-8'), ('SYSTEMD_EXEC_PID', '25743'), ('NO_COLOR', '1'), ('DBUS_SESSION_BUS_ADDRESS', 'unix:path=/run/user/1000/bus'), ('SNAP_REVISION', '247'), ('COLORTERM', 'truecolor'), ('VSCODE_CRASH_REPORTER_PROCESS_TYPE', 'extensionHost'), ('COLCON_PREFIX_PATH', '/home/newtonrattapong/jaka_ws/install:/home/newtonrattapong/ros2_ws/install'), ('APPLICATION_INSIGHTS_NO_STATSBEAT', 'true'), ('ROS_DISTRO', 'humble'), ('GTK_IM_MODULE', 'ibus'), ('LOGNAME', 'newtonrattapong'), ('SNAP_CONTEXT', 'ZF2ZoGMWXd27zXznYXIa367VQ2o_8_OHcXl3m9FWOzftJTXw8P07'), ('_', '/usr/bin/colcon'), ('ROS_VERSION', '2'), ('XDG_CONFIG_DIRS_VSCODE_SNAP_ORIG', '/etc/xdg/xdg-ubuntu:/etc/xdg'), ('XDG_SESSION_CLASS', 'user'), ('SNAP_VERSION', '1b50d58d'), ('XDG_DATA_DIRS_VSCODE_SNAP_ORIG', '/usr/share/ubuntu:/usr/share/gnome:/usr/local/share/:/usr/share/:/var/lib/snapd/desktop'), ('RUST_LOG', 'warn'), ('USERNAME', 'newtonrattapong'), ('TERM', 'xterm-256color'), ('GNOME_DESKTOP_SESSION_ID', 'this-is-deprecated'), ('SNAP_INSTANCE_NAME', 'code'), ('FC_FONTATIONS', '1'), ('ROS_LOCALHOST_ONLY', '0'), ('WINDOWPATH', '2'), ('PATH', '/home/newtonrattapong/.codex/tmp/arg0/codex-arg0t4WBvB:/opt/ros/humble/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin:/snap/bin:/home/newtonrattapong/.vscode/extensions/openai.chatgpt-26.609.30741-linux-x64/bin/linux-x86_64'), ('SESSION_MANAGER', 'local/rattapongs-ASUS:@/tmp/.ICE-unix/23658,unix/rattapongs-ASUS:/tmp/.ICE-unix/23658'), ('GTK_EXE_PREFIX', '/snap/code/247/usr'), ('XDG_MENU_PREFIX', 'gnome-'), ('LC_ADDRESS', 'th_TH.UTF-8'), ('GNOME_TERMINAL_SCREEN', '/org/gnome/Terminal/screen/39bccfc9_e4cc_479f_ad5f_8e2e6bcaf66a'), ('SNAP_DATA', '/var/snap/code/247'), ('XDG_RUNTIME_DIR', '/run/user/1000'), ('GDK_BACKEND', 'x11'), ('DISPLAY', ':1'), ('LOCPATH', '/snap/code/247/usr/lib/locale'), ('CODEX_SANDBOX_NETWORK_DISABLED', '1'), ('LANG', 'en_US.UTF-8'), ('XDG_CURRENT_DESKTOP', 'ubuntu:GNOME'), ('LC_TELEPHONE', 'th_TH.UTF-8'), ('XDG_DATA_HOME', '/home/newtonrattapong/snap/code/247/.local/share'), ('XMODIFIERS', '@im=ibus'), ('GH_PAGER', 'cat'), ('XDG_SESSION_DESKTOP', 'ubuntu'), ('XAUTHORITY', '/run/user/1000/gdm/Xauthority'), ('LS_COLORS', 'rs=0:di=01;34:ln=01;36:mh=00:pi=40;33:so=01;35:do=01;35:bd=40;33;01:cd=40;33;01:or=40;31;01:mi=00:su=37;41:sg=30;43:ca=30;41:tw=30;42:ow=34;42:st=37;44:ex=01;32:*.tar=01;31:*.tgz=01;31:*.arc=01;31:*.arj=01;31:*.taz=01;31:*.lha=01;31:*.lz4=01;31:*.lzh=01;31:*.lzma=01;31:*.tlz=01;31:*.txz=01;31:*.tzo=01;31:*.t7z=01;31:*.zip=01;31:*.z=01;31:*.dz=01;31:*.gz=01;31:*.lrz=01;31:*.lz=01;31:*.lzo=01;31:*.xz=01;31:*.zst=01;31:*.tzst=01;31:*.bz2=01;31:*.bz=01;31:*.tbz=01;31:*.tbz2=01;31:*.tz=01;31:*.deb=01;31:*.rpm=01;31:*.jar=01;31:*.war=01;31:*.ear=01;31:*.sar=01;31:*.rar=01;31:*.alz=01;31:*.ace=01;31:*.zoo=01;31:*.cpio=01;31:*.7z=01;31:*.rz=01;31:*.cab=01;31:*.wim=01;31:*.swm=01;31:*.dwm=01;31:*.esd=01;31:*.jpg=01;35:*.jpeg=01;35:*.mjpg=01;35:*.mjpeg=01;35:*.gif=01;35:*.bmp=01;35:*.pbm=01;35:*.pgm=01;35:*.ppm=01;35:*.tga=01;35:*.xbm=01;35:*.xpm=01;35:*.tif=01;35:*.tiff=01;35:*.png=01;35:*.svg=01;35:*.svgz=01;35:*.mng=01;35:*.pcx=01;35:*.mov=01;35:*.mpg=01;35:*.mpeg=01;35:*.m2v=01;35:*.mkv=01;35:*.webm=01;35:*.webp=01;35:*.ogm=01;35:*.mp4=01;35:*.m4v=01;35:*.mp4v=01;35:*.vob=01;35:*.qt=01;35:*.nuv=01;35:*.wmv=01;35:*.asf=01;35:*.rm=01;35:*.rmvb=01;35:*.flc=01;35:*.avi=01;35:*.fli=01;35:*.flv=01;35:*.gl=01;35:*.dl=01;35:*.xcf=01;35:*.xwd=01;35:*.yuv=01;35:*.cgm=01;35:*.emf=01;35:*.ogv=01;35:*.ogx=01;35:*.aac=00;36:*.au=00;36:*.flac=00;36:*.m4a=00;36:*.mid=00;36:*.midi=00;36:*.mka=00;36:*.mp3=00;36:*.mpc=00;36:*.ogg=00;36:*.ra=00;36:*.wav=00;36:*.oga=00;36:*.opus=00;36:*.spx=00;36:*.xspf=00;36:'), ('GNOME_TERMINAL_SERVICE', ':1.105'), ('SSH_AGENT_LAUNCHER', 'gnome-keyring'), ('SNAP_USER_COMMON', '/home/newtonrattapong/snap/code/common'), ('SSH_AUTH_SOCK', '/run/user/1000/keyring/ssh'), ('GSETTINGS_SCHEMA_DIR', '/home/newtonrattapong/snap/code/247/.local/share/glib-2.0/schemas'), ('ROS_DOMAIN_ID', '1'), ('SNAP_ARCH', 'amd64'), ('AMENT_PREFIX_PATH', '/home/newtonrattapong/jaka_ws/install/jaka_zu7_moveit_config:/home/newtonrattapong/jaka_ws/install/jaka_zu5_moveit_config:/home/newtonrattapong/jaka_ws/install/jaka_zu3_moveit_config:/home/newtonrattapong/jaka_ws/install/jaka_zu30_moveit_config:/home/newtonrattapong/jaka_ws/install/jaka_zu20_moveit_config:/home/newtonrattapong/jaka_ws/install/jaka_zu18_moveit_config:/home/newtonrattapong/jaka_ws/install/jaka_zu12_moveit_config:/home/newtonrattapong/jaka_ws/install/jaka_s7_moveit_config:/home/newtonrattapong/jaka_ws/install/jaka_s5_moveit_config:/home/newtonrattapong/jaka_ws/install/jaka_s12_moveit_config:/home/newtonrattapong/jaka_ws/install/jaka_pro7_moveit_config:/home/newtonrattapong/jaka_ws/install/jaka_pro5_moveit_config:/home/newtonrattapong/jaka_ws/install/jaka_pro18_moveit_config:/home/newtonrattapong/jaka_ws/install/jaka_pro16_moveit_config:/home/newtonrattapong/jaka_ws/install/jaka_pro12_moveit_config:/home/newtonrattapong/jaka_ws/install/jaka_planner:/home/newtonrattapong/jaka_ws/install/jaka_driver:/home/newtonrattapong/jaka_ws/install/jaka_msgs:/home/newtonrattapong/jaka_ws/install/jaka_minicobo_moveit_config:/home/newtonrattapong/jaka_ws/install/jaka_c7_moveit_config:/home/newtonrattapong/jaka_ws/install/jaka_c5_moveit_config:/home/newtonrattapong/jaka_ws/install/jaka_c12_moveit_config:/home/newtonrattapong/jaka_ws/install/jaka_a5_moveit_config:/home/newtonrattapong/jaka_ws/install/jaka_a20_moveit_config:/home/newtonrattapong/jaka_ws/install/jaka_a12_moveit_config:/home/newtonrattapong/jaka_ws/install/jaka_description:/opt/ros/humble'), ('SNAP_COOKIE', 'ZF2ZoGMWXd27zXznYXIa367VQ2o_8_OHcXl3m9FWOzftJTXw8P07'), ('SHELL', '/bin/bash'), ('LC_NAME', 'th_TH.UTF-8'), ('GDK_PIXBUF_MODULEDIR', '/snap/code/247/usr/lib/x86_64-linux-gnu/gdk-pixbuf-2.0/2.10.0/loaders'), ('QT_ACCESSIBILITY', '1'), ('ELECTRON_RUN_AS_NODE', '1'), ('NO_AT_BRIDGE', '1'), ('GDMSESSION', 'ubuntu'), ('LESSCLOSE', '/usr/bin/lesspipe %s %s'), ('FONTCONFIG_FILE', '/etc/fonts/fonts.conf'), ('SNAP_NAME', 'code'), ('CODEX_THREAD_ID', '019ec927-93f6-7ef2-96f2-65dc6e423973'), ('LC_MEASUREMENT', 'th_TH.UTF-8'), ('GDK_PIXBUF_MODULE_FILE', '/home/newtonrattapong/snap/code/common/.cache/gdk-pixbuf-loaders.cache'), ('GPG_AGENT_INFO', '/run/user/1000/gnupg/S.gpg-agent:0:1'), ('LC_IDENTIFICATION', 'th_TH.UTF-8'), ('SNAP_LAUNCHER_ARCH_TRIPLET', 'x86_64-linux-gnu'), ('GIT_PAGER', 'cat'), ('QT_IM_MODULE', 'ibus'), ('PWD', '/home/newtonrattapong/jaka_ws/build/jaka_a12_moveit_config'), ('VSCODE_CLI', '1'), ('LC_ALL', 'en_US.UTF-8'), ('XDG_CONFIG_DIRS', '/etc/xdg/xdg-ubuntu:/etc/xdg'), ('SNAP_REAL_HOME', '/home/newtonrattapong'), ('VSCODE_CODE_CACHE_PATH', '/home/newtonrattapong/.config/Code/CachedData/1b50d58d73426c9171299ec4037d01365d995b78'), ('XDG_DATA_DIRS', '/home/newtonrattapong/snap/code/247/.local/share:/home/newtonrattapong/snap/code/247:/snap/code/247/usr/share:/usr/share/ubuntu:/usr/share/gnome:/usr/local/share/:/usr/share/:/var/lib/snapd/desktop'), ('SNAP_EUID', '1000'), ('PYTHONPATH', '/home/newtonrattapong/jaka_ws/install/jaka_msgs/local/lib/python3.10/dist-packages:/opt/ros/humble/lib/python3.10/site-packages:/opt/ros/humble/local/lib/python3.10/dist-packages'), ('SNAP', '/snap/code/247'), ('LC_NUMERIC', 'th_TH.UTF-8'), ('LC_PAPER', 'th_TH.UTF-8'), ('COLCON', '1'), ('VTE_VERSION', '6800'), ('ELECTRON_NO_ATTACH_CONSOLE', '1'), ('CMAKE_PREFIX_PATH', '/home/newtonrattapong/jaka_ws/install/jaka_description:/home/newtonrattapong/jaka_ws/install/jaka_zu7_moveit_config:/home/newtonrattapong/jaka_ws/install/jaka_zu5_moveit_config:/home/newtonrattapong/jaka_ws/install/jaka_zu3_moveit_config:/home/newtonrattapong/jaka_ws/install/jaka_zu30_moveit_config:/home/newtonrattapong/jaka_ws/install/jaka_zu20_moveit_config:/home/newtonrattapong/jaka_ws/install/jaka_zu18_moveit_config:/home/newtonrattapong/jaka_ws/install/jaka_zu12_moveit_config:/home/newtonrattapong/jaka_ws/install/jaka_s7_moveit_config:/home/newtonrattapong/jaka_ws/install/jaka_s5_moveit_config:/home/newtonrattapong/jaka_ws/install/jaka_s12_moveit_config:/home/newtonrattapong/jaka_ws/install/jaka_pro7_moveit_config:/home/newtonrattapong/jaka_ws/install/jaka_pro5_moveit_config:/home/newtonrattapong/jaka_ws/install/jaka_pro18_moveit_config:/home/newtonrattapong/jaka_ws/install/jaka_pro16_moveit_config:/home/newtonrattapong/jaka_ws/install/jaka_pro12_moveit_config:/home/newtonrattapong/jaka_ws/install/jaka_planner:/home/newtonrattapong/jaka_ws/install/jaka_driver:/home/newtonrattapong/jaka_ws/install/jaka_msgs:/home/newtonrattapong/jaka_ws/install/jaka_minicobo_moveit_config:/home/newtonrattapong/jaka_ws/install/jaka_c7_moveit_config:/home/newtonrattapong/jaka_ws/install/jaka_c5_moveit_config:/home/newtonrattapong/jaka_ws/install/jaka_c12_moveit_config:/home/newtonrattapong/jaka_ws/install/jaka_a5_moveit_config:/home/newtonrattapong/jaka_ws/install/jaka_a20_moveit_config:/home/newtonrattapong/jaka_ws/install/jaka_a12_moveit_config:/opt/ros/humble'), ('VSCODE_PID', '36262')]), 'shell': False}
+[0.243077] (jaka_a12_moveit_config) StdoutLine: {'line': b'-- Install configuration: ""\n'}
+[0.243381] (jaka_a12_moveit_config) StdoutLine: {'line': b'-- Execute custom install script\n'}
+[0.243514] (jaka_a12_moveit_config) StdoutLine: {'line': b'-- Up-to-date symlink: /home/newtonrattapong/jaka_ws/install/jaka_a12_moveit_config/share/ament_index/resource_index/package_run_dependencies/jaka_a12_moveit_config\n'}
+[0.243752] (jaka_a12_moveit_config) StdoutLine: {'line': b'-- Up-to-date symlink: /home/newtonrattapong/jaka_ws/install/jaka_a12_moveit_config/share/ament_index/resource_index/parent_prefix_path/jaka_a12_moveit_config\n'}
+[0.243895] (jaka_a12_moveit_config) StdoutLine: {'line': b'-- Up-to-date symlink: /home/newtonrattapong/jaka_ws/install/jaka_a12_moveit_config/share/jaka_a12_moveit_config/environment/ament_prefix_path.sh\n'}
+[0.243930] (jaka_a12_moveit_config) StdoutLine: {'line': b'-- Up-to-date symlink: /home/newtonrattapong/jaka_ws/install/jaka_a12_moveit_config/share/jaka_a12_moveit_config/environment/ament_prefix_path.dsv\n'}
+[0.243963] (jaka_a12_moveit_config) StdoutLine: {'line': b'-- Up-to-date symlink: /home/newtonrattapong/jaka_ws/install/jaka_a12_moveit_config/share/jaka_a12_moveit_config/environment/path.sh\n'}
+[0.244039] (jaka_a12_moveit_config) StdoutLine: {'line': b'-- Up-to-date symlink: /home/newtonrattapong/jaka_ws/install/jaka_a12_moveit_config/share/jaka_a12_moveit_config/environment/path.dsv\n'}
+[0.244069] (jaka_a12_moveit_config) StdoutLine: {'line': b'-- Up-to-date symlink: /home/newtonrattapong/jaka_ws/install/jaka_a12_moveit_config/share/jaka_a12_moveit_config/local_setup.bash\n'}
+[0.244137] (jaka_a12_moveit_config) StdoutLine: {'line': b'-- Up-to-date symlink: /home/newtonrattapong/jaka_ws/install/jaka_a12_moveit_config/share/jaka_a12_moveit_config/local_setup.sh\n'}
+[0.244207] (jaka_a12_moveit_config) StdoutLine: {'line': b'-- Up-to-date symlink: /home/newtonrattapong/jaka_ws/install/jaka_a12_moveit_config/share/jaka_a12_moveit_config/local_setup.zsh\n'}
+[0.244276] (jaka_a12_moveit_config) StdoutLine: {'line': b'-- Up-to-date symlink: /home/newtonrattapong/jaka_ws/install/jaka_a12_moveit_config/share/jaka_a12_moveit_config/local_setup.dsv\n'}
+[0.244395] (jaka_a12_moveit_config) StdoutLine: {'line': b'-- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_a12_moveit_config/share/jaka_a12_moveit_config/package.dsv\n'}
+[0.252266] (jaka_a12_moveit_config) StdoutLine: {'line': b'-- Up-to-date symlink: /home/newtonrattapong/jaka_ws/install/jaka_a12_moveit_config/share/ament_index/resource_index/packages/jaka_a12_moveit_config\n'}
+[0.252424] (jaka_a12_moveit_config) StdoutLine: {'line': b'-- Up-to-date symlink: /home/newtonrattapong/jaka_ws/install/jaka_a12_moveit_config/share/jaka_a12_moveit_config/cmake/jaka_a12_moveit_configConfig.cmake\n'}
+[0.252461] (jaka_a12_moveit_config) StdoutLine: {'line': b'-- Up-to-date symlink: /home/newtonrattapong/jaka_ws/install/jaka_a12_moveit_config/share/jaka_a12_moveit_config/cmake/jaka_a12_moveit_configConfig-version.cmake\n'}
+[0.252496] (jaka_a12_moveit_config) StdoutLine: {'line': b'-- Up-to-date symlink: /home/newtonrattapong/jaka_ws/install/jaka_a12_moveit_config/share/jaka_a12_moveit_config/package.xml\n'}
+[0.252736] (jaka_a12_moveit_config) StdoutLine: {'line': b'-- Up-to-date symlink: /home/newtonrattapong/jaka_ws/install/jaka_a12_moveit_config/share/jaka_a12_moveit_config/launch/demo.launch.py\n'}
+[0.252801] (jaka_a12_moveit_config) StdoutLine: {'line': b'-- Up-to-date symlink: /home/newtonrattapong/jaka_ws/install/jaka_a12_moveit_config/share/jaka_a12_moveit_config/launch/demo_gazebo.launch.py\n'}
+[0.252896] (jaka_a12_moveit_config) StdoutLine: {'line': b'-- Up-to-date symlink: /home/newtonrattapong/jaka_ws/install/jaka_a12_moveit_config/share/jaka_a12_moveit_config/launch/dual_interactive_object_demo.launch.py\n'}
+[0.252928] (jaka_a12_moveit_config) StdoutLine: {'line': b'-- Up-to-date symlink: /home/newtonrattapong/jaka_ws/install/jaka_a12_moveit_config/share/jaka_a12_moveit_config/launch/dual_jaka_a12_tf_demo.launch.py\n'}
+[0.252983] (jaka_a12_moveit_config) StdoutLine: {'line': b'-- Up-to-date symlink: /home/newtonrattapong/jaka_ws/install/jaka_a12_moveit_config/share/jaka_a12_moveit_config/launch/dual_object_trajectory_demo.launch.py\n'}
+[0.253057] (jaka_a12_moveit_config) StdoutLine: {'line': b'-- Up-to-date symlink: /home/newtonrattapong/jaka_ws/install/jaka_a12_moveit_config/share/jaka_a12_moveit_config/launch/dual_relative_motion_demo.launch.py\n'}
+[0.253111] (jaka_a12_moveit_config) StdoutLine: {'line': b'-- Up-to-date symlink: /home/newtonrattapong/jaka_ws/install/jaka_a12_moveit_config/share/jaka_a12_moveit_config/launch/dual_safety_posture_demo.launch.py\n'}
+[0.253140] (jaka_a12_moveit_config) StdoutLine: {'line': b'-- Up-to-date symlink: /home/newtonrattapong/jaka_ws/install/jaka_a12_moveit_config/share/jaka_a12_moveit_config/launch/dual_task_priority_joint_limit_demo.launch.py\n'}
+[0.253193] (jaka_a12_moveit_config) StdoutLine: {'line': b'-- Up-to-date symlink: /home/newtonrattapong/jaka_ws/install/jaka_a12_moveit_config/share/jaka_a12_moveit_config/launch/dual_task_priority_object_demo.launch.py\n'}
+[0.253247] (jaka_a12_moveit_config) StdoutLine: {'line': b'-- Up-to-date symlink: /home/newtonrattapong/jaka_ws/install/jaka_a12_moveit_config/share/jaka_a12_moveit_config/launch/gazebo.launch.py\n'}
+[0.253317] (jaka_a12_moveit_config) StdoutLine: {'line': b'-- Up-to-date symlink: /home/newtonrattapong/jaka_ws/install/jaka_a12_moveit_config/share/jaka_a12_moveit_config/launch/move_group.launch.py\n'}
+[0.253347] (jaka_a12_moveit_config) StdoutLine: {'line': b'-- Up-to-date symlink: /home/newtonrattapong/jaka_ws/install/jaka_a12_moveit_config/share/jaka_a12_moveit_config/launch/moveit_rviz.launch.py\n'}
+[0.253419] (jaka_a12_moveit_config) StdoutLine: {'line': b'-- Up-to-date symlink: /home/newtonrattapong/jaka_ws/install/jaka_a12_moveit_config/share/jaka_a12_moveit_config/launch/rsp.launch.py\n'}
+[0.253477] (jaka_a12_moveit_config) StdoutLine: {'line': b'-- Up-to-date symlink: /home/newtonrattapong/jaka_ws/install/jaka_a12_moveit_config/share/jaka_a12_moveit_config/launch/setup_assistant.launch.py\n'}
+[0.253537] (jaka_a12_moveit_config) StdoutLine: {'line': b'-- Up-to-date symlink: /home/newtonrattapong/jaka_ws/install/jaka_a12_moveit_config/share/jaka_a12_moveit_config/launch/spawn_controllers.launch.py\n'}
+[0.253569] (jaka_a12_moveit_config) StdoutLine: {'line': b'-- Up-to-date symlink: /home/newtonrattapong/jaka_ws/install/jaka_a12_moveit_config/share/jaka_a12_moveit_config/launch/static_virtual_joint_tfs.launch.py\n'}
+[0.253627] (jaka_a12_moveit_config) StdoutLine: {'line': b'-- Up-to-date symlink: /home/newtonrattapong/jaka_ws/install/jaka_a12_moveit_config/share/jaka_a12_moveit_config/launch/warehouse_db.launch.py\n'}
+[0.253841] (jaka_a12_moveit_config) StdoutLine: {'line': b'-- Up-to-date symlink: /home/newtonrattapong/jaka_ws/install/jaka_a12_moveit_config/share/jaka_a12_moveit_config/config/dual_interactive_object_demo.rviz\n'}
+[0.253903] (jaka_a12_moveit_config) StdoutLine: {'line': b'-- Up-to-date symlink: /home/newtonrattapong/jaka_ws/install/jaka_a12_moveit_config/share/jaka_a12_moveit_config/config/dual_jaka_a12.urdf.xacro\n'}
+[0.253955] (jaka_a12_moveit_config) StdoutLine: {'line': b'-- Up-to-date symlink: /home/newtonrattapong/jaka_ws/install/jaka_a12_moveit_config/share/jaka_a12_moveit_config/config/dual_jaka_a12_tf_demo.rviz\n'}
+[0.254009] (jaka_a12_moveit_config) StdoutLine: {'line': b'-- Up-to-date symlink: /home/newtonrattapong/jaka_ws/install/jaka_a12_moveit_config/share/jaka_a12_moveit_config/config/initial_positions.yaml\n'}
+[0.254063] (jaka_a12_moveit_config) StdoutLine: {'line': b'-- Up-to-date symlink: /home/newtonrattapong/jaka_ws/install/jaka_a12_moveit_config/share/jaka_a12_moveit_config/config/jaka_a12.ros2_control.xacro\n'}
+[0.254121] (jaka_a12_moveit_config) StdoutLine: {'line': b'-- Up-to-date symlink: /home/newtonrattapong/jaka_ws/install/jaka_a12_moveit_config/share/jaka_a12_moveit_config/config/jaka_a12.srdf\n'}
+[0.254179] (jaka_a12_moveit_config) StdoutLine: {'line': b'-- Up-to-date symlink: /home/newtonrattapong/jaka_ws/install/jaka_a12_moveit_config/share/jaka_a12_moveit_config/config/jaka_a12.urdf.xacro\n'}
+[0.254236] (jaka_a12_moveit_config) StdoutLine: {'line': b'-- Up-to-date symlink: /home/newtonrattapong/jaka_ws/install/jaka_a12_moveit_config/share/jaka_a12_moveit_config/config/jaka_a12_prefixed.urdf.xacro\n'}
+[0.254293] (jaka_a12_moveit_config) StdoutLine: {'line': b'-- Up-to-date symlink: /home/newtonrattapong/jaka_ws/install/jaka_a12_moveit_config/share/jaka_a12_moveit_config/config/joint_limits.yaml\n'}
+[0.254369] (jaka_a12_moveit_config) StdoutLine: {'line': b'-- Up-to-date symlink: /home/newtonrattapong/jaka_ws/install/jaka_a12_moveit_config/share/jaka_a12_moveit_config/config/kinematics.yaml\n'}
+[0.254399] (jaka_a12_moveit_config) StdoutLine: {'line': b'-- Up-to-date symlink: /home/newtonrattapong/jaka_ws/install/jaka_a12_moveit_config/share/jaka_a12_moveit_config/config/moveit.rviz\n'}
+[0.254473] (jaka_a12_moveit_config) StdoutLine: {'line': b'-- Up-to-date symlink: /home/newtonrattapong/jaka_ws/install/jaka_a12_moveit_config/share/jaka_a12_moveit_config/config/moveit_controllers.yaml\n'}
+[0.254510] (jaka_a12_moveit_config) StdoutLine: {'line': b'-- Up-to-date symlink: /home/newtonrattapong/jaka_ws/install/jaka_a12_moveit_config/share/jaka_a12_moveit_config/config/pilz_cartesian_limits.yaml\n'}
+[0.254567] (jaka_a12_moveit_config) StdoutLine: {'line': b'-- Up-to-date symlink: /home/newtonrattapong/jaka_ws/install/jaka_a12_moveit_config/share/jaka_a12_moveit_config/config/ros2_controllers.yaml\n'}
+[0.254620] (jaka_a12_moveit_config) StdoutLine: {'line': b'-- Up-to-date symlink: /home/newtonrattapong/jaka_ws/install/jaka_a12_moveit_config/share/jaka_a12_moveit_config/.setup_assistant\n'}
+[0.255855] (jaka_a12_moveit_config) CommandEnded: {'returncode': 0}
+[0.266831] (jaka_a12_moveit_config) JobEnded: {'identifier': 'jaka_a12_moveit_config', 'rc': 0}
+[0.299947] (-) TimerEvent: {}
+[0.400126] (-) TimerEvent: {}
+[0.500285] (-) TimerEvent: {}
+[0.600440] (-) TimerEvent: {}
+[0.700596] (-) TimerEvent: {}
+[0.800754] (-) TimerEvent: {}
+[0.900926] (-) TimerEvent: {}
+[1.001086] (-) TimerEvent: {}
+[1.101277] (-) TimerEvent: {}
+[1.201440] (-) TimerEvent: {}
+[1.301614] (-) TimerEvent: {}
+[1.401774] (-) TimerEvent: {}
+[1.501953] (-) TimerEvent: {}
+[1.602140] (-) TimerEvent: {}
+[1.702316] (-) TimerEvent: {}
+[1.802479] (-) TimerEvent: {}
+[1.902652] (-) TimerEvent: {}
+[2.002914] (-) TimerEvent: {}
+[2.103104] (-) TimerEvent: {}
+[2.203258] (-) TimerEvent: {}
+[2.303440] (-) TimerEvent: {}
+[2.403743] (-) TimerEvent: {}
+[2.503905] (-) TimerEvent: {}
+[2.604099] (-) TimerEvent: {}
+[2.704289] (-) TimerEvent: {}
+[2.804485] (-) TimerEvent: {}
+[2.904676] (-) TimerEvent: {}
+[3.004881] (-) TimerEvent: {}
+[3.105046] (-) TimerEvent: {}
+[3.205210] (-) TimerEvent: {}
+[3.305383] (-) TimerEvent: {}
+[3.405591] (-) TimerEvent: {}
+[3.505815] (-) TimerEvent: {}
+[3.605997] (-) TimerEvent: {}
+[3.706172] (-) TimerEvent: {}
+[3.806345] (-) TimerEvent: {}
+[3.906557] (-) TimerEvent: {}
+[4.006726] (-) TimerEvent: {}
+[4.106891] (-) TimerEvent: {}
+[4.207097] (-) TimerEvent: {}
+[4.307275] (-) TimerEvent: {}
+[4.407462] (-) TimerEvent: {}
+[4.507668] (-) TimerEvent: {}
+[4.607884] (-) TimerEvent: {}
+[4.708104] (-) TimerEvent: {}
+[4.808315] (-) TimerEvent: {}
+[4.908490] (-) TimerEvent: {}
+[5.008679] (-) TimerEvent: {}
+[5.108856] (-) TimerEvent: {}
+[5.209040] (-) TimerEvent: {}
+[5.309247] (-) TimerEvent: {}
+[5.409423] (-) TimerEvent: {}
+[5.509554] (-) TimerEvent: {}
+[5.609730] (-) TimerEvent: {}
+[5.709939] (-) TimerEvent: {}
+[5.810110] (-) TimerEvent: {}
+[5.910284] (-) TimerEvent: {}
+[6.010467] (-) TimerEvent: {}
+[6.110644] (-) TimerEvent: {}
+[6.210812] (-) TimerEvent: {}
+[6.310993] (-) TimerEvent: {}
+[6.411171] (-) TimerEvent: {}
+[6.511373] (-) TimerEvent: {}
+[6.611571] (-) TimerEvent: {}
+[6.711747] (-) TimerEvent: {}
+[6.811928] (-) TimerEvent: {}
+[6.912110] (-) TimerEvent: {}
+[7.012298] (-) TimerEvent: {}
+[7.112449] (-) TimerEvent: {}
+[7.212642] (-) TimerEvent: {}
+[7.312795] (-) TimerEvent: {}
+[7.412982] (-) TimerEvent: {}
+[7.513131] (-) TimerEvent: {}
+[7.613285] (-) TimerEvent: {}
+[7.713447] (-) TimerEvent: {}
+[7.813599] (-) TimerEvent: {}
+[7.913759] (-) TimerEvent: {}
+[8.013905] (-) TimerEvent: {}
+[8.114048] (-) TimerEvent: {}
+[8.214251] (-) TimerEvent: {}
+[8.314615] (-) TimerEvent: {}
+[8.414778] (-) TimerEvent: {}
+[8.514977] (-) TimerEvent: {}
+[8.615228] (-) TimerEvent: {}
+[8.715477] (-) TimerEvent: {}
+[8.815630] (-) TimerEvent: {}
+[8.915784] (-) TimerEvent: {}
+[9.015952] (-) TimerEvent: {}
+[9.116104] (-) TimerEvent: {}
+[9.216291] (-) TimerEvent: {}
+[9.316441] (-) TimerEvent: {}
+[9.416592] (-) TimerEvent: {}
+[9.516736] (-) TimerEvent: {}
+[9.616880] (-) TimerEvent: {}
+[9.717081] (-) TimerEvent: {}
+[9.817262] (-) TimerEvent: {}
+[9.917545] (-) TimerEvent: {}
+[10.017696] (-) TimerEvent: {}
+[10.117861] (-) TimerEvent: {}
+[10.218029] (-) TimerEvent: {}
+[10.318207] (-) TimerEvent: {}
+[10.418386] (-) TimerEvent: {}
+[10.518543] (-) TimerEvent: {}
+[10.618689] (-) TimerEvent: {}
+[10.718841] (-) TimerEvent: {}
+[10.819023] (-) TimerEvent: {}
+[10.919168] (-) TimerEvent: {}
+[11.019352] (-) TimerEvent: {}
+[11.119545] (-) TimerEvent: {}
+[11.219705] (-) TimerEvent: {}
+[11.319873] (-) TimerEvent: {}
+[11.420066] (-) TimerEvent: {}
+[11.520343] (-) TimerEvent: {}
+[11.620545] (-) TimerEvent: {}
+[11.720706] (-) TimerEvent: {}
+[11.820922] (-) TimerEvent: {}
+[11.921105] (-) TimerEvent: {}
+[12.021288] (-) TimerEvent: {}
+[12.121466] (-) TimerEvent: {}
+[12.221644] (-) TimerEvent: {}
+[12.321811] (-) TimerEvent: {}
+[12.422023] (-) TimerEvent: {}
+[12.522204] (-) TimerEvent: {}
+[12.622415] (-) TimerEvent: {}
+[12.722551] (-) TimerEvent: {}
+[12.822727] (-) TimerEvent: {}
+[12.922937] (-) TimerEvent: {}
+[13.023147] (-) TimerEvent: {}
+[13.123321] (-) TimerEvent: {}
+[13.223504] (-) TimerEvent: {}
+[13.323729] (-) TimerEvent: {}
+[13.423901] (-) TimerEvent: {}
+[13.524105] (-) TimerEvent: {}
+[13.624312] (-) TimerEvent: {}
+[13.724536] (-) TimerEvent: {}
+[13.824740] (-) TimerEvent: {}
+[13.924941] (-) TimerEvent: {}
+[14.025111] (-) TimerEvent: {}
+[14.125288] (-) TimerEvent: {}
+[14.225515] (-) TimerEvent: {}
+[14.325707] (-) TimerEvent: {}
+[14.425882] (-) TimerEvent: {}
+[14.526040] (-) TimerEvent: {}
+[14.626223] (-) TimerEvent: {}
+[14.726381] (-) TimerEvent: {}
+[14.826671] (-) TimerEvent: {}
+[14.926843] (-) TimerEvent: {}
+[15.027026] (-) TimerEvent: {}
+[15.127212] (-) TimerEvent: {}
+[15.227395] (-) TimerEvent: {}
+[15.327544] (-) TimerEvent: {}
+[15.427693] (-) TimerEvent: {}
+[15.527850] (-) TimerEvent: {}
+[15.628048] (-) TimerEvent: {}
+[15.728225] (-) TimerEvent: {}
+[15.828420] (-) TimerEvent: {}
+[15.928618] (-) TimerEvent: {}
+[16.028932] (-) TimerEvent: {}
+[16.129105] (-) TimerEvent: {}
+[16.229330] (-) TimerEvent: {}
+[16.329516] (-) TimerEvent: {}
+[16.429689] (-) TimerEvent: {}
+[16.529859] (-) TimerEvent: {}
+[16.630035] (-) TimerEvent: {}
+[16.730230] (-) TimerEvent: {}
+[16.830418] (-) TimerEvent: {}
+[16.930552] (-) TimerEvent: {}
+[17.030730] (-) TimerEvent: {}
+[17.130903] (-) TimerEvent: {}
+[17.231073] (-) TimerEvent: {}
+[17.331291] (-) TimerEvent: {}
+[17.431478] (-) TimerEvent: {}
+[17.531664] (-) TimerEvent: {}
+[17.631875] (-) TimerEvent: {}
+[17.732049] (-) TimerEvent: {}
+[17.832217] (-) TimerEvent: {}
+[17.932389] (-) TimerEvent: {}
+[18.032561] (-) TimerEvent: {}
+[18.132743] (-) TimerEvent: {}
+[18.232924] (-) TimerEvent: {}
+[18.333090] (-) TimerEvent: {}
+[18.433259] (-) TimerEvent: {}
+[18.533461] (-) TimerEvent: {}
+[18.633654] (-) TimerEvent: {}
+[18.733835] (-) TimerEvent: {}
+[18.834038] (-) TimerEvent: {}
+[18.934207] (-) TimerEvent: {}
+[19.034382] (-) TimerEvent: {}
+[19.134554] (-) TimerEvent: {}
+[19.234762] (-) TimerEvent: {}
+[19.334936] (-) TimerEvent: {}
+[19.435141] (-) TimerEvent: {}
+[19.535318] (-) TimerEvent: {}
+[19.635543] (-) TimerEvent: {}
+[19.735749] (-) TimerEvent: {}
+[19.835967] (-) TimerEvent: {}
+[19.936140] (-) TimerEvent: {}
+[20.036309] (-) TimerEvent: {}
+[20.136483] (-) TimerEvent: {}
+[20.236705] (-) TimerEvent: {}
+[20.336866] (-) TimerEvent: {}
+[20.437063] (-) TimerEvent: {}
+[20.537273] (-) TimerEvent: {}
+[20.637454] (-) TimerEvent: {}
+[20.737609] (-) TimerEvent: {}
+[20.837761] (-) TimerEvent: {}
+[20.937993] (-) TimerEvent: {}
+[21.038148] (-) TimerEvent: {}
+[21.138332] (-) TimerEvent: {}
+[21.238484] (-) TimerEvent: {}
+[21.338645] (-) TimerEvent: {}
+[21.438802] (-) TimerEvent: {}
+[21.539086] (-) TimerEvent: {}
+[21.639294] (-) TimerEvent: {}
+[21.739518] (-) TimerEvent: {}
+[21.839732] (-) TimerEvent: {}
+[21.939905] (-) TimerEvent: {}
+[22.040123] (-) TimerEvent: {}
+[22.140350] (-) TimerEvent: {}
+[22.240564] (-) TimerEvent: {}
+[22.340890] (-) TimerEvent: {}
+[22.441204] (-) TimerEvent: {}
+[22.541419] (-) TimerEvent: {}
+[22.641606] (-) TimerEvent: {}
+[22.741780] (-) TimerEvent: {}
+[22.841954] (-) TimerEvent: {}
+[22.942129] (-) TimerEvent: {}
+[23.042302] (-) TimerEvent: {}
+[23.142513] (-) TimerEvent: {}
+[23.242736] (-) TimerEvent: {}
+[23.342942] (-) TimerEvent: {}
+[23.443110] (-) TimerEvent: {}
+[23.543325] (-) TimerEvent: {}
+[23.643545] (-) TimerEvent: {}
+[23.743725] (-) TimerEvent: {}
+[23.843929] (-) TimerEvent: {}
+[23.944107] (-) TimerEvent: {}
+[24.044278] (-) TimerEvent: {}
+[24.144487] (-) TimerEvent: {}
+[24.244630] (-) TimerEvent: {}
+[24.344803] (-) TimerEvent: {}
+[24.444970] (-) TimerEvent: {}
+[24.545143] (-) TimerEvent: {}
+[24.645350] (-) TimerEvent: {}
+[24.745530] (-) TimerEvent: {}
+[24.845736] (-) TimerEvent: {}
+[24.945909] (-) TimerEvent: {}
+[25.046123] (-) TimerEvent: {}
+[25.146387] (-) TimerEvent: {}
+[25.246602] (-) TimerEvent: {}
+[25.346806] (-) TimerEvent: {}
+[25.446984] (-) TimerEvent: {}
+[25.547200] (-) TimerEvent: {}
+[25.647393] (-) TimerEvent: {}
+[25.747556] (-) TimerEvent: {}
+[25.847739] (-) TimerEvent: {}
+[25.947917] (-) TimerEvent: {}
+[26.048072] (-) TimerEvent: {}
+[26.148229] (-) TimerEvent: {}
+[26.248391] (-) TimerEvent: {}
+[26.348550] (-) TimerEvent: {}
+[26.448757] (-) TimerEvent: {}
+[26.548925] (-) TimerEvent: {}
+[26.649122] (-) TimerEvent: {}
+[26.749295] (-) TimerEvent: {}
+[26.849469] (-) TimerEvent: {}
+[26.949619] (-) TimerEvent: {}
+[27.049757] (-) TimerEvent: {}
+[27.149942] (-) TimerEvent: {}
+[27.250117] (-) TimerEvent: {}
+[27.350315] (-) TimerEvent: {}
+[27.450519] (-) TimerEvent: {}
+[27.550665] (-) TimerEvent: {}
+[27.650826] (-) TimerEvent: {}
+[27.751004] (-) TimerEvent: {}
+[27.851191] (-) TimerEvent: {}
+[27.951364] (-) TimerEvent: {}
+[28.051507] (-) TimerEvent: {}
+[28.151666] (-) TimerEvent: {}
+[28.251817] (-) TimerEvent: {}
+[28.351993] (-) TimerEvent: {}
+[28.452254] (-) TimerEvent: {}
+[28.552436] (-) TimerEvent: {}
+[28.652595] (-) TimerEvent: {}
+[28.752736] (-) TimerEvent: {}
+[28.852934] (-) TimerEvent: {}
+[28.953103] (-) TimerEvent: {}
+[29.053253] (-) TimerEvent: {}
+[29.153436] (-) TimerEvent: {}
+[29.253547] (-) TimerEvent: {}
+[29.353705] (-) TimerEvent: {}
+[29.453865] (-) TimerEvent: {}
+[29.554064] (-) TimerEvent: {}
+[29.654230] (-) TimerEvent: {}
+[29.754390] (-) TimerEvent: {}
+[29.854548] (-) TimerEvent: {}
+[29.954699] (-) TimerEvent: {}
+[30.054874] (-) TimerEvent: {}
+[30.155069] (-) TimerEvent: {}
+[30.255256] (-) TimerEvent: {}
+[30.296989] (jaka_coop_monitor) Command: {'cmd': ['/usr/bin/python3', '-W', 'ignore:setup.py install is deprecated', '-W', 'ignore:easy_install command is deprecated', 'setup.py', 'develop', '--editable', '--build-directory', '/home/newtonrattapong/jaka_ws/build/jaka_coop_monitor/build', '--no-deps', 'symlink_data'], 'cwd': '/home/newtonrattapong/jaka_ws/build/jaka_coop_monitor', 'env': {'LESSOPEN': '| /usr/bin/lesspipe %s', 'VSCODE_CWD': '/home/newtonrattapong/jaka_ws/src/jaka_coop_monitor', 'VSCODE_ESM_ENTRYPOINT': 'vs/workbench/api/node/extensionHostProcess', 'CODEX_CI': '1', 'USER': 'newtonrattapong', 'SNAP_COMMON': '/var/snap/code/common', 'LC_TIME': 'th_TH.UTF-8', 'CODEX_INTERNAL_ORIGINATOR_OVERRIDE': 'codex_vscode', 'VSCODE_NLS_CONFIG': '{"userLocale":"en-us","osLocale":"en-us","resolvedLanguage":"en","defaultMessagesFile":"/snap/code/247/usr/share/code/resources/app/out/nls.messages.json","locale":"en-us","availableLanguages":{}}', 'FONTCONFIG_PATH': '/etc/fonts', 'GIO_MODULE_DIR': '/home/newtonrattapong/snap/code/common/.cache/gio-modules', 'VSCODE_HANDLES_UNCAUGHT_ERRORS': 'true', 'XDG_SESSION_TYPE': 'x11', 'DEBUG': 'release', 'SNAP_UID': '1000', 'SHLVL': '1', 'LD_LIBRARY_PATH': '/home/newtonrattapong/jaka_ws/install/jaka_msgs/lib:/opt/ros/humble/opt/rviz_ogre_vendor/lib:/opt/ros/humble/lib/x86_64-linux-gnu:/opt/ros/humble/lib', 'HOME': '/home/newtonrattapong', 'CHROME_DESKTOP': 'code.desktop', 'SNAP_LIBRARY_PATH': '/var/lib/snapd/lib/gl:/var/lib/snapd/lib/gl32', 'OLDPWD': '/home/newtonrattapong/jaka_ws/src', 'DESKTOP_SESSION': 'ubuntu', 'SNAP_USER_DATA': '/home/newtonrattapong/snap/code/247', 'GTK_PATH': '/snap/code/247/usr/lib/x86_64-linux-gnu/gtk-3.0', 'VSCODE_IPC_HOOK': '/run/user/1000/vscode-d16abd05-1.12-main.sock', 'GTK_IM_MODULE_FILE': '/home/newtonrattapong/snap/code/common/.cache/immodules/immodules.cache', 'ROS_PYTHON_VERSION': '3', 'GNOME_SHELL_SESSION_MODE': 'ubuntu', 'GTK_MODULES': 'gail:atk-bridge', 'PAGER': 'cat', 'LC_MONETARY': 'th_TH.UTF-8', 'LC_CTYPE': 'C.UTF-8', 'SYSTEMD_EXEC_PID': '25743', 'NO_COLOR': '1', 'DBUS_SESSION_BUS_ADDRESS': 'unix:path=/run/user/1000/bus', 'SNAP_REVISION': '247', 'COLORTERM': 'truecolor', 'VSCODE_CRASH_REPORTER_PROCESS_TYPE': 'extensionHost', 'COLCON_PREFIX_PATH': '/home/newtonrattapong/jaka_ws/install:/home/newtonrattapong/ros2_ws/install', 'APPLICATION_INSIGHTS_NO_STATSBEAT': 'true', 'ROS_DISTRO': 'humble', 'GTK_IM_MODULE': 'ibus', 'LOGNAME': 'newtonrattapong', 'SNAP_CONTEXT': 'ZF2ZoGMWXd27zXznYXIa367VQ2o_8_OHcXl3m9FWOzftJTXw8P07', '_': '/usr/bin/colcon', 'ROS_VERSION': '2', 'XDG_CONFIG_DIRS_VSCODE_SNAP_ORIG': '/etc/xdg/xdg-ubuntu:/etc/xdg', 'XDG_SESSION_CLASS': 'user', 'SNAP_VERSION': '1b50d58d', 'XDG_DATA_DIRS_VSCODE_SNAP_ORIG': '/usr/share/ubuntu:/usr/share/gnome:/usr/local/share/:/usr/share/:/var/lib/snapd/desktop', 'RUST_LOG': 'warn', 'USERNAME': 'newtonrattapong', 'TERM': 'xterm-256color', 'GNOME_DESKTOP_SESSION_ID': 'this-is-deprecated', 'SNAP_INSTANCE_NAME': 'code', 'FC_FONTATIONS': '1', 'ROS_LOCALHOST_ONLY': '0', 'WINDOWPATH': '2', 'PATH': '/home/newtonrattapong/.codex/tmp/arg0/codex-arg0t4WBvB:/opt/ros/humble/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin:/snap/bin:/home/newtonrattapong/.vscode/extensions/openai.chatgpt-26.609.30741-linux-x64/bin/linux-x86_64', 'SESSION_MANAGER': 'local/rattapongs-ASUS:@/tmp/.ICE-unix/23658,unix/rattapongs-ASUS:/tmp/.ICE-unix/23658', 'GTK_EXE_PREFIX': '/snap/code/247/usr', 'XDG_MENU_PREFIX': 'gnome-', 'LC_ADDRESS': 'th_TH.UTF-8', 'GNOME_TERMINAL_SCREEN': '/org/gnome/Terminal/screen/39bccfc9_e4cc_479f_ad5f_8e2e6bcaf66a', 'SNAP_DATA': '/var/snap/code/247', 'XDG_RUNTIME_DIR': '/run/user/1000', 'GDK_BACKEND': 'x11', 'DISPLAY': ':1', 'LOCPATH': '/snap/code/247/usr/lib/locale', 'CODEX_SANDBOX_NETWORK_DISABLED': '1', 'LANG': 'en_US.UTF-8', 'XDG_CURRENT_DESKTOP': 'ubuntu:GNOME', 'LC_TELEPHONE': 'th_TH.UTF-8', 'XDG_DATA_HOME': '/home/newtonrattapong/snap/code/247/.local/share', 'XMODIFIERS': '@im=ibus', 'GH_PAGER': 'cat', 'XDG_SESSION_DESKTOP': 'ubuntu', 'XAUTHORITY': '/run/user/1000/gdm/Xauthority', 'LS_COLORS': 'rs=0:di=01;34:ln=01;36:mh=00:pi=40;33:so=01;35:do=01;35:bd=40;33;01:cd=40;33;01:or=40;31;01:mi=00:su=37;41:sg=30;43:ca=30;41:tw=30;42:ow=34;42:st=37;44:ex=01;32:*.tar=01;31:*.tgz=01;31:*.arc=01;31:*.arj=01;31:*.taz=01;31:*.lha=01;31:*.lz4=01;31:*.lzh=01;31:*.lzma=01;31:*.tlz=01;31:*.txz=01;31:*.tzo=01;31:*.t7z=01;31:*.zip=01;31:*.z=01;31:*.dz=01;31:*.gz=01;31:*.lrz=01;31:*.lz=01;31:*.lzo=01;31:*.xz=01;31:*.zst=01;31:*.tzst=01;31:*.bz2=01;31:*.bz=01;31:*.tbz=01;31:*.tbz2=01;31:*.tz=01;31:*.deb=01;31:*.rpm=01;31:*.jar=01;31:*.war=01;31:*.ear=01;31:*.sar=01;31:*.rar=01;31:*.alz=01;31:*.ace=01;31:*.zoo=01;31:*.cpio=01;31:*.7z=01;31:*.rz=01;31:*.cab=01;31:*.wim=01;31:*.swm=01;31:*.dwm=01;31:*.esd=01;31:*.jpg=01;35:*.jpeg=01;35:*.mjpg=01;35:*.mjpeg=01;35:*.gif=01;35:*.bmp=01;35:*.pbm=01;35:*.pgm=01;35:*.ppm=01;35:*.tga=01;35:*.xbm=01;35:*.xpm=01;35:*.tif=01;35:*.tiff=01;35:*.png=01;35:*.svg=01;35:*.svgz=01;35:*.mng=01;35:*.pcx=01;35:*.mov=01;35:*.mpg=01;35:*.mpeg=01;35:*.m2v=01;35:*.mkv=01;35:*.webm=01;35:*.webp=01;35:*.ogm=01;35:*.mp4=01;35:*.m4v=01;35:*.mp4v=01;35:*.vob=01;35:*.qt=01;35:*.nuv=01;35:*.wmv=01;35:*.asf=01;35:*.rm=01;35:*.rmvb=01;35:*.flc=01;35:*.avi=01;35:*.fli=01;35:*.flv=01;35:*.gl=01;35:*.dl=01;35:*.xcf=01;35:*.xwd=01;35:*.yuv=01;35:*.cgm=01;35:*.emf=01;35:*.ogv=01;35:*.ogx=01;35:*.aac=00;36:*.au=00;36:*.flac=00;36:*.m4a=00;36:*.mid=00;36:*.midi=00;36:*.mka=00;36:*.mp3=00;36:*.mpc=00;36:*.ogg=00;36:*.ra=00;36:*.wav=00;36:*.oga=00;36:*.opus=00;36:*.spx=00;36:*.xspf=00;36:', 'GNOME_TERMINAL_SERVICE': ':1.105', 'SSH_AGENT_LAUNCHER': 'gnome-keyring', 'SNAP_USER_COMMON': '/home/newtonrattapong/snap/code/common', 'SSH_AUTH_SOCK': '/run/user/1000/keyring/ssh', 'GSETTINGS_SCHEMA_DIR': '/home/newtonrattapong/snap/code/247/.local/share/glib-2.0/schemas', 'ROS_DOMAIN_ID': '1', 'SNAP_ARCH': 'amd64', 'AMENT_PREFIX_PATH': '/home/newtonrattapong/jaka_ws/install/jaka_zu7_moveit_config:/home/newtonrattapong/jaka_ws/install/jaka_zu5_moveit_config:/home/newtonrattapong/jaka_ws/install/jaka_zu3_moveit_config:/home/newtonrattapong/jaka_ws/install/jaka_zu30_moveit_config:/home/newtonrattapong/jaka_ws/install/jaka_zu20_moveit_config:/home/newtonrattapong/jaka_ws/install/jaka_zu18_moveit_config:/home/newtonrattapong/jaka_ws/install/jaka_zu12_moveit_config:/home/newtonrattapong/jaka_ws/install/jaka_s7_moveit_config:/home/newtonrattapong/jaka_ws/install/jaka_s5_moveit_config:/home/newtonrattapong/jaka_ws/install/jaka_s12_moveit_config:/home/newtonrattapong/jaka_ws/install/jaka_pro7_moveit_config:/home/newtonrattapong/jaka_ws/install/jaka_pro5_moveit_config:/home/newtonrattapong/jaka_ws/install/jaka_pro18_moveit_config:/home/newtonrattapong/jaka_ws/install/jaka_pro16_moveit_config:/home/newtonrattapong/jaka_ws/install/jaka_pro12_moveit_config:/home/newtonrattapong/jaka_ws/install/jaka_planner:/home/newtonrattapong/jaka_ws/install/jaka_driver:/home/newtonrattapong/jaka_ws/install/jaka_msgs:/home/newtonrattapong/jaka_ws/install/jaka_minicobo_moveit_config:/home/newtonrattapong/jaka_ws/install/jaka_c7_moveit_config:/home/newtonrattapong/jaka_ws/install/jaka_c5_moveit_config:/home/newtonrattapong/jaka_ws/install/jaka_c12_moveit_config:/home/newtonrattapong/jaka_ws/install/jaka_a5_moveit_config:/home/newtonrattapong/jaka_ws/install/jaka_a20_moveit_config:/home/newtonrattapong/jaka_ws/install/jaka_a12_moveit_config:/home/newtonrattapong/jaka_ws/install/jaka_description:/opt/ros/humble', 'SNAP_COOKIE': 'ZF2ZoGMWXd27zXznYXIa367VQ2o_8_OHcXl3m9FWOzftJTXw8P07', 'SHELL': '/bin/bash', 'LC_NAME': 'th_TH.UTF-8', 'GDK_PIXBUF_MODULEDIR': '/snap/code/247/usr/lib/x86_64-linux-gnu/gdk-pixbuf-2.0/2.10.0/loaders', 'QT_ACCESSIBILITY': '1', 'ELECTRON_RUN_AS_NODE': '1', 'NO_AT_BRIDGE': '1', 'GDMSESSION': 'ubuntu', 'LESSCLOSE': '/usr/bin/lesspipe %s %s', 'FONTCONFIG_FILE': '/etc/fonts/fonts.conf', 'SNAP_NAME': 'code', 'CODEX_THREAD_ID': '019ec927-93f6-7ef2-96f2-65dc6e423973', 'LC_MEASUREMENT': 'th_TH.UTF-8', 'GDK_PIXBUF_MODULE_FILE': '/home/newtonrattapong/snap/code/common/.cache/gdk-pixbuf-loaders.cache', 'GPG_AGENT_INFO': '/run/user/1000/gnupg/S.gpg-agent:0:1', 'LC_IDENTIFICATION': 'th_TH.UTF-8', 'SNAP_LAUNCHER_ARCH_TRIPLET': 'x86_64-linux-gnu', 'GIT_PAGER': 'cat', 'QT_IM_MODULE': 'ibus', 'PWD': '/home/newtonrattapong/jaka_ws/build/jaka_coop_monitor', 'VSCODE_CLI': '1', 'LC_ALL': 'en_US.UTF-8', 'XDG_CONFIG_DIRS': '/etc/xdg/xdg-ubuntu:/etc/xdg', 'SNAP_REAL_HOME': '/home/newtonrattapong', 'VSCODE_CODE_CACHE_PATH': '/home/newtonrattapong/.config/Code/CachedData/1b50d58d73426c9171299ec4037d01365d995b78', 'XDG_DATA_DIRS': '/home/newtonrattapong/snap/code/247/.local/share:/home/newtonrattapong/snap/code/247:/snap/code/247/usr/share:/usr/share/ubuntu:/usr/share/gnome:/usr/local/share/:/usr/share/:/var/lib/snapd/desktop', 'SNAP_EUID': '1000', 'PYTHONPATH': '/home/newtonrattapong/jaka_ws/build/jaka_coop_monitor/prefix_override:/usr/lib/python3/dist-packages/colcon_core/task/python/colcon_distutils_commands:/home/newtonrattapong/jaka_ws/install/jaka_coop_monitor/lib/python3.10/site-packages:/home/newtonrattapong/jaka_ws/install/jaka_msgs/local/lib/python3.10/dist-packages:/opt/ros/humble/lib/python3.10/site-packages:/opt/ros/humble/local/lib/python3.10/dist-packages', 'SNAP': '/snap/code/247', 'LC_NUMERIC': 'th_TH.UTF-8', 'LC_PAPER': 'th_TH.UTF-8', 'COLCON': '1', 'VTE_VERSION': '6800', 'ELECTRON_NO_ATTACH_CONSOLE': '1', 'CMAKE_PREFIX_PATH': '/home/newtonrattapong/jaka_ws/install/jaka_zu7_moveit_config:/home/newtonrattapong/jaka_ws/install/jaka_zu5_moveit_config:/home/newtonrattapong/jaka_ws/install/jaka_zu3_moveit_config:/home/newtonrattapong/jaka_ws/install/jaka_zu30_moveit_config:/home/newtonrattapong/jaka_ws/install/jaka_zu20_moveit_config:/home/newtonrattapong/jaka_ws/install/jaka_zu18_moveit_config:/home/newtonrattapong/jaka_ws/install/jaka_zu12_moveit_config:/home/newtonrattapong/jaka_ws/install/jaka_s7_moveit_config:/home/newtonrattapong/jaka_ws/install/jaka_s5_moveit_config:/home/newtonrattapong/jaka_ws/install/jaka_s12_moveit_config:/home/newtonrattapong/jaka_ws/install/jaka_pro7_moveit_config:/home/newtonrattapong/jaka_ws/install/jaka_pro5_moveit_config:/home/newtonrattapong/jaka_ws/install/jaka_pro18_moveit_config:/home/newtonrattapong/jaka_ws/install/jaka_pro16_moveit_config:/home/newtonrattapong/jaka_ws/install/jaka_pro12_moveit_config:/home/newtonrattapong/jaka_ws/install/jaka_planner:/home/newtonrattapong/jaka_ws/install/jaka_driver:/home/newtonrattapong/jaka_ws/install/jaka_msgs:/home/newtonrattapong/jaka_ws/install/jaka_minicobo_moveit_config:/home/newtonrattapong/jaka_ws/install/jaka_c7_moveit_config:/home/newtonrattapong/jaka_ws/install/jaka_c5_moveit_config:/home/newtonrattapong/jaka_ws/install/jaka_c12_moveit_config:/home/newtonrattapong/jaka_ws/install/jaka_a5_moveit_config:/home/newtonrattapong/jaka_ws/install/jaka_a20_moveit_config:/home/newtonrattapong/jaka_ws/install/jaka_a12_moveit_config:/home/newtonrattapong/jaka_ws/install/jaka_description', 'VSCODE_PID': '36262'}, 'shell': False}
+[30.355343] (-) TimerEvent: {}
+[30.455519] (-) TimerEvent: {}
+[30.480576] (jaka_coop_monitor) StdoutLine: {'line': b'running develop\n'}
+[30.555608] (-) TimerEvent: {}
+[30.576116] (jaka_coop_monitor) StdoutLine: {'line': b'running egg_info\n'}
+[30.576265] (jaka_coop_monitor) StdoutLine: {'line': b'writing jaka_coop_monitor.egg-info/PKG-INFO\n'}
+[30.576350] (jaka_coop_monitor) StdoutLine: {'line': b'writing dependency_links to jaka_coop_monitor.egg-info/dependency_links.txt\n'}
+[30.576464] (jaka_coop_monitor) StdoutLine: {'line': b'writing entry points to jaka_coop_monitor.egg-info/entry_points.txt\n'}
+[30.576533] (jaka_coop_monitor) StdoutLine: {'line': b'writing requirements to jaka_coop_monitor.egg-info/requires.txt\n'}
+[30.576598] (jaka_coop_monitor) StdoutLine: {'line': b'writing top-level names to jaka_coop_monitor.egg-info/top_level.txt\n'}
+[30.577824] (jaka_coop_monitor) StdoutLine: {'line': b"reading manifest file 'jaka_coop_monitor.egg-info/SOURCES.txt'\n"}
+[30.578447] (jaka_coop_monitor) StdoutLine: {'line': b"writing manifest file 'jaka_coop_monitor.egg-info/SOURCES.txt'\n"}
+[30.579286] (jaka_coop_monitor) StdoutLine: {'line': b'running build_ext\n'}
+[30.579409] (jaka_coop_monitor) StdoutLine: {'line': b'Creating /home/newtonrattapong/jaka_ws/install/jaka_coop_monitor/lib/python3.10/site-packages/jaka-coop-monitor.egg-link (link to .)\n'}
+[30.580000] (jaka_coop_monitor) StdoutLine: {'line': b'Installing dual_interactive_object_demo script to /home/newtonrattapong/jaka_ws/install/jaka_coop_monitor/lib/jaka_coop_monitor\n'}
+[30.580091] (jaka_coop_monitor) StdoutLine: {'line': b'Installing dual_jacobian_monitor script to /home/newtonrattapong/jaka_ws/install/jaka_coop_monitor/lib/jaka_coop_monitor\n'}
+[30.580192] (jaka_coop_monitor) StdoutLine: {'line': b'Installing dual_jacobian_velocity_logger script to /home/newtonrattapong/jaka_ws/install/jaka_coop_monitor/lib/jaka_coop_monitor\n'}
+[30.580442] (jaka_coop_monitor) StdoutLine: {'line': b'Installing dual_jacobian_velocity_monitor script to /home/newtonrattapong/jaka_ws/install/jaka_coop_monitor/lib/jaka_coop_monitor\n'}
+[30.580642] (jaka_coop_monitor) StdoutLine: {'line': b'Installing dual_object_trajectory_demo script to /home/newtonrattapong/jaka_ws/install/jaka_coop_monitor/lib/jaka_coop_monitor\n'}
+[30.580690] (jaka_coop_monitor) StdoutLine: {'line': b'Installing dual_relative_jacobian_logger script to /home/newtonrattapong/jaka_ws/install/jaka_coop_monitor/lib/jaka_coop_monitor\n'}
+[30.580722] (jaka_coop_monitor) StdoutLine: {'line': b'Installing dual_relative_jacobian_monitor script to /home/newtonrattapong/jaka_ws/install/jaka_coop_monitor/lib/jaka_coop_monitor\n'}
+[30.580750] (jaka_coop_monitor) StdoutLine: {'line': b'Installing dual_relative_motion_demo script to /home/newtonrattapong/jaka_ws/install/jaka_coop_monitor/lib/jaka_coop_monitor\n'}
+[30.580778] (jaka_coop_monitor) StdoutLine: {'line': b'Installing dual_relative_pose_logger script to /home/newtonrattapong/jaka_ws/install/jaka_coop_monitor/lib/jaka_coop_monitor\n'}
+[30.580808] (jaka_coop_monitor) StdoutLine: {'line': b'Installing dual_relative_pose_monitor script to /home/newtonrattapong/jaka_ws/install/jaka_coop_monitor/lib/jaka_coop_monitor\n'}
+[30.580835] (jaka_coop_monitor) StdoutLine: {'line': b'Installing dual_safety_posture_demo script to /home/newtonrattapong/jaka_ws/install/jaka_coop_monitor/lib/jaka_coop_monitor\n'}
+[30.580861] (jaka_coop_monitor) StdoutLine: {'line': b'Installing dual_task_priority_joint_limit_demo script to /home/newtonrattapong/jaka_ws/install/jaka_coop_monitor/lib/jaka_coop_monitor\n'}
+[30.580964] (jaka_coop_monitor) StdoutLine: {'line': b'Installing dual_task_priority_object_demo script to /home/newtonrattapong/jaka_ws/install/jaka_coop_monitor/lib/jaka_coop_monitor\n'}
+[30.581002] (jaka_coop_monitor) StdoutLine: {'line': b'Installing ee_pose_monitor script to /home/newtonrattapong/jaka_ws/install/jaka_coop_monitor/lib/jaka_coop_monitor\n'}
+[30.581031] (jaka_coop_monitor) StdoutLine: {'line': b'Installing joint_limit_logger script to /home/newtonrattapong/jaka_ws/install/jaka_coop_monitor/lib/jaka_coop_monitor\n'}
+[30.581058] (jaka_coop_monitor) StdoutLine: {'line': b'Installing joint_limit_monitor script to /home/newtonrattapong/jaka_ws/install/jaka_coop_monitor/lib/jaka_coop_monitor\n'}
+[30.581126] (jaka_coop_monitor) StdoutLine: {'line': b'Installing object_grasp_error_logger script to /home/newtonrattapong/jaka_ws/install/jaka_coop_monitor/lib/jaka_coop_monitor\n'}
+[30.581155] (jaka_coop_monitor) StdoutLine: {'line': b'Installing object_grasp_error_monitor script to /home/newtonrattapong/jaka_ws/install/jaka_coop_monitor/lib/jaka_coop_monitor\n'}
+[30.581217] (jaka_coop_monitor) StdoutLine: {'line': b'Installing object_grasp_frame_publisher script to /home/newtonrattapong/jaka_ws/install/jaka_coop_monitor/lib/jaka_coop_monitor\n'}
+[30.581276] (jaka_coop_monitor) StdoutLine: {'line': b'Installing pose_error_logger script to /home/newtonrattapong/jaka_ws/install/jaka_coop_monitor/lib/jaka_coop_monitor\n'}
+[30.581336] (jaka_coop_monitor) StdoutLine: {'line': b'Installing pose_error_monitor script to /home/newtonrattapong/jaka_ws/install/jaka_coop_monitor/lib/jaka_coop_monitor\n'}
+[30.581406] (jaka_coop_monitor) StdoutLine: {'line': b'Installing virtual_object_frame_publisher script to /home/newtonrattapong/jaka_ws/install/jaka_coop_monitor/lib/jaka_coop_monitor\n'}
+[30.581599] (jaka_coop_monitor) StdoutLine: {'line': b'\n'}
+[30.581689] (jaka_coop_monitor) StdoutLine: {'line': b'Installed /home/newtonrattapong/jaka_ws/build/jaka_coop_monitor\n'}
+[30.581728] (jaka_coop_monitor) StdoutLine: {'line': b'running symlink_data\n'}
+[30.601469] (jaka_coop_monitor) CommandEnded: {'returncode': 0}
+[30.606928] (jaka_coop_monitor) JobEnded: {'identifier': 'jaka_coop_monitor', 'rc': 0}
+[30.607267] (-) EventReactorShutdown: {}

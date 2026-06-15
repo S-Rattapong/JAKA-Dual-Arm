@@ -1,0 +1,31 @@
+[0.390s] Invoking command in '/home/newtonrattapong/jaka_ws/build/jaka_coop_monitor': PYTHONPATH=/home/newtonrattapong/jaka_ws/build/jaka_coop_monitor/prefix_override:/usr/lib/python3/dist-packages/colcon_core/task/python/colcon_distutils_commands:/home/newtonrattapong/jaka_ws/install/jaka_coop_monitor/lib/python3.10/site-packages:${PYTHONPATH} /usr/bin/python3 -W ignore:setup.py install is deprecated -W ignore:easy_install command is deprecated setup.py develop --editable --build-directory /home/newtonrattapong/jaka_ws/build/jaka_coop_monitor/build --no-deps symlink_data
+[0.594s] running develop
+[0.693s] running egg_info
+[0.693s] writing jaka_coop_monitor.egg-info/PKG-INFO
+[0.693s] writing dependency_links to jaka_coop_monitor.egg-info/dependency_links.txt
+[0.693s] writing entry points to jaka_coop_monitor.egg-info/entry_points.txt
+[0.694s] writing requirements to jaka_coop_monitor.egg-info/requires.txt
+[0.694s] writing top-level names to jaka_coop_monitor.egg-info/top_level.txt
+[0.695s] reading manifest file 'jaka_coop_monitor.egg-info/SOURCES.txt'
+[0.695s] writing manifest file 'jaka_coop_monitor.egg-info/SOURCES.txt'
+[0.696s] running build_ext
+[0.696s] Creating /home/newtonrattapong/jaka_ws/install/jaka_coop_monitor/lib/python3.10/site-packages/jaka-coop-monitor.egg-link (link to .)
+[0.697s] Installing dual_jacobian_monitor script to /home/newtonrattapong/jaka_ws/install/jaka_coop_monitor/lib/jaka_coop_monitor
+[0.697s] Installing dual_jacobian_velocity_logger script to /home/newtonrattapong/jaka_ws/install/jaka_coop_monitor/lib/jaka_coop_monitor
+[0.697s] Installing dual_jacobian_velocity_monitor script to /home/newtonrattapong/jaka_ws/install/jaka_coop_monitor/lib/jaka_coop_monitor
+[0.697s] Installing dual_relative_jacobian_monitor script to /home/newtonrattapong/jaka_ws/install/jaka_coop_monitor/lib/jaka_coop_monitor
+[0.697s] Installing dual_relative_pose_logger script to /home/newtonrattapong/jaka_ws/install/jaka_coop_monitor/lib/jaka_coop_monitor
+[0.697s] Installing dual_relative_pose_monitor script to /home/newtonrattapong/jaka_ws/install/jaka_coop_monitor/lib/jaka_coop_monitor
+[0.697s] Installing ee_pose_monitor script to /home/newtonrattapong/jaka_ws/install/jaka_coop_monitor/lib/jaka_coop_monitor
+[0.697s] Installing joint_limit_logger script to /home/newtonrattapong/jaka_ws/install/jaka_coop_monitor/lib/jaka_coop_monitor
+[0.697s] Installing joint_limit_monitor script to /home/newtonrattapong/jaka_ws/install/jaka_coop_monitor/lib/jaka_coop_monitor
+[0.697s] Installing object_grasp_error_logger script to /home/newtonrattapong/jaka_ws/install/jaka_coop_monitor/lib/jaka_coop_monitor
+[0.697s] Installing object_grasp_error_monitor script to /home/newtonrattapong/jaka_ws/install/jaka_coop_monitor/lib/jaka_coop_monitor
+[0.697s] Installing object_grasp_frame_publisher script to /home/newtonrattapong/jaka_ws/install/jaka_coop_monitor/lib/jaka_coop_monitor
+[0.697s] Installing pose_error_logger script to /home/newtonrattapong/jaka_ws/install/jaka_coop_monitor/lib/jaka_coop_monitor
+[0.697s] Installing pose_error_monitor script to /home/newtonrattapong/jaka_ws/install/jaka_coop_monitor/lib/jaka_coop_monitor
+[0.698s] Installing virtual_object_frame_publisher script to /home/newtonrattapong/jaka_ws/install/jaka_coop_monitor/lib/jaka_coop_monitor
+[0.698s] 
+[0.698s] Installed /home/newtonrattapong/jaka_ws/build/jaka_coop_monitor
+[0.698s] running symlink_data
+[0.716s] Invoked command in '/home/newtonrattapong/jaka_ws/build/jaka_coop_monitor' returned '0': PYTHONPATH=/home/newtonrattapong/jaka_ws/build/jaka_coop_monitor/prefix_override:/usr/lib/python3/dist-packages/colcon_core/task/python/colcon_distutils_commands:/home/newtonrattapong/jaka_ws/install/jaka_coop_monitor/lib/python3.10/site-packages:${PYTHONPATH} /usr/bin/python3 -W ignore:setup.py install is deprecated -W ignore:easy_install command is deprecated setup.py develop --editable --build-directory /home/newtonrattapong/jaka_ws/build/jaka_coop_monitor/build --no-deps symlink_data

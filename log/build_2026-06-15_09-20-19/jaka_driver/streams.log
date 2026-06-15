@@ -1,0 +1,34 @@
+[0.011s] Invoking command in '/home/newtonrattapong/jaka_ws/build/jaka_driver': AMENT_PREFIX_PATH=/home/newtonrattapong/jaka_ws/install/jaka_msgs:${AMENT_PREFIX_PATH} CMAKE_PREFIX_PATH=/home/newtonrattapong/jaka_ws/install/jaka_msgs:/opt/ros/humble LD_LIBRARY_PATH=/home/newtonrattapong/jaka_ws/install/jaka_msgs/lib:${LD_LIBRARY_PATH} PYTHONPATH=/home/newtonrattapong/jaka_ws/install/jaka_msgs/local/lib/python3.10/dist-packages:${PYTHONPATH} /usr/bin/cmake --build /home/newtonrattapong/jaka_ws/build/jaka_driver -- -j16 -l16
+[0.042s] [35m[1mConsolidate compiler generated dependencies of target servoj_demo[0m
+[0.042s] [35m[1mConsolidate compiler generated dependencies of target client[0m
+[0.042s] [35m[1mConsolidate compiler generated dependencies of target jaka_driver[0m
+[0.043s] [35m[1mConsolidate compiler generated dependencies of target sdk_test[0m
+[0.053s] [ 25%] Built target servoj_demo
+[0.054s] [ 50%] Built target jaka_driver
+[0.055s] [ 75%] Built target sdk_test
+[0.055s] [100%] Built target client
+[0.062s] Invoked command in '/home/newtonrattapong/jaka_ws/build/jaka_driver' returned '0': AMENT_PREFIX_PATH=/home/newtonrattapong/jaka_ws/install/jaka_msgs:${AMENT_PREFIX_PATH} CMAKE_PREFIX_PATH=/home/newtonrattapong/jaka_ws/install/jaka_msgs:/opt/ros/humble LD_LIBRARY_PATH=/home/newtonrattapong/jaka_ws/install/jaka_msgs/lib:${LD_LIBRARY_PATH} PYTHONPATH=/home/newtonrattapong/jaka_ws/install/jaka_msgs/local/lib/python3.10/dist-packages:${PYTHONPATH} /usr/bin/cmake --build /home/newtonrattapong/jaka_ws/build/jaka_driver -- -j16 -l16
+[0.062s] Invoking command in '/home/newtonrattapong/jaka_ws/build/jaka_driver': AMENT_PREFIX_PATH=/home/newtonrattapong/jaka_ws/install/jaka_msgs:${AMENT_PREFIX_PATH} CMAKE_PREFIX_PATH=/home/newtonrattapong/jaka_ws/install/jaka_msgs:/opt/ros/humble LD_LIBRARY_PATH=/home/newtonrattapong/jaka_ws/install/jaka_msgs/lib:${LD_LIBRARY_PATH} PYTHONPATH=/home/newtonrattapong/jaka_ws/install/jaka_msgs/local/lib/python3.10/dist-packages:${PYTHONPATH} /usr/bin/cmake --install /home/newtonrattapong/jaka_ws/build/jaka_driver
+[0.068s] -- Install configuration: "Debug"
+[0.068s] -- Execute custom install script
+[0.068s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_driver/lib/jaka_driver/jaka_driver
+[0.074s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_driver/lib/jaka_driver/sdk_test
+[0.079s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_driver/lib/jaka_driver/client
+[0.085s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_driver/lib/jaka_driver/servoj_demo
+[0.090s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_driver/share/jaka_driver/launch/robot_start.launch.py
+[0.096s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_driver/share/ament_index/resource_index/package_run_dependencies/jaka_driver
+[0.100s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_driver/share/ament_index/resource_index/parent_prefix_path/jaka_driver
+[0.107s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_driver/share/jaka_driver/environment/ament_prefix_path.sh
+[0.112s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_driver/share/jaka_driver/environment/ament_prefix_path.dsv
+[0.116s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_driver/share/jaka_driver/environment/path.sh
+[0.122s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_driver/share/jaka_driver/environment/path.dsv
+[0.128s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_driver/share/jaka_driver/local_setup.bash
+[0.133s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_driver/share/jaka_driver/local_setup.sh
+[0.139s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_driver/share/jaka_driver/local_setup.zsh
+[0.144s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_driver/share/jaka_driver/local_setup.dsv
+[0.150s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_driver/share/jaka_driver/package.dsv
+[0.156s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_driver/share/ament_index/resource_index/packages/jaka_driver
+[0.161s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_driver/share/jaka_driver/cmake/jaka_driverConfig.cmake
+[0.165s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_driver/share/jaka_driver/cmake/jaka_driverConfig-version.cmake
+[0.172s] -- Symlinking: /home/newtonrattapong/jaka_ws/install/jaka_driver/share/jaka_driver/package.xml
+[0.178s] Invoked command in '/home/newtonrattapong/jaka_ws/build/jaka_driver' returned '0': AMENT_PREFIX_PATH=/home/newtonrattapong/jaka_ws/install/jaka_msgs:${AMENT_PREFIX_PATH} CMAKE_PREFIX_PATH=/home/newtonrattapong/jaka_ws/install/jaka_msgs:/opt/ros/humble LD_LIBRARY_PATH=/home/newtonrattapong/jaka_ws/install/jaka_msgs/lib:${LD_LIBRARY_PATH} PYTHONPATH=/home/newtonrattapong/jaka_ws/install/jaka_msgs/local/lib/python3.10/dist-packages:${PYTHONPATH} /usr/bin/cmake --install /home/newtonrattapong/jaka_ws/build/jaka_driver

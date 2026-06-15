@@ -1,0 +1,1 @@
+/home/newtonrattapong/jaka_ws/src/jaka_ros2/src/jaka_a12_moveit_config/launch/dual_safety_posture_demo.launch.py

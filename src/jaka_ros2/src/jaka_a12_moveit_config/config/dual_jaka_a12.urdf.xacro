@@ -1,0 +1,18 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="dual_jaka_a12">
+  <xacro:include filename="$(find jaka_a12_moveit_config)/config/jaka_a12_prefixed.urdf.xacro"/>
+
+  <link name="world"/>
+
+  <xacro:jaka_a12_prefixed
+    prefix="left_"
+    parent="world"
+    base_xyz="0.0 0.075 1.2"
+    base_rpy="1.570796326795 0.0 3.14159265359"/>
+
+  <xacro:jaka_a12_prefixed
+    prefix="right_"
+    parent="world"
+    base_xyz="0.0 -0.075 1.2"
+    base_rpy="-1.570796326795 0.0 3.14159265359"/>
+</robot>
