@@ -1,4 +1,4 @@
-# ROS2 build outputs
+# ROS 2 build outputs
 build/
 install/
 log/
@@ -7,26 +7,18 @@ log/
 __pycache__/
 *.pyc
 *.pyo
+*.pyd
 
-# ROS logs
-.ros/
+# Test/cache
+.pytest_cache/
+.cache/
 
-# Colcon
-.colcon/
-
-# VS Code
-.vscode/
-
-# Temporary / backup files
-*.bak
-*_backup*
-*~
-.DS_Store
-
-# Large generated files
+# Logs/bags
+*.log
 *.bag
 *.db3
-*.sqlite3
+*.mcap
 
-# RViz generated frame PDFs
-frames_*.pdf
+# OS/editor
+.DS_Store
+.vscode/
