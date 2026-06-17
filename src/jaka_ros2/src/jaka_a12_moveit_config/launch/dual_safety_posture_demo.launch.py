@@ -100,6 +100,54 @@ def generate_launch_description():
     prefer_full_orientation_over_yaw_only = LaunchConfiguration(
         "prefer_full_orientation_over_yaw_only"
     )
+    ee_orientation_mode = LaunchConfiguration("ee_orientation_mode")
+    flange_normal_axis = LaunchConfiguration("flange_normal_axis")
+    face_to_face_up_axis = LaunchConfiguration("face_to_face_up_axis")
+    face_to_face_debug_log = LaunchConfiguration("face_to_face_debug_log")
+    left_custom_roll_deg = LaunchConfiguration("left_custom_roll_deg")
+    left_custom_pitch_deg = LaunchConfiguration("left_custom_pitch_deg")
+    left_custom_yaw_deg = LaunchConfiguration("left_custom_yaw_deg")
+    right_custom_roll_deg = LaunchConfiguration("right_custom_roll_deg")
+    right_custom_pitch_deg = LaunchConfiguration("right_custom_pitch_deg")
+    right_custom_yaw_deg = LaunchConfiguration("right_custom_yaw_deg")
+    custom_ee_orientation_debug_log = LaunchConfiguration(
+        "custom_ee_orientation_debug_log"
+    )
+    enable_grasp_sync_guard = LaunchConfiguration("enable_grasp_sync_guard")
+    grasp_sync_orientation_error_start_deg = LaunchConfiguration(
+        "grasp_sync_orientation_error_start_deg"
+    )
+    grasp_sync_orientation_error_stop_deg = LaunchConfiguration(
+        "grasp_sync_orientation_error_stop_deg"
+    )
+    grasp_sync_min_motion_scale = LaunchConfiguration(
+        "grasp_sync_min_motion_scale"
+    )
+    grasp_sync_pause_object_motion_on_large_error = LaunchConfiguration(
+        "grasp_sync_pause_object_motion_on_large_error"
+    )
+    grasp_sync_allow_orientation_catchup = LaunchConfiguration(
+        "grasp_sync_allow_orientation_catchup"
+    )
+    grasp_sync_scale_object_translation = LaunchConfiguration(
+        "grasp_sync_scale_object_translation"
+    )
+    grasp_sync_scale_object_yaw = LaunchConfiguration(
+        "grasp_sync_scale_object_yaw"
+    )
+    grasp_sync_scale_object_qdot = LaunchConfiguration(
+        "grasp_sync_scale_object_qdot"
+    )
+    grasp_sync_boost_orientation_when_lagging = LaunchConfiguration(
+        "grasp_sync_boost_orientation_when_lagging"
+    )
+    grasp_sync_orientation_boost_gain = LaunchConfiguration(
+        "grasp_sync_orientation_boost_gain"
+    )
+    grasp_sync_max_boosted_angular_speed = LaunchConfiguration(
+        "grasp_sync_max_boosted_angular_speed"
+    )
+    grasp_sync_debug_log = LaunchConfiguration("grasp_sync_debug_log")
 
     xacro_file = PathJoinSubstitution(
         [FindPackageShare("jaka_a12_moveit_config"), "config", "dual_jaka_a12.urdf.xacro"]
@@ -214,6 +262,57 @@ def generate_launch_description():
                 "prefer_full_orientation_over_yaw_only",
                 default_value="true",
             ),
+            DeclareLaunchArgument("ee_orientation_mode", default_value="fixed_initial"),
+            DeclareLaunchArgument("flange_normal_axis", default_value="+Z"),
+            DeclareLaunchArgument("face_to_face_up_axis", default_value="+Z"),
+            DeclareLaunchArgument("face_to_face_debug_log", default_value="true"),
+            DeclareLaunchArgument("left_custom_roll_deg", default_value="0.0"),
+            DeclareLaunchArgument("left_custom_pitch_deg", default_value="0.0"),
+            DeclareLaunchArgument("left_custom_yaw_deg", default_value="0.0"),
+            DeclareLaunchArgument("right_custom_roll_deg", default_value="0.0"),
+            DeclareLaunchArgument("right_custom_pitch_deg", default_value="0.0"),
+            DeclareLaunchArgument("right_custom_yaw_deg", default_value="0.0"),
+            DeclareLaunchArgument(
+                "custom_ee_orientation_debug_log",
+                default_value="true",
+            ),
+            DeclareLaunchArgument("enable_grasp_sync_guard", default_value="true"),
+            DeclareLaunchArgument(
+                "grasp_sync_orientation_error_start_deg",
+                default_value="6.0",
+            ),
+            DeclareLaunchArgument(
+                "grasp_sync_orientation_error_stop_deg",
+                default_value="18.0",
+            ),
+            DeclareLaunchArgument("grasp_sync_min_motion_scale", default_value="0.10"),
+            DeclareLaunchArgument(
+                "grasp_sync_pause_object_motion_on_large_error",
+                default_value="true",
+            ),
+            DeclareLaunchArgument(
+                "grasp_sync_allow_orientation_catchup",
+                default_value="true",
+            ),
+            DeclareLaunchArgument(
+                "grasp_sync_scale_object_translation",
+                default_value="true",
+            ),
+            DeclareLaunchArgument("grasp_sync_scale_object_yaw", default_value="true"),
+            DeclareLaunchArgument("grasp_sync_scale_object_qdot", default_value="true"),
+            DeclareLaunchArgument(
+                "grasp_sync_boost_orientation_when_lagging",
+                default_value="true",
+            ),
+            DeclareLaunchArgument(
+                "grasp_sync_orientation_boost_gain",
+                default_value="1.5",
+            ),
+            DeclareLaunchArgument(
+                "grasp_sync_max_boosted_angular_speed",
+                default_value="0.25",
+            ),
+            DeclareLaunchArgument("grasp_sync_debug_log", default_value="true"),
             Node(
                 package="robot_state_publisher",
                 executable="robot_state_publisher",
@@ -444,6 +543,102 @@ def generate_launch_description():
                         ),
                         "prefer_full_orientation_over_yaw_only": ParameterValue(
                             prefer_full_orientation_over_yaw_only,
+                            value_type=bool,
+                        ),
+                        "ee_orientation_mode": ParameterValue(
+                            ee_orientation_mode,
+                            value_type=str,
+                        ),
+                        "flange_normal_axis": ParameterValue(
+                            flange_normal_axis,
+                            value_type=str,
+                        ),
+                        "face_to_face_up_axis": ParameterValue(
+                            face_to_face_up_axis,
+                            value_type=str,
+                        ),
+                        "face_to_face_debug_log": ParameterValue(
+                            face_to_face_debug_log,
+                            value_type=bool,
+                        ),
+                        "left_custom_roll_deg": ParameterValue(
+                            left_custom_roll_deg,
+                            value_type=float,
+                        ),
+                        "left_custom_pitch_deg": ParameterValue(
+                            left_custom_pitch_deg,
+                            value_type=float,
+                        ),
+                        "left_custom_yaw_deg": ParameterValue(
+                            left_custom_yaw_deg,
+                            value_type=float,
+                        ),
+                        "right_custom_roll_deg": ParameterValue(
+                            right_custom_roll_deg,
+                            value_type=float,
+                        ),
+                        "right_custom_pitch_deg": ParameterValue(
+                            right_custom_pitch_deg,
+                            value_type=float,
+                        ),
+                        "right_custom_yaw_deg": ParameterValue(
+                            right_custom_yaw_deg,
+                            value_type=float,
+                        ),
+                        "custom_ee_orientation_debug_log": ParameterValue(
+                            custom_ee_orientation_debug_log,
+                            value_type=bool,
+                        ),
+                        "enable_grasp_sync_guard": ParameterValue(
+                            enable_grasp_sync_guard,
+                            value_type=bool,
+                        ),
+                        "grasp_sync_orientation_error_start_deg": ParameterValue(
+                            grasp_sync_orientation_error_start_deg,
+                            value_type=float,
+                        ),
+                        "grasp_sync_orientation_error_stop_deg": ParameterValue(
+                            grasp_sync_orientation_error_stop_deg,
+                            value_type=float,
+                        ),
+                        "grasp_sync_min_motion_scale": ParameterValue(
+                            grasp_sync_min_motion_scale,
+                            value_type=float,
+                        ),
+                        "grasp_sync_pause_object_motion_on_large_error": ParameterValue(
+                            grasp_sync_pause_object_motion_on_large_error,
+                            value_type=bool,
+                        ),
+                        "grasp_sync_allow_orientation_catchup": ParameterValue(
+                            grasp_sync_allow_orientation_catchup,
+                            value_type=bool,
+                        ),
+                        "grasp_sync_scale_object_translation": ParameterValue(
+                            grasp_sync_scale_object_translation,
+                            value_type=bool,
+                        ),
+                        "grasp_sync_scale_object_yaw": ParameterValue(
+                            grasp_sync_scale_object_yaw,
+                            value_type=bool,
+                        ),
+                        "grasp_sync_scale_object_qdot": ParameterValue(
+                            grasp_sync_scale_object_qdot,
+                            value_type=bool,
+                        ),
+                        "grasp_sync_boost_orientation_when_lagging": ParameterValue(
+                            grasp_sync_boost_orientation_when_lagging,
+                            value_type=bool,
+                        ),
+                        "grasp_sync_orientation_boost_gain": ParameterValue(
+                            grasp_sync_orientation_boost_gain,
+                            value_type=float,
+                        ),
+                        "grasp_sync_max_boosted_angular_speed": ParameterValue(
+                            grasp_sync_max_boosted_angular_speed,
+                            value_type=float,
+                        ),
+                        "grasp_sync_debug_log": ParameterValue(
+                            grasp_sync_debug_log,
                             value_type=bool,
                         ),
                     }

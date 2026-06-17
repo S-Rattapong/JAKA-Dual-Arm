@@ -102,6 +102,30 @@ class DualSafetyPostureDemo(DualTaskPriorityJointLimitDemo):
         self.declare_parameter('full_ee_orientation_task_damping', 0.08)
         self.declare_parameter('full_ee_orientation_debug_log', True)
         self.declare_parameter('prefer_full_orientation_over_yaw_only', True)
+        self.declare_parameter('ee_orientation_mode', 'fixed_initial')
+        self.declare_parameter('flange_normal_axis', '+Z')
+        self.declare_parameter('face_to_face_up_axis', '+Z')
+        self.declare_parameter('face_to_face_debug_log', True)
+        self.declare_parameter('left_custom_roll_deg', 0.0)
+        self.declare_parameter('left_custom_pitch_deg', 0.0)
+        self.declare_parameter('left_custom_yaw_deg', 0.0)
+        self.declare_parameter('right_custom_roll_deg', 0.0)
+        self.declare_parameter('right_custom_pitch_deg', 0.0)
+        self.declare_parameter('right_custom_yaw_deg', 0.0)
+        self.declare_parameter('custom_ee_orientation_debug_log', True)
+        self.declare_parameter('enable_grasp_sync_guard', True)
+        self.declare_parameter('grasp_sync_orientation_error_start_deg', 6.0)
+        self.declare_parameter('grasp_sync_orientation_error_stop_deg', 18.0)
+        self.declare_parameter('grasp_sync_min_motion_scale', 0.10)
+        self.declare_parameter('grasp_sync_pause_object_motion_on_large_error', True)
+        self.declare_parameter('grasp_sync_allow_orientation_catchup', True)
+        self.declare_parameter('grasp_sync_scale_object_translation', True)
+        self.declare_parameter('grasp_sync_scale_object_yaw', True)
+        self.declare_parameter('grasp_sync_scale_object_qdot', True)
+        self.declare_parameter('grasp_sync_boost_orientation_when_lagging', True)
+        self.declare_parameter('grasp_sync_orientation_boost_gain', 1.5)
+        self.declare_parameter('grasp_sync_max_boosted_angular_speed', 0.25)
+        self.declare_parameter('grasp_sync_debug_log', True)
 
         self.object_min = np.array(
             [
@@ -306,6 +330,129 @@ class DualSafetyPostureDemo(DualTaskPriorityJointLimitDemo):
         self.prefer_full_orientation_over_yaw_only = bool(
             self.get_parameter('prefer_full_orientation_over_yaw_only').value
         )
+        self.ee_orientation_mode = str(
+            self.get_parameter('ee_orientation_mode').value
+        )
+        allowed_ee_orientation_modes = {
+            'fixed_initial',
+            'face_to_face',
+            'custom_offset',
+        }
+        if self.ee_orientation_mode not in allowed_ee_orientation_modes:
+            self.get_logger().warn(
+                'Unsupported ee_orientation_mode='
+                f'{self.ee_orientation_mode!r}; using fixed_initial.'
+            )
+            self.ee_orientation_mode = 'fixed_initial'
+        self.flange_normal_axis = self.validated_axis_string(
+            str(self.get_parameter('flange_normal_axis').value),
+            '+Z',
+            'flange_normal_axis',
+        )
+        self.face_to_face_up_axis = self.validated_axis_string(
+            str(self.get_parameter('face_to_face_up_axis').value),
+            '+Z',
+            'face_to_face_up_axis',
+        )
+        self.face_to_face_debug_log = bool(
+            self.get_parameter('face_to_face_debug_log').value
+        )
+        self.left_custom_roll_deg = float(
+            self.get_parameter('left_custom_roll_deg').value
+        )
+        self.left_custom_pitch_deg = float(
+            self.get_parameter('left_custom_pitch_deg').value
+        )
+        self.left_custom_yaw_deg = float(
+            self.get_parameter('left_custom_yaw_deg').value
+        )
+        self.right_custom_roll_deg = float(
+            self.get_parameter('right_custom_roll_deg').value
+        )
+        self.right_custom_pitch_deg = float(
+            self.get_parameter('right_custom_pitch_deg').value
+        )
+        self.right_custom_yaw_deg = float(
+            self.get_parameter('right_custom_yaw_deg').value
+        )
+        self.custom_ee_orientation_debug_log = bool(
+            self.get_parameter('custom_ee_orientation_debug_log').value
+        )
+        self.left_custom_offset_quaternion = self.quaternion_from_rpy_deg(
+            self.left_custom_roll_deg,
+            self.left_custom_pitch_deg,
+            self.left_custom_yaw_deg,
+        )
+        self.right_custom_offset_quaternion = self.quaternion_from_rpy_deg(
+            self.right_custom_roll_deg,
+            self.right_custom_pitch_deg,
+            self.right_custom_yaw_deg,
+        )
+        self.enable_grasp_sync_guard = bool(
+            self.get_parameter('enable_grasp_sync_guard').value
+        )
+        self.grasp_sync_orientation_error_start = math.radians(
+            max(
+                0.0,
+                float(
+                    self.get_parameter(
+                        'grasp_sync_orientation_error_start_deg'
+                    ).value
+                ),
+            )
+        )
+        self.grasp_sync_orientation_error_stop = math.radians(
+            max(
+                math.degrees(self.grasp_sync_orientation_error_start) + 1e-6,
+                float(
+                    self.get_parameter(
+                        'grasp_sync_orientation_error_stop_deg'
+                    ).value
+                ),
+            )
+        )
+        self.grasp_sync_min_motion_scale = max(
+            0.0,
+            min(
+                1.0,
+                float(self.get_parameter('grasp_sync_min_motion_scale').value),
+            ),
+        )
+        self.grasp_sync_pause_object_motion_on_large_error = bool(
+            self.get_parameter(
+                'grasp_sync_pause_object_motion_on_large_error'
+            ).value
+        )
+        self.grasp_sync_allow_orientation_catchup = bool(
+            self.get_parameter('grasp_sync_allow_orientation_catchup').value
+        )
+        self.grasp_sync_scale_object_translation = bool(
+            self.get_parameter('grasp_sync_scale_object_translation').value
+        )
+        self.grasp_sync_scale_object_yaw = bool(
+            self.get_parameter('grasp_sync_scale_object_yaw').value
+        )
+        self.grasp_sync_scale_object_qdot = bool(
+            self.get_parameter('grasp_sync_scale_object_qdot').value
+        )
+        self.grasp_sync_boost_orientation_when_lagging = bool(
+            self.get_parameter('grasp_sync_boost_orientation_when_lagging').value
+        )
+        self.grasp_sync_orientation_boost_gain = max(
+            1.0,
+            float(self.get_parameter('grasp_sync_orientation_boost_gain').value),
+        )
+        self.grasp_sync_max_boosted_angular_speed = max(
+            self.max_ee_angular_speed,
+            float(
+                self.get_parameter(
+                    'grasp_sync_max_boosted_angular_speed'
+                ).value
+            ),
+        )
+        self.grasp_sync_debug_log = bool(
+            self.get_parameter('grasp_sync_debug_log').value
+        )
 
         self.raw_desired_object_position = None
         self.safe_desired_object_position = None
@@ -328,6 +475,7 @@ class DualSafetyPostureDemo(DualTaskPriorityJointLimitDemo):
         self.object_yaw_rate_limited = False
         self.latest_desired_left_quaternion = None
         self.latest_desired_right_quaternion = None
+        self.latest_grasp_sync_status = self.empty_grasp_sync_status()
         self.collision_marker_pub = self.create_publisher(
             MarkerArray,
             '/collision_debug_markers',
@@ -402,6 +550,30 @@ class DualSafetyPostureDemo(DualTaskPriorityJointLimitDemo):
             f'prefer_full_over_yaw='
             f'{self.prefer_full_orientation_over_yaw_only}'
         )
+        self.get_logger().info(
+            'EE orientation mode: '
+            f'mode={self.ee_orientation_mode}, '
+            f'flange_normal_axis={self.flange_normal_axis}, '
+            f'face_to_face_up_axis={self.face_to_face_up_axis}, '
+            f'custom_left_rpy_deg=({self.left_custom_roll_deg:.1f}, '
+            f'{self.left_custom_pitch_deg:.1f}, '
+            f'{self.left_custom_yaw_deg:.1f}), '
+            f'custom_right_rpy_deg=({self.right_custom_roll_deg:.1f}, '
+            f'{self.right_custom_pitch_deg:.1f}, '
+            f'{self.right_custom_yaw_deg:.1f})'
+        )
+        self.get_logger().info(
+            'grasp sync guard: '
+            f'enabled={self.enable_grasp_sync_guard}, '
+            f'start={math.degrees(self.grasp_sync_orientation_error_start):.2f} deg, '
+            f'stop={math.degrees(self.grasp_sync_orientation_error_stop):.2f} deg, '
+            f'min_scale={self.grasp_sync_min_motion_scale:.3f}, '
+            f'pause={self.grasp_sync_pause_object_motion_on_large_error}, '
+            f'orientation_catchup={self.grasp_sync_allow_orientation_catchup}, '
+            f'boost={self.grasp_sync_boost_orientation_when_lagging}, '
+            f'boost_gain={self.grasp_sync_orientation_boost_gain:.3f}, '
+            f'boost_max_omega={self.grasp_sync_max_boosted_angular_speed:.3f}'
+        )
 
     def apply_joint_limit_test_pose(self):
         test_joint = 'right_joint_6'
@@ -432,6 +604,82 @@ class DualSafetyPostureDemo(DualTaskPriorityJointLimitDemo):
             f'{target:.3f} rad (margin={test_margin:.3f} rad)'
         )
 
+    def empty_grasp_sync_status(self):
+        return {
+            'grasp_sync_enabled': self.enable_grasp_sync_guard,
+            'grasp_sync_scale': 1.0,
+            'grasp_sync_paused': False,
+            'grasp_sync_max_ori_error_deg': 0.0,
+            'grasp_sync_left_ori_error_deg': 0.0,
+            'grasp_sync_right_ori_error_deg': 0.0,
+            'grasp_sync_object_translation_scaled': False,
+            'grasp_sync_object_yaw_scaled': False,
+            'grasp_sync_object_qdot_scaled': False,
+            'grasp_sync_orientation_boost_active': False,
+            'grasp_sync_orientation_catchup_allowed': (
+                self.grasp_sync_allow_orientation_catchup
+            ),
+            'effective_object_target_speed': self.max_object_target_speed,
+            'effective_object_yaw_rate_deg_s': self.max_object_yaw_rate_deg_s,
+            'effective_full_ori_gain': self.full_ee_orientation_gain,
+            'effective_max_ee_angular_speed': self.max_ee_angular_speed,
+        }
+
+    def compute_grasp_sync_status_from_latest_error(self):
+        status = self.empty_grasp_sync_status()
+        if (
+            not self.enable_grasp_sync_guard
+            or not self.enable_full_ee_orientation_control
+            or not hasattr(self, 'latest_status')
+        ):
+            return status
+
+        left_error_deg = float(
+            self.latest_status.get('left_full_ori_error_deg', 0.0)
+        )
+        right_error_deg = float(
+            self.latest_status.get('right_full_ori_error_deg', 0.0)
+        )
+        max_error = math.radians(max(left_error_deg, right_error_deg, 0.0))
+        scale, paused = self.grasp_sync_scale_from_error(max_error)
+        status.update(
+            {
+                'grasp_sync_scale': scale,
+                'grasp_sync_paused': paused,
+                'grasp_sync_max_ori_error_deg': math.degrees(max_error),
+                'grasp_sync_left_ori_error_deg': left_error_deg,
+                'grasp_sync_right_ori_error_deg': right_error_deg,
+                'grasp_sync_object_translation_scaled': (
+                    self.grasp_sync_scale_object_translation and scale < 0.999
+                ),
+                'grasp_sync_object_yaw_scaled': (
+                    self.grasp_sync_scale_object_yaw and scale < 0.999
+                ),
+                'grasp_sync_object_qdot_scaled': (
+                    self.grasp_sync_scale_object_qdot and scale < 0.999
+                ),
+            }
+        )
+        return status
+
+    def grasp_sync_scale_from_error(self, max_error):
+        if max_error <= self.grasp_sync_orientation_error_start:
+            return 1.0, False
+
+        if max_error >= self.grasp_sync_orientation_error_stop:
+            paused = self.grasp_sync_pause_object_motion_on_large_error
+            scale = 0.0 if paused else self.grasp_sync_min_motion_scale
+            return scale, paused
+
+        span = (
+            self.grasp_sync_orientation_error_stop
+            - self.grasp_sync_orientation_error_start
+        )
+        t = (max_error - self.grasp_sync_orientation_error_start) / span
+        smooth = t * t * (3.0 - 2.0 * t)
+        scale = 1.0 - (1.0 - self.grasp_sync_min_motion_scale) * smooth
+        return scale, False
+
     def initialize_state(self):
         super().initialize_state()
 
@@ -456,6 +704,7 @@ class DualSafetyPostureDemo(DualTaskPriorityJointLimitDemo):
         self.object_yaw_rate_limited = False
         self.latest_desired_left_quaternion = self.initial_left_quaternion.copy()
         self.latest_desired_right_quaternion = self.initial_right_quaternion.copy()
+        self.latest_grasp_sync_status = self.empty_grasp_sync_status()
 
         self.raw_desired_object_position = self.target_object_position.copy()
         clamped, was_clamped = self.clamp_object_target(
@@ -589,25 +838,35 @@ class DualSafetyPostureDemo(DualTaskPriorityJointLimitDemo):
             )
         return yaw
 
-    def update_safe_object_yaw(self, elapsed, dt):
-        if not self.enable_interactive_object_yaw:
-            yaw = self.current_object_yaw_rad(elapsed)
-            self.raw_desired_object_yaw = yaw
-            self.safe_desired_object_yaw = yaw
-            self.last_safe_desired_object_yaw = yaw
-            self.latest_raw_object_yaw = yaw
-            self.latest_safe_object_yaw = yaw
-            self.latest_yaw_delta = 0.0
-            self.object_yaw_rate_limited = False
-            return
+    def update_safe_object_yaw(self, elapsed, dt, grasp_sync_status=None):
+        if grasp_sync_status is None:
+            grasp_sync_status = self.empty_grasp_sync_status()
 
-        raw_yaw = self.wrap_angle(self.raw_desired_object_yaw)
+        yaw_scale = 1.0
+        if (
+            self.enable_grasp_sync_guard
+            and self.grasp_sync_scale_object_yaw
+        ):
+            yaw_scale = grasp_sync_status['grasp_sync_scale']
+
+        if not self.enable_interactive_object_yaw:
+            raw_yaw = self.wrap_angle(self.current_object_yaw_rad(elapsed))
+            self.raw_desired_object_yaw = raw_yaw
+        else:
+            raw_yaw = self.wrap_angle(self.raw_desired_object_yaw)
+
         current_safe_yaw = self.wrap_angle(self.safe_desired_object_yaw)
         delta = self.shortest_angle_delta(raw_yaw, current_safe_yaw)
         limited = False
 
-        if self.enable_object_yaw_rate_limit:
-            max_step = math.radians(self.max_object_yaw_rate_deg_s) * max(dt, 0.0)
+        sync_yaw_limited = (
+            self.enable_grasp_sync_guard
+            and self.grasp_sync_scale_object_yaw
+            and yaw_scale < 0.999
+        )
+        if self.enable_object_yaw_rate_limit or sync_yaw_limited:
+            effective_yaw_rate = self.max_object_yaw_rate_deg_s * yaw_scale
+            max_step = math.radians(effective_yaw_rate) * max(dt, 0.0)
             if abs(delta) > max_step:
                 delta = self.clamp(delta, -max_step, max_step)
                 limited = True
@@ -618,6 +877,14 @@ class DualSafetyPostureDemo(DualTaskPriorityJointLimitDemo):
         self.latest_safe_object_yaw = self.safe_desired_object_yaw
         self.latest_yaw_delta = delta
         self.object_yaw_rate_limited = limited
+        grasp_sync_status['effective_object_yaw_rate_deg_s'] = (
+            self.max_object_yaw_rate_deg_s * yaw_scale
+        )
+        grasp_sync_status['grasp_sync_object_yaw_scaled'] = (
+            self.enable_grasp_sync_guard
+            and self.grasp_sync_scale_object_yaw
+            and yaw_scale < 0.999
+        )
 
     def wrap_angle(self, angle):
         return math.atan2(math.sin(angle), math.cos(angle))
@@ -653,6 +920,155 @@ class DualSafetyPostureDemo(DualTaskPriorityJointLimitDemo):
             dtype=float,
         )
 
+    def normalize_quaternion(self, q):
+        norm = float(np.linalg.norm(q))
+        if norm < 1e-12:
+            return np.array([0.0, 0.0, 0.0, 1.0], dtype=float)
+        return np.array(q, dtype=float) / norm
+
+    def quaternion_from_rpy_deg(self, roll_deg, pitch_deg, yaw_deg):
+        roll = math.radians(roll_deg)
+        pitch = math.radians(pitch_deg)
+        yaw = math.radians(yaw_deg)
+        cr = math.cos(0.5 * roll)
+        sr = math.sin(0.5 * roll)
+        cp = math.cos(0.5 * pitch)
+        sp = math.sin(0.5 * pitch)
+        cy = math.cos(0.5 * yaw)
+        sy = math.sin(0.5 * yaw)
+        return self.normalize_quaternion(
+            np.array(
+                [
+                    sr * cp * cy - cr * sp * sy,
+                    cr * sp * cy + sr * cp * sy,
+                    cr * cp * sy - sr * sp * cy,
+                    cr * cp * cy + sr * sp * sy,
+                ],
+                dtype=float,
+            )
+        )
+
+    def validated_axis_string(self, axis, default_axis, parameter_name):
+        allowed_axes = {'+X', '-X', '+Y', '-Y', '+Z', '-Z'}
+        axis = str(axis).strip().upper()
+        if axis in allowed_axes:
+            return axis
+
+        fallback = default_axis if default_axis in allowed_axes else '+Z'
+        self.get_logger().warn(
+            f'Unsupported {parameter_name}={axis!r}; using {fallback}.'
+        )
+        return fallback
+
+    def axis_string_to_vector(self, axis):
+        axis = self.validated_axis_string(axis, '+Z', 'axis')
+        sign = -1.0 if axis[0] == '-' else 1.0
+        if axis[1] == 'X':
+            return np.array([sign, 0.0, 0.0], dtype=float)
+        if axis[1] == 'Y':
+            return np.array([0.0, sign, 0.0], dtype=float)
+        return np.array([0.0, 0.0, sign], dtype=float)
+
+    def normalize_vector(self, vector, fallback):
+        norm = float(np.linalg.norm(vector))
+        if norm < 1e-12:
+            return np.array(fallback, dtype=float)
+        return np.array(vector, dtype=float) / norm
+
+    def rotation_matrix_to_quaternion(self, matrix):
+        trace = float(np.trace(matrix))
+        if trace > 0.0:
+            s = math.sqrt(trace + 1.0) * 2.0
+            w = 0.25 * s
+            x = (matrix[2, 1] - matrix[1, 2]) / s
+            y = (matrix[0, 2] - matrix[2, 0]) / s
+            z = (matrix[1, 0] - matrix[0, 1]) / s
+        elif matrix[0, 0] > matrix[1, 1] and matrix[0, 0] > matrix[2, 2]:
+            s = math.sqrt(1.0 + matrix[0, 0] - matrix[1, 1] - matrix[2, 2]) * 2.0
+            w = (matrix[2, 1] - matrix[1, 2]) / s
+            x = 0.25 * s
+            y = (matrix[0, 1] + matrix[1, 0]) / s
+            z = (matrix[0, 2] + matrix[2, 0]) / s
+        elif matrix[1, 1] > matrix[2, 2]:
+            s = math.sqrt(1.0 + matrix[1, 1] - matrix[0, 0] - matrix[2, 2]) * 2.0
+            w = (matrix[0, 2] - matrix[2, 0]) / s
+            x = (matrix[0, 1] + matrix[1, 0]) / s
+            y = 0.25 * s
+            z = (matrix[1, 2] + matrix[2, 1]) / s
+        else:
+            s = math.sqrt(1.0 + matrix[2, 2] - matrix[0, 0] - matrix[1, 1]) * 2.0
+            w = (matrix[1, 0] - matrix[0, 1]) / s
+            x = (matrix[0, 2] + matrix[2, 0]) / s
+            y = (matrix[1, 2] + matrix[2, 1]) / s
+            z = 0.25 * s
+
+        return self.normalize_quaternion(np.array([x, y, z, w], dtype=float))
+
+    def quaternion_from_flange_normal(self, desired_normal, up_reference):
+        desired_normal = self.normalize_vector(
+            desired_normal,
+            np.array([1.0, 0.0, 0.0], dtype=float),
+        )
+        local_axis = self.axis_string_to_vector(self.flange_normal_axis)
+        axis_index = int(np.argmax(np.abs(local_axis)))
+        axis_sign = float(local_axis[axis_index])
+        known_column = axis_sign * desired_normal
+
+        up = self.normalize_vector(up_reference, np.array([0.0, 0.0, 1.0]))
+        up_projected = up - float(np.dot(up, known_column)) * known_column
+        if float(np.linalg.norm(up_projected)) < 1e-6:
+            fallback_up = np.array([1.0, 0.0, 0.0], dtype=float)
+            up_projected = fallback_up - float(
+                np.dot(fallback_up, known_column)
+            ) * known_column
+        up_projected = self.normalize_vector(
+            up_projected,
+            np.array([0.0, 1.0, 0.0], dtype=float),
+        )
+
+        rotation = np.zeros((3, 3), dtype=float)
+        if axis_index == 0:
+            rotation[:, 0] = known_column
+            rotation[:, 2] = up_projected
+            rotation[:, 1] = np.cross(rotation[:, 2], rotation[:, 0])
+            rotation[:, 1] = self.normalize_vector(
+                rotation[:, 1],
+                np.array([0.0, 1.0, 0.0], dtype=float),
+            )
+            rotation[:, 2] = np.cross(rotation[:, 0], rotation[:, 1])
+        elif axis_index == 1:
+            rotation[:, 1] = known_column
+            rotation[:, 2] = up_projected
+            rotation[:, 0] = np.cross(rotation[:, 1], rotation[:, 2])
+            rotation[:, 0] = self.normalize_vector(
+                rotation[:, 0],
+                np.array([1.0, 0.0, 0.0], dtype=float),
+            )
+            rotation[:, 2] = np.cross(rotation[:, 0], rotation[:, 1])
+        else:
+            rotation[:, 2] = known_column
+            rotation[:, 0] = up_projected
+            rotation[:, 1] = np.cross(rotation[:, 2], rotation[:, 0])
+            rotation[:, 1] = self.normalize_vector(
+                rotation[:, 1],
+                np.array([0.0, 1.0, 0.0], dtype=float),
+            )
+            rotation[:, 0] = np.cross(rotation[:, 1], rotation[:, 2])
+
+        return self.rotation_matrix_to_quaternion(rotation)
+
+    def log_selected_ee_orientation_mode(self, mode, details):
+        now = self.get_clock().now()
+        attr_name = f'last_{mode}_ee_orientation_log_time'
+        last_log_time = getattr(self, attr_name, None)
+        if last_log_time is not None:
+            elapsed = (now - last_log_time).nanoseconds * 1e-9
+            if elapsed < 1.0:
+                return
+
+        setattr(self, attr_name, now)
+        self.get_logger().info(details)
+
     def limit_vector_norm(self, vector, max_norm):
         norm = float(np.linalg.norm(vector))
         if norm > max_norm and norm > 1e-12:
@@ -660,6 +1076,77 @@ class DualSafetyPostureDemo(DualTaskPriorityJointLimitDemo):
         return vector
 
     def desired_grasp_quaternions(self):
+        object_quaternion = self.yaw_quaternion(self.safe_desired_object_yaw)
+        return self.compute_desired_ee_quaternions(
+            np.zeros(3, dtype=float),
+            np.zeros(3, dtype=float),
+            np.zeros(3, dtype=float),
+            object_quaternion,
+        )
+
+    def compute_desired_ee_quaternions(
+        self,
+        desired_left_position,
+        desired_right_position,
+        object_position,
+        object_quaternion,
+    ):
+        del object_position
+        object_quaternion = self.normalize_quaternion(object_quaternion)
+
+        if self.ee_orientation_mode == 'custom_offset':
+            desired_left_quaternion = self.quaternion_multiply(
+                object_quaternion,
+                self.left_custom_offset_quaternion,
+            )
+            desired_right_quaternion = self.quaternion_multiply(
+                object_quaternion,
+                self.right_custom_offset_quaternion,
+            )
+            if self.custom_ee_orientation_debug_log:
+                self.log_selected_ee_orientation_mode(
+                    'custom_offset',
+                    'custom_offset EE orientation: '
+                    f'left_rpy_deg=({self.left_custom_roll_deg:.1f}, '
+                    f'{self.left_custom_pitch_deg:.1f}, '
+                    f'{self.left_custom_yaw_deg:.1f}), '
+                    f'right_rpy_deg=({self.right_custom_roll_deg:.1f}, '
+                    f'{self.right_custom_pitch_deg:.1f}, '
+                    f'{self.right_custom_yaw_deg:.1f})',
+                )
+            return (
+                self.normalize_quaternion(desired_left_quaternion),
+                self.normalize_quaternion(desired_right_quaternion),
+            )
+
+        if self.ee_orientation_mode == 'face_to_face':
+            left_normal_world = self.normalize_vector(
+                desired_right_position - desired_left_position,
+                np.array([1.0, 0.0, 0.0], dtype=float),
+            )
+            right_normal_world = self.normalize_vector(
+                desired_left_position - desired_right_position,
+                np.array([-1.0, 0.0, 0.0], dtype=float),
+            )
+            up_reference = self.axis_string_to_vector(self.face_to_face_up_axis)
+            desired_left_quaternion = self.quaternion_from_flange_normal(
+                left_normal_world,
+                up_reference,
+            )
+            desired_right_quaternion = self.quaternion_from_flange_normal(
+                right_normal_world,
+                up_reference,
+            )
+            if self.face_to_face_debug_log:
+                self.log_selected_ee_orientation_mode(
+                    'face_to_face',
+                    'face_to_face EE orientation: '
+                    f'flange_normal_axis={self.flange_normal_axis}, '
+                    f'left_normal_world={left_normal_world.tolist()}, '
+                    f'right_normal_world={right_normal_world.tolist()}',
+                )
+            return desired_left_quaternion, desired_right_quaternion
+
         if (
             not self.enable_object_yaw
             and not self.enable_interactive_object_yaw
@@ -669,10 +1156,19 @@ class DualSafetyPostureDemo(DualTaskPriorityJointLimitDemo):
                 self.initial_right_quaternion,
             )
 
-        q_yaw = self.yaw_quaternion(self.safe_desired_object_yaw)
         return (
-            self.quaternion_multiply(q_yaw, self.initial_left_quaternion),
-            self.quaternion_multiply(q_yaw, self.initial_right_quaternion),
+            self.normalize_quaternion(
+                self.quaternion_multiply(
+                    object_quaternion,
+                    self.initial_left_quaternion,
+                )
+            ),
+            self.normalize_quaternion(
+                self.quaternion_multiply(
+                    object_quaternion,
+                    self.initial_right_quaternion,
+                )
+            ),
         )
 
     def current_desired_relative_position(self, elapsed):
@@ -723,11 +1219,10 @@ class DualSafetyPostureDemo(DualTaskPriorityJointLimitDemo):
         J_left,
         J_right,
         N_rel_obj,
+        desired_left_quaternion,
+        desired_right_quaternion,
     ):
         size = len(self.left_joint_names) + len(self.right_joint_names)
-        desired_left_quaternion, desired_right_quaternion = (
-            self.desired_grasp_quaternions()
-        )
         status = {
             'ee_yaw_control_enabled': self.enable_ee_yaw_orientation_control,
             'left_ee_yaw_error_deg': 0.0,
@@ -807,11 +1302,14 @@ class DualSafetyPostureDemo(DualTaskPriorityJointLimitDemo):
         J_left,
         J_right,
         N_rel_obj,
+        desired_left_quaternion,
+        desired_right_quaternion,
+        grasp_sync_status=None,
     ):
+        if grasp_sync_status is None:
+            grasp_sync_status = self.empty_grasp_sync_status()
+
         size = len(self.left_joint_names) + len(self.right_joint_names)
-        desired_left_quaternion, desired_right_quaternion = (
-            self.desired_grasp_quaternions()
-        )
         status = {
             'full_ee_orientation_control_enabled': (
                 self.enable_full_ee_orientation_control
@@ -825,6 +1323,9 @@ class DualSafetyPostureDemo(DualTaskPriorityJointLimitDemo):
             'full_ori_task_condition': float('inf'),
             'desired_left_quaternion': desired_left_quaternion.copy(),
             'desired_right_quaternion': desired_right_quaternion.copy(),
+            'effective_full_ori_gain': self.full_ee_orientation_gain,
+            'effective_max_ee_angular_speed': self.max_ee_angular_speed,
+            'grasp_sync_orientation_boost_active': False,
         }
 
         if not self.enable_full_ee_orientation_control:
@@ -838,16 +1339,40 @@ class DualSafetyPostureDemo(DualTaskPriorityJointLimitDemo):
             right_pose['quaternion'],
             desired_right_quaternion,
         )
+        max_orientation_error = max(
+            left_orientation_error_angle,
+            right_orientation_error_angle,
+        )
+        orientation_boost_active = (
+            self.enable_grasp_sync_guard
+            and self.grasp_sync_boost_orientation_when_lagging
+            and max_orientation_error > self.grasp_sync_orientation_error_start
+        )
+        effective_full_ori_gain = self.full_ee_orientation_gain
+        effective_max_ee_angular_speed = self.max_ee_angular_speed
+        if orientation_boost_active:
+            effective_full_ori_gain *= self.grasp_sync_orientation_boost_gain
+            effective_max_ee_angular_speed = max(
+                self.max_ee_angular_speed,
+                self.grasp_sync_max_boosted_angular_speed,
+            )
 
-        left_omega_des = self.full_ee_orientation_gain * left_rotvec_error
-        right_omega_des = self.full_ee_orientation_gain * right_rotvec_error
+        left_omega_des = effective_full_ori_gain * left_rotvec_error
+        right_omega_des = effective_full_ori_gain * right_rotvec_error
         left_omega_des = self.limit_vector_norm(
             left_omega_des,
-            self.max_ee_angular_speed,
+            effective_max_ee_angular_speed,
         )
         right_omega_des = self.limit_vector_norm(
             right_omega_des,
-            self.max_ee_angular_speed,
+            effective_max_ee_angular_speed,
+        )
+        grasp_sync_status['grasp_sync_orientation_boost_active'] = (
+            orientation_boost_active
+        )
+        grasp_sync_status['effective_full_ori_gain'] = effective_full_ori_gain
+        grasp_sync_status['effective_max_ee_angular_speed'] = (
+            effective_max_ee_angular_speed
         )
 
         J_ori = np.zeros((6, size), dtype=float)
@@ -887,13 +1412,18 @@ class DualSafetyPostureDemo(DualTaskPriorityJointLimitDemo):
                 'full_ori_task_condition': self.condition_number(
                     ori_singular_values
                 ),
+                'effective_full_ori_gain': effective_full_ori_gain,
+                'effective_max_ee_angular_speed': effective_max_ee_angular_speed,
+                'grasp_sync_orientation_boost_active': orientation_boost_active,
             }
         )
         return q_dot_full_ori_projected, status
 
     def control_step(self, elapsed, dt):
         previous_safe_yaw = self.safe_desired_object_yaw
-        self.update_safe_object_yaw(elapsed, dt)
+        grasp_sync_status = self.compute_grasp_sync_status_from_latest_error()
+        self.latest_grasp_sync_status = grasp_sync_status
+        self.update_safe_object_yaw(elapsed, dt, grasp_sync_status)
 
         raw_target = self.current_raw_target()
         clamped_target, target_clamped = self.clamp_object_target(raw_target)
@@ -907,11 +1437,13 @@ class DualSafetyPostureDemo(DualTaskPriorityJointLimitDemo):
             self.safe_desired_object_position,
             clamped_target,
             dt,
+            grasp_sync_status,
         )
 
         command = self.compute_safe_command(
             desired_object,
             desired_relative_position,
+            grasp_sync_status,
         )
         q_dot_raw = command['q_dot']
         qdot_raw_norm = float(np.linalg.norm(q_dot_raw))
@@ -953,6 +1485,7 @@ class DualSafetyPostureDemo(DualTaskPriorityJointLimitDemo):
             command = self.compute_safe_command(
                 desired_object,
                 desired_relative_position,
+                grasp_sync_status,
             )
             q_dot_raw = command['q_dot']
             qdot_raw_norm = float(np.linalg.norm(q_dot_raw))
@@ -1000,6 +1533,7 @@ class DualSafetyPostureDemo(DualTaskPriorityJointLimitDemo):
             command = self.compute_safe_command(
                 desired_object,
                 desired_relative_position,
+                grasp_sync_status,
             )
         else:
             self.last_safe_desired_object_position = desired_object.copy()
@@ -1011,18 +1545,12 @@ class DualSafetyPostureDemo(DualTaskPriorityJointLimitDemo):
         current_relative_position = command['current_relative_position']
         current_relative_distance = float(np.linalg.norm(current_relative_position))
 
-        desired_left, desired_right = self.desired_grasp_positions(
-            desired_object,
-            command['desired_relative_position'],
-        )
+        desired_left = command['desired_left_position']
+        desired_right = command['desired_right_position']
         ee_yaw_status = command['ee_yaw_status']
         full_ee_orientation_status = command['full_ee_orientation_status']
-        desired_left_quaternion = (
-            full_ee_orientation_status['desired_left_quaternion']
-        )
-        desired_right_quaternion = (
-            full_ee_orientation_status['desired_right_quaternion']
-        )
+        desired_left_quaternion = command['desired_left_quaternion']
+        desired_right_quaternion = command['desired_right_quaternion']
 
         self.safe_desired_object_position = desired_object.copy()
         self.latest_raw_desired_object_position = raw_target.copy()
@@ -1121,6 +1649,45 @@ class DualSafetyPostureDemo(DualTaskPriorityJointLimitDemo):
             'object_yaw_delta_deg': math.degrees(self.latest_yaw_delta),
             'object_yaw_rate_limited': self.object_yaw_rate_limited,
             'desired_relative_position': command['desired_relative_position'],
+            'grasp_sync_enabled': grasp_sync_status['grasp_sync_enabled'],
+            'grasp_sync_scale': grasp_sync_status['grasp_sync_scale'],
+            'grasp_sync_paused': grasp_sync_status['grasp_sync_paused'],
+            'grasp_sync_max_ori_error_deg': (
+                grasp_sync_status['grasp_sync_max_ori_error_deg']
+            ),
+            'grasp_sync_left_ori_error_deg': (
+                grasp_sync_status['grasp_sync_left_ori_error_deg']
+            ),
+            'grasp_sync_right_ori_error_deg': (
+                grasp_sync_status['grasp_sync_right_ori_error_deg']
+            ),
+            'grasp_sync_object_translation_scaled': (
+                grasp_sync_status['grasp_sync_object_translation_scaled']
+            ),
+            'grasp_sync_object_yaw_scaled': (
+                grasp_sync_status['grasp_sync_object_yaw_scaled']
+            ),
+            'grasp_sync_object_qdot_scaled': (
+                grasp_sync_status['grasp_sync_object_qdot_scaled']
+            ),
+            'grasp_sync_orientation_boost_active': (
+                grasp_sync_status['grasp_sync_orientation_boost_active']
+            ),
+            'grasp_sync_orientation_catchup_allowed': (
+                grasp_sync_status['grasp_sync_orientation_catchup_allowed']
+            ),
+            'effective_object_target_speed': (
+                grasp_sync_status['effective_object_target_speed']
+            ),
+            'effective_object_yaw_rate_deg_s': (
+                grasp_sync_status['effective_object_yaw_rate_deg_s']
+            ),
+            'effective_full_ori_gain': (
+                grasp_sync_status['effective_full_ori_gain']
+            ),
+            'effective_max_ee_angular_speed': (
+                grasp_sync_status['effective_max_ee_angular_speed']
+            ),
             **self.collision_status_for_log(collision_status),
             **recovery_status,
         }
@@ -1913,7 +2480,15 @@ class DualSafetyPostureDemo(DualTaskPriorityJointLimitDemo):
         marker.points = [p_left, p_right]
         return marker
 
-    def compute_safe_command(self, desired_object, desired_relative_position=None):
+    def compute_safe_command(
+        self,
+        desired_object,
+        desired_relative_position=None,
+        grasp_sync_status=None,
+    ):
+        if grasp_sync_status is None:
+            grasp_sync_status = self.empty_grasp_sync_status()
+
         if desired_relative_position is None:
             desired_relative_position = self.desired_relative_position.copy()
 
@@ -1970,8 +2545,31 @@ class DualSafetyPostureDemo(DualTaskPriorityJointLimitDemo):
             self.damping_object
         )
         q_dot_obj_projected = N_rel @ (J_obj_projected_pinv @ x_dot_obj)
+        object_qdot_scale = 1.0
+        if (
+            self.enable_grasp_sync_guard
+            and self.grasp_sync_scale_object_qdot
+        ):
+            object_qdot_scale = grasp_sync_status['grasp_sync_scale']
+            q_dot_obj_projected = q_dot_obj_projected * object_qdot_scale
+            grasp_sync_status['grasp_sync_object_qdot_scaled'] = (
+                object_qdot_scale < 0.999
+            )
 
         N_rel_obj = N_rel @ (identity - J_obj_projected_pinv @ J_obj_projected)
+        desired_left_position, desired_right_position = self.desired_grasp_positions(
+            desired_object,
+            desired_relative_position,
+        )
+        object_quaternion = self.yaw_quaternion(self.safe_desired_object_yaw)
+        desired_left_quaternion, desired_right_quaternion = (
+            self.compute_desired_ee_quaternions(
+                desired_left_position,
+                desired_right_position,
+                desired_object,
+                object_quaternion,
+            )
+        )
         q_dot_full_ori_projected, full_ee_orientation_status = (
             self.compute_full_ee_orientation_task(
                 left_pose,
@@ -1979,6 +2577,9 @@ class DualSafetyPostureDemo(DualTaskPriorityJointLimitDemo):
                 J_left,
                 J_right,
                 N_rel_obj,
+                desired_left_quaternion,
+                desired_right_quaternion,
+                grasp_sync_status,
             )
         )
         q_dot_yaw_projected, ee_yaw_status = self.compute_ee_yaw_task(
@@ -1987,6 +2588,8 @@ class DualSafetyPostureDemo(DualTaskPriorityJointLimitDemo):
             J_left,
             J_right,
             N_rel_obj,
+            desired_left_quaternion,
+            desired_right_quaternion,
         )
         q_dot_home_projected = self.compute_home_bias(N_rel_obj)
 
@@ -2019,6 +2622,10 @@ class DualSafetyPostureDemo(DualTaskPriorityJointLimitDemo):
             'current_relative_position': current_relative_position,
             'relative_position_error': relative_position_error,
             'relative_orientation_error_angle': relative_orientation_error_angle,
+            'desired_left_position': desired_left_position.copy(),
+            'desired_right_position': desired_right_position.copy(),
+            'desired_left_quaternion': desired_left_quaternion.copy(),
+            'desired_right_quaternion': desired_right_quaternion.copy(),
             'desired_relative_position': desired_relative_position.copy(),
             'object_yaw_deg_current': self.latest_object_yaw_deg,
             'ee_yaw_status': ee_yaw_status,
@@ -2027,6 +2634,7 @@ class DualSafetyPostureDemo(DualTaskPriorityJointLimitDemo):
             'home_bias_norm': float(np.linalg.norm(q_dot_home_projected)),
             'qdot_ee_yaw_norm': float(np.linalg.norm(q_dot_yaw_projected)),
             'qdot_full_ori_norm': float(np.linalg.norm(q_dot_full_ori_projected)),
+            'qdot_object_scale': object_qdot_scale,
             'qavoid_raw_norm': float(np.linalg.norm(q_dot_avoid_raw)),
             'qavoid_projected_norm': float(np.linalg.norm(q_dot_avoid_projected)),
             'max_qavoid_raw': (
@@ -2173,13 +2781,29 @@ class DualSafetyPostureDemo(DualTaskPriorityJointLimitDemo):
             f'{clamped_target[2]:.3f}]'
         )
 
-    def limit_target_speed(self, current, target, dt):
+    def limit_target_speed(self, current, target, dt, grasp_sync_status=None):
+        if grasp_sync_status is None:
+            grasp_sync_status = self.empty_grasp_sync_status()
+
         if current is None:
             return target.copy()
 
         delta = target - current
         distance = float(np.linalg.norm(delta))
-        max_step = max(0.0, self.max_object_target_speed * dt)
+        translation_scale = 1.0
+        if (
+            self.enable_grasp_sync_guard
+            and self.grasp_sync_scale_object_translation
+        ):
+            translation_scale = grasp_sync_status['grasp_sync_scale']
+        effective_speed = self.max_object_target_speed * translation_scale
+        max_step = max(0.0, effective_speed * dt)
+        grasp_sync_status['effective_object_target_speed'] = effective_speed
+        grasp_sync_status['grasp_sync_object_translation_scaled'] = (
+            self.enable_grasp_sync_guard
+            and self.grasp_sync_scale_object_translation
+            and translation_scale < 0.999
+        )
 
         if distance <= max_step or distance <= 1e-12:
             return target.copy()
@@ -2400,6 +3024,38 @@ class DualSafetyPostureDemo(DualTaskPriorityJointLimitDemo):
                 f'full_ori_cond={s["full_ori_task_condition"]:.3f} | '
             )
 
+        grasp_sync_status = ''
+        if self.grasp_sync_debug_log:
+            grasp_sync_status = (
+                f'grasp_sync={s["grasp_sync_enabled"]} | '
+                f'grasp_sync_scale={s["grasp_sync_scale"]:.3f} | '
+                f'grasp_sync_paused={s["grasp_sync_paused"]} | '
+                f'grasp_sync_max_ori_error='
+                f'{s["grasp_sync_max_ori_error_deg"]:.3f} deg | '
+                f'grasp_sync_left_ori_error='
+                f'{s["grasp_sync_left_ori_error_deg"]:.3f} deg | '
+                f'grasp_sync_right_ori_error='
+                f'{s["grasp_sync_right_ori_error_deg"]:.3f} deg | '
+                f'grasp_sync_translation_scaled='
+                f'{s["grasp_sync_object_translation_scaled"]} | '
+                f'grasp_sync_yaw_scaled='
+                f'{s["grasp_sync_object_yaw_scaled"]} | '
+                f'grasp_sync_qdot_scaled='
+                f'{s["grasp_sync_object_qdot_scaled"]} | '
+                f'grasp_sync_orientation_boost='
+                f'{s["grasp_sync_orientation_boost_active"]} | '
+                f'orientation_catchup='
+                f'{s["grasp_sync_orientation_catchup_allowed"]} | '
+                f'effective_object_speed='
+                f'{s["effective_object_target_speed"]:.3f} m/s | '
+                f'effective_yaw_rate='
+                f'{s["effective_object_yaw_rate_deg_s"]:.3f} deg/s | '
+                f'effective_full_ori_gain='
+                f'{s["effective_full_ori_gain"]:.3f} | '
+                f'effective_max_ee_angular_speed='
+                f'{s["effective_max_ee_angular_speed"]:.3f} rad/s | '
+            )
+
         self.get_logger().info(
             f'rel_pos_err={s["relative_position_error_m"]:.5f} m | '
             f'obj_err={s["object_position_error_m"]:.5f} m | '
@@ -2407,6 +3063,7 @@ class DualSafetyPostureDemo(DualTaskPriorityJointLimitDemo):
             f'{object_yaw_status}'
             f'{ee_yaw_status}'
             f'{full_ori_status}'
+            f'{grasp_sync_status}'
             f'min_joint_margin={s["min_joint_margin"]:.3f} rad '
             f'({s["min_margin_joint"]}) | '
             f'warning_count={s["warning_count"]} '
