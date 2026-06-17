@@ -1,1 +1,1 @@
-/home/newtonrattapong/jaka_ws/build/jaka_msgs/ament_cmake_core/jaka_msgsConfig-version.cmake
+/home/vboxuser/jaka_ws/build/jaka_msgs/ament_cmake_core/jaka_msgsConfig-version.cmake

@@ -1,6 +1,0 @@
-Invoking command in '/home/newtonrattapong/jaka_ws/build/jaka_msgs': CMAKE_PREFIX_PATH=/opt/ros/humble /usr/bin/cmake /home/newtonrattapong/jaka_ws/src/jaka_ros2/src/jaka_msgs -DAMENT_CMAKE_SYMLINK_INSTALL=1 -DCMAKE_INSTALL_PREFIX=/home/newtonrattapong/jaka_ws/install/jaka_msgs
-Invoked command in '/home/newtonrattapong/jaka_ws/build/jaka_msgs' returned '0': CMAKE_PREFIX_PATH=/opt/ros/humble /usr/bin/cmake /home/newtonrattapong/jaka_ws/src/jaka_ros2/src/jaka_msgs -DAMENT_CMAKE_SYMLINK_INSTALL=1 -DCMAKE_INSTALL_PREFIX=/home/newtonrattapong/jaka_ws/install/jaka_msgs
-Invoking command in '/home/newtonrattapong/jaka_ws/build/jaka_msgs': CMAKE_PREFIX_PATH=/opt/ros/humble /usr/bin/cmake --build /home/newtonrattapong/jaka_ws/build/jaka_msgs -- -j16 -l16
-Invoked command in '/home/newtonrattapong/jaka_ws/build/jaka_msgs' returned '0': CMAKE_PREFIX_PATH=/opt/ros/humble /usr/bin/cmake --build /home/newtonrattapong/jaka_ws/build/jaka_msgs -- -j16 -l16
-Invoking command in '/home/newtonrattapong/jaka_ws/build/jaka_msgs': CMAKE_PREFIX_PATH=/opt/ros/humble /usr/bin/cmake --install /home/newtonrattapong/jaka_ws/build/jaka_msgs
-Invoked command in '/home/newtonrattapong/jaka_ws/build/jaka_msgs' returned '0': CMAKE_PREFIX_PATH=/opt/ros/humble /usr/bin/cmake --install /home/newtonrattapong/jaka_ws/build/jaka_msgs

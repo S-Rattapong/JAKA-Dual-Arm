@@ -1,1 +1,1 @@
-/home/newtonrattapong/jaka_ws/src/jaka_ros2/src/jaka_zu7_moveit_config/launch/demo.launch.py
+/home/vboxuser/jaka_ws/src/jaka_ros2/src/jaka_zu7_moveit_config/launch/demo.launch.py

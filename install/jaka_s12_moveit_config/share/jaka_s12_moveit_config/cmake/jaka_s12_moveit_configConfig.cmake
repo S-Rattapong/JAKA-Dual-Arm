@@ -1,1 +1,1 @@
-/home/newtonrattapong/jaka_ws/build/jaka_s12_moveit_config/ament_cmake_core/jaka_s12_moveit_configConfig.cmake
+/home/vboxuser/jaka_ws/build/jaka_s12_moveit_config/ament_cmake_core/jaka_s12_moveit_configConfig.cmake

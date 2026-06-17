@@ -4,7 +4,7 @@
 # compile C with /usr/bin/cc
 C_DEFINES = -DRCUTILS_ENABLE_FAULT_INJECTION -DROSIDL_GENERATOR_C_BUILDING_DLL_jaka_msgs -DROS_PACKAGE_NAME=\"jaka_msgs\"
 
-C_INCLUDES = -I/home/newtonrattapong/jaka_ws/build/jaka_msgs/rosidl_generator_c -isystem /opt/ros/humble/include/std_msgs -isystem /opt/ros/humble/include/builtin_interfaces -isystem /opt/ros/humble/include/rosidl_runtime_c -isystem /opt/ros/humble/include/rcutils -isystem /opt/ros/humble/include/rosidl_typesupport_interface -isystem /opt/ros/humble/include/std_srvs
+C_INCLUDES = -I/home/vboxuser/jaka_ws/build/jaka_msgs/rosidl_generator_c -isystem /opt/ros/humble/include/std_msgs -isystem /opt/ros/humble/include/builtin_interfaces -isystem /opt/ros/humble/include/rosidl_runtime_c -isystem /opt/ros/humble/include/rcutils -isystem /opt/ros/humble/include/rosidl_typesupport_interface -isystem /opt/ros/humble/include/std_srvs
 
 C_FLAGS = -fPIC -Wall -std=gnu11
 

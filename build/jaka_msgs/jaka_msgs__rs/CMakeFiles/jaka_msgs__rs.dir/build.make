@@ -53,10 +53,10 @@ RM = /usr/bin/cmake -E rm -f
 EQUALS = =
 
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = /home/newtonrattapong/jaka_ws/src/jaka_ros2/src/jaka_msgs
+CMAKE_SOURCE_DIR = /home/vboxuser/jaka_ws/src/jaka_ros2/src/jaka_msgs
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = /home/newtonrattapong/jaka_ws/build/jaka_msgs
+CMAKE_BINARY_DIR = /home/vboxuser/jaka_ws/build/jaka_msgs
 
 # Utility rule file for jaka_msgs__rs.
 
@@ -147,8 +147,8 @@ rosidl_generator_rs/jaka_msgs/rust/src/lib.rs: /opt/ros/humble/share/builtin_int
 rosidl_generator_rs/jaka_msgs/rust/src/lib.rs: /opt/ros/humble/share/std_srvs/srv/Empty.idl
 rosidl_generator_rs/jaka_msgs/rust/src/lib.rs: /opt/ros/humble/share/std_srvs/srv/SetBool.idl
 rosidl_generator_rs/jaka_msgs/rust/src/lib.rs: /opt/ros/humble/share/std_srvs/srv/Trigger.idl
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --blue --bold --progress-dir=/home/newtonrattapong/jaka_ws/build/jaka_msgs/CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Generating Rust code for ROS interfaces"
-	cd /home/newtonrattapong/jaka_ws/build/jaka_msgs/jaka_msgs__rs && /usr/bin/python3 /opt/ros/humble/share/rosidl_generator_rs/cmake/../../../lib/rosidl_generator_rs/rosidl_generator_rs --generator-arguments-file /home/newtonrattapong/jaka_ws/build/jaka_msgs/rosidl_generator_rs__arguments.json --typesupport-impls "rosidl_typesupport_fastrtps_c;rosidl_typesupport_introspection_c;rosidl_typesupport_c"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --blue --bold --progress-dir=/home/vboxuser/jaka_ws/build/jaka_msgs/CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Generating Rust code for ROS interfaces"
+	cd /home/vboxuser/jaka_ws/build/jaka_msgs/jaka_msgs__rs && /usr/bin/python3 /opt/ros/humble/share/rosidl_generator_rs/cmake/../../../lib/rosidl_generator_rs/rosidl_generator_rs --generator-arguments-file /home/vboxuser/jaka_ws/build/jaka_msgs/rosidl_generator_rs__arguments.json --typesupport-impls "rosidl_typesupport_fastrtps_c;rosidl_typesupport_introspection_c;rosidl_typesupport_c"
 
 rosidl_generator_rs/jaka_msgs/rust/build.rs: rosidl_generator_rs/jaka_msgs/rust/src/lib.rs
 	@$(CMAKE_COMMAND) -E touch_nocreate rosidl_generator_rs/jaka_msgs/rust/build.rs
@@ -184,10 +184,10 @@ jaka_msgs__rs/CMakeFiles/jaka_msgs__rs.dir/build: jaka_msgs__rs
 .PHONY : jaka_msgs__rs/CMakeFiles/jaka_msgs__rs.dir/build
 
 jaka_msgs__rs/CMakeFiles/jaka_msgs__rs.dir/clean:
-	cd /home/newtonrattapong/jaka_ws/build/jaka_msgs/jaka_msgs__rs && $(CMAKE_COMMAND) -P CMakeFiles/jaka_msgs__rs.dir/cmake_clean.cmake
+	cd /home/vboxuser/jaka_ws/build/jaka_msgs/jaka_msgs__rs && $(CMAKE_COMMAND) -P CMakeFiles/jaka_msgs__rs.dir/cmake_clean.cmake
 .PHONY : jaka_msgs__rs/CMakeFiles/jaka_msgs__rs.dir/clean
 
 jaka_msgs__rs/CMakeFiles/jaka_msgs__rs.dir/depend:
-	cd /home/newtonrattapong/jaka_ws/build/jaka_msgs && $(CMAKE_COMMAND) -E cmake_depends "Unix Makefiles" /home/newtonrattapong/jaka_ws/src/jaka_ros2/src/jaka_msgs /home/newtonrattapong/jaka_ws/build/jaka_msgs/jaka_msgs__rs /home/newtonrattapong/jaka_ws/build/jaka_msgs /home/newtonrattapong/jaka_ws/build/jaka_msgs/jaka_msgs__rs /home/newtonrattapong/jaka_ws/build/jaka_msgs/jaka_msgs__rs/CMakeFiles/jaka_msgs__rs.dir/DependInfo.cmake --color=$(COLOR)
+	cd /home/vboxuser/jaka_ws/build/jaka_msgs && $(CMAKE_COMMAND) -E cmake_depends "Unix Makefiles" /home/vboxuser/jaka_ws/src/jaka_ros2/src/jaka_msgs /home/vboxuser/jaka_ws/build/jaka_msgs/jaka_msgs__rs /home/vboxuser/jaka_ws/build/jaka_msgs /home/vboxuser/jaka_ws/build/jaka_msgs/jaka_msgs__rs /home/vboxuser/jaka_ws/build/jaka_msgs/jaka_msgs__rs/CMakeFiles/jaka_msgs__rs.dir/DependInfo.cmake --color=$(COLOR)
 .PHONY : jaka_msgs__rs/CMakeFiles/jaka_msgs__rs.dir/depend
 

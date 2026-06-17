@@ -56,11 +56,11 @@ class DualObjectTrajectoryDemo(Node):
 
         self.declare_parameter(
             'initial_left_positions',
-            [0.0, 0.52124, -0.800072, 0.0, 0.798816, 0.0]
+            [3.14, 0.52124, -0.800072, 0.0, 0.798816, 0.0]
         )
         self.declare_parameter(
             'initial_right_positions',
-            [3.14, 2.617504, 0.798816, 0.0, 2.339928, 0.0]
+            [0.0, 2.617504, 0.798816, 0.0, 2.339928, 0.0]
         )
 
         self.robot_description_topic = self.get_parameter('robot_description_topic').value

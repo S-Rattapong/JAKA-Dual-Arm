@@ -57,10 +57,10 @@ RM = /usr/bin/cmake -E rm -f
 EQUALS = =
 
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = /home/newtonrattapong/jaka_ws/src/jaka_ros2/src/jaka_planner
+CMAKE_SOURCE_DIR = /home/vboxuser/jaka_ws/src/jaka_ros2/src/jaka_planner
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = /home/newtonrattapong/jaka_ws/build/jaka_planner
+CMAKE_BINARY_DIR = /home/vboxuser/jaka_ws/build/jaka_planner
 
 #=============================================================================
 # Targets provided globally by CMake.
@@ -142,9 +142,9 @@ install/strip/fast: preinstall/fast
 
 # The main all target
 all: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/newtonrattapong/jaka_ws/build/jaka_planner/CMakeFiles /home/newtonrattapong/jaka_ws/build/jaka_planner//CMakeFiles/progress.marks
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/vboxuser/jaka_ws/build/jaka_planner/CMakeFiles /home/vboxuser/jaka_ws/build/jaka_planner//CMakeFiles/progress.marks
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 all
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/newtonrattapong/jaka_ws/build/jaka_planner/CMakeFiles 0
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/vboxuser/jaka_ws/build/jaka_planner/CMakeFiles 0
 .PHONY : all
 
 # The main clean target

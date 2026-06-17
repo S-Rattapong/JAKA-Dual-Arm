@@ -53,10 +53,10 @@ RM = /usr/bin/cmake -E rm -f
 EQUALS = =
 
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = /home/newtonrattapong/jaka_ws/src/jaka_ros2/src/jaka_msgs
+CMAKE_SOURCE_DIR = /home/vboxuser/jaka_ws/src/jaka_ros2/src/jaka_msgs
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = /home/newtonrattapong/jaka_ws/build/jaka_msgs
+CMAKE_BINARY_DIR = /home/vboxuser/jaka_ws/build/jaka_msgs
 
 # Utility rule file for jaka_msgs__cpp.
 
@@ -196,8 +196,8 @@ rosidl_generator_cpp/jaka_msgs/msg/robot_msg.hpp: /opt/ros/humble/share/builtin_
 rosidl_generator_cpp/jaka_msgs/msg/robot_msg.hpp: /opt/ros/humble/share/std_srvs/srv/Empty.idl
 rosidl_generator_cpp/jaka_msgs/msg/robot_msg.hpp: /opt/ros/humble/share/std_srvs/srv/SetBool.idl
 rosidl_generator_cpp/jaka_msgs/msg/robot_msg.hpp: /opt/ros/humble/share/std_srvs/srv/Trigger.idl
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --blue --bold --progress-dir=/home/newtonrattapong/jaka_ws/build/jaka_msgs/CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Generating C++ code for ROS interfaces"
-	/usr/bin/python3 /opt/ros/humble/share/rosidl_generator_cpp/cmake/../../../lib/rosidl_generator_cpp/rosidl_generator_cpp --generator-arguments-file /home/newtonrattapong/jaka_ws/build/jaka_msgs/rosidl_generator_cpp__arguments.json
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --blue --bold --progress-dir=/home/vboxuser/jaka_ws/build/jaka_msgs/CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Generating C++ code for ROS interfaces"
+	/usr/bin/python3 /opt/ros/humble/share/rosidl_generator_cpp/cmake/../../../lib/rosidl_generator_cpp/rosidl_generator_cpp --generator-arguments-file /home/vboxuser/jaka_ws/build/jaka_msgs/rosidl_generator_cpp__arguments.json
 
 rosidl_generator_cpp/jaka_msgs/msg/detail/robot_msg__builder.hpp: rosidl_generator_cpp/jaka_msgs/msg/robot_msg.hpp
 	@$(CMAKE_COMMAND) -E touch_nocreate rosidl_generator_cpp/jaka_msgs/msg/detail/robot_msg__builder.hpp
@@ -469,6 +469,6 @@ CMakeFiles/jaka_msgs__cpp.dir/clean:
 .PHONY : CMakeFiles/jaka_msgs__cpp.dir/clean
 
 CMakeFiles/jaka_msgs__cpp.dir/depend:
-	cd /home/newtonrattapong/jaka_ws/build/jaka_msgs && $(CMAKE_COMMAND) -E cmake_depends "Unix Makefiles" /home/newtonrattapong/jaka_ws/src/jaka_ros2/src/jaka_msgs /home/newtonrattapong/jaka_ws/src/jaka_ros2/src/jaka_msgs /home/newtonrattapong/jaka_ws/build/jaka_msgs /home/newtonrattapong/jaka_ws/build/jaka_msgs /home/newtonrattapong/jaka_ws/build/jaka_msgs/CMakeFiles/jaka_msgs__cpp.dir/DependInfo.cmake --color=$(COLOR)
+	cd /home/vboxuser/jaka_ws/build/jaka_msgs && $(CMAKE_COMMAND) -E cmake_depends "Unix Makefiles" /home/vboxuser/jaka_ws/src/jaka_ros2/src/jaka_msgs /home/vboxuser/jaka_ws/src/jaka_ros2/src/jaka_msgs /home/vboxuser/jaka_ws/build/jaka_msgs /home/vboxuser/jaka_ws/build/jaka_msgs /home/vboxuser/jaka_ws/build/jaka_msgs/CMakeFiles/jaka_msgs__cpp.dir/DependInfo.cmake --color=$(COLOR)
 .PHONY : CMakeFiles/jaka_msgs__cpp.dir/depend
 

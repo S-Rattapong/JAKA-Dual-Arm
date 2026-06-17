@@ -1,3 +1,4 @@
+import ast
 import math
 import xml.etree.ElementTree as ET
 
@@ -9,6 +10,24 @@ from rclpy.qos import QoSProfile, ReliabilityPolicy, DurabilityPolicy, HistoryPo
 
 from sensor_msgs.msg import JointState
 from std_msgs.msg import String
+
+
+DEFAULT_INITIAL_LEFT_POSITIONS = [
+    0.0,
+    0.52124,
+    -0.800072,
+    0.0,
+    0.798816,
+    0.0,
+]
+DEFAULT_INITIAL_RIGHT_POSITIONS = [
+    0.0,
+    2.617504,
+    0.798816,
+    0.0,
+    2.339928,
+    0.0,
+]
 
 
 def rpy_to_matrix(roll, pitch, yaw):
@@ -185,15 +204,20 @@ class DualRelativeMotionDemo(Node):
         self.declare_parameter('disturbance_time', 3.0)
         self.declare_parameter('disturbance_joint', 'left_joint_2')
         self.declare_parameter('disturbance_amount', 0.12)
+        self.declare_parameter('startup_hold_seconds', 2.0)
+        self.declare_parameter('initial_pose_only', False)
 
         self.declare_parameter(
             'initial_left_positions',
-            [0.0, 0.52124, -0.800072, 0.0, 0.798816, 0.0]
+            DEFAULT_INITIAL_LEFT_POSITIONS
         )
         self.declare_parameter(
             'initial_right_positions',
-            [3.14, 2.617504, 0.798816, 0.0, 2.339928, 0.0]
+            DEFAULT_INITIAL_RIGHT_POSITIONS
         )
+        for i in range(6):
+            self.declare_parameter(f'initial_left_joint_{i + 1}', math.nan)
+            self.declare_parameter(f'initial_right_joint_{i + 1}', math.nan)
 
         self.robot_description_topic = self.get_parameter('robot_description_topic').value
         self.joint_states_topic = self.get_parameter('joint_states_topic').value
@@ -213,12 +237,25 @@ class DualRelativeMotionDemo(Node):
         self.disturbance_time = float(self.get_parameter('disturbance_time').value)
         self.disturbance_joint = self.get_parameter('disturbance_joint').value
         self.disturbance_amount = float(self.get_parameter('disturbance_amount').value)
-
-        self.initial_left_positions = list(
-            self.get_parameter('initial_left_positions').value
+        self.startup_hold_seconds = max(
+            0.0,
+            float(self.get_parameter('startup_hold_seconds').value)
         )
-        self.initial_right_positions = list(
-            self.get_parameter('initial_right_positions').value
+        self.initial_pose_only = bool(
+            self.get_parameter('initial_pose_only').value
+        )
+
+        self.initial_left_positions, self.initial_left_source = (
+            self.read_initial_positions(
+                'left',
+                DEFAULT_INITIAL_LEFT_POSITIONS,
+            )
+        )
+        self.initial_right_positions, self.initial_right_source = (
+            self.read_initial_positions(
+                'right',
+                DEFAULT_INITIAL_RIGHT_POSITIONS,
+            )
         )
 
         self.joints = {}
@@ -235,6 +272,8 @@ class DualRelativeMotionDemo(Node):
         self.robot_loaded = False
         self.initialized = False
         self.disturbance_applied = False
+        self.hold_complete_logged = False
+        self.first_joint_state_logged = False
 
         self.desired_relative_position = None
         self.desired_relative_quaternion = None
@@ -272,10 +311,15 @@ class DualRelativeMotionDemo(Node):
         self.get_logger().info('This node publishes /joint_states directly.')
         self.get_logger().info('Do NOT run joint_state_publisher_gui at the same time.')
         self.get_logger().info(
+            f'controller_enabled={not self.initial_pose_only}, '
+            f'startup_hold_seconds={self.startup_hold_seconds:.2f}s, '
+            f'initial_pose_only={self.initial_pose_only}'
+        )
+        self.get_logger().info(
             f'disturbance: enabled={self.enable_disturbance}, '
             f'joint={self.disturbance_joint}, '
             f'amount={self.disturbance_amount:.3f} rad, '
-            f'time={self.disturbance_time:.2f}s'
+            f'delay_after_hold={self.disturbance_time:.2f}s'
         )
 
     def robot_description_callback(self, msg):
@@ -331,6 +375,8 @@ class DualRelativeMotionDemo(Node):
                     'parent': parent_link,
                     'child': child_link,
                     'origin_T': transform_from_xyz_rpy(xyz, rpy),
+                    'origin_xyz': xyz,
+                    'origin_rpy': rpy,
                     'axis': np.array(axis, dtype=float),
                     'lower': lower,
                     'upper': upper,
@@ -397,6 +443,128 @@ class DualRelativeMotionDemo(Node):
                 names.append(joint_info['name'])
         return names
 
+    def read_initial_positions(self, side, defaults):
+        raw_positions = self.get_parameter(f'initial_{side}_positions').value
+        positions = self.parse_initial_position_array(raw_positions)
+        source = 'default parameters'
+
+        if not self.same_positions(positions, defaults):
+            source = f'initial_{side}_positions launch override'
+
+        overridden_joints = []
+        for i in range(6):
+            param_name = f'initial_{side}_joint_{i + 1}'
+            value = float(self.get_parameter(param_name).value)
+            if math.isnan(value):
+                continue
+
+            while len(positions) <= i:
+                positions.append(0.0)
+            positions[i] = value
+            overridden_joints.append(param_name)
+
+        if overridden_joints:
+            source = 'individual launch override: ' + ', '.join(overridden_joints)
+
+        return positions, source
+
+    def parse_initial_position_array(self, value):
+        if isinstance(value, str):
+            value = ast.literal_eval(value)
+
+        return [float(v) for v in value]
+
+    def same_positions(self, values, defaults):
+        if len(values) != len(defaults):
+            return False
+
+        return all(
+            abs(float(value) - float(default)) <= 1e-9
+            for value, default in zip(values, defaults)
+        )
+
+    def joint_names(self):
+        return self.left_joint_names + self.right_joint_names
+
+    def log_initial_state(self):
+        joint_names = self.joint_names()
+        positions = [self.q_map.get(name, 0.0) for name in joint_names]
+
+        self.get_logger().info(
+            'Initial joint state used by dual_relative_motion_demo:'
+        )
+        self.get_logger().info(f'joint_names = {joint_names}')
+        self.get_logger().info(
+            f'initial_left_positions source: {self.initial_left_source}'
+        )
+        self.get_logger().info(
+            f'initial_right_positions source: {self.initial_right_source}'
+        )
+        self.get_logger().info(
+            f'combined joint state vector = {[float(v) for v in positions]}'
+        )
+        self.get_logger().info(
+            f'controller_enabled={not self.initial_pose_only}, '
+            f'startup_hold_seconds={self.startup_hold_seconds:.2f}s, '
+            f'disturbance_delay_after_hold={self.disturbance_time:.2f}s'
+        )
+
+        for name in joint_names:
+            radians = float(self.q_map.get(name, 0.0))
+            self.get_logger().info(
+                f'{name} = {radians:.6f} rad = '
+                f'{math.degrees(radians):.2f} deg'
+            )
+
+        self.log_base_transform_assumption()
+
+    def log_base_transform_assumption(self):
+        for label, chain in [
+            ('left', self.left_chain),
+            ('right', self.right_chain),
+        ]:
+            if not chain:
+                continue
+
+            base_joint = chain[0]
+            if base_joint['type'] != 'fixed':
+                continue
+
+            xyz = base_joint.get('origin_xyz', [0.0, 0.0, 0.0])
+            rpy = base_joint.get('origin_rpy', [0.0, 0.0, 0.0])
+            self.get_logger().info(
+                f'{label} base transform assumption: '
+                f'{base_joint["parent"]} -> {base_joint["child"]}, '
+                f'xyz=[{xyz[0]:.6f}, {xyz[1]:.6f}, {xyz[2]:.6f}], '
+                f'rpy=[{rpy[0]:.6f}, {rpy[1]:.6f}, {rpy[2]:.6f}] rad '
+                f'= [{math.degrees(rpy[0]):.2f}, '
+                f'{math.degrees(rpy[1]):.2f}, '
+                f'{math.degrees(rpy[2]):.2f}] deg'
+            )
+
+            yaw = rpy[2]
+            if abs(abs(yaw) - math.pi) < 1e-3:
+                self.get_logger().info(
+                    f'{label.capitalize()} base already includes about '
+                    f'180 deg yaw in the URDF/Xacro; {label}_joint_1 '
+                    'defaults to 0.0 rad to avoid an extra yaw rotation.'
+                )
+
+    def log_first_published_joint_state(self, joint_names, positions):
+        if self.first_joint_state_logged:
+            return
+
+        self.first_joint_state_logged = True
+        self.get_logger().info(
+            'First published /joint_states sample '
+            '(compare with: ros2 topic echo /joint_states --once):'
+        )
+        for name, radians in zip(joint_names, positions):
+            self.get_logger().info(
+                f'published {name} = {radians:.6f} rad = '
+                f'{math.degrees(radians):.2f} deg'
+            )
+
     def initialize_state(self):
         for i, joint_name in enumerate(self.left_joint_names):
             if i < len(self.initial_left_positions):
@@ -429,6 +597,7 @@ class DualRelativeMotionDemo(Node):
 
         self.initialized = True
 
+        self.log_initial_state()
         self.get_logger().info('Initial state published and desired relative pose initialized.')
         self.get_logger().info(
             f'desired_relative_position = '
@@ -456,10 +625,28 @@ class DualRelativeMotionDemo(Node):
 
         elapsed = (now - self.start_time).nanoseconds * 1e-9
 
+        if self.initial_pose_only:
+            self.last_time = now
+            self.latest_qdot_map = {}
+            self.publish_joint_state()
+            return
+
+        if elapsed < self.startup_hold_seconds:
+            self.last_time = now
+            self.latest_qdot_map = {}
+            self.publish_joint_state()
+            return
+
+        if not self.hold_complete_logged:
+            self.hold_complete_logged = True
+            self.get_logger().info(
+                'Startup hold complete; relative motion controller enabled.'
+            )
+
         if (
             self.enable_disturbance
             and not self.disturbance_applied
-            and elapsed >= self.disturbance_time
+            and elapsed >= self.startup_hold_seconds + self.disturbance_time
         ):
             if self.disturbance_joint in self.q_map:
                 self.q_map[self.disturbance_joint] += self.disturbance_amount
@@ -642,7 +829,7 @@ class DualRelativeMotionDemo(Node):
         msg = JointState()
         msg.header.stamp = self.get_clock().now().to_msg()
 
-        joint_names = self.left_joint_names + self.right_joint_names
+        joint_names = self.joint_names()
 
         msg.name = joint_names
         msg.position = [self.q_map.get(name, 0.0) for name in joint_names]
@@ -650,6 +837,7 @@ class DualRelativeMotionDemo(Node):
         msg.effort = []
 
         self.joint_state_pub.publish(msg)
+        self.log_first_published_joint_state(joint_names, msg.position)
 
     def log_status_if_needed(self, now):
         if not hasattr(self, 'latest_status'):

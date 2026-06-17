@@ -23,7 +23,7 @@ function(ament_cmake_symlink_install_directory cmake_current_source_dir)
 
   # make destination absolute path and ensure that it exists
   if(NOT IS_ABSOLUTE "${ARG_DESTINATION}")
-    set(ARG_DESTINATION "/home/newtonrattapong/jaka_ws/install/jaka_msgs/${ARG_DESTINATION}")
+    set(ARG_DESTINATION "/home/vboxuser/jaka_ws/install/jaka_msgs/${ARG_DESTINATION}")
   endif()
   if(NOT EXISTS "${ARG_DESTINATION}")
     file(MAKE_DIRECTORY "${ARG_DESTINATION}")
@@ -128,7 +128,7 @@ function(ament_cmake_symlink_install_files cmake_current_source_dir)
 
   # make destination an absolute path and ensure that it exists
   if(NOT IS_ABSOLUTE "${ARG_DESTINATION}")
-    set(ARG_DESTINATION "/home/newtonrattapong/jaka_ws/install/jaka_msgs/${ARG_DESTINATION}")
+    set(ARG_DESTINATION "/home/vboxuser/jaka_ws/install/jaka_msgs/${ARG_DESTINATION}")
   endif()
   if(NOT EXISTS "${ARG_DESTINATION}")
     file(MAKE_DIRECTORY "${ARG_DESTINATION}")
@@ -186,7 +186,7 @@ function(ament_cmake_symlink_install_programs cmake_current_source_dir)
 
   # make destination an absolute path and ensure that it exists
   if(NOT IS_ABSOLUTE "${ARG_DESTINATION}")
-    set(ARG_DESTINATION "/home/newtonrattapong/jaka_ws/install/jaka_msgs/${ARG_DESTINATION}")
+    set(ARG_DESTINATION "/home/vboxuser/jaka_ws/install/jaka_msgs/${ARG_DESTINATION}")
   endif()
   if(NOT EXISTS "${ARG_DESTINATION}")
     file(MAKE_DIRECTORY "${ARG_DESTINATION}")
@@ -256,7 +256,7 @@ function(ament_cmake_symlink_install_targets)
 
     # make destination an absolute path and ensure that it exists
     if(NOT IS_ABSOLUTE "${destination}")
-      set(destination "/home/newtonrattapong/jaka_ws/install/jaka_msgs/${destination}")
+      set(destination "/home/vboxuser/jaka_ws/install/jaka_msgs/${destination}")
     endif()
     if(NOT EXISTS "${destination}")
       file(MAKE_DIRECTORY "${destination}")
@@ -315,269 +315,269 @@ message(STATUS "Execute custom install script")
 
 # begin of custom install code
 
-# install(FILES "/home/newtonrattapong/jaka_ws/build/jaka_msgs/ament_cmake_index/share/ament_index/resource_index/rosidl_interfaces/jaka_msgs" "DESTINATION" "share/ament_index/resource_index/rosidl_interfaces")
-ament_cmake_symlink_install_files("/home/newtonrattapong/jaka_ws/src/jaka_ros2/src/jaka_msgs" FILES "/home/newtonrattapong/jaka_ws/build/jaka_msgs/ament_cmake_index/share/ament_index/resource_index/rosidl_interfaces/jaka_msgs" "DESTINATION" "share/ament_index/resource_index/rosidl_interfaces")
+# install(FILES "/home/vboxuser/jaka_ws/build/jaka_msgs/ament_cmake_index/share/ament_index/resource_index/rosidl_interfaces/jaka_msgs" "DESTINATION" "share/ament_index/resource_index/rosidl_interfaces")
+ament_cmake_symlink_install_files("/home/vboxuser/jaka_ws/src/jaka_ros2/src/jaka_msgs" FILES "/home/vboxuser/jaka_ws/build/jaka_msgs/ament_cmake_index/share/ament_index/resource_index/rosidl_interfaces/jaka_msgs" "DESTINATION" "share/ament_index/resource_index/rosidl_interfaces")
 
-# install(DIRECTORY "/home/newtonrattapong/jaka_ws/build/jaka_msgs/rosidl_generator_c/jaka_msgs/" "DESTINATION" "include/jaka_msgs/jaka_msgs" "PATTERN" "*.h")
-ament_cmake_symlink_install_directory("/home/newtonrattapong/jaka_ws/src/jaka_ros2/src/jaka_msgs" DIRECTORY "/home/newtonrattapong/jaka_ws/build/jaka_msgs/rosidl_generator_c/jaka_msgs/" "DESTINATION" "include/jaka_msgs/jaka_msgs" "PATTERN" "*.h")
+# install(DIRECTORY "/home/vboxuser/jaka_ws/build/jaka_msgs/rosidl_generator_c/jaka_msgs/" "DESTINATION" "include/jaka_msgs/jaka_msgs" "PATTERN" "*.h")
+ament_cmake_symlink_install_directory("/home/vboxuser/jaka_ws/src/jaka_ros2/src/jaka_msgs" DIRECTORY "/home/vboxuser/jaka_ws/build/jaka_msgs/rosidl_generator_c/jaka_msgs/" "DESTINATION" "include/jaka_msgs/jaka_msgs" "PATTERN" "*.h")
 
 # install(FILES "/opt/ros/humble/lib/python3.10/site-packages/ament_package/template/environment_hook/library_path.sh" "DESTINATION" "share/jaka_msgs/environment")
-ament_cmake_symlink_install_files("/home/newtonrattapong/jaka_ws/src/jaka_ros2/src/jaka_msgs" FILES "/opt/ros/humble/lib/python3.10/site-packages/ament_package/template/environment_hook/library_path.sh" "DESTINATION" "share/jaka_msgs/environment")
+ament_cmake_symlink_install_files("/home/vboxuser/jaka_ws/src/jaka_ros2/src/jaka_msgs" FILES "/opt/ros/humble/lib/python3.10/site-packages/ament_package/template/environment_hook/library_path.sh" "DESTINATION" "share/jaka_msgs/environment")
 
-# install(FILES "/home/newtonrattapong/jaka_ws/build/jaka_msgs/ament_cmake_environment_hooks/library_path.dsv" "DESTINATION" "share/jaka_msgs/environment")
-ament_cmake_symlink_install_files("/home/newtonrattapong/jaka_ws/src/jaka_ros2/src/jaka_msgs" FILES "/home/newtonrattapong/jaka_ws/build/jaka_msgs/ament_cmake_environment_hooks/library_path.dsv" "DESTINATION" "share/jaka_msgs/environment")
+# install(FILES "/home/vboxuser/jaka_ws/build/jaka_msgs/ament_cmake_environment_hooks/library_path.dsv" "DESTINATION" "share/jaka_msgs/environment")
+ament_cmake_symlink_install_files("/home/vboxuser/jaka_ws/src/jaka_ros2/src/jaka_msgs" FILES "/home/vboxuser/jaka_ws/build/jaka_msgs/ament_cmake_environment_hooks/library_path.dsv" "DESTINATION" "share/jaka_msgs/environment")
 
-# install(DIRECTORY "/home/newtonrattapong/jaka_ws/build/jaka_msgs/rosidl_typesupport_fastrtps_c/jaka_msgs/" "DESTINATION" "include/jaka_msgs/jaka_msgs" "PATTERN_EXCLUDE" "*.cpp")
-ament_cmake_symlink_install_directory("/home/newtonrattapong/jaka_ws/src/jaka_ros2/src/jaka_msgs" DIRECTORY "/home/newtonrattapong/jaka_ws/build/jaka_msgs/rosidl_typesupport_fastrtps_c/jaka_msgs/" "DESTINATION" "include/jaka_msgs/jaka_msgs" "PATTERN_EXCLUDE" "*.cpp")
+# install(DIRECTORY "/home/vboxuser/jaka_ws/build/jaka_msgs/rosidl_typesupport_fastrtps_c/jaka_msgs/" "DESTINATION" "include/jaka_msgs/jaka_msgs" "PATTERN_EXCLUDE" "*.cpp")
+ament_cmake_symlink_install_directory("/home/vboxuser/jaka_ws/src/jaka_ros2/src/jaka_msgs" DIRECTORY "/home/vboxuser/jaka_ws/build/jaka_msgs/rosidl_typesupport_fastrtps_c/jaka_msgs/" "DESTINATION" "include/jaka_msgs/jaka_msgs" "PATTERN_EXCLUDE" "*.cpp")
 
-# install(DIRECTORY "/home/newtonrattapong/jaka_ws/build/jaka_msgs/rosidl_typesupport_introspection_c/jaka_msgs/" "DESTINATION" "include/jaka_msgs/jaka_msgs" "PATTERN" "*.h")
-ament_cmake_symlink_install_directory("/home/newtonrattapong/jaka_ws/src/jaka_ros2/src/jaka_msgs" DIRECTORY "/home/newtonrattapong/jaka_ws/build/jaka_msgs/rosidl_typesupport_introspection_c/jaka_msgs/" "DESTINATION" "include/jaka_msgs/jaka_msgs" "PATTERN" "*.h")
+# install(DIRECTORY "/home/vboxuser/jaka_ws/build/jaka_msgs/rosidl_typesupport_introspection_c/jaka_msgs/" "DESTINATION" "include/jaka_msgs/jaka_msgs" "PATTERN" "*.h")
+ament_cmake_symlink_install_directory("/home/vboxuser/jaka_ws/src/jaka_ros2/src/jaka_msgs" DIRECTORY "/home/vboxuser/jaka_ws/build/jaka_msgs/rosidl_typesupport_introspection_c/jaka_msgs/" "DESTINATION" "include/jaka_msgs/jaka_msgs" "PATTERN" "*.h")
 
-# install(DIRECTORY "/home/newtonrattapong/jaka_ws/build/jaka_msgs/rosidl_generator_cpp/jaka_msgs/" "DESTINATION" "include/jaka_msgs/jaka_msgs" "PATTERN" "*.hpp")
-ament_cmake_symlink_install_directory("/home/newtonrattapong/jaka_ws/src/jaka_ros2/src/jaka_msgs" DIRECTORY "/home/newtonrattapong/jaka_ws/build/jaka_msgs/rosidl_generator_cpp/jaka_msgs/" "DESTINATION" "include/jaka_msgs/jaka_msgs" "PATTERN" "*.hpp")
+# install(DIRECTORY "/home/vboxuser/jaka_ws/build/jaka_msgs/rosidl_generator_cpp/jaka_msgs/" "DESTINATION" "include/jaka_msgs/jaka_msgs" "PATTERN" "*.hpp")
+ament_cmake_symlink_install_directory("/home/vboxuser/jaka_ws/src/jaka_ros2/src/jaka_msgs" DIRECTORY "/home/vboxuser/jaka_ws/build/jaka_msgs/rosidl_generator_cpp/jaka_msgs/" "DESTINATION" "include/jaka_msgs/jaka_msgs" "PATTERN" "*.hpp")
 
-# install(DIRECTORY "/home/newtonrattapong/jaka_ws/build/jaka_msgs/rosidl_typesupport_fastrtps_cpp/jaka_msgs/" "DESTINATION" "include/jaka_msgs/jaka_msgs" "PATTERN_EXCLUDE" "*.cpp")
-ament_cmake_symlink_install_directory("/home/newtonrattapong/jaka_ws/src/jaka_ros2/src/jaka_msgs" DIRECTORY "/home/newtonrattapong/jaka_ws/build/jaka_msgs/rosidl_typesupport_fastrtps_cpp/jaka_msgs/" "DESTINATION" "include/jaka_msgs/jaka_msgs" "PATTERN_EXCLUDE" "*.cpp")
+# install(DIRECTORY "/home/vboxuser/jaka_ws/build/jaka_msgs/rosidl_typesupport_fastrtps_cpp/jaka_msgs/" "DESTINATION" "include/jaka_msgs/jaka_msgs" "PATTERN_EXCLUDE" "*.cpp")
+ament_cmake_symlink_install_directory("/home/vboxuser/jaka_ws/src/jaka_ros2/src/jaka_msgs" DIRECTORY "/home/vboxuser/jaka_ws/build/jaka_msgs/rosidl_typesupport_fastrtps_cpp/jaka_msgs/" "DESTINATION" "include/jaka_msgs/jaka_msgs" "PATTERN_EXCLUDE" "*.cpp")
 
-# install(DIRECTORY "/home/newtonrattapong/jaka_ws/build/jaka_msgs/rosidl_typesupport_introspection_cpp/jaka_msgs/" "DESTINATION" "include/jaka_msgs/jaka_msgs" "PATTERN" "*.hpp")
-ament_cmake_symlink_install_directory("/home/newtonrattapong/jaka_ws/src/jaka_ros2/src/jaka_msgs" DIRECTORY "/home/newtonrattapong/jaka_ws/build/jaka_msgs/rosidl_typesupport_introspection_cpp/jaka_msgs/" "DESTINATION" "include/jaka_msgs/jaka_msgs" "PATTERN" "*.hpp")
+# install(DIRECTORY "/home/vboxuser/jaka_ws/build/jaka_msgs/rosidl_typesupport_introspection_cpp/jaka_msgs/" "DESTINATION" "include/jaka_msgs/jaka_msgs" "PATTERN" "*.hpp")
+ament_cmake_symlink_install_directory("/home/vboxuser/jaka_ws/src/jaka_ros2/src/jaka_msgs" DIRECTORY "/home/vboxuser/jaka_ws/build/jaka_msgs/rosidl_typesupport_introspection_cpp/jaka_msgs/" "DESTINATION" "include/jaka_msgs/jaka_msgs" "PATTERN" "*.hpp")
 
-# install(FILES "/home/newtonrattapong/jaka_ws/build/jaka_msgs/ament_cmake_environment_hooks/pythonpath.sh" "DESTINATION" "share/jaka_msgs/environment")
-ament_cmake_symlink_install_files("/home/newtonrattapong/jaka_ws/src/jaka_ros2/src/jaka_msgs" FILES "/home/newtonrattapong/jaka_ws/build/jaka_msgs/ament_cmake_environment_hooks/pythonpath.sh" "DESTINATION" "share/jaka_msgs/environment")
+# install(FILES "/home/vboxuser/jaka_ws/build/jaka_msgs/ament_cmake_environment_hooks/pythonpath.sh" "DESTINATION" "share/jaka_msgs/environment")
+ament_cmake_symlink_install_files("/home/vboxuser/jaka_ws/src/jaka_ros2/src/jaka_msgs" FILES "/home/vboxuser/jaka_ws/build/jaka_msgs/ament_cmake_environment_hooks/pythonpath.sh" "DESTINATION" "share/jaka_msgs/environment")
 
-# install(FILES "/home/newtonrattapong/jaka_ws/build/jaka_msgs/ament_cmake_environment_hooks/pythonpath.dsv" "DESTINATION" "share/jaka_msgs/environment")
-ament_cmake_symlink_install_files("/home/newtonrattapong/jaka_ws/src/jaka_ros2/src/jaka_msgs" FILES "/home/newtonrattapong/jaka_ws/build/jaka_msgs/ament_cmake_environment_hooks/pythonpath.dsv" "DESTINATION" "share/jaka_msgs/environment")
+# install(FILES "/home/vboxuser/jaka_ws/build/jaka_msgs/ament_cmake_environment_hooks/pythonpath.dsv" "DESTINATION" "share/jaka_msgs/environment")
+ament_cmake_symlink_install_files("/home/vboxuser/jaka_ws/src/jaka_ros2/src/jaka_msgs" FILES "/home/vboxuser/jaka_ws/build/jaka_msgs/ament_cmake_environment_hooks/pythonpath.dsv" "DESTINATION" "share/jaka_msgs/environment")
 
-# install(DIRECTORY "/home/newtonrattapong/jaka_ws/build/jaka_msgs/ament_cmake_python/jaka_msgs/jaka_msgs.egg-info/" "DESTINATION" "local/lib/python3.10/dist-packages/jaka_msgs-0.0.0-py3.10.egg-info")
-ament_cmake_symlink_install_directory("/home/newtonrattapong/jaka_ws/src/jaka_ros2/src/jaka_msgs" DIRECTORY "/home/newtonrattapong/jaka_ws/build/jaka_msgs/ament_cmake_python/jaka_msgs/jaka_msgs.egg-info/" "DESTINATION" "local/lib/python3.10/dist-packages/jaka_msgs-0.0.0-py3.10.egg-info")
+# install(DIRECTORY "/home/vboxuser/jaka_ws/build/jaka_msgs/ament_cmake_python/jaka_msgs/jaka_msgs.egg-info/" "DESTINATION" "local/lib/python3.10/dist-packages/jaka_msgs-0.0.0-py3.10.egg-info")
+ament_cmake_symlink_install_directory("/home/vboxuser/jaka_ws/src/jaka_ros2/src/jaka_msgs" DIRECTORY "/home/vboxuser/jaka_ws/build/jaka_msgs/ament_cmake_python/jaka_msgs/jaka_msgs.egg-info/" "DESTINATION" "local/lib/python3.10/dist-packages/jaka_msgs-0.0.0-py3.10.egg-info")
 
-# install(DIRECTORY "/home/newtonrattapong/jaka_ws/build/jaka_msgs/rosidl_generator_py/jaka_msgs/" "DESTINATION" "local/lib/python3.10/dist-packages/jaka_msgs" "PATTERN_EXCLUDE" "*.pyc" "PATTERN_EXCLUDE" "__pycache__")
-ament_cmake_symlink_install_directory("/home/newtonrattapong/jaka_ws/src/jaka_ros2/src/jaka_msgs" DIRECTORY "/home/newtonrattapong/jaka_ws/build/jaka_msgs/rosidl_generator_py/jaka_msgs/" "DESTINATION" "local/lib/python3.10/dist-packages/jaka_msgs" "PATTERN_EXCLUDE" "*.pyc" "PATTERN_EXCLUDE" "__pycache__")
+# install(DIRECTORY "/home/vboxuser/jaka_ws/build/jaka_msgs/rosidl_generator_py/jaka_msgs/" "DESTINATION" "local/lib/python3.10/dist-packages/jaka_msgs" "PATTERN_EXCLUDE" "*.pyc" "PATTERN_EXCLUDE" "__pycache__")
+ament_cmake_symlink_install_directory("/home/vboxuser/jaka_ws/src/jaka_ros2/src/jaka_msgs" DIRECTORY "/home/vboxuser/jaka_ws/build/jaka_msgs/rosidl_generator_py/jaka_msgs/" "DESTINATION" "local/lib/python3.10/dist-packages/jaka_msgs" "PATTERN_EXCLUDE" "*.pyc" "PATTERN_EXCLUDE" "__pycache__")
 
 # install("TARGETS" "jaka_msgs__rosidl_typesupport_fastrtps_c__pyext" "DESTINATION" "local/lib/python3.10/dist-packages/jaka_msgs")
-include("/home/newtonrattapong/jaka_ws/build/jaka_msgs/ament_cmake_symlink_install_targets_0_${CMAKE_INSTALL_CONFIG_NAME}.cmake")
+include("/home/vboxuser/jaka_ws/build/jaka_msgs/ament_cmake_symlink_install_targets_0_${CMAKE_INSTALL_CONFIG_NAME}.cmake")
 
 # install("TARGETS" "jaka_msgs__rosidl_typesupport_introspection_c__pyext" "DESTINATION" "local/lib/python3.10/dist-packages/jaka_msgs")
-include("/home/newtonrattapong/jaka_ws/build/jaka_msgs/ament_cmake_symlink_install_targets_1_${CMAKE_INSTALL_CONFIG_NAME}.cmake")
+include("/home/vboxuser/jaka_ws/build/jaka_msgs/ament_cmake_symlink_install_targets_1_${CMAKE_INSTALL_CONFIG_NAME}.cmake")
 
 # install("TARGETS" "jaka_msgs__rosidl_typesupport_c__pyext" "DESTINATION" "local/lib/python3.10/dist-packages/jaka_msgs")
-include("/home/newtonrattapong/jaka_ws/build/jaka_msgs/ament_cmake_symlink_install_targets_2_${CMAKE_INSTALL_CONFIG_NAME}.cmake")
+include("/home/vboxuser/jaka_ws/build/jaka_msgs/ament_cmake_symlink_install_targets_2_${CMAKE_INSTALL_CONFIG_NAME}.cmake")
 
-# install(FILES "/home/newtonrattapong/jaka_ws/build/jaka_msgs/ament_cmake_index/share/ament_index/resource_index/rust_packages/jaka_msgs" "DESTINATION" "share/ament_index/resource_index/rust_packages")
-ament_cmake_symlink_install_files("/home/newtonrattapong/jaka_ws/src/jaka_ros2/src/jaka_msgs" FILES "/home/newtonrattapong/jaka_ws/build/jaka_msgs/ament_cmake_index/share/ament_index/resource_index/rust_packages/jaka_msgs" "DESTINATION" "share/ament_index/resource_index/rust_packages")
+# install(FILES "/home/vboxuser/jaka_ws/build/jaka_msgs/ament_cmake_index/share/ament_index/resource_index/rust_packages/jaka_msgs" "DESTINATION" "share/ament_index/resource_index/rust_packages")
+ament_cmake_symlink_install_files("/home/vboxuser/jaka_ws/src/jaka_ros2/src/jaka_msgs" FILES "/home/vboxuser/jaka_ws/build/jaka_msgs/ament_cmake_index/share/ament_index/resource_index/rust_packages/jaka_msgs" "DESTINATION" "share/ament_index/resource_index/rust_packages")
 
-# install(DIRECTORY "/home/newtonrattapong/jaka_ws/build/jaka_msgs/rosidl_generator_rs/jaka_msgs/rust" "DESTINATION" "share/jaka_msgs")
-ament_cmake_symlink_install_directory("/home/newtonrattapong/jaka_ws/src/jaka_ros2/src/jaka_msgs" DIRECTORY "/home/newtonrattapong/jaka_ws/build/jaka_msgs/rosidl_generator_rs/jaka_msgs/rust" "DESTINATION" "share/jaka_msgs")
+# install(DIRECTORY "/home/vboxuser/jaka_ws/build/jaka_msgs/rosidl_generator_rs/jaka_msgs/rust" "DESTINATION" "share/jaka_msgs")
+ament_cmake_symlink_install_directory("/home/vboxuser/jaka_ws/src/jaka_ros2/src/jaka_msgs" DIRECTORY "/home/vboxuser/jaka_ws/build/jaka_msgs/rosidl_generator_rs/jaka_msgs/rust" "DESTINATION" "share/jaka_msgs")
 
-# install(FILES "/home/newtonrattapong/jaka_ws/build/jaka_msgs/rosidl_adapter/jaka_msgs/msg/RobotMsg.idl" "DESTINATION" "share/jaka_msgs/msg")
-ament_cmake_symlink_install_files("/home/newtonrattapong/jaka_ws/src/jaka_ros2/src/jaka_msgs" FILES "/home/newtonrattapong/jaka_ws/build/jaka_msgs/rosidl_adapter/jaka_msgs/msg/RobotMsg.idl" "DESTINATION" "share/jaka_msgs/msg")
+# install(FILES "/home/vboxuser/jaka_ws/build/jaka_msgs/rosidl_adapter/jaka_msgs/msg/RobotMsg.idl" "DESTINATION" "share/jaka_msgs/msg")
+ament_cmake_symlink_install_files("/home/vboxuser/jaka_ws/src/jaka_ros2/src/jaka_msgs" FILES "/home/vboxuser/jaka_ws/build/jaka_msgs/rosidl_adapter/jaka_msgs/msg/RobotMsg.idl" "DESTINATION" "share/jaka_msgs/msg")
 
-# install(FILES "/home/newtonrattapong/jaka_ws/build/jaka_msgs/rosidl_adapter/jaka_msgs/srv/Move.idl" "DESTINATION" "share/jaka_msgs/srv")
-ament_cmake_symlink_install_files("/home/newtonrattapong/jaka_ws/src/jaka_ros2/src/jaka_msgs" FILES "/home/newtonrattapong/jaka_ws/build/jaka_msgs/rosidl_adapter/jaka_msgs/srv/Move.idl" "DESTINATION" "share/jaka_msgs/srv")
+# install(FILES "/home/vboxuser/jaka_ws/build/jaka_msgs/rosidl_adapter/jaka_msgs/srv/Move.idl" "DESTINATION" "share/jaka_msgs/srv")
+ament_cmake_symlink_install_files("/home/vboxuser/jaka_ws/src/jaka_ros2/src/jaka_msgs" FILES "/home/vboxuser/jaka_ws/build/jaka_msgs/rosidl_adapter/jaka_msgs/srv/Move.idl" "DESTINATION" "share/jaka_msgs/srv")
 
-# install(FILES "/home/newtonrattapong/jaka_ws/build/jaka_msgs/rosidl_adapter/jaka_msgs/srv/ServoMoveEnable.idl" "DESTINATION" "share/jaka_msgs/srv")
-ament_cmake_symlink_install_files("/home/newtonrattapong/jaka_ws/src/jaka_ros2/src/jaka_msgs" FILES "/home/newtonrattapong/jaka_ws/build/jaka_msgs/rosidl_adapter/jaka_msgs/srv/ServoMoveEnable.idl" "DESTINATION" "share/jaka_msgs/srv")
+# install(FILES "/home/vboxuser/jaka_ws/build/jaka_msgs/rosidl_adapter/jaka_msgs/srv/ServoMoveEnable.idl" "DESTINATION" "share/jaka_msgs/srv")
+ament_cmake_symlink_install_files("/home/vboxuser/jaka_ws/src/jaka_ros2/src/jaka_msgs" FILES "/home/vboxuser/jaka_ws/build/jaka_msgs/rosidl_adapter/jaka_msgs/srv/ServoMoveEnable.idl" "DESTINATION" "share/jaka_msgs/srv")
 
-# install(FILES "/home/newtonrattapong/jaka_ws/build/jaka_msgs/rosidl_adapter/jaka_msgs/srv/ServoMove.idl" "DESTINATION" "share/jaka_msgs/srv")
-ament_cmake_symlink_install_files("/home/newtonrattapong/jaka_ws/src/jaka_ros2/src/jaka_msgs" FILES "/home/newtonrattapong/jaka_ws/build/jaka_msgs/rosidl_adapter/jaka_msgs/srv/ServoMove.idl" "DESTINATION" "share/jaka_msgs/srv")
+# install(FILES "/home/vboxuser/jaka_ws/build/jaka_msgs/rosidl_adapter/jaka_msgs/srv/ServoMove.idl" "DESTINATION" "share/jaka_msgs/srv")
+ament_cmake_symlink_install_files("/home/vboxuser/jaka_ws/src/jaka_ros2/src/jaka_msgs" FILES "/home/vboxuser/jaka_ws/build/jaka_msgs/rosidl_adapter/jaka_msgs/srv/ServoMove.idl" "DESTINATION" "share/jaka_msgs/srv")
 
-# install(FILES "/home/newtonrattapong/jaka_ws/build/jaka_msgs/rosidl_adapter/jaka_msgs/srv/SetTcpFrame.idl" "DESTINATION" "share/jaka_msgs/srv")
-ament_cmake_symlink_install_files("/home/newtonrattapong/jaka_ws/src/jaka_ros2/src/jaka_msgs" FILES "/home/newtonrattapong/jaka_ws/build/jaka_msgs/rosidl_adapter/jaka_msgs/srv/SetTcpFrame.idl" "DESTINATION" "share/jaka_msgs/srv")
+# install(FILES "/home/vboxuser/jaka_ws/build/jaka_msgs/rosidl_adapter/jaka_msgs/srv/SetTcpFrame.idl" "DESTINATION" "share/jaka_msgs/srv")
+ament_cmake_symlink_install_files("/home/vboxuser/jaka_ws/src/jaka_ros2/src/jaka_msgs" FILES "/home/vboxuser/jaka_ws/build/jaka_msgs/rosidl_adapter/jaka_msgs/srv/SetTcpFrame.idl" "DESTINATION" "share/jaka_msgs/srv")
 
-# install(FILES "/home/newtonrattapong/jaka_ws/build/jaka_msgs/rosidl_adapter/jaka_msgs/srv/SetUserFrame.idl" "DESTINATION" "share/jaka_msgs/srv")
-ament_cmake_symlink_install_files("/home/newtonrattapong/jaka_ws/src/jaka_ros2/src/jaka_msgs" FILES "/home/newtonrattapong/jaka_ws/build/jaka_msgs/rosidl_adapter/jaka_msgs/srv/SetUserFrame.idl" "DESTINATION" "share/jaka_msgs/srv")
+# install(FILES "/home/vboxuser/jaka_ws/build/jaka_msgs/rosidl_adapter/jaka_msgs/srv/SetUserFrame.idl" "DESTINATION" "share/jaka_msgs/srv")
+ament_cmake_symlink_install_files("/home/vboxuser/jaka_ws/src/jaka_ros2/src/jaka_msgs" FILES "/home/vboxuser/jaka_ws/build/jaka_msgs/rosidl_adapter/jaka_msgs/srv/SetUserFrame.idl" "DESTINATION" "share/jaka_msgs/srv")
 
-# install(FILES "/home/newtonrattapong/jaka_ws/build/jaka_msgs/rosidl_adapter/jaka_msgs/srv/SetPayload.idl" "DESTINATION" "share/jaka_msgs/srv")
-ament_cmake_symlink_install_files("/home/newtonrattapong/jaka_ws/src/jaka_ros2/src/jaka_msgs" FILES "/home/newtonrattapong/jaka_ws/build/jaka_msgs/rosidl_adapter/jaka_msgs/srv/SetPayload.idl" "DESTINATION" "share/jaka_msgs/srv")
+# install(FILES "/home/vboxuser/jaka_ws/build/jaka_msgs/rosidl_adapter/jaka_msgs/srv/SetPayload.idl" "DESTINATION" "share/jaka_msgs/srv")
+ament_cmake_symlink_install_files("/home/vboxuser/jaka_ws/src/jaka_ros2/src/jaka_msgs" FILES "/home/vboxuser/jaka_ws/build/jaka_msgs/rosidl_adapter/jaka_msgs/srv/SetPayload.idl" "DESTINATION" "share/jaka_msgs/srv")
 
-# install(FILES "/home/newtonrattapong/jaka_ws/build/jaka_msgs/rosidl_adapter/jaka_msgs/srv/SetCollision.idl" "DESTINATION" "share/jaka_msgs/srv")
-ament_cmake_symlink_install_files("/home/newtonrattapong/jaka_ws/src/jaka_ros2/src/jaka_msgs" FILES "/home/newtonrattapong/jaka_ws/build/jaka_msgs/rosidl_adapter/jaka_msgs/srv/SetCollision.idl" "DESTINATION" "share/jaka_msgs/srv")
+# install(FILES "/home/vboxuser/jaka_ws/build/jaka_msgs/rosidl_adapter/jaka_msgs/srv/SetCollision.idl" "DESTINATION" "share/jaka_msgs/srv")
+ament_cmake_symlink_install_files("/home/vboxuser/jaka_ws/src/jaka_ros2/src/jaka_msgs" FILES "/home/vboxuser/jaka_ws/build/jaka_msgs/rosidl_adapter/jaka_msgs/srv/SetCollision.idl" "DESTINATION" "share/jaka_msgs/srv")
 
-# install(FILES "/home/newtonrattapong/jaka_ws/build/jaka_msgs/rosidl_adapter/jaka_msgs/srv/SetIO.idl" "DESTINATION" "share/jaka_msgs/srv")
-ament_cmake_symlink_install_files("/home/newtonrattapong/jaka_ws/src/jaka_ros2/src/jaka_msgs" FILES "/home/newtonrattapong/jaka_ws/build/jaka_msgs/rosidl_adapter/jaka_msgs/srv/SetIO.idl" "DESTINATION" "share/jaka_msgs/srv")
+# install(FILES "/home/vboxuser/jaka_ws/build/jaka_msgs/rosidl_adapter/jaka_msgs/srv/SetIO.idl" "DESTINATION" "share/jaka_msgs/srv")
+ament_cmake_symlink_install_files("/home/vboxuser/jaka_ws/src/jaka_ros2/src/jaka_msgs" FILES "/home/vboxuser/jaka_ws/build/jaka_msgs/rosidl_adapter/jaka_msgs/srv/SetIO.idl" "DESTINATION" "share/jaka_msgs/srv")
 
-# install(FILES "/home/newtonrattapong/jaka_ws/build/jaka_msgs/rosidl_adapter/jaka_msgs/srv/GetIO.idl" "DESTINATION" "share/jaka_msgs/srv")
-ament_cmake_symlink_install_files("/home/newtonrattapong/jaka_ws/src/jaka_ros2/src/jaka_msgs" FILES "/home/newtonrattapong/jaka_ws/build/jaka_msgs/rosidl_adapter/jaka_msgs/srv/GetIO.idl" "DESTINATION" "share/jaka_msgs/srv")
+# install(FILES "/home/vboxuser/jaka_ws/build/jaka_msgs/rosidl_adapter/jaka_msgs/srv/GetIO.idl" "DESTINATION" "share/jaka_msgs/srv")
+ament_cmake_symlink_install_files("/home/vboxuser/jaka_ws/src/jaka_ros2/src/jaka_msgs" FILES "/home/vboxuser/jaka_ws/build/jaka_msgs/rosidl_adapter/jaka_msgs/srv/GetIO.idl" "DESTINATION" "share/jaka_msgs/srv")
 
-# install(FILES "/home/newtonrattapong/jaka_ws/build/jaka_msgs/rosidl_adapter/jaka_msgs/srv/ClearError.idl" "DESTINATION" "share/jaka_msgs/srv")
-ament_cmake_symlink_install_files("/home/newtonrattapong/jaka_ws/src/jaka_ros2/src/jaka_msgs" FILES "/home/newtonrattapong/jaka_ws/build/jaka_msgs/rosidl_adapter/jaka_msgs/srv/ClearError.idl" "DESTINATION" "share/jaka_msgs/srv")
+# install(FILES "/home/vboxuser/jaka_ws/build/jaka_msgs/rosidl_adapter/jaka_msgs/srv/ClearError.idl" "DESTINATION" "share/jaka_msgs/srv")
+ament_cmake_symlink_install_files("/home/vboxuser/jaka_ws/src/jaka_ros2/src/jaka_msgs" FILES "/home/vboxuser/jaka_ws/build/jaka_msgs/rosidl_adapter/jaka_msgs/srv/ClearError.idl" "DESTINATION" "share/jaka_msgs/srv")
 
-# install(FILES "/home/newtonrattapong/jaka_ws/build/jaka_msgs/rosidl_adapter/jaka_msgs/srv/GetFK.idl" "DESTINATION" "share/jaka_msgs/srv")
-ament_cmake_symlink_install_files("/home/newtonrattapong/jaka_ws/src/jaka_ros2/src/jaka_msgs" FILES "/home/newtonrattapong/jaka_ws/build/jaka_msgs/rosidl_adapter/jaka_msgs/srv/GetFK.idl" "DESTINATION" "share/jaka_msgs/srv")
+# install(FILES "/home/vboxuser/jaka_ws/build/jaka_msgs/rosidl_adapter/jaka_msgs/srv/GetFK.idl" "DESTINATION" "share/jaka_msgs/srv")
+ament_cmake_symlink_install_files("/home/vboxuser/jaka_ws/src/jaka_ros2/src/jaka_msgs" FILES "/home/vboxuser/jaka_ws/build/jaka_msgs/rosidl_adapter/jaka_msgs/srv/GetFK.idl" "DESTINATION" "share/jaka_msgs/srv")
 
-# install(FILES "/home/newtonrattapong/jaka_ws/build/jaka_msgs/rosidl_adapter/jaka_msgs/srv/GetIK.idl" "DESTINATION" "share/jaka_msgs/srv")
-ament_cmake_symlink_install_files("/home/newtonrattapong/jaka_ws/src/jaka_ros2/src/jaka_msgs" FILES "/home/newtonrattapong/jaka_ws/build/jaka_msgs/rosidl_adapter/jaka_msgs/srv/GetIK.idl" "DESTINATION" "share/jaka_msgs/srv")
+# install(FILES "/home/vboxuser/jaka_ws/build/jaka_msgs/rosidl_adapter/jaka_msgs/srv/GetIK.idl" "DESTINATION" "share/jaka_msgs/srv")
+ament_cmake_symlink_install_files("/home/vboxuser/jaka_ws/src/jaka_ros2/src/jaka_msgs" FILES "/home/vboxuser/jaka_ws/build/jaka_msgs/rosidl_adapter/jaka_msgs/srv/GetIK.idl" "DESTINATION" "share/jaka_msgs/srv")
 
-# install(FILES "/home/newtonrattapong/jaka_ws/src/jaka_ros2/src/jaka_msgs/msg/RobotMsg.msg" "DESTINATION" "share/jaka_msgs/msg")
-ament_cmake_symlink_install_files("/home/newtonrattapong/jaka_ws/src/jaka_ros2/src/jaka_msgs" FILES "/home/newtonrattapong/jaka_ws/src/jaka_ros2/src/jaka_msgs/msg/RobotMsg.msg" "DESTINATION" "share/jaka_msgs/msg")
+# install(FILES "/home/vboxuser/jaka_ws/src/jaka_ros2/src/jaka_msgs/msg/RobotMsg.msg" "DESTINATION" "share/jaka_msgs/msg")
+ament_cmake_symlink_install_files("/home/vboxuser/jaka_ws/src/jaka_ros2/src/jaka_msgs" FILES "/home/vboxuser/jaka_ws/src/jaka_ros2/src/jaka_msgs/msg/RobotMsg.msg" "DESTINATION" "share/jaka_msgs/msg")
 
-# install(FILES "/home/newtonrattapong/jaka_ws/src/jaka_ros2/src/jaka_msgs/srv/Move.srv" "DESTINATION" "share/jaka_msgs/srv")
-ament_cmake_symlink_install_files("/home/newtonrattapong/jaka_ws/src/jaka_ros2/src/jaka_msgs" FILES "/home/newtonrattapong/jaka_ws/src/jaka_ros2/src/jaka_msgs/srv/Move.srv" "DESTINATION" "share/jaka_msgs/srv")
+# install(FILES "/home/vboxuser/jaka_ws/src/jaka_ros2/src/jaka_msgs/srv/Move.srv" "DESTINATION" "share/jaka_msgs/srv")
+ament_cmake_symlink_install_files("/home/vboxuser/jaka_ws/src/jaka_ros2/src/jaka_msgs" FILES "/home/vboxuser/jaka_ws/src/jaka_ros2/src/jaka_msgs/srv/Move.srv" "DESTINATION" "share/jaka_msgs/srv")
 
-# install(FILES "/home/newtonrattapong/jaka_ws/build/jaka_msgs/rosidl_cmake/srv/Move_Request.msg" "DESTINATION" "share/jaka_msgs/srv")
-ament_cmake_symlink_install_files("/home/newtonrattapong/jaka_ws/src/jaka_ros2/src/jaka_msgs" FILES "/home/newtonrattapong/jaka_ws/build/jaka_msgs/rosidl_cmake/srv/Move_Request.msg" "DESTINATION" "share/jaka_msgs/srv")
+# install(FILES "/home/vboxuser/jaka_ws/build/jaka_msgs/rosidl_cmake/srv/Move_Request.msg" "DESTINATION" "share/jaka_msgs/srv")
+ament_cmake_symlink_install_files("/home/vboxuser/jaka_ws/src/jaka_ros2/src/jaka_msgs" FILES "/home/vboxuser/jaka_ws/build/jaka_msgs/rosidl_cmake/srv/Move_Request.msg" "DESTINATION" "share/jaka_msgs/srv")
 
-# install(FILES "/home/newtonrattapong/jaka_ws/build/jaka_msgs/rosidl_cmake/srv/Move_Response.msg" "DESTINATION" "share/jaka_msgs/srv")
-ament_cmake_symlink_install_files("/home/newtonrattapong/jaka_ws/src/jaka_ros2/src/jaka_msgs" FILES "/home/newtonrattapong/jaka_ws/build/jaka_msgs/rosidl_cmake/srv/Move_Response.msg" "DESTINATION" "share/jaka_msgs/srv")
+# install(FILES "/home/vboxuser/jaka_ws/build/jaka_msgs/rosidl_cmake/srv/Move_Response.msg" "DESTINATION" "share/jaka_msgs/srv")
+ament_cmake_symlink_install_files("/home/vboxuser/jaka_ws/src/jaka_ros2/src/jaka_msgs" FILES "/home/vboxuser/jaka_ws/build/jaka_msgs/rosidl_cmake/srv/Move_Response.msg" "DESTINATION" "share/jaka_msgs/srv")
 
-# install(FILES "/home/newtonrattapong/jaka_ws/src/jaka_ros2/src/jaka_msgs/srv/ServoMoveEnable.srv" "DESTINATION" "share/jaka_msgs/srv")
-ament_cmake_symlink_install_files("/home/newtonrattapong/jaka_ws/src/jaka_ros2/src/jaka_msgs" FILES "/home/newtonrattapong/jaka_ws/src/jaka_ros2/src/jaka_msgs/srv/ServoMoveEnable.srv" "DESTINATION" "share/jaka_msgs/srv")
+# install(FILES "/home/vboxuser/jaka_ws/src/jaka_ros2/src/jaka_msgs/srv/ServoMoveEnable.srv" "DESTINATION" "share/jaka_msgs/srv")
+ament_cmake_symlink_install_files("/home/vboxuser/jaka_ws/src/jaka_ros2/src/jaka_msgs" FILES "/home/vboxuser/jaka_ws/src/jaka_ros2/src/jaka_msgs/srv/ServoMoveEnable.srv" "DESTINATION" "share/jaka_msgs/srv")
 
-# install(FILES "/home/newtonrattapong/jaka_ws/build/jaka_msgs/rosidl_cmake/srv/ServoMoveEnable_Request.msg" "DESTINATION" "share/jaka_msgs/srv")
-ament_cmake_symlink_install_files("/home/newtonrattapong/jaka_ws/src/jaka_ros2/src/jaka_msgs" FILES "/home/newtonrattapong/jaka_ws/build/jaka_msgs/rosidl_cmake/srv/ServoMoveEnable_Request.msg" "DESTINATION" "share/jaka_msgs/srv")
+# install(FILES "/home/vboxuser/jaka_ws/build/jaka_msgs/rosidl_cmake/srv/ServoMoveEnable_Request.msg" "DESTINATION" "share/jaka_msgs/srv")
+ament_cmake_symlink_install_files("/home/vboxuser/jaka_ws/src/jaka_ros2/src/jaka_msgs" FILES "/home/vboxuser/jaka_ws/build/jaka_msgs/rosidl_cmake/srv/ServoMoveEnable_Request.msg" "DESTINATION" "share/jaka_msgs/srv")
 
-# install(FILES "/home/newtonrattapong/jaka_ws/build/jaka_msgs/rosidl_cmake/srv/ServoMoveEnable_Response.msg" "DESTINATION" "share/jaka_msgs/srv")
-ament_cmake_symlink_install_files("/home/newtonrattapong/jaka_ws/src/jaka_ros2/src/jaka_msgs" FILES "/home/newtonrattapong/jaka_ws/build/jaka_msgs/rosidl_cmake/srv/ServoMoveEnable_Response.msg" "DESTINATION" "share/jaka_msgs/srv")
+# install(FILES "/home/vboxuser/jaka_ws/build/jaka_msgs/rosidl_cmake/srv/ServoMoveEnable_Response.msg" "DESTINATION" "share/jaka_msgs/srv")
+ament_cmake_symlink_install_files("/home/vboxuser/jaka_ws/src/jaka_ros2/src/jaka_msgs" FILES "/home/vboxuser/jaka_ws/build/jaka_msgs/rosidl_cmake/srv/ServoMoveEnable_Response.msg" "DESTINATION" "share/jaka_msgs/srv")
 
-# install(FILES "/home/newtonrattapong/jaka_ws/src/jaka_ros2/src/jaka_msgs/srv/ServoMove.srv" "DESTINATION" "share/jaka_msgs/srv")
-ament_cmake_symlink_install_files("/home/newtonrattapong/jaka_ws/src/jaka_ros2/src/jaka_msgs" FILES "/home/newtonrattapong/jaka_ws/src/jaka_ros2/src/jaka_msgs/srv/ServoMove.srv" "DESTINATION" "share/jaka_msgs/srv")
+# install(FILES "/home/vboxuser/jaka_ws/src/jaka_ros2/src/jaka_msgs/srv/ServoMove.srv" "DESTINATION" "share/jaka_msgs/srv")
+ament_cmake_symlink_install_files("/home/vboxuser/jaka_ws/src/jaka_ros2/src/jaka_msgs" FILES "/home/vboxuser/jaka_ws/src/jaka_ros2/src/jaka_msgs/srv/ServoMove.srv" "DESTINATION" "share/jaka_msgs/srv")
 
-# install(FILES "/home/newtonrattapong/jaka_ws/build/jaka_msgs/rosidl_cmake/srv/ServoMove_Request.msg" "DESTINATION" "share/jaka_msgs/srv")
-ament_cmake_symlink_install_files("/home/newtonrattapong/jaka_ws/src/jaka_ros2/src/jaka_msgs" FILES "/home/newtonrattapong/jaka_ws/build/jaka_msgs/rosidl_cmake/srv/ServoMove_Request.msg" "DESTINATION" "share/jaka_msgs/srv")
+# install(FILES "/home/vboxuser/jaka_ws/build/jaka_msgs/rosidl_cmake/srv/ServoMove_Request.msg" "DESTINATION" "share/jaka_msgs/srv")
+ament_cmake_symlink_install_files("/home/vboxuser/jaka_ws/src/jaka_ros2/src/jaka_msgs" FILES "/home/vboxuser/jaka_ws/build/jaka_msgs/rosidl_cmake/srv/ServoMove_Request.msg" "DESTINATION" "share/jaka_msgs/srv")
 
-# install(FILES "/home/newtonrattapong/jaka_ws/build/jaka_msgs/rosidl_cmake/srv/ServoMove_Response.msg" "DESTINATION" "share/jaka_msgs/srv")
-ament_cmake_symlink_install_files("/home/newtonrattapong/jaka_ws/src/jaka_ros2/src/jaka_msgs" FILES "/home/newtonrattapong/jaka_ws/build/jaka_msgs/rosidl_cmake/srv/ServoMove_Response.msg" "DESTINATION" "share/jaka_msgs/srv")
+# install(FILES "/home/vboxuser/jaka_ws/build/jaka_msgs/rosidl_cmake/srv/ServoMove_Response.msg" "DESTINATION" "share/jaka_msgs/srv")
+ament_cmake_symlink_install_files("/home/vboxuser/jaka_ws/src/jaka_ros2/src/jaka_msgs" FILES "/home/vboxuser/jaka_ws/build/jaka_msgs/rosidl_cmake/srv/ServoMove_Response.msg" "DESTINATION" "share/jaka_msgs/srv")
 
-# install(FILES "/home/newtonrattapong/jaka_ws/src/jaka_ros2/src/jaka_msgs/srv/SetTcpFrame.srv" "DESTINATION" "share/jaka_msgs/srv")
-ament_cmake_symlink_install_files("/home/newtonrattapong/jaka_ws/src/jaka_ros2/src/jaka_msgs" FILES "/home/newtonrattapong/jaka_ws/src/jaka_ros2/src/jaka_msgs/srv/SetTcpFrame.srv" "DESTINATION" "share/jaka_msgs/srv")
+# install(FILES "/home/vboxuser/jaka_ws/src/jaka_ros2/src/jaka_msgs/srv/SetTcpFrame.srv" "DESTINATION" "share/jaka_msgs/srv")
+ament_cmake_symlink_install_files("/home/vboxuser/jaka_ws/src/jaka_ros2/src/jaka_msgs" FILES "/home/vboxuser/jaka_ws/src/jaka_ros2/src/jaka_msgs/srv/SetTcpFrame.srv" "DESTINATION" "share/jaka_msgs/srv")
 
-# install(FILES "/home/newtonrattapong/jaka_ws/build/jaka_msgs/rosidl_cmake/srv/SetTcpFrame_Request.msg" "DESTINATION" "share/jaka_msgs/srv")
-ament_cmake_symlink_install_files("/home/newtonrattapong/jaka_ws/src/jaka_ros2/src/jaka_msgs" FILES "/home/newtonrattapong/jaka_ws/build/jaka_msgs/rosidl_cmake/srv/SetTcpFrame_Request.msg" "DESTINATION" "share/jaka_msgs/srv")
+# install(FILES "/home/vboxuser/jaka_ws/build/jaka_msgs/rosidl_cmake/srv/SetTcpFrame_Request.msg" "DESTINATION" "share/jaka_msgs/srv")
+ament_cmake_symlink_install_files("/home/vboxuser/jaka_ws/src/jaka_ros2/src/jaka_msgs" FILES "/home/vboxuser/jaka_ws/build/jaka_msgs/rosidl_cmake/srv/SetTcpFrame_Request.msg" "DESTINATION" "share/jaka_msgs/srv")
 
-# install(FILES "/home/newtonrattapong/jaka_ws/build/jaka_msgs/rosidl_cmake/srv/SetTcpFrame_Response.msg" "DESTINATION" "share/jaka_msgs/srv")
-ament_cmake_symlink_install_files("/home/newtonrattapong/jaka_ws/src/jaka_ros2/src/jaka_msgs" FILES "/home/newtonrattapong/jaka_ws/build/jaka_msgs/rosidl_cmake/srv/SetTcpFrame_Response.msg" "DESTINATION" "share/jaka_msgs/srv")
+# install(FILES "/home/vboxuser/jaka_ws/build/jaka_msgs/rosidl_cmake/srv/SetTcpFrame_Response.msg" "DESTINATION" "share/jaka_msgs/srv")
+ament_cmake_symlink_install_files("/home/vboxuser/jaka_ws/src/jaka_ros2/src/jaka_msgs" FILES "/home/vboxuser/jaka_ws/build/jaka_msgs/rosidl_cmake/srv/SetTcpFrame_Response.msg" "DESTINATION" "share/jaka_msgs/srv")
 
-# install(FILES "/home/newtonrattapong/jaka_ws/src/jaka_ros2/src/jaka_msgs/srv/SetUserFrame.srv" "DESTINATION" "share/jaka_msgs/srv")
-ament_cmake_symlink_install_files("/home/newtonrattapong/jaka_ws/src/jaka_ros2/src/jaka_msgs" FILES "/home/newtonrattapong/jaka_ws/src/jaka_ros2/src/jaka_msgs/srv/SetUserFrame.srv" "DESTINATION" "share/jaka_msgs/srv")
+# install(FILES "/home/vboxuser/jaka_ws/src/jaka_ros2/src/jaka_msgs/srv/SetUserFrame.srv" "DESTINATION" "share/jaka_msgs/srv")
+ament_cmake_symlink_install_files("/home/vboxuser/jaka_ws/src/jaka_ros2/src/jaka_msgs" FILES "/home/vboxuser/jaka_ws/src/jaka_ros2/src/jaka_msgs/srv/SetUserFrame.srv" "DESTINATION" "share/jaka_msgs/srv")
 
-# install(FILES "/home/newtonrattapong/jaka_ws/build/jaka_msgs/rosidl_cmake/srv/SetUserFrame_Request.msg" "DESTINATION" "share/jaka_msgs/srv")
-ament_cmake_symlink_install_files("/home/newtonrattapong/jaka_ws/src/jaka_ros2/src/jaka_msgs" FILES "/home/newtonrattapong/jaka_ws/build/jaka_msgs/rosidl_cmake/srv/SetUserFrame_Request.msg" "DESTINATION" "share/jaka_msgs/srv")
+# install(FILES "/home/vboxuser/jaka_ws/build/jaka_msgs/rosidl_cmake/srv/SetUserFrame_Request.msg" "DESTINATION" "share/jaka_msgs/srv")
+ament_cmake_symlink_install_files("/home/vboxuser/jaka_ws/src/jaka_ros2/src/jaka_msgs" FILES "/home/vboxuser/jaka_ws/build/jaka_msgs/rosidl_cmake/srv/SetUserFrame_Request.msg" "DESTINATION" "share/jaka_msgs/srv")
 
-# install(FILES "/home/newtonrattapong/jaka_ws/build/jaka_msgs/rosidl_cmake/srv/SetUserFrame_Response.msg" "DESTINATION" "share/jaka_msgs/srv")
-ament_cmake_symlink_install_files("/home/newtonrattapong/jaka_ws/src/jaka_ros2/src/jaka_msgs" FILES "/home/newtonrattapong/jaka_ws/build/jaka_msgs/rosidl_cmake/srv/SetUserFrame_Response.msg" "DESTINATION" "share/jaka_msgs/srv")
+# install(FILES "/home/vboxuser/jaka_ws/build/jaka_msgs/rosidl_cmake/srv/SetUserFrame_Response.msg" "DESTINATION" "share/jaka_msgs/srv")
+ament_cmake_symlink_install_files("/home/vboxuser/jaka_ws/src/jaka_ros2/src/jaka_msgs" FILES "/home/vboxuser/jaka_ws/build/jaka_msgs/rosidl_cmake/srv/SetUserFrame_Response.msg" "DESTINATION" "share/jaka_msgs/srv")
 
-# install(FILES "/home/newtonrattapong/jaka_ws/src/jaka_ros2/src/jaka_msgs/srv/SetPayload.srv" "DESTINATION" "share/jaka_msgs/srv")
-ament_cmake_symlink_install_files("/home/newtonrattapong/jaka_ws/src/jaka_ros2/src/jaka_msgs" FILES "/home/newtonrattapong/jaka_ws/src/jaka_ros2/src/jaka_msgs/srv/SetPayload.srv" "DESTINATION" "share/jaka_msgs/srv")
+# install(FILES "/home/vboxuser/jaka_ws/src/jaka_ros2/src/jaka_msgs/srv/SetPayload.srv" "DESTINATION" "share/jaka_msgs/srv")
+ament_cmake_symlink_install_files("/home/vboxuser/jaka_ws/src/jaka_ros2/src/jaka_msgs" FILES "/home/vboxuser/jaka_ws/src/jaka_ros2/src/jaka_msgs/srv/SetPayload.srv" "DESTINATION" "share/jaka_msgs/srv")
 
-# install(FILES "/home/newtonrattapong/jaka_ws/build/jaka_msgs/rosidl_cmake/srv/SetPayload_Request.msg" "DESTINATION" "share/jaka_msgs/srv")
-ament_cmake_symlink_install_files("/home/newtonrattapong/jaka_ws/src/jaka_ros2/src/jaka_msgs" FILES "/home/newtonrattapong/jaka_ws/build/jaka_msgs/rosidl_cmake/srv/SetPayload_Request.msg" "DESTINATION" "share/jaka_msgs/srv")
+# install(FILES "/home/vboxuser/jaka_ws/build/jaka_msgs/rosidl_cmake/srv/SetPayload_Request.msg" "DESTINATION" "share/jaka_msgs/srv")
+ament_cmake_symlink_install_files("/home/vboxuser/jaka_ws/src/jaka_ros2/src/jaka_msgs" FILES "/home/vboxuser/jaka_ws/build/jaka_msgs/rosidl_cmake/srv/SetPayload_Request.msg" "DESTINATION" "share/jaka_msgs/srv")
 
-# install(FILES "/home/newtonrattapong/jaka_ws/build/jaka_msgs/rosidl_cmake/srv/SetPayload_Response.msg" "DESTINATION" "share/jaka_msgs/srv")
-ament_cmake_symlink_install_files("/home/newtonrattapong/jaka_ws/src/jaka_ros2/src/jaka_msgs" FILES "/home/newtonrattapong/jaka_ws/build/jaka_msgs/rosidl_cmake/srv/SetPayload_Response.msg" "DESTINATION" "share/jaka_msgs/srv")
+# install(FILES "/home/vboxuser/jaka_ws/build/jaka_msgs/rosidl_cmake/srv/SetPayload_Response.msg" "DESTINATION" "share/jaka_msgs/srv")
+ament_cmake_symlink_install_files("/home/vboxuser/jaka_ws/src/jaka_ros2/src/jaka_msgs" FILES "/home/vboxuser/jaka_ws/build/jaka_msgs/rosidl_cmake/srv/SetPayload_Response.msg" "DESTINATION" "share/jaka_msgs/srv")
 
-# install(FILES "/home/newtonrattapong/jaka_ws/src/jaka_ros2/src/jaka_msgs/srv/SetCollision.srv" "DESTINATION" "share/jaka_msgs/srv")
-ament_cmake_symlink_install_files("/home/newtonrattapong/jaka_ws/src/jaka_ros2/src/jaka_msgs" FILES "/home/newtonrattapong/jaka_ws/src/jaka_ros2/src/jaka_msgs/srv/SetCollision.srv" "DESTINATION" "share/jaka_msgs/srv")
+# install(FILES "/home/vboxuser/jaka_ws/src/jaka_ros2/src/jaka_msgs/srv/SetCollision.srv" "DESTINATION" "share/jaka_msgs/srv")
+ament_cmake_symlink_install_files("/home/vboxuser/jaka_ws/src/jaka_ros2/src/jaka_msgs" FILES "/home/vboxuser/jaka_ws/src/jaka_ros2/src/jaka_msgs/srv/SetCollision.srv" "DESTINATION" "share/jaka_msgs/srv")
 
-# install(FILES "/home/newtonrattapong/jaka_ws/build/jaka_msgs/rosidl_cmake/srv/SetCollision_Request.msg" "DESTINATION" "share/jaka_msgs/srv")
-ament_cmake_symlink_install_files("/home/newtonrattapong/jaka_ws/src/jaka_ros2/src/jaka_msgs" FILES "/home/newtonrattapong/jaka_ws/build/jaka_msgs/rosidl_cmake/srv/SetCollision_Request.msg" "DESTINATION" "share/jaka_msgs/srv")
+# install(FILES "/home/vboxuser/jaka_ws/build/jaka_msgs/rosidl_cmake/srv/SetCollision_Request.msg" "DESTINATION" "share/jaka_msgs/srv")
+ament_cmake_symlink_install_files("/home/vboxuser/jaka_ws/src/jaka_ros2/src/jaka_msgs" FILES "/home/vboxuser/jaka_ws/build/jaka_msgs/rosidl_cmake/srv/SetCollision_Request.msg" "DESTINATION" "share/jaka_msgs/srv")
 
-# install(FILES "/home/newtonrattapong/jaka_ws/build/jaka_msgs/rosidl_cmake/srv/SetCollision_Response.msg" "DESTINATION" "share/jaka_msgs/srv")
-ament_cmake_symlink_install_files("/home/newtonrattapong/jaka_ws/src/jaka_ros2/src/jaka_msgs" FILES "/home/newtonrattapong/jaka_ws/build/jaka_msgs/rosidl_cmake/srv/SetCollision_Response.msg" "DESTINATION" "share/jaka_msgs/srv")
+# install(FILES "/home/vboxuser/jaka_ws/build/jaka_msgs/rosidl_cmake/srv/SetCollision_Response.msg" "DESTINATION" "share/jaka_msgs/srv")
+ament_cmake_symlink_install_files("/home/vboxuser/jaka_ws/src/jaka_ros2/src/jaka_msgs" FILES "/home/vboxuser/jaka_ws/build/jaka_msgs/rosidl_cmake/srv/SetCollision_Response.msg" "DESTINATION" "share/jaka_msgs/srv")
 
-# install(FILES "/home/newtonrattapong/jaka_ws/src/jaka_ros2/src/jaka_msgs/srv/SetIO.srv" "DESTINATION" "share/jaka_msgs/srv")
-ament_cmake_symlink_install_files("/home/newtonrattapong/jaka_ws/src/jaka_ros2/src/jaka_msgs" FILES "/home/newtonrattapong/jaka_ws/src/jaka_ros2/src/jaka_msgs/srv/SetIO.srv" "DESTINATION" "share/jaka_msgs/srv")
+# install(FILES "/home/vboxuser/jaka_ws/src/jaka_ros2/src/jaka_msgs/srv/SetIO.srv" "DESTINATION" "share/jaka_msgs/srv")
+ament_cmake_symlink_install_files("/home/vboxuser/jaka_ws/src/jaka_ros2/src/jaka_msgs" FILES "/home/vboxuser/jaka_ws/src/jaka_ros2/src/jaka_msgs/srv/SetIO.srv" "DESTINATION" "share/jaka_msgs/srv")
 
-# install(FILES "/home/newtonrattapong/jaka_ws/build/jaka_msgs/rosidl_cmake/srv/SetIO_Request.msg" "DESTINATION" "share/jaka_msgs/srv")
-ament_cmake_symlink_install_files("/home/newtonrattapong/jaka_ws/src/jaka_ros2/src/jaka_msgs" FILES "/home/newtonrattapong/jaka_ws/build/jaka_msgs/rosidl_cmake/srv/SetIO_Request.msg" "DESTINATION" "share/jaka_msgs/srv")
+# install(FILES "/home/vboxuser/jaka_ws/build/jaka_msgs/rosidl_cmake/srv/SetIO_Request.msg" "DESTINATION" "share/jaka_msgs/srv")
+ament_cmake_symlink_install_files("/home/vboxuser/jaka_ws/src/jaka_ros2/src/jaka_msgs" FILES "/home/vboxuser/jaka_ws/build/jaka_msgs/rosidl_cmake/srv/SetIO_Request.msg" "DESTINATION" "share/jaka_msgs/srv")
 
-# install(FILES "/home/newtonrattapong/jaka_ws/build/jaka_msgs/rosidl_cmake/srv/SetIO_Response.msg" "DESTINATION" "share/jaka_msgs/srv")
-ament_cmake_symlink_install_files("/home/newtonrattapong/jaka_ws/src/jaka_ros2/src/jaka_msgs" FILES "/home/newtonrattapong/jaka_ws/build/jaka_msgs/rosidl_cmake/srv/SetIO_Response.msg" "DESTINATION" "share/jaka_msgs/srv")
+# install(FILES "/home/vboxuser/jaka_ws/build/jaka_msgs/rosidl_cmake/srv/SetIO_Response.msg" "DESTINATION" "share/jaka_msgs/srv")
+ament_cmake_symlink_install_files("/home/vboxuser/jaka_ws/src/jaka_ros2/src/jaka_msgs" FILES "/home/vboxuser/jaka_ws/build/jaka_msgs/rosidl_cmake/srv/SetIO_Response.msg" "DESTINATION" "share/jaka_msgs/srv")
 
-# install(FILES "/home/newtonrattapong/jaka_ws/src/jaka_ros2/src/jaka_msgs/srv/GetIO.srv" "DESTINATION" "share/jaka_msgs/srv")
-ament_cmake_symlink_install_files("/home/newtonrattapong/jaka_ws/src/jaka_ros2/src/jaka_msgs" FILES "/home/newtonrattapong/jaka_ws/src/jaka_ros2/src/jaka_msgs/srv/GetIO.srv" "DESTINATION" "share/jaka_msgs/srv")
+# install(FILES "/home/vboxuser/jaka_ws/src/jaka_ros2/src/jaka_msgs/srv/GetIO.srv" "DESTINATION" "share/jaka_msgs/srv")
+ament_cmake_symlink_install_files("/home/vboxuser/jaka_ws/src/jaka_ros2/src/jaka_msgs" FILES "/home/vboxuser/jaka_ws/src/jaka_ros2/src/jaka_msgs/srv/GetIO.srv" "DESTINATION" "share/jaka_msgs/srv")
 
-# install(FILES "/home/newtonrattapong/jaka_ws/build/jaka_msgs/rosidl_cmake/srv/GetIO_Request.msg" "DESTINATION" "share/jaka_msgs/srv")
-ament_cmake_symlink_install_files("/home/newtonrattapong/jaka_ws/src/jaka_ros2/src/jaka_msgs" FILES "/home/newtonrattapong/jaka_ws/build/jaka_msgs/rosidl_cmake/srv/GetIO_Request.msg" "DESTINATION" "share/jaka_msgs/srv")
+# install(FILES "/home/vboxuser/jaka_ws/build/jaka_msgs/rosidl_cmake/srv/GetIO_Request.msg" "DESTINATION" "share/jaka_msgs/srv")
+ament_cmake_symlink_install_files("/home/vboxuser/jaka_ws/src/jaka_ros2/src/jaka_msgs" FILES "/home/vboxuser/jaka_ws/build/jaka_msgs/rosidl_cmake/srv/GetIO_Request.msg" "DESTINATION" "share/jaka_msgs/srv")
 
-# install(FILES "/home/newtonrattapong/jaka_ws/build/jaka_msgs/rosidl_cmake/srv/GetIO_Response.msg" "DESTINATION" "share/jaka_msgs/srv")
-ament_cmake_symlink_install_files("/home/newtonrattapong/jaka_ws/src/jaka_ros2/src/jaka_msgs" FILES "/home/newtonrattapong/jaka_ws/build/jaka_msgs/rosidl_cmake/srv/GetIO_Response.msg" "DESTINATION" "share/jaka_msgs/srv")
+# install(FILES "/home/vboxuser/jaka_ws/build/jaka_msgs/rosidl_cmake/srv/GetIO_Response.msg" "DESTINATION" "share/jaka_msgs/srv")
+ament_cmake_symlink_install_files("/home/vboxuser/jaka_ws/src/jaka_ros2/src/jaka_msgs" FILES "/home/vboxuser/jaka_ws/build/jaka_msgs/rosidl_cmake/srv/GetIO_Response.msg" "DESTINATION" "share/jaka_msgs/srv")
 
-# install(FILES "/home/newtonrattapong/jaka_ws/src/jaka_ros2/src/jaka_msgs/srv/ClearError.srv" "DESTINATION" "share/jaka_msgs/srv")
-ament_cmake_symlink_install_files("/home/newtonrattapong/jaka_ws/src/jaka_ros2/src/jaka_msgs" FILES "/home/newtonrattapong/jaka_ws/src/jaka_ros2/src/jaka_msgs/srv/ClearError.srv" "DESTINATION" "share/jaka_msgs/srv")
+# install(FILES "/home/vboxuser/jaka_ws/src/jaka_ros2/src/jaka_msgs/srv/ClearError.srv" "DESTINATION" "share/jaka_msgs/srv")
+ament_cmake_symlink_install_files("/home/vboxuser/jaka_ws/src/jaka_ros2/src/jaka_msgs" FILES "/home/vboxuser/jaka_ws/src/jaka_ros2/src/jaka_msgs/srv/ClearError.srv" "DESTINATION" "share/jaka_msgs/srv")
 
-# install(FILES "/home/newtonrattapong/jaka_ws/build/jaka_msgs/rosidl_cmake/srv/ClearError_Request.msg" "DESTINATION" "share/jaka_msgs/srv")
-ament_cmake_symlink_install_files("/home/newtonrattapong/jaka_ws/src/jaka_ros2/src/jaka_msgs" FILES "/home/newtonrattapong/jaka_ws/build/jaka_msgs/rosidl_cmake/srv/ClearError_Request.msg" "DESTINATION" "share/jaka_msgs/srv")
+# install(FILES "/home/vboxuser/jaka_ws/build/jaka_msgs/rosidl_cmake/srv/ClearError_Request.msg" "DESTINATION" "share/jaka_msgs/srv")
+ament_cmake_symlink_install_files("/home/vboxuser/jaka_ws/src/jaka_ros2/src/jaka_msgs" FILES "/home/vboxuser/jaka_ws/build/jaka_msgs/rosidl_cmake/srv/ClearError_Request.msg" "DESTINATION" "share/jaka_msgs/srv")
 
-# install(FILES "/home/newtonrattapong/jaka_ws/build/jaka_msgs/rosidl_cmake/srv/ClearError_Response.msg" "DESTINATION" "share/jaka_msgs/srv")
-ament_cmake_symlink_install_files("/home/newtonrattapong/jaka_ws/src/jaka_ros2/src/jaka_msgs" FILES "/home/newtonrattapong/jaka_ws/build/jaka_msgs/rosidl_cmake/srv/ClearError_Response.msg" "DESTINATION" "share/jaka_msgs/srv")
+# install(FILES "/home/vboxuser/jaka_ws/build/jaka_msgs/rosidl_cmake/srv/ClearError_Response.msg" "DESTINATION" "share/jaka_msgs/srv")
+ament_cmake_symlink_install_files("/home/vboxuser/jaka_ws/src/jaka_ros2/src/jaka_msgs" FILES "/home/vboxuser/jaka_ws/build/jaka_msgs/rosidl_cmake/srv/ClearError_Response.msg" "DESTINATION" "share/jaka_msgs/srv")
 
-# install(FILES "/home/newtonrattapong/jaka_ws/src/jaka_ros2/src/jaka_msgs/srv/GetFK.srv" "DESTINATION" "share/jaka_msgs/srv")
-ament_cmake_symlink_install_files("/home/newtonrattapong/jaka_ws/src/jaka_ros2/src/jaka_msgs" FILES "/home/newtonrattapong/jaka_ws/src/jaka_ros2/src/jaka_msgs/srv/GetFK.srv" "DESTINATION" "share/jaka_msgs/srv")
+# install(FILES "/home/vboxuser/jaka_ws/src/jaka_ros2/src/jaka_msgs/srv/GetFK.srv" "DESTINATION" "share/jaka_msgs/srv")
+ament_cmake_symlink_install_files("/home/vboxuser/jaka_ws/src/jaka_ros2/src/jaka_msgs" FILES "/home/vboxuser/jaka_ws/src/jaka_ros2/src/jaka_msgs/srv/GetFK.srv" "DESTINATION" "share/jaka_msgs/srv")
 
-# install(FILES "/home/newtonrattapong/jaka_ws/build/jaka_msgs/rosidl_cmake/srv/GetFK_Request.msg" "DESTINATION" "share/jaka_msgs/srv")
-ament_cmake_symlink_install_files("/home/newtonrattapong/jaka_ws/src/jaka_ros2/src/jaka_msgs" FILES "/home/newtonrattapong/jaka_ws/build/jaka_msgs/rosidl_cmake/srv/GetFK_Request.msg" "DESTINATION" "share/jaka_msgs/srv")
+# install(FILES "/home/vboxuser/jaka_ws/build/jaka_msgs/rosidl_cmake/srv/GetFK_Request.msg" "DESTINATION" "share/jaka_msgs/srv")
+ament_cmake_symlink_install_files("/home/vboxuser/jaka_ws/src/jaka_ros2/src/jaka_msgs" FILES "/home/vboxuser/jaka_ws/build/jaka_msgs/rosidl_cmake/srv/GetFK_Request.msg" "DESTINATION" "share/jaka_msgs/srv")
 
-# install(FILES "/home/newtonrattapong/jaka_ws/build/jaka_msgs/rosidl_cmake/srv/GetFK_Response.msg" "DESTINATION" "share/jaka_msgs/srv")
-ament_cmake_symlink_install_files("/home/newtonrattapong/jaka_ws/src/jaka_ros2/src/jaka_msgs" FILES "/home/newtonrattapong/jaka_ws/build/jaka_msgs/rosidl_cmake/srv/GetFK_Response.msg" "DESTINATION" "share/jaka_msgs/srv")
+# install(FILES "/home/vboxuser/jaka_ws/build/jaka_msgs/rosidl_cmake/srv/GetFK_Response.msg" "DESTINATION" "share/jaka_msgs/srv")
+ament_cmake_symlink_install_files("/home/vboxuser/jaka_ws/src/jaka_ros2/src/jaka_msgs" FILES "/home/vboxuser/jaka_ws/build/jaka_msgs/rosidl_cmake/srv/GetFK_Response.msg" "DESTINATION" "share/jaka_msgs/srv")
 
-# install(FILES "/home/newtonrattapong/jaka_ws/src/jaka_ros2/src/jaka_msgs/srv/GetIK.srv" "DESTINATION" "share/jaka_msgs/srv")
-ament_cmake_symlink_install_files("/home/newtonrattapong/jaka_ws/src/jaka_ros2/src/jaka_msgs" FILES "/home/newtonrattapong/jaka_ws/src/jaka_ros2/src/jaka_msgs/srv/GetIK.srv" "DESTINATION" "share/jaka_msgs/srv")
+# install(FILES "/home/vboxuser/jaka_ws/src/jaka_ros2/src/jaka_msgs/srv/GetIK.srv" "DESTINATION" "share/jaka_msgs/srv")
+ament_cmake_symlink_install_files("/home/vboxuser/jaka_ws/src/jaka_ros2/src/jaka_msgs" FILES "/home/vboxuser/jaka_ws/src/jaka_ros2/src/jaka_msgs/srv/GetIK.srv" "DESTINATION" "share/jaka_msgs/srv")
 
-# install(FILES "/home/newtonrattapong/jaka_ws/build/jaka_msgs/rosidl_cmake/srv/GetIK_Request.msg" "DESTINATION" "share/jaka_msgs/srv")
-ament_cmake_symlink_install_files("/home/newtonrattapong/jaka_ws/src/jaka_ros2/src/jaka_msgs" FILES "/home/newtonrattapong/jaka_ws/build/jaka_msgs/rosidl_cmake/srv/GetIK_Request.msg" "DESTINATION" "share/jaka_msgs/srv")
+# install(FILES "/home/vboxuser/jaka_ws/build/jaka_msgs/rosidl_cmake/srv/GetIK_Request.msg" "DESTINATION" "share/jaka_msgs/srv")
+ament_cmake_symlink_install_files("/home/vboxuser/jaka_ws/src/jaka_ros2/src/jaka_msgs" FILES "/home/vboxuser/jaka_ws/build/jaka_msgs/rosidl_cmake/srv/GetIK_Request.msg" "DESTINATION" "share/jaka_msgs/srv")
 
-# install(FILES "/home/newtonrattapong/jaka_ws/build/jaka_msgs/rosidl_cmake/srv/GetIK_Response.msg" "DESTINATION" "share/jaka_msgs/srv")
-ament_cmake_symlink_install_files("/home/newtonrattapong/jaka_ws/src/jaka_ros2/src/jaka_msgs" FILES "/home/newtonrattapong/jaka_ws/build/jaka_msgs/rosidl_cmake/srv/GetIK_Response.msg" "DESTINATION" "share/jaka_msgs/srv")
+# install(FILES "/home/vboxuser/jaka_ws/build/jaka_msgs/rosidl_cmake/srv/GetIK_Response.msg" "DESTINATION" "share/jaka_msgs/srv")
+ament_cmake_symlink_install_files("/home/vboxuser/jaka_ws/src/jaka_ros2/src/jaka_msgs" FILES "/home/vboxuser/jaka_ws/build/jaka_msgs/rosidl_cmake/srv/GetIK_Response.msg" "DESTINATION" "share/jaka_msgs/srv")
 
-# install(FILES "/home/newtonrattapong/jaka_ws/build/jaka_msgs/ament_cmake_index/share/ament_index/resource_index/package_run_dependencies/jaka_msgs" "DESTINATION" "share/ament_index/resource_index/package_run_dependencies")
-ament_cmake_symlink_install_files("/home/newtonrattapong/jaka_ws/src/jaka_ros2/src/jaka_msgs" FILES "/home/newtonrattapong/jaka_ws/build/jaka_msgs/ament_cmake_index/share/ament_index/resource_index/package_run_dependencies/jaka_msgs" "DESTINATION" "share/ament_index/resource_index/package_run_dependencies")
+# install(FILES "/home/vboxuser/jaka_ws/build/jaka_msgs/ament_cmake_index/share/ament_index/resource_index/package_run_dependencies/jaka_msgs" "DESTINATION" "share/ament_index/resource_index/package_run_dependencies")
+ament_cmake_symlink_install_files("/home/vboxuser/jaka_ws/src/jaka_ros2/src/jaka_msgs" FILES "/home/vboxuser/jaka_ws/build/jaka_msgs/ament_cmake_index/share/ament_index/resource_index/package_run_dependencies/jaka_msgs" "DESTINATION" "share/ament_index/resource_index/package_run_dependencies")
 
-# install(FILES "/home/newtonrattapong/jaka_ws/build/jaka_msgs/ament_cmake_index/share/ament_index/resource_index/parent_prefix_path/jaka_msgs" "DESTINATION" "share/ament_index/resource_index/parent_prefix_path")
-ament_cmake_symlink_install_files("/home/newtonrattapong/jaka_ws/src/jaka_ros2/src/jaka_msgs" FILES "/home/newtonrattapong/jaka_ws/build/jaka_msgs/ament_cmake_index/share/ament_index/resource_index/parent_prefix_path/jaka_msgs" "DESTINATION" "share/ament_index/resource_index/parent_prefix_path")
+# install(FILES "/home/vboxuser/jaka_ws/build/jaka_msgs/ament_cmake_index/share/ament_index/resource_index/parent_prefix_path/jaka_msgs" "DESTINATION" "share/ament_index/resource_index/parent_prefix_path")
+ament_cmake_symlink_install_files("/home/vboxuser/jaka_ws/src/jaka_ros2/src/jaka_msgs" FILES "/home/vboxuser/jaka_ws/build/jaka_msgs/ament_cmake_index/share/ament_index/resource_index/parent_prefix_path/jaka_msgs" "DESTINATION" "share/ament_index/resource_index/parent_prefix_path")
 
 # install(FILES "/opt/ros/humble/share/ament_cmake_core/cmake/environment_hooks/environment/ament_prefix_path.sh" "DESTINATION" "share/jaka_msgs/environment")
-ament_cmake_symlink_install_files("/home/newtonrattapong/jaka_ws/src/jaka_ros2/src/jaka_msgs" FILES "/opt/ros/humble/share/ament_cmake_core/cmake/environment_hooks/environment/ament_prefix_path.sh" "DESTINATION" "share/jaka_msgs/environment")
+ament_cmake_symlink_install_files("/home/vboxuser/jaka_ws/src/jaka_ros2/src/jaka_msgs" FILES "/opt/ros/humble/share/ament_cmake_core/cmake/environment_hooks/environment/ament_prefix_path.sh" "DESTINATION" "share/jaka_msgs/environment")
 
-# install(FILES "/home/newtonrattapong/jaka_ws/build/jaka_msgs/ament_cmake_environment_hooks/ament_prefix_path.dsv" "DESTINATION" "share/jaka_msgs/environment")
-ament_cmake_symlink_install_files("/home/newtonrattapong/jaka_ws/src/jaka_ros2/src/jaka_msgs" FILES "/home/newtonrattapong/jaka_ws/build/jaka_msgs/ament_cmake_environment_hooks/ament_prefix_path.dsv" "DESTINATION" "share/jaka_msgs/environment")
+# install(FILES "/home/vboxuser/jaka_ws/build/jaka_msgs/ament_cmake_environment_hooks/ament_prefix_path.dsv" "DESTINATION" "share/jaka_msgs/environment")
+ament_cmake_symlink_install_files("/home/vboxuser/jaka_ws/src/jaka_ros2/src/jaka_msgs" FILES "/home/vboxuser/jaka_ws/build/jaka_msgs/ament_cmake_environment_hooks/ament_prefix_path.dsv" "DESTINATION" "share/jaka_msgs/environment")
 
 # install(FILES "/opt/ros/humble/share/ament_cmake_core/cmake/environment_hooks/environment/path.sh" "DESTINATION" "share/jaka_msgs/environment")
-ament_cmake_symlink_install_files("/home/newtonrattapong/jaka_ws/src/jaka_ros2/src/jaka_msgs" FILES "/opt/ros/humble/share/ament_cmake_core/cmake/environment_hooks/environment/path.sh" "DESTINATION" "share/jaka_msgs/environment")
+ament_cmake_symlink_install_files("/home/vboxuser/jaka_ws/src/jaka_ros2/src/jaka_msgs" FILES "/opt/ros/humble/share/ament_cmake_core/cmake/environment_hooks/environment/path.sh" "DESTINATION" "share/jaka_msgs/environment")
 
-# install(FILES "/home/newtonrattapong/jaka_ws/build/jaka_msgs/ament_cmake_environment_hooks/path.dsv" "DESTINATION" "share/jaka_msgs/environment")
-ament_cmake_symlink_install_files("/home/newtonrattapong/jaka_ws/src/jaka_ros2/src/jaka_msgs" FILES "/home/newtonrattapong/jaka_ws/build/jaka_msgs/ament_cmake_environment_hooks/path.dsv" "DESTINATION" "share/jaka_msgs/environment")
+# install(FILES "/home/vboxuser/jaka_ws/build/jaka_msgs/ament_cmake_environment_hooks/path.dsv" "DESTINATION" "share/jaka_msgs/environment")
+ament_cmake_symlink_install_files("/home/vboxuser/jaka_ws/src/jaka_ros2/src/jaka_msgs" FILES "/home/vboxuser/jaka_ws/build/jaka_msgs/ament_cmake_environment_hooks/path.dsv" "DESTINATION" "share/jaka_msgs/environment")
 
-# install(FILES "/home/newtonrattapong/jaka_ws/build/jaka_msgs/ament_cmake_environment_hooks/local_setup.bash" "DESTINATION" "share/jaka_msgs")
-ament_cmake_symlink_install_files("/home/newtonrattapong/jaka_ws/src/jaka_ros2/src/jaka_msgs" FILES "/home/newtonrattapong/jaka_ws/build/jaka_msgs/ament_cmake_environment_hooks/local_setup.bash" "DESTINATION" "share/jaka_msgs")
+# install(FILES "/home/vboxuser/jaka_ws/build/jaka_msgs/ament_cmake_environment_hooks/local_setup.bash" "DESTINATION" "share/jaka_msgs")
+ament_cmake_symlink_install_files("/home/vboxuser/jaka_ws/src/jaka_ros2/src/jaka_msgs" FILES "/home/vboxuser/jaka_ws/build/jaka_msgs/ament_cmake_environment_hooks/local_setup.bash" "DESTINATION" "share/jaka_msgs")
 
-# install(FILES "/home/newtonrattapong/jaka_ws/build/jaka_msgs/ament_cmake_environment_hooks/local_setup.sh" "DESTINATION" "share/jaka_msgs")
-ament_cmake_symlink_install_files("/home/newtonrattapong/jaka_ws/src/jaka_ros2/src/jaka_msgs" FILES "/home/newtonrattapong/jaka_ws/build/jaka_msgs/ament_cmake_environment_hooks/local_setup.sh" "DESTINATION" "share/jaka_msgs")
+# install(FILES "/home/vboxuser/jaka_ws/build/jaka_msgs/ament_cmake_environment_hooks/local_setup.sh" "DESTINATION" "share/jaka_msgs")
+ament_cmake_symlink_install_files("/home/vboxuser/jaka_ws/src/jaka_ros2/src/jaka_msgs" FILES "/home/vboxuser/jaka_ws/build/jaka_msgs/ament_cmake_environment_hooks/local_setup.sh" "DESTINATION" "share/jaka_msgs")
 
-# install(FILES "/home/newtonrattapong/jaka_ws/build/jaka_msgs/ament_cmake_environment_hooks/local_setup.zsh" "DESTINATION" "share/jaka_msgs")
-ament_cmake_symlink_install_files("/home/newtonrattapong/jaka_ws/src/jaka_ros2/src/jaka_msgs" FILES "/home/newtonrattapong/jaka_ws/build/jaka_msgs/ament_cmake_environment_hooks/local_setup.zsh" "DESTINATION" "share/jaka_msgs")
+# install(FILES "/home/vboxuser/jaka_ws/build/jaka_msgs/ament_cmake_environment_hooks/local_setup.zsh" "DESTINATION" "share/jaka_msgs")
+ament_cmake_symlink_install_files("/home/vboxuser/jaka_ws/src/jaka_ros2/src/jaka_msgs" FILES "/home/vboxuser/jaka_ws/build/jaka_msgs/ament_cmake_environment_hooks/local_setup.zsh" "DESTINATION" "share/jaka_msgs")
 
-# install(FILES "/home/newtonrattapong/jaka_ws/build/jaka_msgs/ament_cmake_environment_hooks/local_setup.dsv" "DESTINATION" "share/jaka_msgs")
-ament_cmake_symlink_install_files("/home/newtonrattapong/jaka_ws/src/jaka_ros2/src/jaka_msgs" FILES "/home/newtonrattapong/jaka_ws/build/jaka_msgs/ament_cmake_environment_hooks/local_setup.dsv" "DESTINATION" "share/jaka_msgs")
+# install(FILES "/home/vboxuser/jaka_ws/build/jaka_msgs/ament_cmake_environment_hooks/local_setup.dsv" "DESTINATION" "share/jaka_msgs")
+ament_cmake_symlink_install_files("/home/vboxuser/jaka_ws/src/jaka_ros2/src/jaka_msgs" FILES "/home/vboxuser/jaka_ws/build/jaka_msgs/ament_cmake_environment_hooks/local_setup.dsv" "DESTINATION" "share/jaka_msgs")
 
-# install(FILES "/home/newtonrattapong/jaka_ws/build/jaka_msgs/ament_cmake_environment_hooks/package.dsv" "DESTINATION" "share/jaka_msgs")
-ament_cmake_symlink_install_files("/home/newtonrattapong/jaka_ws/src/jaka_ros2/src/jaka_msgs" FILES "/home/newtonrattapong/jaka_ws/build/jaka_msgs/ament_cmake_environment_hooks/package.dsv" "DESTINATION" "share/jaka_msgs")
+# install(FILES "/home/vboxuser/jaka_ws/build/jaka_msgs/ament_cmake_environment_hooks/package.dsv" "DESTINATION" "share/jaka_msgs")
+ament_cmake_symlink_install_files("/home/vboxuser/jaka_ws/src/jaka_ros2/src/jaka_msgs" FILES "/home/vboxuser/jaka_ws/build/jaka_msgs/ament_cmake_environment_hooks/package.dsv" "DESTINATION" "share/jaka_msgs")
 
-# install(FILES "/home/newtonrattapong/jaka_ws/build/jaka_msgs/ament_cmake_index/share/ament_index/resource_index/packages/jaka_msgs" "DESTINATION" "share/ament_index/resource_index/packages")
-ament_cmake_symlink_install_files("/home/newtonrattapong/jaka_ws/src/jaka_ros2/src/jaka_msgs" FILES "/home/newtonrattapong/jaka_ws/build/jaka_msgs/ament_cmake_index/share/ament_index/resource_index/packages/jaka_msgs" "DESTINATION" "share/ament_index/resource_index/packages")
+# install(FILES "/home/vboxuser/jaka_ws/build/jaka_msgs/ament_cmake_index/share/ament_index/resource_index/packages/jaka_msgs" "DESTINATION" "share/ament_index/resource_index/packages")
+ament_cmake_symlink_install_files("/home/vboxuser/jaka_ws/src/jaka_ros2/src/jaka_msgs" FILES "/home/vboxuser/jaka_ws/build/jaka_msgs/ament_cmake_index/share/ament_index/resource_index/packages/jaka_msgs" "DESTINATION" "share/ament_index/resource_index/packages")
 
-# install(FILES "/home/newtonrattapong/jaka_ws/build/jaka_msgs/rosidl_cmake/rosidl_cmake-extras.cmake" "DESTINATION" "share/jaka_msgs/cmake")
-ament_cmake_symlink_install_files("/home/newtonrattapong/jaka_ws/src/jaka_ros2/src/jaka_msgs" FILES "/home/newtonrattapong/jaka_ws/build/jaka_msgs/rosidl_cmake/rosidl_cmake-extras.cmake" "DESTINATION" "share/jaka_msgs/cmake")
+# install(FILES "/home/vboxuser/jaka_ws/build/jaka_msgs/rosidl_cmake/rosidl_cmake-extras.cmake" "DESTINATION" "share/jaka_msgs/cmake")
+ament_cmake_symlink_install_files("/home/vboxuser/jaka_ws/src/jaka_ros2/src/jaka_msgs" FILES "/home/vboxuser/jaka_ws/build/jaka_msgs/rosidl_cmake/rosidl_cmake-extras.cmake" "DESTINATION" "share/jaka_msgs/cmake")
 
-# install(FILES "/home/newtonrattapong/jaka_ws/build/jaka_msgs/ament_cmake_export_dependencies/ament_cmake_export_dependencies-extras.cmake" "DESTINATION" "share/jaka_msgs/cmake")
-ament_cmake_symlink_install_files("/home/newtonrattapong/jaka_ws/src/jaka_ros2/src/jaka_msgs" FILES "/home/newtonrattapong/jaka_ws/build/jaka_msgs/ament_cmake_export_dependencies/ament_cmake_export_dependencies-extras.cmake" "DESTINATION" "share/jaka_msgs/cmake")
+# install(FILES "/home/vboxuser/jaka_ws/build/jaka_msgs/ament_cmake_export_dependencies/ament_cmake_export_dependencies-extras.cmake" "DESTINATION" "share/jaka_msgs/cmake")
+ament_cmake_symlink_install_files("/home/vboxuser/jaka_ws/src/jaka_ros2/src/jaka_msgs" FILES "/home/vboxuser/jaka_ws/build/jaka_msgs/ament_cmake_export_dependencies/ament_cmake_export_dependencies-extras.cmake" "DESTINATION" "share/jaka_msgs/cmake")
 
-# install(FILES "/home/newtonrattapong/jaka_ws/build/jaka_msgs/ament_cmake_export_include_directories/ament_cmake_export_include_directories-extras.cmake" "DESTINATION" "share/jaka_msgs/cmake")
-ament_cmake_symlink_install_files("/home/newtonrattapong/jaka_ws/src/jaka_ros2/src/jaka_msgs" FILES "/home/newtonrattapong/jaka_ws/build/jaka_msgs/ament_cmake_export_include_directories/ament_cmake_export_include_directories-extras.cmake" "DESTINATION" "share/jaka_msgs/cmake")
+# install(FILES "/home/vboxuser/jaka_ws/build/jaka_msgs/ament_cmake_export_include_directories/ament_cmake_export_include_directories-extras.cmake" "DESTINATION" "share/jaka_msgs/cmake")
+ament_cmake_symlink_install_files("/home/vboxuser/jaka_ws/src/jaka_ros2/src/jaka_msgs" FILES "/home/vboxuser/jaka_ws/build/jaka_msgs/ament_cmake_export_include_directories/ament_cmake_export_include_directories-extras.cmake" "DESTINATION" "share/jaka_msgs/cmake")
 
-# install(FILES "/home/newtonrattapong/jaka_ws/build/jaka_msgs/ament_cmake_export_libraries/ament_cmake_export_libraries-extras.cmake" "DESTINATION" "share/jaka_msgs/cmake")
-ament_cmake_symlink_install_files("/home/newtonrattapong/jaka_ws/src/jaka_ros2/src/jaka_msgs" FILES "/home/newtonrattapong/jaka_ws/build/jaka_msgs/ament_cmake_export_libraries/ament_cmake_export_libraries-extras.cmake" "DESTINATION" "share/jaka_msgs/cmake")
+# install(FILES "/home/vboxuser/jaka_ws/build/jaka_msgs/ament_cmake_export_libraries/ament_cmake_export_libraries-extras.cmake" "DESTINATION" "share/jaka_msgs/cmake")
+ament_cmake_symlink_install_files("/home/vboxuser/jaka_ws/src/jaka_ros2/src/jaka_msgs" FILES "/home/vboxuser/jaka_ws/build/jaka_msgs/ament_cmake_export_libraries/ament_cmake_export_libraries-extras.cmake" "DESTINATION" "share/jaka_msgs/cmake")
 
-# install(FILES "/home/newtonrattapong/jaka_ws/build/jaka_msgs/ament_cmake_export_targets/ament_cmake_export_targets-extras.cmake" "DESTINATION" "share/jaka_msgs/cmake")
-ament_cmake_symlink_install_files("/home/newtonrattapong/jaka_ws/src/jaka_ros2/src/jaka_msgs" FILES "/home/newtonrattapong/jaka_ws/build/jaka_msgs/ament_cmake_export_targets/ament_cmake_export_targets-extras.cmake" "DESTINATION" "share/jaka_msgs/cmake")
+# install(FILES "/home/vboxuser/jaka_ws/build/jaka_msgs/ament_cmake_export_targets/ament_cmake_export_targets-extras.cmake" "DESTINATION" "share/jaka_msgs/cmake")
+ament_cmake_symlink_install_files("/home/vboxuser/jaka_ws/src/jaka_ros2/src/jaka_msgs" FILES "/home/vboxuser/jaka_ws/build/jaka_msgs/ament_cmake_export_targets/ament_cmake_export_targets-extras.cmake" "DESTINATION" "share/jaka_msgs/cmake")
 
-# install(FILES "/home/newtonrattapong/jaka_ws/build/jaka_msgs/rosidl_cmake/rosidl_cmake_export_typesupport_targets-extras.cmake" "DESTINATION" "share/jaka_msgs/cmake")
-ament_cmake_symlink_install_files("/home/newtonrattapong/jaka_ws/src/jaka_ros2/src/jaka_msgs" FILES "/home/newtonrattapong/jaka_ws/build/jaka_msgs/rosidl_cmake/rosidl_cmake_export_typesupport_targets-extras.cmake" "DESTINATION" "share/jaka_msgs/cmake")
+# install(FILES "/home/vboxuser/jaka_ws/build/jaka_msgs/rosidl_cmake/rosidl_cmake_export_typesupport_targets-extras.cmake" "DESTINATION" "share/jaka_msgs/cmake")
+ament_cmake_symlink_install_files("/home/vboxuser/jaka_ws/src/jaka_ros2/src/jaka_msgs" FILES "/home/vboxuser/jaka_ws/build/jaka_msgs/rosidl_cmake/rosidl_cmake_export_typesupport_targets-extras.cmake" "DESTINATION" "share/jaka_msgs/cmake")
 
-# install(FILES "/home/newtonrattapong/jaka_ws/build/jaka_msgs/rosidl_cmake/rosidl_cmake_export_typesupport_libraries-extras.cmake" "DESTINATION" "share/jaka_msgs/cmake")
-ament_cmake_symlink_install_files("/home/newtonrattapong/jaka_ws/src/jaka_ros2/src/jaka_msgs" FILES "/home/newtonrattapong/jaka_ws/build/jaka_msgs/rosidl_cmake/rosidl_cmake_export_typesupport_libraries-extras.cmake" "DESTINATION" "share/jaka_msgs/cmake")
+# install(FILES "/home/vboxuser/jaka_ws/build/jaka_msgs/rosidl_cmake/rosidl_cmake_export_typesupport_libraries-extras.cmake" "DESTINATION" "share/jaka_msgs/cmake")
+ament_cmake_symlink_install_files("/home/vboxuser/jaka_ws/src/jaka_ros2/src/jaka_msgs" FILES "/home/vboxuser/jaka_ws/build/jaka_msgs/rosidl_cmake/rosidl_cmake_export_typesupport_libraries-extras.cmake" "DESTINATION" "share/jaka_msgs/cmake")
 
-# install(FILES "/home/newtonrattapong/jaka_ws/build/jaka_msgs/ament_cmake_core/jaka_msgsConfig.cmake" "/home/newtonrattapong/jaka_ws/build/jaka_msgs/ament_cmake_core/jaka_msgsConfig-version.cmake" "DESTINATION" "share/jaka_msgs/cmake")
-ament_cmake_symlink_install_files("/home/newtonrattapong/jaka_ws/src/jaka_ros2/src/jaka_msgs" FILES "/home/newtonrattapong/jaka_ws/build/jaka_msgs/ament_cmake_core/jaka_msgsConfig.cmake" "/home/newtonrattapong/jaka_ws/build/jaka_msgs/ament_cmake_core/jaka_msgsConfig-version.cmake" "DESTINATION" "share/jaka_msgs/cmake")
+# install(FILES "/home/vboxuser/jaka_ws/build/jaka_msgs/ament_cmake_core/jaka_msgsConfig.cmake" "/home/vboxuser/jaka_ws/build/jaka_msgs/ament_cmake_core/jaka_msgsConfig-version.cmake" "DESTINATION" "share/jaka_msgs/cmake")
+ament_cmake_symlink_install_files("/home/vboxuser/jaka_ws/src/jaka_ros2/src/jaka_msgs" FILES "/home/vboxuser/jaka_ws/build/jaka_msgs/ament_cmake_core/jaka_msgsConfig.cmake" "/home/vboxuser/jaka_ws/build/jaka_msgs/ament_cmake_core/jaka_msgsConfig-version.cmake" "DESTINATION" "share/jaka_msgs/cmake")
 
-# install(FILES "/home/newtonrattapong/jaka_ws/src/jaka_ros2/src/jaka_msgs/package.xml" "DESTINATION" "share/jaka_msgs")
-ament_cmake_symlink_install_files("/home/newtonrattapong/jaka_ws/src/jaka_ros2/src/jaka_msgs" FILES "/home/newtonrattapong/jaka_ws/src/jaka_ros2/src/jaka_msgs/package.xml" "DESTINATION" "share/jaka_msgs")
+# install(FILES "/home/vboxuser/jaka_ws/src/jaka_ros2/src/jaka_msgs/package.xml" "DESTINATION" "share/jaka_msgs")
+ament_cmake_symlink_install_files("/home/vboxuser/jaka_ws/src/jaka_ros2/src/jaka_msgs" FILES "/home/vboxuser/jaka_ws/src/jaka_ros2/src/jaka_msgs/package.xml" "DESTINATION" "share/jaka_msgs")

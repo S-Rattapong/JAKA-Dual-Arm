@@ -53,10 +53,10 @@ RM = /usr/bin/cmake -E rm -f
 EQUALS = =
 
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = /home/newtonrattapong/jaka_ws/src/jaka_ros2/src/jaka_msgs
+CMAKE_SOURCE_DIR = /home/vboxuser/jaka_ws/src/jaka_ros2/src/jaka_msgs
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = /home/newtonrattapong/jaka_ws/build/jaka_msgs
+CMAKE_BINARY_DIR = /home/vboxuser/jaka_ws/build/jaka_msgs
 
 # Utility rule file for ament_cmake_python_symlink_jaka_msgs.
 
@@ -67,7 +67,7 @@ include CMakeFiles/ament_cmake_python_symlink_jaka_msgs.dir/compiler_depend.make
 include CMakeFiles/ament_cmake_python_symlink_jaka_msgs.dir/progress.make
 
 CMakeFiles/ament_cmake_python_symlink_jaka_msgs:
-	/usr/bin/cmake -E create_symlink /home/newtonrattapong/jaka_ws/build/jaka_msgs/rosidl_generator_py/jaka_msgs /home/newtonrattapong/jaka_ws/build/jaka_msgs/ament_cmake_python/jaka_msgs/jaka_msgs
+	/usr/bin/cmake -E create_symlink /home/vboxuser/jaka_ws/build/jaka_msgs/rosidl_generator_py/jaka_msgs /home/vboxuser/jaka_ws/build/jaka_msgs/ament_cmake_python/jaka_msgs/jaka_msgs
 
 ament_cmake_python_symlink_jaka_msgs: CMakeFiles/ament_cmake_python_symlink_jaka_msgs
 ament_cmake_python_symlink_jaka_msgs: CMakeFiles/ament_cmake_python_symlink_jaka_msgs.dir/build.make
@@ -82,6 +82,6 @@ CMakeFiles/ament_cmake_python_symlink_jaka_msgs.dir/clean:
 .PHONY : CMakeFiles/ament_cmake_python_symlink_jaka_msgs.dir/clean
 
 CMakeFiles/ament_cmake_python_symlink_jaka_msgs.dir/depend:
-	cd /home/newtonrattapong/jaka_ws/build/jaka_msgs && $(CMAKE_COMMAND) -E cmake_depends "Unix Makefiles" /home/newtonrattapong/jaka_ws/src/jaka_ros2/src/jaka_msgs /home/newtonrattapong/jaka_ws/src/jaka_ros2/src/jaka_msgs /home/newtonrattapong/jaka_ws/build/jaka_msgs /home/newtonrattapong/jaka_ws/build/jaka_msgs /home/newtonrattapong/jaka_ws/build/jaka_msgs/CMakeFiles/ament_cmake_python_symlink_jaka_msgs.dir/DependInfo.cmake --color=$(COLOR)
+	cd /home/vboxuser/jaka_ws/build/jaka_msgs && $(CMAKE_COMMAND) -E cmake_depends "Unix Makefiles" /home/vboxuser/jaka_ws/src/jaka_ros2/src/jaka_msgs /home/vboxuser/jaka_ws/src/jaka_ros2/src/jaka_msgs /home/vboxuser/jaka_ws/build/jaka_msgs /home/vboxuser/jaka_ws/build/jaka_msgs /home/vboxuser/jaka_ws/build/jaka_msgs/CMakeFiles/ament_cmake_python_symlink_jaka_msgs.dir/DependInfo.cmake --color=$(COLOR)
 .PHONY : CMakeFiles/ament_cmake_python_symlink_jaka_msgs.dir/depend
 

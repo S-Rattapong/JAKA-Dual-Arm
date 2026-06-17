@@ -1,18 +1,18 @@
 {
   "package_name": "jaka_msgs",
   "non_idl_tuples": [
-    "/home/newtonrattapong/jaka_ws/src/jaka_ros2/src/jaka_msgs:msg/RobotMsg.msg",
-    "/home/newtonrattapong/jaka_ws/src/jaka_ros2/src/jaka_msgs:srv/Move.srv",
-    "/home/newtonrattapong/jaka_ws/src/jaka_ros2/src/jaka_msgs:srv/ServoMoveEnable.srv",
-    "/home/newtonrattapong/jaka_ws/src/jaka_ros2/src/jaka_msgs:srv/ServoMove.srv",
-    "/home/newtonrattapong/jaka_ws/src/jaka_ros2/src/jaka_msgs:srv/SetTcpFrame.srv",
-    "/home/newtonrattapong/jaka_ws/src/jaka_ros2/src/jaka_msgs:srv/SetUserFrame.srv",
-    "/home/newtonrattapong/jaka_ws/src/jaka_ros2/src/jaka_msgs:srv/SetPayload.srv",
-    "/home/newtonrattapong/jaka_ws/src/jaka_ros2/src/jaka_msgs:srv/SetCollision.srv",
-    "/home/newtonrattapong/jaka_ws/src/jaka_ros2/src/jaka_msgs:srv/SetIO.srv",
-    "/home/newtonrattapong/jaka_ws/src/jaka_ros2/src/jaka_msgs:srv/GetIO.srv",
-    "/home/newtonrattapong/jaka_ws/src/jaka_ros2/src/jaka_msgs:srv/ClearError.srv",
-    "/home/newtonrattapong/jaka_ws/src/jaka_ros2/src/jaka_msgs:srv/GetFK.srv",
-    "/home/newtonrattapong/jaka_ws/src/jaka_ros2/src/jaka_msgs:srv/GetIK.srv"
+    "/home/vboxuser/jaka_ws/src/jaka_ros2/src/jaka_msgs:msg/RobotMsg.msg",
+    "/home/vboxuser/jaka_ws/src/jaka_ros2/src/jaka_msgs:srv/Move.srv",
+    "/home/vboxuser/jaka_ws/src/jaka_ros2/src/jaka_msgs:srv/ServoMoveEnable.srv",
+    "/home/vboxuser/jaka_ws/src/jaka_ros2/src/jaka_msgs:srv/ServoMove.srv",
+    "/home/vboxuser/jaka_ws/src/jaka_ros2/src/jaka_msgs:srv/SetTcpFrame.srv",
+    "/home/vboxuser/jaka_ws/src/jaka_ros2/src/jaka_msgs:srv/SetUserFrame.srv",
+    "/home/vboxuser/jaka_ws/src/jaka_ros2/src/jaka_msgs:srv/SetPayload.srv",
+    "/home/vboxuser/jaka_ws/src/jaka_ros2/src/jaka_msgs:srv/SetCollision.srv",
+    "/home/vboxuser/jaka_ws/src/jaka_ros2/src/jaka_msgs:srv/SetIO.srv",
+    "/home/vboxuser/jaka_ws/src/jaka_ros2/src/jaka_msgs:srv/GetIO.srv",
+    "/home/vboxuser/jaka_ws/src/jaka_ros2/src/jaka_msgs:srv/ClearError.srv",
+    "/home/vboxuser/jaka_ws/src/jaka_ros2/src/jaka_msgs:srv/GetFK.srv",
+    "/home/vboxuser/jaka_ws/src/jaka_ros2/src/jaka_msgs:srv/GetIK.srv"
   ]
 }

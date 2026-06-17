@@ -53,10 +53,10 @@ RM = /usr/bin/cmake -E rm -f
 EQUALS = =
 
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = /home/newtonrattapong/jaka_ws/src/jaka_ros2/src/jaka_driver
+CMAKE_SOURCE_DIR = /home/vboxuser/jaka_ws/src/jaka_ros2/src/jaka_driver
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = /home/newtonrattapong/jaka_ws/build/jaka_driver
+CMAKE_BINARY_DIR = /home/vboxuser/jaka_ws/build/jaka_driver
 
 # Utility rule file for uninstall.
 
@@ -78,6 +78,6 @@ CMakeFiles/uninstall.dir/clean:
 .PHONY : CMakeFiles/uninstall.dir/clean
 
 CMakeFiles/uninstall.dir/depend:
-	cd /home/newtonrattapong/jaka_ws/build/jaka_driver && $(CMAKE_COMMAND) -E cmake_depends "Unix Makefiles" /home/newtonrattapong/jaka_ws/src/jaka_ros2/src/jaka_driver /home/newtonrattapong/jaka_ws/src/jaka_ros2/src/jaka_driver /home/newtonrattapong/jaka_ws/build/jaka_driver /home/newtonrattapong/jaka_ws/build/jaka_driver /home/newtonrattapong/jaka_ws/build/jaka_driver/CMakeFiles/uninstall.dir/DependInfo.cmake --color=$(COLOR)
+	cd /home/vboxuser/jaka_ws/build/jaka_driver && $(CMAKE_COMMAND) -E cmake_depends "Unix Makefiles" /home/vboxuser/jaka_ws/src/jaka_ros2/src/jaka_driver /home/vboxuser/jaka_ws/src/jaka_ros2/src/jaka_driver /home/vboxuser/jaka_ws/build/jaka_driver /home/vboxuser/jaka_ws/build/jaka_driver /home/vboxuser/jaka_ws/build/jaka_driver/CMakeFiles/uninstall.dir/DependInfo.cmake --color=$(COLOR)
 .PHONY : CMakeFiles/uninstall.dir/depend
 

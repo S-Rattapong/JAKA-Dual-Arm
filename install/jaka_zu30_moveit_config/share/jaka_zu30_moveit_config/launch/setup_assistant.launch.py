@@ -1,1 +1,1 @@
-/home/newtonrattapong/jaka_ws/src/jaka_ros2/src/jaka_zu30_moveit_config/launch/setup_assistant.launch.py
+/home/vboxuser/jaka_ws/src/jaka_ros2/src/jaka_zu30_moveit_config/launch/setup_assistant.launch.py

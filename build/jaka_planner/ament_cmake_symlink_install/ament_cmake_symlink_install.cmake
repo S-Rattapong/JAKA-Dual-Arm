@@ -23,7 +23,7 @@ function(ament_cmake_symlink_install_directory cmake_current_source_dir)
 
   # make destination absolute path and ensure that it exists
   if(NOT IS_ABSOLUTE "${ARG_DESTINATION}")
-    set(ARG_DESTINATION "/home/newtonrattapong/jaka_ws/install/jaka_planner/${ARG_DESTINATION}")
+    set(ARG_DESTINATION "/home/vboxuser/jaka_ws/install/jaka_planner/${ARG_DESTINATION}")
   endif()
   if(NOT EXISTS "${ARG_DESTINATION}")
     file(MAKE_DIRECTORY "${ARG_DESTINATION}")
@@ -128,7 +128,7 @@ function(ament_cmake_symlink_install_files cmake_current_source_dir)
 
   # make destination an absolute path and ensure that it exists
   if(NOT IS_ABSOLUTE "${ARG_DESTINATION}")
-    set(ARG_DESTINATION "/home/newtonrattapong/jaka_ws/install/jaka_planner/${ARG_DESTINATION}")
+    set(ARG_DESTINATION "/home/vboxuser/jaka_ws/install/jaka_planner/${ARG_DESTINATION}")
   endif()
   if(NOT EXISTS "${ARG_DESTINATION}")
     file(MAKE_DIRECTORY "${ARG_DESTINATION}")
@@ -186,7 +186,7 @@ function(ament_cmake_symlink_install_programs cmake_current_source_dir)
 
   # make destination an absolute path and ensure that it exists
   if(NOT IS_ABSOLUTE "${ARG_DESTINATION}")
-    set(ARG_DESTINATION "/home/newtonrattapong/jaka_ws/install/jaka_planner/${ARG_DESTINATION}")
+    set(ARG_DESTINATION "/home/vboxuser/jaka_ws/install/jaka_planner/${ARG_DESTINATION}")
   endif()
   if(NOT EXISTS "${ARG_DESTINATION}")
     file(MAKE_DIRECTORY "${ARG_DESTINATION}")
@@ -256,7 +256,7 @@ function(ament_cmake_symlink_install_targets)
 
     # make destination an absolute path and ensure that it exists
     if(NOT IS_ABSOLUTE "${destination}")
-      set(destination "/home/newtonrattapong/jaka_ws/install/jaka_planner/${destination}")
+      set(destination "/home/vboxuser/jaka_ws/install/jaka_planner/${destination}")
     endif()
     if(NOT EXISTS "${destination}")
       file(MAKE_DIRECTORY "${destination}")
@@ -316,49 +316,49 @@ message(STATUS "Execute custom install script")
 # begin of custom install code
 
 # install("TARGETS" "moveit_server" "moveit_test" "DESTINATION" "lib/jaka_planner")
-include("/home/newtonrattapong/jaka_ws/build/jaka_planner/ament_cmake_symlink_install_targets_0_${CMAKE_INSTALL_CONFIG_NAME}.cmake")
+include("/home/vboxuser/jaka_ws/build/jaka_planner/ament_cmake_symlink_install_targets_0_${CMAKE_INSTALL_CONFIG_NAME}.cmake")
 
 # install(DIRECTORY "launch/" "DESTINATION" "share/jaka_planner/launch")
-ament_cmake_symlink_install_directory("/home/newtonrattapong/jaka_ws/src/jaka_ros2/src/jaka_planner" DIRECTORY "launch/" "DESTINATION" "share/jaka_planner/launch")
+ament_cmake_symlink_install_directory("/home/vboxuser/jaka_ws/src/jaka_ros2/src/jaka_planner" DIRECTORY "launch/" "DESTINATION" "share/jaka_planner/launch")
 
-# install(FILES "/home/newtonrattapong/jaka_ws/build/jaka_planner/ament_cmake_index/share/ament_index/resource_index/package_run_dependencies/jaka_planner" "DESTINATION" "share/ament_index/resource_index/package_run_dependencies")
-ament_cmake_symlink_install_files("/home/newtonrattapong/jaka_ws/src/jaka_ros2/src/jaka_planner" FILES "/home/newtonrattapong/jaka_ws/build/jaka_planner/ament_cmake_index/share/ament_index/resource_index/package_run_dependencies/jaka_planner" "DESTINATION" "share/ament_index/resource_index/package_run_dependencies")
+# install(FILES "/home/vboxuser/jaka_ws/build/jaka_planner/ament_cmake_index/share/ament_index/resource_index/package_run_dependencies/jaka_planner" "DESTINATION" "share/ament_index/resource_index/package_run_dependencies")
+ament_cmake_symlink_install_files("/home/vboxuser/jaka_ws/src/jaka_ros2/src/jaka_planner" FILES "/home/vboxuser/jaka_ws/build/jaka_planner/ament_cmake_index/share/ament_index/resource_index/package_run_dependencies/jaka_planner" "DESTINATION" "share/ament_index/resource_index/package_run_dependencies")
 
-# install(FILES "/home/newtonrattapong/jaka_ws/build/jaka_planner/ament_cmake_index/share/ament_index/resource_index/parent_prefix_path/jaka_planner" "DESTINATION" "share/ament_index/resource_index/parent_prefix_path")
-ament_cmake_symlink_install_files("/home/newtonrattapong/jaka_ws/src/jaka_ros2/src/jaka_planner" FILES "/home/newtonrattapong/jaka_ws/build/jaka_planner/ament_cmake_index/share/ament_index/resource_index/parent_prefix_path/jaka_planner" "DESTINATION" "share/ament_index/resource_index/parent_prefix_path")
+# install(FILES "/home/vboxuser/jaka_ws/build/jaka_planner/ament_cmake_index/share/ament_index/resource_index/parent_prefix_path/jaka_planner" "DESTINATION" "share/ament_index/resource_index/parent_prefix_path")
+ament_cmake_symlink_install_files("/home/vboxuser/jaka_ws/src/jaka_ros2/src/jaka_planner" FILES "/home/vboxuser/jaka_ws/build/jaka_planner/ament_cmake_index/share/ament_index/resource_index/parent_prefix_path/jaka_planner" "DESTINATION" "share/ament_index/resource_index/parent_prefix_path")
 
 # install(FILES "/opt/ros/humble/share/ament_cmake_core/cmake/environment_hooks/environment/ament_prefix_path.sh" "DESTINATION" "share/jaka_planner/environment")
-ament_cmake_symlink_install_files("/home/newtonrattapong/jaka_ws/src/jaka_ros2/src/jaka_planner" FILES "/opt/ros/humble/share/ament_cmake_core/cmake/environment_hooks/environment/ament_prefix_path.sh" "DESTINATION" "share/jaka_planner/environment")
+ament_cmake_symlink_install_files("/home/vboxuser/jaka_ws/src/jaka_ros2/src/jaka_planner" FILES "/opt/ros/humble/share/ament_cmake_core/cmake/environment_hooks/environment/ament_prefix_path.sh" "DESTINATION" "share/jaka_planner/environment")
 
-# install(FILES "/home/newtonrattapong/jaka_ws/build/jaka_planner/ament_cmake_environment_hooks/ament_prefix_path.dsv" "DESTINATION" "share/jaka_planner/environment")
-ament_cmake_symlink_install_files("/home/newtonrattapong/jaka_ws/src/jaka_ros2/src/jaka_planner" FILES "/home/newtonrattapong/jaka_ws/build/jaka_planner/ament_cmake_environment_hooks/ament_prefix_path.dsv" "DESTINATION" "share/jaka_planner/environment")
+# install(FILES "/home/vboxuser/jaka_ws/build/jaka_planner/ament_cmake_environment_hooks/ament_prefix_path.dsv" "DESTINATION" "share/jaka_planner/environment")
+ament_cmake_symlink_install_files("/home/vboxuser/jaka_ws/src/jaka_ros2/src/jaka_planner" FILES "/home/vboxuser/jaka_ws/build/jaka_planner/ament_cmake_environment_hooks/ament_prefix_path.dsv" "DESTINATION" "share/jaka_planner/environment")
 
 # install(FILES "/opt/ros/humble/share/ament_cmake_core/cmake/environment_hooks/environment/path.sh" "DESTINATION" "share/jaka_planner/environment")
-ament_cmake_symlink_install_files("/home/newtonrattapong/jaka_ws/src/jaka_ros2/src/jaka_planner" FILES "/opt/ros/humble/share/ament_cmake_core/cmake/environment_hooks/environment/path.sh" "DESTINATION" "share/jaka_planner/environment")
+ament_cmake_symlink_install_files("/home/vboxuser/jaka_ws/src/jaka_ros2/src/jaka_planner" FILES "/opt/ros/humble/share/ament_cmake_core/cmake/environment_hooks/environment/path.sh" "DESTINATION" "share/jaka_planner/environment")
 
-# install(FILES "/home/newtonrattapong/jaka_ws/build/jaka_planner/ament_cmake_environment_hooks/path.dsv" "DESTINATION" "share/jaka_planner/environment")
-ament_cmake_symlink_install_files("/home/newtonrattapong/jaka_ws/src/jaka_ros2/src/jaka_planner" FILES "/home/newtonrattapong/jaka_ws/build/jaka_planner/ament_cmake_environment_hooks/path.dsv" "DESTINATION" "share/jaka_planner/environment")
+# install(FILES "/home/vboxuser/jaka_ws/build/jaka_planner/ament_cmake_environment_hooks/path.dsv" "DESTINATION" "share/jaka_planner/environment")
+ament_cmake_symlink_install_files("/home/vboxuser/jaka_ws/src/jaka_ros2/src/jaka_planner" FILES "/home/vboxuser/jaka_ws/build/jaka_planner/ament_cmake_environment_hooks/path.dsv" "DESTINATION" "share/jaka_planner/environment")
 
-# install(FILES "/home/newtonrattapong/jaka_ws/build/jaka_planner/ament_cmake_environment_hooks/local_setup.bash" "DESTINATION" "share/jaka_planner")
-ament_cmake_symlink_install_files("/home/newtonrattapong/jaka_ws/src/jaka_ros2/src/jaka_planner" FILES "/home/newtonrattapong/jaka_ws/build/jaka_planner/ament_cmake_environment_hooks/local_setup.bash" "DESTINATION" "share/jaka_planner")
+# install(FILES "/home/vboxuser/jaka_ws/build/jaka_planner/ament_cmake_environment_hooks/local_setup.bash" "DESTINATION" "share/jaka_planner")
+ament_cmake_symlink_install_files("/home/vboxuser/jaka_ws/src/jaka_ros2/src/jaka_planner" FILES "/home/vboxuser/jaka_ws/build/jaka_planner/ament_cmake_environment_hooks/local_setup.bash" "DESTINATION" "share/jaka_planner")
 
-# install(FILES "/home/newtonrattapong/jaka_ws/build/jaka_planner/ament_cmake_environment_hooks/local_setup.sh" "DESTINATION" "share/jaka_planner")
-ament_cmake_symlink_install_files("/home/newtonrattapong/jaka_ws/src/jaka_ros2/src/jaka_planner" FILES "/home/newtonrattapong/jaka_ws/build/jaka_planner/ament_cmake_environment_hooks/local_setup.sh" "DESTINATION" "share/jaka_planner")
+# install(FILES "/home/vboxuser/jaka_ws/build/jaka_planner/ament_cmake_environment_hooks/local_setup.sh" "DESTINATION" "share/jaka_planner")
+ament_cmake_symlink_install_files("/home/vboxuser/jaka_ws/src/jaka_ros2/src/jaka_planner" FILES "/home/vboxuser/jaka_ws/build/jaka_planner/ament_cmake_environment_hooks/local_setup.sh" "DESTINATION" "share/jaka_planner")
 
-# install(FILES "/home/newtonrattapong/jaka_ws/build/jaka_planner/ament_cmake_environment_hooks/local_setup.zsh" "DESTINATION" "share/jaka_planner")
-ament_cmake_symlink_install_files("/home/newtonrattapong/jaka_ws/src/jaka_ros2/src/jaka_planner" FILES "/home/newtonrattapong/jaka_ws/build/jaka_planner/ament_cmake_environment_hooks/local_setup.zsh" "DESTINATION" "share/jaka_planner")
+# install(FILES "/home/vboxuser/jaka_ws/build/jaka_planner/ament_cmake_environment_hooks/local_setup.zsh" "DESTINATION" "share/jaka_planner")
+ament_cmake_symlink_install_files("/home/vboxuser/jaka_ws/src/jaka_ros2/src/jaka_planner" FILES "/home/vboxuser/jaka_ws/build/jaka_planner/ament_cmake_environment_hooks/local_setup.zsh" "DESTINATION" "share/jaka_planner")
 
-# install(FILES "/home/newtonrattapong/jaka_ws/build/jaka_planner/ament_cmake_environment_hooks/local_setup.dsv" "DESTINATION" "share/jaka_planner")
-ament_cmake_symlink_install_files("/home/newtonrattapong/jaka_ws/src/jaka_ros2/src/jaka_planner" FILES "/home/newtonrattapong/jaka_ws/build/jaka_planner/ament_cmake_environment_hooks/local_setup.dsv" "DESTINATION" "share/jaka_planner")
+# install(FILES "/home/vboxuser/jaka_ws/build/jaka_planner/ament_cmake_environment_hooks/local_setup.dsv" "DESTINATION" "share/jaka_planner")
+ament_cmake_symlink_install_files("/home/vboxuser/jaka_ws/src/jaka_ros2/src/jaka_planner" FILES "/home/vboxuser/jaka_ws/build/jaka_planner/ament_cmake_environment_hooks/local_setup.dsv" "DESTINATION" "share/jaka_planner")
 
-# install(FILES "/home/newtonrattapong/jaka_ws/build/jaka_planner/ament_cmake_environment_hooks/package.dsv" "DESTINATION" "share/jaka_planner")
-ament_cmake_symlink_install_files("/home/newtonrattapong/jaka_ws/src/jaka_ros2/src/jaka_planner" FILES "/home/newtonrattapong/jaka_ws/build/jaka_planner/ament_cmake_environment_hooks/package.dsv" "DESTINATION" "share/jaka_planner")
+# install(FILES "/home/vboxuser/jaka_ws/build/jaka_planner/ament_cmake_environment_hooks/package.dsv" "DESTINATION" "share/jaka_planner")
+ament_cmake_symlink_install_files("/home/vboxuser/jaka_ws/src/jaka_ros2/src/jaka_planner" FILES "/home/vboxuser/jaka_ws/build/jaka_planner/ament_cmake_environment_hooks/package.dsv" "DESTINATION" "share/jaka_planner")
 
-# install(FILES "/home/newtonrattapong/jaka_ws/build/jaka_planner/ament_cmake_index/share/ament_index/resource_index/packages/jaka_planner" "DESTINATION" "share/ament_index/resource_index/packages")
-ament_cmake_symlink_install_files("/home/newtonrattapong/jaka_ws/src/jaka_ros2/src/jaka_planner" FILES "/home/newtonrattapong/jaka_ws/build/jaka_planner/ament_cmake_index/share/ament_index/resource_index/packages/jaka_planner" "DESTINATION" "share/ament_index/resource_index/packages")
+# install(FILES "/home/vboxuser/jaka_ws/build/jaka_planner/ament_cmake_index/share/ament_index/resource_index/packages/jaka_planner" "DESTINATION" "share/ament_index/resource_index/packages")
+ament_cmake_symlink_install_files("/home/vboxuser/jaka_ws/src/jaka_ros2/src/jaka_planner" FILES "/home/vboxuser/jaka_ws/build/jaka_planner/ament_cmake_index/share/ament_index/resource_index/packages/jaka_planner" "DESTINATION" "share/ament_index/resource_index/packages")
 
-# install(FILES "/home/newtonrattapong/jaka_ws/build/jaka_planner/ament_cmake_core/jaka_plannerConfig.cmake" "/home/newtonrattapong/jaka_ws/build/jaka_planner/ament_cmake_core/jaka_plannerConfig-version.cmake" "DESTINATION" "share/jaka_planner/cmake")
-ament_cmake_symlink_install_files("/home/newtonrattapong/jaka_ws/src/jaka_ros2/src/jaka_planner" FILES "/home/newtonrattapong/jaka_ws/build/jaka_planner/ament_cmake_core/jaka_plannerConfig.cmake" "/home/newtonrattapong/jaka_ws/build/jaka_planner/ament_cmake_core/jaka_plannerConfig-version.cmake" "DESTINATION" "share/jaka_planner/cmake")
+# install(FILES "/home/vboxuser/jaka_ws/build/jaka_planner/ament_cmake_core/jaka_plannerConfig.cmake" "/home/vboxuser/jaka_ws/build/jaka_planner/ament_cmake_core/jaka_plannerConfig-version.cmake" "DESTINATION" "share/jaka_planner/cmake")
+ament_cmake_symlink_install_files("/home/vboxuser/jaka_ws/src/jaka_ros2/src/jaka_planner" FILES "/home/vboxuser/jaka_ws/build/jaka_planner/ament_cmake_core/jaka_plannerConfig.cmake" "/home/vboxuser/jaka_ws/build/jaka_planner/ament_cmake_core/jaka_plannerConfig-version.cmake" "DESTINATION" "share/jaka_planner/cmake")
 
-# install(FILES "/home/newtonrattapong/jaka_ws/src/jaka_ros2/src/jaka_planner/package.xml" "DESTINATION" "share/jaka_planner")
-ament_cmake_symlink_install_files("/home/newtonrattapong/jaka_ws/src/jaka_ros2/src/jaka_planner" FILES "/home/newtonrattapong/jaka_ws/src/jaka_ros2/src/jaka_planner/package.xml" "DESTINATION" "share/jaka_planner")
+# install(FILES "/home/vboxuser/jaka_ws/src/jaka_ros2/src/jaka_planner/package.xml" "DESTINATION" "share/jaka_planner")
+ament_cmake_symlink_install_files("/home/vboxuser/jaka_ws/src/jaka_ros2/src/jaka_planner" FILES "/home/vboxuser/jaka_ws/src/jaka_ros2/src/jaka_planner/package.xml" "DESTINATION" "share/jaka_planner")
