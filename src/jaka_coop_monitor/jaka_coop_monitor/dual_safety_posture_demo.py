@@ -3,7 +3,10 @@ import math
 import numpy as np
 
 import rclpy
+from builtin_interfaces.msg import Duration
 from geometry_msgs.msg import Point, Pose, TransformStamped
+from sensor_msgs.msg import JointState
+from trajectory_msgs.msg import JointTrajectory, JointTrajectoryPoint
 from visualization_msgs.msg import (
     InteractiveMarker,
     InteractiveMarkerControl,
@@ -23,7 +26,58 @@ from jaka_coop_monitor.dual_task_priority_joint_limit_demo import (
 )
 
 
+class _NullJointStatePublisher:
+    def publish(self, msg):
+        del msg
+
+
 class DualSafetyPostureDemo(DualTaskPriorityJointLimitDemo):
+    GAZEBO_JOINT_NAMES = [
+        'joint_1',
+        'joint_2',
+        'joint_3',
+        'joint_4',
+        'joint_5',
+        'joint_6',
+    ]
+
+    def create_publisher(self, msg_type, topic, qos_profile, *args, **kwargs):
+        if msg_type is JointState and self.gazebo_backend_requested():
+            return _NullJointStatePublisher()
+
+        return super().create_publisher(
+            msg_type,
+            topic,
+            qos_profile,
+            *args,
+            **kwargs,
+        )
+
+    def ensure_parameter_declared(self, name, default_value):
+        if not self.has_parameter(name):
+            self.declare_parameter(name, default_value)
+
+    def normalized_command_backend(self, backend):
+        backend = str(backend).strip()
+        if backend in {
+            'rviz_joint_states',
+            'gazebo_trajectory',
+            'dual_gazebo_trajectory',
+        }:
+            return backend
+
+        self.get_logger().warn(
+            f'Unsupported command_backend={backend!r}; using rviz_joint_states.'
+        )
+        return 'rviz_joint_states'
+
+    def gazebo_backend_requested(self):
+        self.ensure_parameter_declared('command_backend', 'rviz_joint_states')
+        backend = self.normalized_command_backend(
+            self.get_parameter('command_backend').value
+        )
+        return backend in {'gazebo_trajectory', 'dual_gazebo_trajectory'}
+
     def __init__(self):
         self._demo_node_name = 'dual_safety_posture_demo'
         self._demo_title = 'Dual Safety Posture Demo'
@@ -126,6 +180,30 @@ class DualSafetyPostureDemo(DualTaskPriorityJointLimitDemo):
         self.declare_parameter('grasp_sync_orientation_boost_gain', 1.5)
         self.declare_parameter('grasp_sync_max_boosted_angular_speed', 0.25)
         self.declare_parameter('grasp_sync_debug_log', True)
+        self.declare_parameter(
+            'gazebo_joint_trajectory_topic',
+            '/jaka_a12_controller/joint_trajectory',
+        )
+        self.declare_parameter('gazebo_single_arm_source', 'left')
+        self.declare_parameter('gazebo_trajectory_time_from_start', 0.20)
+        self.declare_parameter('gazebo_trajectory_publish_period', 0.05)
+        self.declare_parameter('gazebo_command_position_smoothing', True)
+        self.declare_parameter('gazebo_command_alpha', 0.35)
+        self.declare_parameter('gazebo_backend_debug_log', True)
+        self.declare_parameter('gazebo_wait_for_robot_description', False)
+        self.declare_parameter(
+            'left_gazebo_joint_trajectory_topic',
+            '/left_jaka_a12_controller/joint_trajectory',
+        )
+        self.declare_parameter(
+            'right_gazebo_joint_trajectory_topic',
+            '/right_jaka_a12_controller/joint_trajectory',
+        )
+        self.declare_parameter('dual_gazebo_trajectory_time_from_start', 1.00)
+        self.declare_parameter('dual_gazebo_trajectory_publish_period', 0.10)
+        self.declare_parameter('dual_gazebo_command_position_smoothing', True)
+        self.declare_parameter('dual_gazebo_command_alpha', 0.15)
+        self.declare_parameter('dual_gazebo_backend_debug_log', True)
 
         self.object_min = np.array(
             [
@@ -453,6 +531,79 @@ class DualSafetyPostureDemo(DualTaskPriorityJointLimitDemo):
         self.grasp_sync_debug_log = bool(
             self.get_parameter('grasp_sync_debug_log').value
         )
+        self.command_backend = self.normalized_command_backend(
+            self.get_parameter('command_backend').value
+        )
+        self.gazebo_joint_trajectory_topic = str(
+            self.get_parameter('gazebo_joint_trajectory_topic').value
+        )
+        self.gazebo_single_arm_source = str(
+            self.get_parameter('gazebo_single_arm_source').value
+        ).strip().lower()
+        if self.gazebo_single_arm_source not in {'left', 'right'}:
+            self.get_logger().warn(
+                'Unsupported gazebo_single_arm_source='
+                f'{self.gazebo_single_arm_source!r}; using left.'
+            )
+            self.gazebo_single_arm_source = 'left'
+        self.gazebo_trajectory_time_from_start = max(
+            0.001,
+            float(
+                self.get_parameter('gazebo_trajectory_time_from_start').value
+            ),
+        )
+        self.gazebo_trajectory_publish_period = max(
+            0.001,
+            float(self.get_parameter('gazebo_trajectory_publish_period').value),
+        )
+        self.gazebo_command_position_smoothing = bool(
+            self.get_parameter('gazebo_command_position_smoothing').value
+        )
+        self.gazebo_command_alpha = max(
+            1e-6,
+            min(1.0, float(self.get_parameter('gazebo_command_alpha').value)),
+        )
+        self.gazebo_backend_debug_log = bool(
+            self.get_parameter('gazebo_backend_debug_log').value
+        )
+        self.gazebo_wait_for_robot_description = bool(
+            self.get_parameter('gazebo_wait_for_robot_description').value
+        )
+        self.left_gazebo_joint_trajectory_topic = str(
+            self.get_parameter('left_gazebo_joint_trajectory_topic').value
+        )
+        self.right_gazebo_joint_trajectory_topic = str(
+            self.get_parameter('right_gazebo_joint_trajectory_topic').value
+        )
+        self.dual_gazebo_trajectory_time_from_start = max(
+            0.001,
+            float(
+                self.get_parameter(
+                    'dual_gazebo_trajectory_time_from_start'
+                ).value
+            ),
+        )
+        self.dual_gazebo_trajectory_publish_period = max(
+            0.001,
+            float(
+                self.get_parameter(
+                    'dual_gazebo_trajectory_publish_period'
+                ).value
+            ),
+        )
+        self.dual_gazebo_command_position_smoothing = bool(
+            self.get_parameter('dual_gazebo_command_position_smoothing').value
+        )
+        self.dual_gazebo_command_alpha = max(
+            1e-6,
+            min(
+                1.0,
+                float(self.get_parameter('dual_gazebo_command_alpha').value),
+            ),
+        )
+        self.dual_gazebo_backend_debug_log = bool(
+            self.get_parameter('dual_gazebo_backend_debug_log').value
+        )
 
         self.raw_desired_object_position = None
         self.safe_desired_object_position = None
@@ -476,6 +627,33 @@ class DualSafetyPostureDemo(DualTaskPriorityJointLimitDemo):
         self.latest_desired_left_quaternion = None
         self.latest_desired_right_quaternion = None
         self.latest_grasp_sync_status = self.empty_grasp_sync_status()
+        self.previous_gazebo_command_positions = None
+        self.previous_dual_gazebo_left_command_positions = None
+        self.previous_dual_gazebo_right_command_positions = None
+        self.last_gazebo_trajectory_publish_time = None
+        self.last_dual_gazebo_trajectory_publish_time = None
+        self.last_gazebo_backend_log_time = None
+        self.last_dual_gazebo_backend_log_time = None
+        self.gazebo_trajectory_pub = None
+        self.left_gazebo_trajectory_pub = None
+        self.right_gazebo_trajectory_pub = None
+        if self.command_backend == 'gazebo_trajectory':
+            self.gazebo_trajectory_pub = self.create_publisher(
+                JointTrajectory,
+                self.gazebo_joint_trajectory_topic,
+                10,
+            )
+        if self.command_backend == 'dual_gazebo_trajectory':
+            self.left_gazebo_trajectory_pub = self.create_publisher(
+                JointTrajectory,
+                self.left_gazebo_joint_trajectory_topic,
+                10,
+            )
+            self.right_gazebo_trajectory_pub = self.create_publisher(
+                JointTrajectory,
+                self.right_gazebo_joint_trajectory_topic,
+                10,
+            )
         self.collision_marker_pub = self.create_publisher(
             MarkerArray,
             '/collision_debug_markers',
@@ -574,6 +752,39 @@ class DualSafetyPostureDemo(DualTaskPriorityJointLimitDemo):
             f'boost_gain={self.grasp_sync_orientation_boost_gain:.3f}, '
             f'boost_max_omega={self.grasp_sync_max_boosted_angular_speed:.3f}'
         )
+        self.get_logger().info(
+            'command backend: '
+            f'command_backend={self.command_backend}, '
+            f'gazebo_topic={self.gazebo_joint_trajectory_topic}, '
+            f'gazebo_single_arm_source={self.gazebo_single_arm_source}, '
+            f'gazebo_time_from_start='
+            f'{self.gazebo_trajectory_time_from_start:.3f} s, '
+            f'gazebo_publish_period='
+            f'{self.gazebo_trajectory_publish_period:.3f} s'
+        )
+        if self.command_backend == 'gazebo_trajectory':
+            wait_status = (
+                'waiting for /robot_description'
+                if self.gazebo_wait_for_robot_description
+                else 'skipping /robot_description wait'
+            )
+            self.get_logger().warn(
+                f'Gazebo trajectory backend active: {wait_status}. '
+                'Joint states will come from Gazebo joint_state_broadcaster. '
+                f'Publishing JointTrajectory to {self.gazebo_joint_trajectory_topic}.'
+            )
+        if self.command_backend == 'dual_gazebo_trajectory':
+            self.get_logger().warn(
+                'Dual Gazebo trajectory backend active. Joint states will come '
+                'from Gazebo joint_state_broadcaster. Publishing left '
+                f'JointTrajectory to {self.left_gazebo_joint_trajectory_topic} '
+                'and right JointTrajectory to '
+                f'{self.right_gazebo_joint_trajectory_topic}. '
+                f'time_from_start='
+                f'{self.dual_gazebo_trajectory_time_from_start:.3f} s, '
+                f'publish_period='
+                f'{self.dual_gazebo_trajectory_publish_period:.3f} s'
+            )
 
     def apply_joint_limit_test_pose(self):
         test_joint = 'right_joint_6'
@@ -705,6 +916,11 @@ class DualSafetyPostureDemo(DualTaskPriorityJointLimitDemo):
         self.latest_desired_left_quaternion = self.initial_left_quaternion.copy()
         self.latest_desired_right_quaternion = self.initial_right_quaternion.copy()
         self.latest_grasp_sync_status = self.empty_grasp_sync_status()
+        self.previous_gazebo_command_positions = None
+        self.previous_dual_gazebo_left_command_positions = None
+        self.previous_dual_gazebo_right_command_positions = None
+        self.last_gazebo_trajectory_publish_time = None
+        self.last_dual_gazebo_trajectory_publish_time = None
 
         self.raw_desired_object_position = self.target_object_position.copy()
         clamped, was_clamped = self.clamp_object_target(
@@ -725,6 +941,295 @@ class DualSafetyPostureDemo(DualTaskPriorityJointLimitDemo):
             f'workspace x=[{self.object_min[0]:.3f}, {self.object_max[0]:.3f}] '
             f'y=[{self.object_min[1]:.3f}, {self.object_max[1]:.3f}] '
             f'z=[{self.object_min[2]:.3f}, {self.object_max[2]:.3f}] m'
+        )
+
+    def timer_callback(self):
+        if (
+            self.command_backend != 'gazebo_trajectory'
+            or self.gazebo_wait_for_robot_description
+        ):
+            super().timer_callback()
+            return
+
+        if not self.initialized:
+            self.initialize_gazebo_backend_state()
+
+        self.publish_gazebo_trajectory_command()
+
+    def initialize_gazebo_backend_state(self):
+        self.left_joint_names = [f'left_joint_{index}' for index in range(1, 7)]
+        self.right_joint_names = [f'right_joint_{index}' for index in range(1, 7)]
+        all_joint_names = self.left_joint_names + self.right_joint_names
+
+        for index, joint_name in enumerate(self.left_joint_names):
+            self.q_map[joint_name] = (
+                float(self.initial_left_positions[index])
+                if index < len(self.initial_left_positions)
+                else 0.0
+            )
+
+        for index, joint_name in enumerate(self.right_joint_names):
+            self.q_map[joint_name] = (
+                float(self.initial_right_positions[index])
+                if index < len(self.initial_right_positions)
+                else 0.0
+            )
+
+        self.latest_qdot_map = {joint_name: 0.0 for joint_name in all_joint_names}
+        self.previous_gazebo_command_positions = None
+        self.previous_dual_gazebo_left_command_positions = None
+        self.previous_dual_gazebo_right_command_positions = None
+        self.last_gazebo_trajectory_publish_time = None
+        self.last_dual_gazebo_trajectory_publish_time = None
+
+        now = self.get_clock().now()
+        self.start_time = now
+        self.last_time = now
+        self.last_log_time = now
+        self.initialized = True
+
+        self.get_logger().info(
+            'Gazebo backend initialized without /robot_description: '
+            f'gazebo_single_arm_source={self.gazebo_single_arm_source}, '
+            f'source_joints={self.selected_gazebo_source_joint_names()}, '
+            f'gazebo_joints={self.GAZEBO_JOINT_NAMES}'
+        )
+
+    def publish_joint_state(self):
+        if self.command_backend == 'rviz_joint_states':
+            super().publish_joint_state()
+            return
+
+        if self.command_backend == 'dual_gazebo_trajectory':
+            self.publish_dual_gazebo_trajectory_command()
+            return
+
+        self.publish_gazebo_trajectory_command()
+
+    def selected_gazebo_source_joint_names(self):
+        if self.gazebo_single_arm_source == 'right':
+            return self.right_joint_names
+        return self.left_joint_names
+
+    def selected_gazebo_source_positions(self):
+        source_joint_names = self.selected_gazebo_source_joint_names()
+        return np.array(
+            [self.q_map.get(name, 0.0) for name in source_joint_names],
+            dtype=float,
+        )
+
+    def duration_from_seconds(self, seconds):
+        seconds = max(0.0, float(seconds))
+        sec = int(math.floor(seconds))
+        nanosec = int(round((seconds - sec) * 1e9))
+        if nanosec >= 1000000000:
+            sec += 1
+            nanosec -= 1000000000
+        return Duration(sec=sec, nanosec=nanosec)
+
+    def smoothed_gazebo_positions(self, target_positions):
+        if (
+            not self.gazebo_command_position_smoothing
+            or self.previous_gazebo_command_positions is None
+            or self.previous_gazebo_command_positions.shape != target_positions.shape
+        ):
+            command_positions = target_positions.copy()
+        else:
+            alpha = self.gazebo_command_alpha
+            command_positions = (
+                alpha * target_positions
+                + (1.0 - alpha) * self.previous_gazebo_command_positions
+            )
+
+        self.previous_gazebo_command_positions = command_positions.copy()
+        return command_positions
+
+    def smoothed_dual_gazebo_positions(self, side, target_positions):
+        if side == 'left':
+            previous_positions = self.previous_dual_gazebo_left_command_positions
+        else:
+            previous_positions = self.previous_dual_gazebo_right_command_positions
+
+        if (
+            not self.dual_gazebo_command_position_smoothing
+            or previous_positions is None
+            or previous_positions.shape != target_positions.shape
+        ):
+            command_positions = target_positions.copy()
+        else:
+            alpha = self.dual_gazebo_command_alpha
+            command_positions = (
+                alpha * target_positions
+                + (1.0 - alpha) * previous_positions
+            )
+
+        if side == 'left':
+            self.previous_dual_gazebo_left_command_positions = (
+                command_positions.copy()
+            )
+        else:
+            self.previous_dual_gazebo_right_command_positions = (
+                command_positions.copy()
+            )
+        return command_positions
+
+    def create_joint_trajectory_msg(self, joint_names, positions, time_from_start):
+        msg = JointTrajectory()
+        msg.header.stamp.sec = 0
+        msg.header.stamp.nanosec = 0
+        msg.joint_names = list(joint_names)
+
+        point = JointTrajectoryPoint()
+        point.positions = [float(value) for value in positions]
+        point.time_from_start = self.duration_from_seconds(time_from_start)
+        msg.points = [point]
+        return msg
+
+    def publish_gazebo_trajectory_command(self):
+        if self.gazebo_trajectory_pub is None:
+            return
+
+        now = self.get_clock().now()
+        if self.last_gazebo_trajectory_publish_time is not None:
+            elapsed = (
+                now - self.last_gazebo_trajectory_publish_time
+            ).nanoseconds * 1e-9
+            if elapsed < self.gazebo_trajectory_publish_period:
+                return
+
+        source_positions = self.selected_gazebo_source_positions()
+        if source_positions.size != len(self.GAZEBO_JOINT_NAMES):
+            self.get_logger().warn(
+                'Gazebo trajectory command skipped: selected source arm has '
+                f'{source_positions.size} joints, expected '
+                f'{len(self.GAZEBO_JOINT_NAMES)}.'
+            )
+            return
+
+        command_positions = self.smoothed_gazebo_positions(source_positions)
+        msg = self.create_joint_trajectory_msg(
+            self.GAZEBO_JOINT_NAMES,
+            command_positions,
+            self.gazebo_trajectory_time_from_start,
+        )
+
+        self.gazebo_trajectory_pub.publish(msg)
+        self.last_gazebo_trajectory_publish_time = now
+        self.log_gazebo_backend_if_needed(now, command_positions)
+
+    def publish_dual_gazebo_trajectory_command(self):
+        if (
+            self.left_gazebo_trajectory_pub is None
+            or self.right_gazebo_trajectory_pub is None
+        ):
+            return
+
+        now = self.get_clock().now()
+        if self.last_dual_gazebo_trajectory_publish_time is not None:
+            elapsed = (
+                now - self.last_dual_gazebo_trajectory_publish_time
+            ).nanoseconds * 1e-9
+            if elapsed < self.dual_gazebo_trajectory_publish_period:
+                return
+
+        left_positions = np.array(
+            [self.q_map.get(name, 0.0) for name in self.left_joint_names],
+            dtype=float,
+        )
+        right_positions = np.array(
+            [self.q_map.get(name, 0.0) for name in self.right_joint_names],
+            dtype=float,
+        )
+        if (
+            left_positions.size != len(self.left_joint_names)
+            or right_positions.size != len(self.right_joint_names)
+        ):
+            self.get_logger().warn(
+                'Dual Gazebo trajectory command skipped: expected 6 left '
+                'and 6 right joint positions.'
+            )
+            return
+
+        left_command_positions = self.smoothed_dual_gazebo_positions(
+            'left',
+            left_positions,
+        )
+        right_command_positions = self.smoothed_dual_gazebo_positions(
+            'right',
+            right_positions,
+        )
+
+        left_msg = self.create_joint_trajectory_msg(
+            self.left_joint_names,
+            left_command_positions,
+            self.dual_gazebo_trajectory_time_from_start,
+        )
+        right_msg = self.create_joint_trajectory_msg(
+            self.right_joint_names,
+            right_command_positions,
+            self.dual_gazebo_trajectory_time_from_start,
+        )
+
+        self.left_gazebo_trajectory_pub.publish(left_msg)
+        self.right_gazebo_trajectory_pub.publish(right_msg)
+        self.last_dual_gazebo_trajectory_publish_time = now
+        self.log_dual_gazebo_backend_if_needed(
+            now,
+            left_command_positions,
+            right_command_positions,
+        )
+
+    def log_gazebo_backend_if_needed(self, now, command_positions):
+        if not self.gazebo_backend_debug_log:
+            return
+
+        if self.last_gazebo_backend_log_time is not None:
+            elapsed = (now - self.last_gazebo_backend_log_time).nanoseconds * 1e-9
+            if elapsed < 0.5:
+                return
+
+        self.last_gazebo_backend_log_time = now
+        positions_text = ', '.join(f'{value:.4f}' for value in command_positions)
+        self.get_logger().info(
+            'command_backend=gazebo_trajectory | '
+            f'gazebo_topic={self.gazebo_joint_trajectory_topic} | '
+            f'gazebo_single_arm_source={self.gazebo_single_arm_source} | '
+            f'gazebo_cmd_positions=[{positions_text}] | '
+            f'gazebo_time_from_start='
+            f'{self.gazebo_trajectory_time_from_start:.3f} | '
+            f'gazebo_publish_period='
+            f'{self.gazebo_trajectory_publish_period:.3f}'
+        )
+
+    def log_dual_gazebo_backend_if_needed(
+        self,
+        now,
+        left_command_positions,
+        right_command_positions,
+    ):
+        if not self.dual_gazebo_backend_debug_log:
+            return
+
+        if self.last_dual_gazebo_backend_log_time is not None:
+            elapsed = (
+                now - self.last_dual_gazebo_backend_log_time
+            ).nanoseconds * 1e-9
+            if elapsed < 0.5:
+                return
+
+        self.last_dual_gazebo_backend_log_time = now
+        left_text = ', '.join(f'{value:.4f}' for value in left_command_positions)
+        right_text = ', '.join(f'{value:.4f}' for value in right_command_positions)
+        self.get_logger().info(
+            'command_backend=dual_gazebo_trajectory | '
+            f'left_topic={self.left_gazebo_joint_trajectory_topic} | '
+            f'right_topic={self.right_gazebo_joint_trajectory_topic} | '
+            f'left_cmd_positions=[{left_text}] | '
+            f'right_cmd_positions=[{right_text}] | '
+            f'time_from_start='
+            f'{self.dual_gazebo_trajectory_time_from_start:.3f} | '
+            f'publish_period='
+            f'{self.dual_gazebo_trajectory_publish_period:.3f}'
         )
 
     def process_marker_feedback(self, feedback):

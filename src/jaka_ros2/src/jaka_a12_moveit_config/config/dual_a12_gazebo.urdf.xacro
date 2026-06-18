@@ -1,0 +1,137 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="dual_jaka_a12_gazebo">
+  <xacro:arg name="initial_positions_file" default="$(find jaka_a12_moveit_config)/config/initial_positions.yaml"/>
+  <xacro:arg name="left_x" default="0.0"/>
+  <xacro:arg name="left_y" default="0.075"/>
+  <xacro:arg name="left_z" default="1.2"/>
+  <xacro:arg name="left_roll" default="1.570796326795"/>
+  <xacro:arg name="left_pitch" default="0.0"/>
+  <xacro:arg name="left_yaw" default="3.14159265359"/>
+  <xacro:arg name="right_x" default="0.0"/>
+  <xacro:arg name="right_y" default="-0.075"/>
+  <xacro:arg name="right_z" default="1.2"/>
+  <xacro:arg name="right_roll" default="-1.570796326795"/>
+  <xacro:arg name="right_pitch" default="0.0"/>
+  <xacro:arg name="right_yaw" default="3.14159265359"/>
+
+  <xacro:include filename="$(find jaka_a12_moveit_config)/config/jaka_a12_prefixed.urdf.xacro"/>
+
+  <xacro:property name="initial_positions" value="${xacro.load_yaml('$(arg initial_positions_file)')['initial_positions']}"/>
+
+  <link name="world"/>
+
+  <xacro:jaka_a12_prefixed
+    prefix="left_"
+    parent="world"
+    base_xyz="$(arg left_x) $(arg left_y) $(arg left_z)"
+    base_rpy="$(arg left_roll) $(arg left_pitch) $(arg left_yaw)"
+    include_inertial="true"/>
+
+  <xacro:jaka_a12_prefixed
+    prefix="right_"
+    parent="world"
+    base_xyz="$(arg right_x) $(arg right_y) $(arg right_z)"
+    base_rpy="$(arg right_roll) $(arg right_pitch) $(arg right_yaw)"
+    include_inertial="true"/>
+
+  <ros2_control name="dual_jaka_a12_hardware" type="system">
+    <hardware>
+      <plugin>ign_ros2_control/IgnitionSystem</plugin>
+    </hardware>
+
+    <joint name="left_joint_1">
+      <command_interface name="position"/>
+      <state_interface name="position">
+        <param name="initial_value">${initial_positions['joint_1']}</param>
+      </state_interface>
+      <state_interface name="velocity"/>
+    </joint>
+    <joint name="left_joint_2">
+      <command_interface name="position"/>
+      <state_interface name="position">
+        <param name="initial_value">${initial_positions['joint_2']}</param>
+      </state_interface>
+      <state_interface name="velocity"/>
+    </joint>
+    <joint name="left_joint_3">
+      <command_interface name="position"/>
+      <state_interface name="position">
+        <param name="initial_value">${initial_positions['joint_3']}</param>
+      </state_interface>
+      <state_interface name="velocity"/>
+    </joint>
+    <joint name="left_joint_4">
+      <command_interface name="position"/>
+      <state_interface name="position">
+        <param name="initial_value">${initial_positions['joint_4']}</param>
+      </state_interface>
+      <state_interface name="velocity"/>
+    </joint>
+    <joint name="left_joint_5">
+      <command_interface name="position"/>
+      <state_interface name="position">
+        <param name="initial_value">${initial_positions['joint_5']}</param>
+      </state_interface>
+      <state_interface name="velocity"/>
+    </joint>
+    <joint name="left_joint_6">
+      <command_interface name="position"/>
+      <state_interface name="position">
+        <param name="initial_value">${initial_positions['joint_6']}</param>
+      </state_interface>
+      <state_interface name="velocity"/>
+    </joint>
+
+    <joint name="right_joint_1">
+      <command_interface name="position"/>
+      <state_interface name="position">
+        <param name="initial_value">${initial_positions['joint_1']}</param>
+      </state_interface>
+      <state_interface name="velocity"/>
+    </joint>
+    <joint name="right_joint_2">
+      <command_interface name="position"/>
+      <state_interface name="position">
+        <param name="initial_value">${initial_positions['joint_2']}</param>
+      </state_interface>
+      <state_interface name="velocity"/>
+    </joint>
+    <joint name="right_joint_3">
+      <command_interface name="position"/>
+      <state_interface name="position">
+        <param name="initial_value">${initial_positions['joint_3']}</param>
+      </state_interface>
+      <state_interface name="velocity"/>
+    </joint>
+    <joint name="right_joint_4">
+      <command_interface name="position"/>
+      <state_interface name="position">
+        <param name="initial_value">${initial_positions['joint_4']}</param>
+      </state_interface>
+      <state_interface name="velocity"/>
+    </joint>
+    <joint name="right_joint_5">
+      <command_interface name="position"/>
+      <state_interface name="position">
+        <param name="initial_value">${initial_positions['joint_5']}</param>
+      </state_interface>
+      <state_interface name="velocity"/>
+    </joint>
+    <joint name="right_joint_6">
+      <command_interface name="position"/>
+      <state_interface name="position">
+        <param name="initial_value">${initial_positions['joint_6']}</param>
+      </state_interface>
+      <state_interface name="velocity"/>
+    </joint>
+  </ros2_control>
+
+  <gazebo>
+    <plugin name="ign_ros2_control::IgnitionROS2ControlPlugin" filename="libign_ros2_control-system.so">
+      <parameters>$(find jaka_a12_moveit_config)/config/dual_a12_ros2_controllers.yaml</parameters>
+      <robot_param>robot_description</robot_param>
+      <robot_param_node>dual_a12_robot_state_publisher</robot_param_node>
+      <robotNamespace>/</robotNamespace>
+    </plugin>
+  </gazebo>
+</robot>
