@@ -1,1 +1,0 @@
-/home/vboxuser/jaka_ws/build/jaka_msgs/rosidl_typesupport_introspection_cpp/jaka_msgs/srv/detail/set_user_frame__rosidl_typesupport_introspection_cpp.hpp

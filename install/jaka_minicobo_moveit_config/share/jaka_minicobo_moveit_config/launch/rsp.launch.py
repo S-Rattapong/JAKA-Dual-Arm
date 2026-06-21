@@ -1,1 +1,0 @@
-/home/vboxuser/jaka_ws/src/jaka_ros2/src/jaka_minicobo_moveit_config/launch/rsp.launch.py

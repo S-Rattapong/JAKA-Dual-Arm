@@ -1,1 +1,0 @@
-/home/vboxuser/jaka_ws/src/jaka_ros2/src/jaka_zu30_moveit_config/launch/demo_gazebo.launch.py

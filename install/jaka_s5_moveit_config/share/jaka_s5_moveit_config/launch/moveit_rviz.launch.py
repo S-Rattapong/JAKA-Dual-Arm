@@ -1,1 +1,0 @@
-/home/vboxuser/jaka_ws/src/jaka_ros2/src/jaka_s5_moveit_config/launch/moveit_rviz.launch.py

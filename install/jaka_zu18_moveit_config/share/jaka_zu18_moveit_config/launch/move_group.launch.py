@@ -1,1 +1,0 @@
-/home/vboxuser/jaka_ws/src/jaka_ros2/src/jaka_zu18_moveit_config/launch/move_group.launch.py

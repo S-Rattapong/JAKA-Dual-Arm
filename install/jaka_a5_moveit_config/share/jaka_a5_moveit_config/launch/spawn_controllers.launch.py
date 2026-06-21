@@ -1,1 +1,0 @@
-/home/vboxuser/jaka_ws/src/jaka_ros2/src/jaka_a5_moveit_config/launch/spawn_controllers.launch.py

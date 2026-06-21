@@ -1,1 +1,0 @@
-/home/vboxuser/jaka_ws/build/jaka_msgs/rosidl_cmake/srv/SetUserFrame_Request.msg

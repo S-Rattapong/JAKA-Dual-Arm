@@ -1,1 +1,0 @@
-/home/vboxuser/jaka_ws/src/jaka_ros2/src/jaka_c5_moveit_config/launch/setup_assistant.launch.py

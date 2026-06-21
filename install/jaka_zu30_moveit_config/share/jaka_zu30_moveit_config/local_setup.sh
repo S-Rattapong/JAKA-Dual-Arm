@@ -1,1 +1,0 @@
-/home/vboxuser/jaka_ws/build/jaka_zu30_moveit_config/ament_cmake_environment_hooks/local_setup.sh
