@@ -1,4 +1,6 @@
+import csv
 import math
+import os
 
 import numpy as np
 
@@ -77,6 +79,26 @@ class DualSafetyPostureDemo(DualTaskPriorityJointLimitDemo):
             self.get_parameter('command_backend').value
         )
         return backend in {'gazebo_trajectory', 'dual_gazebo_trajectory'}
+
+    def normalized_dynamic_object_mode(self, mode):
+        mode = str(mode).strip().lower()
+        if mode in {'sinusoidal', 'square', 'waypoints'}:
+            return mode
+
+        self.get_logger().warn(
+            f'Unsupported dynamic_object_test_mode={mode!r}; using sinusoidal.'
+        )
+        return 'sinusoidal'
+
+    def normalized_dynamic_object_axis(self, axis):
+        axis = str(axis).strip().lower()
+        if axis in {'x', 'y', 'z'}:
+            return axis
+
+        self.get_logger().warn(
+            f'Unsupported dynamic_object_axis={axis!r}; using x.'
+        )
+        return 'x'
 
     def __init__(self):
         self._demo_node_name = 'dual_safety_posture_demo'
@@ -204,6 +226,28 @@ class DualSafetyPostureDemo(DualTaskPriorityJointLimitDemo):
         self.declare_parameter('dual_gazebo_command_position_smoothing', True)
         self.declare_parameter('dual_gazebo_command_alpha', 0.15)
         self.declare_parameter('dual_gazebo_backend_debug_log', True)
+        self.declare_parameter('enable_gazebo_feedback_validation', False)
+        self.declare_parameter('gazebo_joint_states_topic', '/joint_states')
+        self.declare_parameter('gazebo_feedback_debug_log', True)
+        self.declare_parameter('gazebo_feedback_log_period', 1.0)
+        self.declare_parameter('gazebo_validation_csv_enabled', False)
+        self.declare_parameter(
+            'gazebo_validation_csv_path',
+            '/tmp/dual_gazebo_validation.csv',
+        )
+        self.declare_parameter('gazebo_validation_use_actual_joint_states', True)
+        self.declare_parameter('enable_dynamic_object_test', False)
+        self.declare_parameter('dynamic_object_test_mode', 'sinusoidal')
+        self.declare_parameter('dynamic_object_axis', 'x')
+        self.declare_parameter('dynamic_object_amplitude', 0.05)
+        self.declare_parameter('dynamic_object_period', 10.0)
+        self.declare_parameter('dynamic_object_phase', 0.0)
+        self.declare_parameter('dynamic_object_start_delay', 3.0)
+        self.declare_parameter('dynamic_object_max_speed', 0.03)
+        self.declare_parameter('dynamic_object_enable_yaw', False)
+        self.declare_parameter('dynamic_object_yaw_amplitude_deg', 10.0)
+        self.declare_parameter('dynamic_object_yaw_period', 12.0)
+        self.declare_parameter('dynamic_object_hold_initial_position', True)
 
         self.object_min = np.array(
             [
@@ -604,6 +648,71 @@ class DualSafetyPostureDemo(DualTaskPriorityJointLimitDemo):
         self.dual_gazebo_backend_debug_log = bool(
             self.get_parameter('dual_gazebo_backend_debug_log').value
         )
+        self.enable_gazebo_feedback_validation = bool(
+            self.get_parameter('enable_gazebo_feedback_validation').value
+        )
+        self.gazebo_joint_states_topic = str(
+            self.get_parameter('gazebo_joint_states_topic').value
+        )
+        self.gazebo_feedback_debug_log = bool(
+            self.get_parameter('gazebo_feedback_debug_log').value
+        )
+        self.gazebo_feedback_log_period = max(
+            0.05,
+            float(self.get_parameter('gazebo_feedback_log_period').value),
+        )
+        self.gazebo_validation_csv_enabled = bool(
+            self.get_parameter('gazebo_validation_csv_enabled').value
+        )
+        self.gazebo_validation_csv_path = str(
+            self.get_parameter('gazebo_validation_csv_path').value
+        )
+        self.gazebo_validation_use_actual_joint_states = bool(
+            self.get_parameter(
+                'gazebo_validation_use_actual_joint_states'
+            ).value
+        )
+        self.enable_dynamic_object_test = bool(
+            self.get_parameter('enable_dynamic_object_test').value
+        )
+        self.dynamic_object_test_mode = self.normalized_dynamic_object_mode(
+            self.get_parameter('dynamic_object_test_mode').value
+        )
+        self.dynamic_object_axis = self.normalized_dynamic_object_axis(
+            self.get_parameter('dynamic_object_axis').value
+        )
+        self.dynamic_object_amplitude = max(
+            0.0,
+            float(self.get_parameter('dynamic_object_amplitude').value),
+        )
+        self.dynamic_object_period = max(
+            0.1,
+            float(self.get_parameter('dynamic_object_period').value),
+        )
+        self.dynamic_object_phase = float(
+            self.get_parameter('dynamic_object_phase').value
+        )
+        self.dynamic_object_start_delay = max(
+            0.0,
+            float(self.get_parameter('dynamic_object_start_delay').value),
+        )
+        self.dynamic_object_max_speed = max(
+            0.0,
+            float(self.get_parameter('dynamic_object_max_speed').value),
+        )
+        self.dynamic_object_enable_yaw = bool(
+            self.get_parameter('dynamic_object_enable_yaw').value
+        )
+        self.dynamic_object_yaw_amplitude_deg = float(
+            self.get_parameter('dynamic_object_yaw_amplitude_deg').value
+        )
+        self.dynamic_object_yaw_period = max(
+            0.1,
+            float(self.get_parameter('dynamic_object_yaw_period').value),
+        )
+        self.dynamic_object_hold_initial_position = bool(
+            self.get_parameter('dynamic_object_hold_initial_position').value
+        )
 
         self.raw_desired_object_position = None
         self.safe_desired_object_position = None
@@ -637,6 +746,32 @@ class DualSafetyPostureDemo(DualTaskPriorityJointLimitDemo):
         self.gazebo_trajectory_pub = None
         self.left_gazebo_trajectory_pub = None
         self.right_gazebo_trajectory_pub = None
+        self.gazebo_joint_state_sub = None
+        self.latest_gazebo_q_actual_left = None
+        self.latest_gazebo_q_actual_right = None
+        self.latest_gazebo_joint_state_stamp = None
+        self.has_gazebo_feedback = False
+        self.last_gazebo_feedback_log_time = None
+        self.gazebo_validation_csv_header_written = False
+        self.latest_gazebo_validation_metrics = {}
+        self.dynamic_object_base_position = None
+        self.dynamic_object_base_yaw = 0.0
+        self.dynamic_object_current_offset = np.zeros(3, dtype=float)
+        self.dynamic_object_requested_offset = np.zeros(3, dtype=float)
+        self.dynamic_object_current_yaw_offset = 0.0
+        self.dynamic_object_started = False
+        self.dynamic_validation_summary = {
+            'max_left_grasp_pos_error': 0.0,
+            'max_right_grasp_pos_error': 0.0,
+            'max_rel_dist_error': 0.0,
+            'max_rel_vec_error': 0.0,
+            'max_left_joint_error_norm': 0.0,
+            'max_right_joint_error_norm': 0.0,
+            'min_collision_distance': math.inf,
+            'min_self_collision_distance': math.inf,
+            'number_of_target_rejections': 0,
+            'number_of_collision_stops': 0,
+        }
         if self.command_backend == 'gazebo_trajectory':
             self.gazebo_trajectory_pub = self.create_publisher(
                 JointTrajectory,
@@ -652,6 +787,16 @@ class DualSafetyPostureDemo(DualTaskPriorityJointLimitDemo):
             self.right_gazebo_trajectory_pub = self.create_publisher(
                 JointTrajectory,
                 self.right_gazebo_joint_trajectory_topic,
+                10,
+            )
+        if self.enable_gazebo_feedback_validation and self.command_backend in {
+            'gazebo_trajectory',
+            'dual_gazebo_trajectory',
+        }:
+            self.gazebo_joint_state_sub = self.create_subscription(
+                JointState,
+                self.gazebo_joint_states_topic,
+                self.gazebo_joint_state_callback,
                 10,
             )
         self.collision_marker_pub = self.create_publisher(
@@ -785,6 +930,28 @@ class DualSafetyPostureDemo(DualTaskPriorityJointLimitDemo):
                 f'publish_period='
                 f'{self.dual_gazebo_trajectory_publish_period:.3f} s'
             )
+            if self.enable_gazebo_feedback_validation:
+                self.get_logger().info(
+                    'Gazebo feedback validation enabled. Subscribing to '
+                    f'{self.gazebo_joint_states_topic} for actual joint '
+                    'feedback.'
+                )
+                if self.gazebo_validation_csv_enabled:
+                    self.get_logger().info(
+                        'Gazebo validation CSV logging enabled: '
+                        f'{self.gazebo_validation_csv_path}'
+                    )
+            if self.enable_dynamic_object_test:
+                self.get_logger().info(
+                    'Dynamic object test enabled: '
+                    f'mode={self.dynamic_object_test_mode}, '
+                    f'axis={self.dynamic_object_axis}, '
+                    f'amplitude={self.dynamic_object_amplitude:.3f} m, '
+                    f'period={self.dynamic_object_period:.3f} s, '
+                    f'start_delay={self.dynamic_object_start_delay:.3f} s, '
+                    f'max_speed={self.dynamic_object_max_speed:.3f} m/s, '
+                    f'yaw_enabled={self.dynamic_object_enable_yaw}'
+                )
 
     def apply_joint_limit_test_pose(self):
         test_joint = 'right_joint_6'
@@ -923,6 +1090,19 @@ class DualSafetyPostureDemo(DualTaskPriorityJointLimitDemo):
         self.last_dual_gazebo_trajectory_publish_time = None
 
         self.raw_desired_object_position = self.target_object_position.copy()
+        self.dynamic_object_base_position = self.raw_desired_object_position.copy()
+        if (
+            not self.dynamic_object_hold_initial_position
+            and self.safe_desired_object_position is not None
+        ):
+            self.dynamic_object_base_position = (
+                self.safe_desired_object_position.copy()
+            )
+        self.dynamic_object_base_yaw = self.raw_desired_object_yaw
+        self.dynamic_object_current_offset = np.zeros(3, dtype=float)
+        self.dynamic_object_requested_offset = np.zeros(3, dtype=float)
+        self.dynamic_object_current_yaw_offset = 0.0
+        self.dynamic_object_started = False
         clamped, was_clamped = self.clamp_object_target(
             self.raw_desired_object_position
         )
@@ -1018,6 +1198,34 @@ class DualSafetyPostureDemo(DualTaskPriorityJointLimitDemo):
             dtype=float,
         )
 
+    def gazebo_joint_state_callback(self, msg):
+        name_to_position = {
+            name: float(position)
+            for name, position in zip(msg.name, msg.position)
+        }
+
+        if not hasattr(self, 'left_joint_names') or not hasattr(
+            self,
+            'right_joint_names',
+        ):
+            return
+
+        if not all(name in name_to_position for name in self.left_joint_names):
+            return
+        if not all(name in name_to_position for name in self.right_joint_names):
+            return
+
+        self.latest_gazebo_q_actual_left = np.array(
+            [name_to_position[name] for name in self.left_joint_names],
+            dtype=float,
+        )
+        self.latest_gazebo_q_actual_right = np.array(
+            [name_to_position[name] for name in self.right_joint_names],
+            dtype=float,
+        )
+        self.latest_gazebo_joint_state_stamp = msg.header.stamp
+        self.has_gazebo_feedback = True
+
     def duration_from_seconds(self, seconds):
         seconds = max(0.0, float(seconds))
         sec = int(math.floor(seconds))
@@ -1084,6 +1292,408 @@ class DualSafetyPostureDemo(DualTaskPriorityJointLimitDemo):
         point.time_from_start = self.duration_from_seconds(time_from_start)
         msg.points = [point]
         return msg
+
+    def compute_actual_fk_from_gazebo_feedback(self):
+        if not (
+            self.has_gazebo_feedback
+            and self.gazebo_validation_use_actual_joint_states
+            and self.latest_gazebo_q_actual_left is not None
+            and self.latest_gazebo_q_actual_right is not None
+        ):
+            return None, None
+
+        saved_values = {
+            name: self.q_map.get(name, 0.0)
+            for name in self.left_joint_names + self.right_joint_names
+        }
+        try:
+            for name, value in zip(
+                self.left_joint_names,
+                self.latest_gazebo_q_actual_left,
+            ):
+                self.q_map[name] = float(value)
+            for name, value in zip(
+                self.right_joint_names,
+                self.latest_gazebo_q_actual_right,
+            ):
+                self.q_map[name] = float(value)
+
+            left_pose = self.compute_fk_and_jacobian(self.left_chain)['pose']
+            right_pose = self.compute_fk_and_jacobian(self.right_chain)['pose']
+            return left_pose, right_pose
+        finally:
+            for name, value in saved_values.items():
+                self.q_map[name] = value
+
+    def compute_gazebo_validation_metrics(self):
+        metrics = {
+            'time': self.get_clock().now().nanoseconds * 1e-9,
+            'has_feedback': bool(self.has_gazebo_feedback),
+            'left_joint_error_norm': math.nan,
+            'right_joint_error_norm': math.nan,
+            'left_joint_error_max': math.nan,
+            'right_joint_error_max': math.nan,
+            'left_grasp_pos_error': math.nan,
+            'right_grasp_pos_error': math.nan,
+            'left_grasp_ori_error_deg': math.nan,
+            'right_grasp_ori_error_deg': math.nan,
+            'actual_relative_distance': math.nan,
+            'desired_relative_distance': math.nan,
+            'actual_relative_distance_error': math.nan,
+            'actual_relative_vector_error': math.nan,
+            'collision_min_distance': math.nan,
+            'self_collision_min_distance': math.nan,
+            'grasp_sync_scale': math.nan,
+            'dynamic_enabled': bool(self.enable_dynamic_object_test),
+            'dynamic_mode': self.dynamic_object_test_mode,
+            'dynamic_axis': self.dynamic_object_axis,
+            'dynamic_offset_x': float(self.dynamic_object_current_offset[0]),
+            'dynamic_offset_y': float(self.dynamic_object_current_offset[1]),
+            'dynamic_offset_z': float(self.dynamic_object_current_offset[2]),
+            'dynamic_yaw_offset_deg': math.degrees(
+                self.dynamic_object_current_yaw_offset
+            ),
+            'target_rejected': False,
+            'target_rejected_by_collision': False,
+            'target_rejected_by_self_collision': False,
+            'collision_scale': math.nan,
+        }
+
+        if not self.has_gazebo_feedback:
+            return metrics
+
+        commanded_left = np.array(
+            [self.q_map.get(name, 0.0) for name in self.left_joint_names],
+            dtype=float,
+        )
+        commanded_right = np.array(
+            [self.q_map.get(name, 0.0) for name in self.right_joint_names],
+            dtype=float,
+        )
+        left_error = commanded_left - self.latest_gazebo_q_actual_left
+        right_error = commanded_right - self.latest_gazebo_q_actual_right
+        metrics.update(
+            {
+                'left_joint_error_norm': float(np.linalg.norm(left_error)),
+                'right_joint_error_norm': float(np.linalg.norm(right_error)),
+                'left_joint_error_max': float(np.max(np.abs(left_error))),
+                'right_joint_error_max': float(np.max(np.abs(right_error))),
+            }
+        )
+
+        actual_left_pose, actual_right_pose = (
+            self.compute_actual_fk_from_gazebo_feedback()
+        )
+        if actual_left_pose is not None and actual_right_pose is not None:
+            desired_left_position = getattr(
+                self,
+                'latest_desired_left_position',
+                None,
+            )
+            desired_right_position = getattr(
+                self,
+                'latest_desired_right_position',
+                None,
+            )
+            desired_left_quaternion = getattr(
+                self,
+                'latest_desired_left_quaternion',
+                None,
+            )
+            desired_right_quaternion = getattr(
+                self,
+                'latest_desired_right_quaternion',
+                None,
+            )
+
+            if desired_left_position is not None:
+                metrics['left_grasp_pos_error'] = float(
+                    np.linalg.norm(
+                        desired_left_position - actual_left_pose['position']
+                    )
+                )
+            if desired_right_position is not None:
+                metrics['right_grasp_pos_error'] = float(
+                    np.linalg.norm(
+                        desired_right_position - actual_right_pose['position']
+                    )
+                )
+            if desired_left_quaternion is not None:
+                _, angle = orientation_error_rotvec(
+                    actual_left_pose['quaternion'],
+                    desired_left_quaternion,
+                )
+                metrics['left_grasp_ori_error_deg'] = math.degrees(angle)
+            if desired_right_quaternion is not None:
+                _, angle = orientation_error_rotvec(
+                    actual_right_pose['quaternion'],
+                    desired_right_quaternion,
+                )
+                metrics['right_grasp_ori_error_deg'] = math.degrees(angle)
+
+            actual_relative_vector = (
+                actual_right_pose['position'] - actual_left_pose['position']
+            )
+            desired_relative_vector = getattr(
+                self,
+                'latest_desired_relative_position',
+                None,
+            )
+            if desired_relative_vector is None and hasattr(self, 'latest_status'):
+                desired_relative_vector = self.latest_status.get(
+                    'desired_relative_position'
+                )
+            if desired_relative_vector is not None:
+                actual_distance = float(np.linalg.norm(actual_relative_vector))
+                desired_distance = float(np.linalg.norm(desired_relative_vector))
+                metrics.update(
+                    {
+                        'actual_relative_distance': actual_distance,
+                        'desired_relative_distance': desired_distance,
+                        'actual_relative_distance_error': abs(
+                            actual_distance - desired_distance
+                        ),
+                        'actual_relative_vector_error': float(
+                            np.linalg.norm(
+                                desired_relative_vector - actual_relative_vector
+                            )
+                        ),
+                    }
+                )
+
+        if hasattr(self, 'latest_collision_status'):
+            metrics['collision_min_distance'] = float(
+                self.latest_collision_status.get('min_distance', math.nan)
+            )
+            metrics['self_collision_min_distance'] = float(
+                self.latest_collision_status.get('self_min_distance', math.nan)
+            )
+        if hasattr(self, 'latest_grasp_sync_status'):
+            metrics['grasp_sync_scale'] = float(
+                self.latest_grasp_sync_status.get('grasp_sync_scale', math.nan)
+            )
+        if hasattr(self, 'latest_status'):
+            metrics.update(
+                {
+                    'dynamic_enabled': bool(
+                        self.latest_status.get(
+                            'dynamic_enabled',
+                            self.enable_dynamic_object_test,
+                        )
+                    ),
+                    'dynamic_mode': self.latest_status.get(
+                        'dynamic_mode',
+                        self.dynamic_object_test_mode,
+                    ),
+                    'dynamic_axis': self.latest_status.get(
+                        'dynamic_axis',
+                        self.dynamic_object_axis,
+                    ),
+                    'dynamic_offset_x': float(
+                        self.latest_status.get('dynamic_offset_x', math.nan)
+                    ),
+                    'dynamic_offset_y': float(
+                        self.latest_status.get('dynamic_offset_y', math.nan)
+                    ),
+                    'dynamic_offset_z': float(
+                        self.latest_status.get('dynamic_offset_z', math.nan)
+                    ),
+                    'dynamic_yaw_offset_deg': float(
+                        self.latest_status.get(
+                            'dynamic_yaw_offset_deg',
+                            math.nan,
+                        )
+                    ),
+                    'target_rejected': bool(
+                        self.latest_status.get('target_rejected', False)
+                    ),
+                    'target_rejected_by_collision': bool(
+                        self.latest_status.get(
+                            'target_rejected_by_collision',
+                            False,
+                        )
+                    ),
+                    'target_rejected_by_self_collision': bool(
+                        self.latest_status.get(
+                            'target_rejected_by_self_collision',
+                            False,
+                        )
+                    ),
+                    'collision_scale': float(
+                        self.latest_status.get('collision_scale', math.nan)
+                    ),
+                    'grasp_sync_scale': float(
+                        self.latest_status.get(
+                            'grasp_sync_scale',
+                            metrics['grasp_sync_scale'],
+                        )
+                    ),
+                }
+            )
+
+        return metrics
+
+    def update_gazebo_feedback_validation(self, now):
+        if not self.enable_gazebo_feedback_validation:
+            return
+
+        metrics = self.compute_gazebo_validation_metrics()
+        self.latest_gazebo_validation_metrics = metrics
+        self.update_dynamic_validation_summary(metrics)
+
+        if self.gazebo_feedback_debug_log:
+            should_log = self.last_gazebo_feedback_log_time is None
+            if not should_log:
+                elapsed = (
+                    now - self.last_gazebo_feedback_log_time
+                ).nanoseconds * 1e-9
+                should_log = elapsed >= self.gazebo_feedback_log_period
+            if should_log:
+                self.last_gazebo_feedback_log_time = now
+                self.log_gazebo_validation_metrics(metrics)
+
+        if self.gazebo_validation_csv_enabled:
+            self.append_gazebo_validation_csv(metrics)
+
+    def update_dynamic_validation_summary(self, metrics):
+        summary = self.dynamic_validation_summary
+        max_fields = {
+            'max_left_grasp_pos_error': 'left_grasp_pos_error',
+            'max_right_grasp_pos_error': 'right_grasp_pos_error',
+            'max_rel_dist_error': 'actual_relative_distance_error',
+            'max_rel_vec_error': 'actual_relative_vector_error',
+            'max_left_joint_error_norm': 'left_joint_error_norm',
+            'max_right_joint_error_norm': 'right_joint_error_norm',
+        }
+        for summary_key, metric_key in max_fields.items():
+            value = metrics.get(metric_key, math.nan)
+            if value is not None and math.isfinite(float(value)):
+                summary[summary_key] = max(summary[summary_key], float(value))
+
+        for summary_key, metric_key in {
+            'min_collision_distance': 'collision_min_distance',
+            'min_self_collision_distance': 'self_collision_min_distance',
+        }.items():
+            value = metrics.get(metric_key, math.nan)
+            if value is not None and math.isfinite(float(value)):
+                summary[summary_key] = min(summary[summary_key], float(value))
+
+    def metric_text(self, metrics, key):
+        value = metrics.get(key, math.nan)
+        if isinstance(value, bool):
+            return str(value)
+        if isinstance(value, str):
+            return value
+        if value is None or not math.isfinite(float(value)):
+            return 'nan'
+        return f'{float(value):.6f}'
+
+    def log_gazebo_validation_metrics(self, metrics):
+        prefix = '[gazebo_validation]'
+        dynamic_status = ''
+        if self.enable_dynamic_object_test:
+            prefix = '[gazebo_dynamic_validation]'
+            dynamic_status = (
+                f'dynamic_enabled={metrics["dynamic_enabled"]} | '
+                f'mode={metrics["dynamic_mode"]} | '
+                f'axis={metrics["dynamic_axis"]} | '
+                'target_offset=['
+                f'{self.metric_text(metrics, "dynamic_offset_x")}, '
+                f'{self.metric_text(metrics, "dynamic_offset_y")}, '
+                f'{self.metric_text(metrics, "dynamic_offset_z")}] | '
+                f'target_yaw_offset_deg='
+                f'{self.metric_text(metrics, "dynamic_yaw_offset_deg")} | '
+            )
+
+        self.get_logger().info(
+            f'{prefix} '
+            f'{dynamic_status}'
+            f'has_feedback={metrics["has_feedback"]} | '
+            f'left_joint_err_norm='
+            f'{self.metric_text(metrics, "left_joint_error_norm")} | '
+            f'right_joint_err_norm='
+            f'{self.metric_text(metrics, "right_joint_error_norm")} | '
+            f'left_joint_err_max='
+            f'{self.metric_text(metrics, "left_joint_error_max")} | '
+            f'right_joint_err_max='
+            f'{self.metric_text(metrics, "right_joint_error_max")} | '
+            f'left_grasp_pos_err='
+            f'{self.metric_text(metrics, "left_grasp_pos_error")} | '
+            f'right_grasp_pos_err='
+            f'{self.metric_text(metrics, "right_grasp_pos_error")} | '
+            f'left_grasp_ori_err='
+            f'{self.metric_text(metrics, "left_grasp_ori_error_deg")} deg | '
+            f'right_grasp_ori_err='
+            f'{self.metric_text(metrics, "right_grasp_ori_error_deg")} deg | '
+            f'actual_rel_dist='
+            f'{self.metric_text(metrics, "actual_relative_distance")} | '
+            f'desired_rel_dist='
+            f'{self.metric_text(metrics, "desired_relative_distance")} | '
+            f'rel_dist_err='
+            f'{self.metric_text(metrics, "actual_relative_distance_error")} | '
+            f'rel_vec_err='
+            f'{self.metric_text(metrics, "actual_relative_vector_error")} | '
+            f'collision_min_distance='
+            f'{self.metric_text(metrics, "collision_min_distance")} | '
+            f'self_collision_min_distance='
+            f'{self.metric_text(metrics, "self_collision_min_distance")} | '
+            f'grasp_sync_scale='
+            f'{self.metric_text(metrics, "grasp_sync_scale")} | '
+            f'collision_scale='
+            f'{self.metric_text(metrics, "collision_scale")} | '
+            f'target_rejected={metrics["target_rejected"]} | '
+            f'target_rejected_by_collision='
+            f'{metrics["target_rejected_by_collision"]} | '
+            f'target_rejected_by_self_collision='
+            f'{metrics["target_rejected_by_self_collision"]}'
+        )
+
+    def gazebo_validation_csv_fields(self):
+        return [
+            'time',
+            'left_joint_error_norm',
+            'right_joint_error_norm',
+            'left_joint_error_max',
+            'right_joint_error_max',
+            'left_grasp_pos_error',
+            'right_grasp_pos_error',
+            'left_grasp_ori_error_deg',
+            'right_grasp_ori_error_deg',
+            'actual_relative_distance',
+            'desired_relative_distance',
+            'actual_relative_distance_error',
+            'actual_relative_vector_error',
+            'collision_min_distance',
+            'self_collision_min_distance',
+            'grasp_sync_scale',
+            'dynamic_enabled',
+            'dynamic_mode',
+            'dynamic_axis',
+            'dynamic_offset_x',
+            'dynamic_offset_y',
+            'dynamic_offset_z',
+            'dynamic_yaw_offset_deg',
+            'target_rejected',
+            'target_rejected_by_collision',
+            'target_rejected_by_self_collision',
+            'collision_scale',
+        ]
+
+    def append_gazebo_validation_csv(self, metrics):
+        fields = self.gazebo_validation_csv_fields()
+        path = self.gazebo_validation_csv_path
+        directory = os.path.dirname(path)
+        if directory:
+            os.makedirs(directory, exist_ok=True)
+
+        file_exists = os.path.exists(path) and os.path.getsize(path) > 0
+        with open(path, 'a', newline='', encoding='utf-8') as csv_file:
+            writer = csv.DictWriter(csv_file, fieldnames=fields)
+            if not file_exists and not self.gazebo_validation_csv_header_written:
+                writer.writeheader()
+                self.gazebo_validation_csv_header_written = True
+            row = {field: metrics.get(field, math.nan) for field in fields}
+            writer.writerow(row)
 
     def publish_gazebo_trajectory_command(self):
         if self.gazebo_trajectory_pub is None:
@@ -1173,6 +1783,7 @@ class DualSafetyPostureDemo(DualTaskPriorityJointLimitDemo):
         self.left_gazebo_trajectory_pub.publish(left_msg)
         self.right_gazebo_trajectory_pub.publish(right_msg)
         self.last_dual_gazebo_trajectory_publish_time = now
+        self.update_gazebo_feedback_validation(now)
         self.log_dual_gazebo_backend_if_needed(
             now,
             left_command_positions,
@@ -1329,18 +1940,112 @@ class DualSafetyPostureDemo(DualTaskPriorityJointLimitDemo):
 
         return np.zeros(3, dtype=float)
 
+    def dynamic_axis_vector(self):
+        if self.dynamic_object_axis == 'y':
+            return np.array([0.0, 1.0, 0.0], dtype=float)
+        if self.dynamic_object_axis == 'z':
+            return np.array([0.0, 0.0, 1.0], dtype=float)
+        return np.array([1.0, 0.0, 0.0], dtype=float)
+
+    def dynamic_profile_value(self, t, period, phase):
+        if t <= 0.0:
+            return 0.0
+
+        omega_t = 2.0 * math.pi * t / max(period, 0.1) + phase
+        if self.dynamic_object_test_mode == 'square':
+            return 1.0 if math.sin(omega_t) >= 0.0 else -1.0
+
+        if self.dynamic_object_test_mode == 'waypoints':
+            progress = ((t / max(period, 0.1)) + phase / (2.0 * math.pi)) % 1.0
+            waypoint_values = [0.0, 1.0, 0.0, -1.0, 0.0]
+            segment_count = len(waypoint_values) - 1
+            scaled = progress * segment_count
+            index = min(int(math.floor(scaled)), segment_count - 1)
+            local = scaled - index
+            start = waypoint_values[index]
+            end = waypoint_values[index + 1]
+            return start + (end - start) * local
+
+        return math.sin(omega_t)
+
+    def speed_limited_dynamic_offset(self, requested_offset, dt):
+        current = self.dynamic_object_current_offset
+        delta = requested_offset - current
+        distance = float(np.linalg.norm(delta))
+        max_step = self.dynamic_object_max_speed * max(dt, 0.0)
+
+        if distance <= max_step or distance <= 1e-12:
+            return requested_offset.copy()
+
+        return current + delta * (max_step / distance)
+
+    def update_dynamic_object_target(self, elapsed, dt):
+        if not self.enable_dynamic_object_test:
+            return
+
+        if self.dynamic_object_base_position is None:
+            self.dynamic_object_base_position = self.current_raw_target()
+
+        motion_time = elapsed - self.dynamic_object_start_delay
+        active_time = max(0.0, motion_time)
+        self.dynamic_object_started = motion_time >= 0.0
+
+        profile = self.dynamic_profile_value(
+            active_time,
+            self.dynamic_object_period,
+            self.dynamic_object_phase,
+        )
+        requested_offset = (
+            self.dynamic_axis_vector()
+            * self.dynamic_object_amplitude
+            * profile
+        )
+        if not self.dynamic_object_started:
+            requested_offset = np.zeros(3, dtype=float)
+
+        self.dynamic_object_requested_offset = requested_offset.copy()
+        self.dynamic_object_current_offset = self.speed_limited_dynamic_offset(
+            requested_offset,
+            dt,
+        )
+        self.raw_desired_object_position = (
+            self.dynamic_object_base_position + self.dynamic_object_current_offset
+        )
+
+        yaw_offset = 0.0
+        if self.dynamic_object_enable_yaw and self.dynamic_object_started:
+            yaw_profile = self.dynamic_profile_value(
+                active_time,
+                self.dynamic_object_yaw_period,
+                0.0,
+            )
+            yaw_offset = (
+                math.radians(self.dynamic_object_yaw_amplitude_deg)
+                * yaw_profile
+            )
+        self.dynamic_object_current_yaw_offset = yaw_offset
+
+        if self.enable_interactive_object_yaw:
+            self.raw_desired_object_yaw = self.wrap_angle(
+                self.dynamic_object_base_yaw + yaw_offset
+            )
+
     def current_object_yaw_rad(self, elapsed):
         if self.enable_interactive_object_yaw:
             return self.safe_desired_object_yaw
 
         if not self.enable_object_yaw:
-            return 0.0
+            yaw = 0.0
+        else:
+            yaw = math.radians(self.object_yaw_deg)
+            if self.enable_object_yaw_sine:
+                yaw += math.radians(self.object_yaw_amplitude_deg) * math.sin(
+                    2.0 * math.pi * self.object_yaw_frequency_hz * elapsed
+                )
 
-        yaw = math.radians(self.object_yaw_deg)
-        if self.enable_object_yaw_sine:
-            yaw += math.radians(self.object_yaw_amplitude_deg) * math.sin(
-                2.0 * math.pi * self.object_yaw_frequency_hz * elapsed
-            )
+        if self.enable_dynamic_object_test and self.dynamic_object_enable_yaw:
+            yaw += self.dynamic_object_current_yaw_offset
+
         return yaw
 
     def update_safe_object_yaw(self, elapsed, dt, grasp_sync_status=None):
@@ -1928,6 +2633,7 @@ class DualSafetyPostureDemo(DualTaskPriorityJointLimitDemo):
         previous_safe_yaw = self.safe_desired_object_yaw
         grasp_sync_status = self.compute_grasp_sync_status_from_latest_error()
         self.latest_grasp_sync_status = grasp_sync_status
+        self.update_dynamic_object_target(elapsed, dt)
         self.update_safe_object_yaw(elapsed, dt, grasp_sync_status)
 
         raw_target = self.current_raw_target()
@@ -2067,6 +2773,10 @@ class DualSafetyPostureDemo(DualTaskPriorityJointLimitDemo):
         self.latest_desired_right_quaternion = desired_right_quaternion.copy()
         self.latest_actual_object_position = actual_object.copy()
 
+        dynamic_offset = self.dynamic_object_current_offset.copy()
+        dynamic_yaw_offset_deg = math.degrees(
+            self.dynamic_object_current_yaw_offset
+        )
         self.latest_status = {
             'relative_position_error_m': float(
                 np.linalg.norm(command['relative_position_error'])
@@ -2144,6 +2854,14 @@ class DualSafetyPostureDemo(DualTaskPriorityJointLimitDemo):
             'target_rejected_by_self_collision': (
                 target_rejected_by_self_collision
             ),
+            'dynamic_enabled': self.enable_dynamic_object_test,
+            'dynamic_started': self.dynamic_object_started,
+            'dynamic_mode': self.dynamic_object_test_mode,
+            'dynamic_axis': self.dynamic_object_axis,
+            'dynamic_offset_x': float(dynamic_offset[0]),
+            'dynamic_offset_y': float(dynamic_offset[1]),
+            'dynamic_offset_z': float(dynamic_offset[2]),
+            'dynamic_yaw_offset_deg': dynamic_yaw_offset_deg,
             'object_yaw_enabled': (
                 self.enable_object_yaw or self.enable_interactive_object_yaw
             ),
@@ -2196,6 +2914,14 @@ class DualSafetyPostureDemo(DualTaskPriorityJointLimitDemo):
             **self.collision_status_for_log(collision_status),
             **recovery_status,
         }
+        if target_rejected or target_rejected_by_collision:
+            self.dynamic_validation_summary['number_of_target_rejections'] += 1
+        if (
+            recovery_status['collision_hard_stop_active']
+            or collision_status['stop_active']
+            or collision_status['self_stop_active']
+        ):
+            self.dynamic_validation_summary['number_of_collision_stops'] += 1
 
         self.latest_collision_status = collision_status
         self.publish_collision_debug_markers(collision_status)
@@ -3625,6 +4351,46 @@ class DualSafetyPostureDemo(DualTaskPriorityJointLimitDemo):
             f'max_abs_qdot={max_abs_qdot:.4f} rad/s | '
             f'active_avoidance={active_avoidance}'
         )
+
+    def summary_metric_text(self, key):
+        value = self.dynamic_validation_summary.get(key, math.nan)
+        if value is None or not math.isfinite(float(value)):
+            return 'nan'
+        return f'{float(value):.6f}'
+
+    def log_dynamic_validation_summary(self):
+        summary = self.dynamic_validation_summary
+        self.get_logger().info(
+            '[gazebo_dynamic_validation_summary] '
+            f'max_left_grasp_pos_error='
+            f'{self.summary_metric_text("max_left_grasp_pos_error")} | '
+            f'max_right_grasp_pos_error='
+            f'{self.summary_metric_text("max_right_grasp_pos_error")} | '
+            f'max_rel_dist_error='
+            f'{self.summary_metric_text("max_rel_dist_error")} | '
+            f'max_rel_vec_error='
+            f'{self.summary_metric_text("max_rel_vec_error")} | '
+            f'max_left_joint_error_norm='
+            f'{self.summary_metric_text("max_left_joint_error_norm")} | '
+            f'max_right_joint_error_norm='
+            f'{self.summary_metric_text("max_right_joint_error_norm")} | '
+            f'min_collision_distance='
+            f'{self.summary_metric_text("min_collision_distance")} | '
+            f'min_self_collision_distance='
+            f'{self.summary_metric_text("min_self_collision_distance")} | '
+            f'number_of_target_rejections='
+            f'{summary["number_of_target_rejections"]} | '
+            f'number_of_collision_stops='
+            f'{summary["number_of_collision_stops"]}'
+        )
+
+    def destroy_node(self):
+        if (
+            getattr(self, 'enable_dynamic_object_test', False)
+            or getattr(self, 'enable_gazebo_feedback_validation', False)
+        ):
+            self.log_dynamic_validation_summary()
+        return super().destroy_node()
 
 
 def main(args=None):
