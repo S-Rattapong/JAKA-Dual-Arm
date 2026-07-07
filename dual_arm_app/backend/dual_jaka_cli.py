@@ -1,0 +1,333 @@
+#!/usr/bin/env python3
+import argparse
+import sys
+import time
+from pathlib import Path
+
+import yaml
+import rclpy
+from rclpy.node import Node
+from sensor_msgs.msg import JointState
+from std_srvs.srv import Empty
+from jaka_msgs.msg import RobotMsg
+from jaka_msgs.srv import Move
+
+
+BASE_LEFT_HOME = [
+    3.139835119247436,
+    0.42971023917198187,
+    -0.5666612982749939,
+    0.0020004832185804857,
+    0.16700118780136108,
+    1.5059341192245483,
+]
+
+BASE_RIGHT_HOME = [
+    -0.00013079980271866136,
+    2.710859060287475,
+    0.5616226792335509,
+    0.0016140391817316437,
+    2.981350898742676,
+    1.5074795484542847,
+]
+
+
+JOINT_ALIASES = {
+    "j1": 0, "joint1": 0, "1": 0,
+    "j2": 1, "joint2": 1, "2": 1,
+    "j3": 2, "joint3": 2, "3": 2,
+    "j4": 3, "joint4": 3, "4": 3,
+    "j5": 4, "joint5": 4, "5": 4,
+    "j6": 5, "joint6": 5, "6": 5,
+}
+
+
+class DualJakaCli(Node):
+    def __init__(self, config):
+        super().__init__("dual_jaka_cli")
+        self.config = config
+
+        self.left_joint = None
+        self.right_joint = None
+        self.left_state = None
+        self.right_state = None
+
+        self.create_subscription(
+            JointState,
+            f"{config['left']['prefix']}/joint_position",
+            self._left_joint_cb,
+            10,
+        )
+        self.create_subscription(
+            JointState,
+            f"{config['right']['prefix']}/joint_position",
+            self._right_joint_cb,
+            10,
+        )
+        self.create_subscription(
+            RobotMsg,
+            f"{config['left']['prefix']}/robot_states",
+            self._left_state_cb,
+            10,
+        )
+        self.create_subscription(
+            RobotMsg,
+            f"{config['right']['prefix']}/robot_states",
+            self._right_state_cb,
+            10,
+        )
+
+        self.left_move = self.create_client(Move, f"{config['left']['prefix']}/joint_move")
+        self.right_move = self.create_client(Move, f"{config['right']['prefix']}/joint_move")
+
+        self.left_stop = self.create_client(Empty, f"{config['left']['prefix']}/stop_move")
+        self.right_stop = self.create_client(Empty, f"{config['right']['prefix']}/stop_move")
+
+    def _left_joint_cb(self, msg):
+        self.left_joint = list(msg.position)[:6]
+
+    def _right_joint_cb(self, msg):
+        self.right_joint = list(msg.position)[:6]
+
+    def _left_state_cb(self, msg):
+        self.left_state = msg
+
+    def _right_state_cb(self, msg):
+        self.right_state = msg
+
+    def spin_until_data(self, timeout=5.0):
+        start = time.time()
+        while rclpy.ok() and time.time() - start < timeout:
+            rclpy.spin_once(self, timeout_sec=0.1)
+            if (
+                self.left_joint is not None
+                and self.right_joint is not None
+                and self.left_state is not None
+                and self.right_state is not None
+            ):
+                return True
+        return False
+
+    def wait_services(self, timeout=3.0):
+        ok = True
+        for name, client in [
+            ("left joint_move", self.left_move),
+            ("right joint_move", self.right_move),
+            ("left stop_move", self.left_stop),
+            ("right stop_move", self.right_stop),
+        ]:
+            if not client.wait_for_service(timeout_sec=timeout):
+                self.get_logger().error(f"Service not available: {name}")
+                ok = False
+        return ok
+
+    def print_status(self):
+        self.spin_until_data()
+
+        print("\n=== LEFT ===")
+        print("joint:", self.left_joint)
+        if self.left_state:
+            print("power_state:", self.left_state.power_state)
+            print("servo_state:", self.left_state.servo_state)
+            print("motion_state:", self.left_state.motion_state)
+            print("collision_state:", self.left_state.collision_state)
+
+        print("\n=== RIGHT ===")
+        print("joint:", self.right_joint)
+        if self.right_state:
+            print("power_state:", self.right_state.power_state)
+            print("servo_state:", self.right_state.servo_state)
+            print("motion_state:", self.right_state.motion_state)
+            print("collision_state:", self.right_state.collision_state)
+
+    def check_safe_state(self):
+        self.spin_until_data()
+
+        for label, state in [("LEFT", self.left_state), ("RIGHT", self.right_state)]:
+            if state is None:
+                raise RuntimeError(f"{label}: no robot state")
+            if self.config["safety"].get("require_power_on", True) and state.power_state != 1:
+                raise RuntimeError(f"{label}: power_state={state.power_state}, expected 1")
+            if self.config["safety"].get("require_servo_on", True) and state.servo_state != 1:
+                raise RuntimeError(f"{label}: servo_state={state.servo_state}, expected 1")
+            if self.config["safety"].get("require_no_collision", True) and state.collision_state != 0:
+                raise RuntimeError(f"{label}: collision_state={state.collision_state}, expected 0")
+
+    def stop_both(self):
+        self.left_stop.wait_for_service(timeout_sec=2.0)
+        self.right_stop.wait_for_service(timeout_sec=2.0)
+
+        req = Empty.Request()
+        lf = self.left_stop.call_async(req)
+        rf = self.right_stop.call_async(req)
+
+        rclpy.spin_until_future_complete(self, lf, timeout_sec=2.0)
+        rclpy.spin_until_future_complete(self, rf, timeout_sec=2.0)
+
+        print("STOP BOTH sent.")
+
+    def make_move_request(self, joints, vel, acc):
+        req = Move.Request()
+        req.pose = [float(x) for x in joints]
+        req.has_ref = False
+        req.ref_joint = []
+        req.mvvelo = float(vel)
+        req.mvacc = float(acc)
+        req.mvtime = 0.0
+        req.mvradii = 0.0
+        req.coord_mode = 0
+        req.index = 0
+        return req
+
+    def move_both_joint(self, left_joints, right_joints, vel=None, acc=None):
+        self.check_safe_state()
+        self.wait_services()
+
+        vel = float(vel if vel is not None else self.config["motion"]["default_joint_vel"])
+        acc = float(acc if acc is not None else self.config["motion"]["default_joint_acc"])
+
+        left_req = self.make_move_request(left_joints, vel, acc)
+        right_req = self.make_move_request(right_joints, vel, acc)
+
+        print("Sending left/right joint_move...")
+        print("LEFT target :", left_joints)
+        print("RIGHT target:", right_joints)
+        print(f"vel={vel}, acc={acc}")
+
+        lf = self.left_move.call_async(left_req)
+        rf = self.right_move.call_async(right_req)
+
+        while rclpy.ok() and (not lf.done() or not rf.done()):
+            rclpy.spin_once(self, timeout_sec=0.05)
+
+        print("LEFT result :", lf.result().ret, lf.result().message)
+        print("RIGHT result:", rf.result().ret, rf.result().message)
+
+    def home_both(self):
+        self.move_both_joint(BASE_LEFT_HOME, BASE_RIGHT_HOME)
+
+    def jog_joint(self, side, joint_name, direction, step=None, vel=None, acc=None, sync_mode=None):
+        self.check_safe_state()
+
+        if joint_name.lower() not in JOINT_ALIASES:
+            raise RuntimeError(f"Unknown joint: {joint_name}")
+
+        idx = JOINT_ALIASES[joint_name.lower()]
+        sign = +1.0 if direction in ["+", "plus", "pos", "positive"] else -1.0
+
+        step = float(step if step is not None else self.config["motion"]["jog_joint_step_rad"])
+
+        current_left = self.left_joint[:]
+        current_right = self.right_joint[:]
+
+        if side == "left":
+            current_left[idx] += sign * step
+
+        elif side == "right":
+            current_right[idx] += sign * step
+
+        elif side == "both":
+            # sync_mode:
+            # raw    = send same joint sign to both robots
+            # same   = move in the same physical direction as much as possible
+            # mirror = move in opposite physical direction for symmetric opening/closing
+            if sync_mode is None:
+                sync_mode = self.config["motion"].get("default_both_joint_sync_mode", "same")
+
+            right_signs = self.config["motion"].get(
+                "right_joint_sign_same_physical",
+                [1, 1, 1, 1, 1, 1],
+            )
+
+            if len(right_signs) != 6:
+                raise RuntimeError("right_joint_sign_same_physical must contain 6 values")
+
+            if sync_mode == "raw":
+                right_factor = 1.0
+            elif sync_mode == "same":
+                right_factor = float(right_signs[idx])
+            elif sync_mode == "mirror":
+                right_factor = -float(right_signs[idx])
+            else:
+                raise RuntimeError("sync_mode must be raw, same, or mirror")
+
+            current_left[idx] += sign * step
+            current_right[idx] += sign * right_factor * step
+
+        else:
+            raise RuntimeError("side must be left, right, or both")
+
+        print(
+            f"Jog joint: side={side}, joint={joint_name}, direction={direction}, "
+            f"step={step}, sync_mode={sync_mode}"
+        )
+        self.move_both_joint(current_left, current_right, vel=vel, acc=acc)
+
+
+def load_config():
+    p = Path.home() / "jaka_ws/dual_arm_app/config/robots.yaml"
+    if not p.exists():
+        raise FileNotFoundError(p)
+    return yaml.safe_load(p.read_text())
+
+
+def main():
+    parser = argparse.ArgumentParser(description="Dual JAKA A12 CLI backend - D27")
+    sub = parser.add_subparsers(dest="cmd", required=True)
+
+    sub.add_parser("status")
+    sub.add_parser("stop")
+    sub.add_parser("home")
+
+    jog = sub.add_parser("jog")
+    jog.add_argument("side", choices=["left", "right", "both"])
+    jog.add_argument("mode", choices=["joint"])
+    jog.add_argument("axis")
+    jog.add_argument("direction", choices=["+", "-"])
+    jog.add_argument("--step", type=float, default=None)
+    jog.add_argument("--vel", type=float, default=None)
+    jog.add_argument("--acc", type=float, default=None)
+    jog.add_argument(
+        "--sync-mode",
+        choices=["raw", "same", "mirror"],
+        default=None,
+        help="Only for side=both: raw=same joint sign, same=same physical direction, mirror=opposite physical direction",
+    )
+
+    args = parser.parse_args()
+
+    rclpy.init()
+    node = DualJakaCli(load_config())
+
+    try:
+        if args.cmd == "status":
+            node.print_status()
+        elif args.cmd == "stop":
+            node.stop_both()
+        elif args.cmd == "home":
+            node.home_both()
+        elif args.cmd == "jog":
+            if args.mode == "joint":
+                node.jog_joint(
+                    args.side,
+                    args.axis,
+                    args.direction,
+                    step=args.step,
+                    vel=args.vel,
+                    acc=args.acc,
+                    sync_mode=args.sync_mode,
+                )
+    except Exception as e:
+        print(f"ERROR: {e}", file=sys.stderr)
+        try:
+            node.stop_both()
+        except Exception:
+            pass
+        sys.exit(1)
+    finally:
+        node.destroy_node()
+        rclpy.shutdown()
+
+
+if __name__ == "__main__":
+    main()

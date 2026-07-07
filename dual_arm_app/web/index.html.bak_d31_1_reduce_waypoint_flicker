@@ -1,0 +1,1616 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <title>Dual JAKA A12 Manual Jog</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #111827;
+      color: #e5e7eb;
+      margin: 0;
+      padding: 20px;
+    }
+    h1 { margin-top: 0; }
+    .panel {
+      background: #1f2937;
+      border-radius: 12px;
+      padding: 16px;
+      margin-bottom: 16px;
+    }
+    .row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin: 10px 0;
+      align-items: center;
+    }
+    button {
+      border: none;
+      border-radius: 8px;
+      padding: 12px 18px;
+      background: #374151;
+      color: white;
+      font-size: 16px;
+      cursor: pointer;
+      min-width: 80px;
+    }
+    button:hover { background: #4b5563; }
+    button.active { background: #2563eb; }
+    button.stop {
+      background: #dc2626;
+      font-weight: bold;
+      min-width: 180px;
+    }
+    button.stop:hover { background: #b91c1c; }
+    button.green { background: #059669; }
+    button.green:hover { background: #047857; }
+    button.orange { background: #d97706; }
+    button.orange:hover { background: #b45309; }
+    .small { font-size: 13px; color: #9ca3af; }
+    select, input {
+      padding: 8px;
+      border-radius: 6px;
+      border: 1px solid #4b5563;
+      background: #111827;
+      color: white;
+    }
+    pre {
+      background: #0b1120;
+      padding: 12px;
+      border-radius: 8px;
+      overflow: auto;
+      max-height: 280px;
+    }
+    .waypoint {
+      background: #111827;
+      border: 1px solid #374151;
+      border-radius: 8px;
+      padding: 10px;
+      margin: 8px 0;
+    }
+  </style>
+
+<style id="d31-ui-style">
+  .d31-grid-2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+    align-items: start;
+  }
+
+  .d31-pose-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+  }
+
+  .d31-pose-table th,
+  .d31-pose-table td {
+    border: 1px solid #333;
+    padding: 4px 6px;
+    text-align: center;
+  }
+
+  .d31-num-input {
+    width: 72px;
+    padding: 4px;
+    text-align: right;
+  }
+
+  .d31-input-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    align-items: center;
+    margin: 6px 0;
+  }
+
+  .d31-wp-row {
+    display: flex;
+    gap: 6px;
+    align-items: center;
+    justify-content: space-between;
+    padding: 5px 0;
+    border-bottom: 1px solid #333;
+  }
+
+  .d31-wp-actions {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+  }
+
+  .d31-small-label {
+    font-size: 12px;
+    opacity: 0.8;
+  }
+
+  @media (max-width: 1100px) {
+    .d31-grid-2 {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>
+
+
+<style id="d31-layout-cleanup-style">
+  .d31-top-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+    align-items: start;
+  }
+
+  .d31-top-grid > .panel {
+    margin-top: 0 !important;
+  }
+
+  .d31-wp-save-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    align-items: center;
+    margin-bottom: 12px;
+  }
+
+  .d31-wp-save-row input {
+    min-width: 260px;
+  }
+
+  .d31-wp-compact-list {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .d31-wp-compact-row {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 10px;
+    align-items: center;
+    padding: 8px 10px;
+    border: 1px solid #344255;
+    border-radius: 8px;
+    background: #111827;
+  }
+
+  .d31-wp-name {
+    font-weight: 700;
+  }
+
+  .d31-wp-time {
+    font-size: 12px;
+    opacity: 0.7;
+    margin-left: 6px;
+    font-weight: 400;
+  }
+
+  .d31-wp-actions {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+  }
+
+  @media (max-width: 1200px) {
+    .d31-top-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .d31-wp-compact-row {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>
+
+</head>
+<body>
+
+<div class="panel" id="d31-control-panel">
+  <h2>Live Position / Direct Move</h2>
+
+  <div class="d31-grid-2">
+    <div>
+      <h3>Left Robot</h3>
+      <table class="d31-pose-table">
+        <tr><th>J1</th><th>J2</th><th>J3</th><th>J4</th><th>J5</th><th>J6</th></tr>
+        <tr id="d31-left-joint-row"><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td></tr>
+        <tr><th>X</th><th>Y</th><th>Z</th><th>Rx</th><th>Ry</th><th>Rz</th></tr>
+        <tr id="d31-left-tcp-row"><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td></tr>
+      </table>
+    </div>
+
+    <div>
+      <h3>Right Robot</h3>
+      <table class="d31-pose-table">
+        <tr><th>J1</th><th>J2</th><th>J3</th><th>J4</th><th>J5</th><th>J6</th></tr>
+        <tr id="d31-right-joint-row"><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td></tr>
+        <tr><th>X</th><th>Y</th><th>Z</th><th>Rx</th><th>Ry</th><th>Rz</th></tr>
+        <tr id="d31-right-tcp-row"><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td></tr>
+      </table>
+    </div>
+  </div>
+
+  <h3>Direct Joint Move</h3>
+  <div class="small">
+    กรอกค่า Joint เป็นองศา ระบบจะแปลงเป็น rad ก่อนส่งให้หุ่นจริง
+  </div>
+
+  <div class="row">
+    <label>Target side:
+      <select id="d31-direct-side">
+        <option value="both">Both</option>
+        <option value="left">Left</option>
+        <option value="right">Right</option>
+      </select>
+    </label>
+    <button onclick="d31FillJointInputsFromCurrent()">Fill Current</button>
+    <button class="orange" onclick="d31SendDirectJointMove()">Confirm Joint Move</button>
+    <button class="stop" onclick="stopBoth()">STOP BOTH</button>
+  </div>
+
+  <div class="d31-grid-2">
+    <div>
+      <div class="d31-small-label">Left joint target (deg)</div>
+      <div class="d31-input-row" id="d31-left-inputs"></div>
+    </div>
+    <div>
+      <div class="d31-small-label">Right joint target (deg)</div>
+      <div class="d31-input-row" id="d31-right-inputs"></div>
+    </div>
+  </div>
+</div>
+
+<div class="panel" id="d31-waypoint-manager">
+  <h2>Waypoint Manager</h2>
+  <div class="small">ใช้ส่วนนี้เพื่อลบ waypoint ที่ไม่ต้องการได้</div>
+  <div id="d31-wp-list">Loading...</div>
+</div>
+
+
+  <h1>Dual JAKA A12 Manual Jog</h1>
+
+  <div class="panel">
+    <div class="row">
+      <strong>Robot:</strong>
+      <button id="side-left" onclick="setSide('left')">Left</button>
+      <button id="side-right" onclick="setSide('right')">Right</button>
+      <button id="side-both" onclick="setSide('both')">Both</button>
+
+      <strong>Mode:</strong>
+      <button id="coord-joint" onclick="setCoord('joint')">Joint</button>
+      <button id="coord-base" onclick="setCoord('base')">Base TCP</button>
+      <button id="coord-tool" onclick="setCoord('tool')">Tool TCP</button>
+
+      <strong>Both Sync:</strong>
+      <select id="syncMode">
+        <option value="same">Same</option>
+        <option value="mirror">Mirror</option>
+        <option value="raw">Raw</option>
+      </select>
+    </div>
+
+    <div class="row">
+      <label>Linear speed:</label>
+      <input id="linearSpeed" type="number" value="5" step="1" min="1" max="50" />
+      <span class="small">X/Y/Z</span>
+
+      <label>Rotate speed:</label>
+      <input id="rotateSpeed" type="number" value="2" step="0.5" min="0.5" max="20" />
+      <span class="small">Rx/Ry/Rz</span>
+
+      <label>Joint speed:</label>
+      <input id="jointSpeed" type="number" value="0.03" step="0.01" min="0.005" max="0.2" />
+      <span class="small">J1-J6</span>
+
+      <label>Move vel:</label>
+      <input id="moveVel" type="number" value="0.12" step="0.02" min="0.02" max="0.5" />
+      <label>Move acc:</label>
+      <input id="moveAcc" type="number" value="0.20" step="0.02" min="0.04" max="0.8" />
+      <span class="small">Home / Waypoint</span>
+    </div>
+
+    <div class="row">
+      <button class="stop" onclick="stopBoth()">STOP BOTH</button>
+      <button class="green" onclick="homeBoth()">Home Both</button>
+      <button onclick="refreshStatus()">Refresh Status</button>
+    </div>
+  </div>
+
+  <div class="panel">
+    <h2>Joint Jog</h2>
+    <div id="jointButtons"></div>
+  </div>
+
+  <div class="panel">
+    <h2>TCP Jog 6 Axis</h2>
+    <div id="tcpButtons"></div>
+  </div>
+
+  <div class="panel">
+    <h2>Waypoint</h2>
+    <div class="row">
+      <input id="waypointName" placeholder="waypoint name เช่น pre_grasp" />
+      <button class="green" onclick="saveWaypoint()">Save Current</button>
+      <button onclick="loadWaypoints()">Reload List</button>
+    </div>
+    <div id="waypointList"></div>
+  </div>
+
+
+  <div class="panel">
+    <h2>Pick & Place Template</h2>
+    <div class="small">
+      ใช้ Save Current as ... เพื่อกำหนดจุดงานพื้นฐาน แล้วกด Run Pick Template เพื่อรันลำดับงาน
+    </div>
+
+    <div class="row">
+      <button class="green" onclick="saveNamedWaypoint('pre_grasp')">Save as Pre-Grasp</button>
+      <button class="green" onclick="saveNamedWaypoint('grasp')">Save as Grasp</button>
+      <button class="green" onclick="saveNamedWaypoint('lift')">Save as Lift</button>
+      <button class="green" onclick="saveNamedWaypoint('place')">Save as Place</button>
+      <button class="green" onclick="saveNamedWaypoint('retreat')">Save as Retreat</button>
+    </div>
+
+    <div class="row">
+      <button class="orange" onclick="runPickTemplate()">Run Pick Template</button>
+      <button onclick="addPickTemplateToSequence()">Add Template to Sequence</button>
+      <button class="stop" onclick="stopBoth()">STOP BOTH</button>
+    </div>
+
+    <div class="small">
+      Sequence: pre_grasp → grasp → lift → place → retreat
+    </div>
+  </div>
+
+  <div class="panel">
+    <h2>Program / Sequence</h2>
+    <div class="small">กด Add จาก waypoint list เพื่อเรียงลำดับงาน แล้วกด Run Sequence</div>
+    <div id="sequenceList" class="waypoint"></div>
+    <div class="row">
+      <button class="green" onclick="runSequence()">Run Sequence</button>
+      <button onclick="clearSequence()">Clear Sequence</button>
+      <button class="stop" onclick="stopBoth()">STOP BOTH</button>
+    </div>
+  </div>
+
+  <div class="panel">
+    <h2>Status</h2>
+    <pre id="status">loading...</pre>
+  </div>
+
+<script>
+let side = "left";
+let coord = "base";
+let heartbeatTimer = null;
+let sequence = [];
+
+function setSide(v) {
+  side = v;
+  ["left", "right", "both"].forEach(s => {
+    document.getElementById("side-" + s).classList.toggle("active", s === v);
+  });
+}
+
+function setCoord(v) {
+  coord = v;
+  ["joint", "base", "tool"].forEach(c => {
+    document.getElementById("coord-" + c).classList.toggle("active", c === v);
+  });
+  buildButtons();
+}
+
+function speedFor(axis, jogCoord) {
+  axis = axis.toLowerCase();
+  if (jogCoord === "joint") {
+    return parseFloat(document.getElementById("jointSpeed").value);
+  }
+  if (["rx", "ry", "rz"].includes(axis)) {
+    return parseFloat(document.getElementById("rotateSpeed").value);
+  }
+  return parseFloat(document.getElementById("linearSpeed").value);
+}
+
+async function startJog(jogCoord, axis, direction) {
+  const payload = {
+    side: side,
+    coord: jogCoord,
+    axis: axis,
+    direction: direction,
+    speed: speedFor(axis, jogCoord),
+    sync_mode: document.getElementById("syncMode").value
+  };
+
+  const res = await fetch("/api/jog/start", {
+    method: "POST",
+    headers: {"Content-Type": "application/json"},
+    body: JSON.stringify(payload)
+  });
+  const data = await res.json();
+  document.getElementById("status").textContent = JSON.stringify(data, null, 2);
+
+  if (heartbeatTimer) clearInterval(heartbeatTimer);
+  heartbeatTimer = setInterval(async () => {
+    await fetch("/api/jog/heartbeat", {method: "POST"});
+  }, 150);
+}
+
+async function stopJog() {
+  if (heartbeatTimer) {
+    clearInterval(heartbeatTimer);
+    heartbeatTimer = null;
+  }
+
+  await fetch("/api/jog/stop", {
+    method: "POST",
+    headers: {"Content-Type": "application/json"},
+    body: JSON.stringify({side: side})
+  });
+  refreshStatus();
+}
+
+async function stopBoth() {
+  if (heartbeatTimer) {
+    clearInterval(heartbeatTimer);
+    heartbeatTimer = null;
+  }
+
+  const res = await fetch("/api/stop", {
+    method: "POST",
+    headers: {"Content-Type": "application/json"},
+    body: JSON.stringify({
+      side: "both",
+      vel: parseFloat(document.getElementById("moveVel").value),
+      acc: parseFloat(document.getElementById("moveAcc").value)
+    })
+  });
+  const data = await res.json();
+  document.getElementById("status").textContent = JSON.stringify(data, null, 2);
+  refreshStatus();
+}
+
+async function homeBoth() {
+  const ok = confirm("Home Both จะสั่งแขนทั้งสองกลับตำแหน่ง Home ที่ตั้งไว้ ต้องแน่ใจว่าพื้นที่ปลอดภัยแล้ว");
+  if (!ok) return;
+
+  const res = await fetch("/api/home", {
+    method: "POST",
+    headers: {"Content-Type": "application/json"},
+    body: JSON.stringify({side: "both"})
+  });
+  const data = await res.json();
+  document.getElementById("status").textContent = JSON.stringify(data, null, 2);
+  refreshStatus();
+}
+
+function makeHoldButton(label, jogCoord, axis, direction) {
+  const b = document.createElement("button");
+  b.textContent = label;
+
+  const start = (e) => {
+    e.preventDefault();
+    startJog(jogCoord, axis, direction);
+  };
+
+  const stop = (e) => {
+    e.preventDefault();
+    stopJog();
+  };
+
+  b.addEventListener("mousedown", start);
+  b.addEventListener("mouseup", stop);
+  b.addEventListener("mouseleave", stop);
+  b.addEventListener("touchstart", start);
+  b.addEventListener("touchend", stop);
+  b.addEventListener("touchcancel", stop);
+
+  return b;
+}
+
+function buildButtons() {
+  const jointDiv = document.getElementById("jointButtons");
+  jointDiv.innerHTML = "";
+
+  ["j1", "j2", "j3", "j4", "j5", "j6"].forEach(j => {
+    const row = document.createElement("div");
+    row.className = "row";
+    row.appendChild(makeHoldButton(j.toUpperCase() + "-", "joint", j, "-"));
+    row.appendChild(makeHoldButton(j.toUpperCase() + "+", "joint", j, "+"));
+    jointDiv.appendChild(row);
+  });
+
+  const tcpDiv = document.getElementById("tcpButtons");
+  tcpDiv.innerHTML = "";
+
+  ["x", "y", "z", "rx", "ry", "rz"].forEach(a => {
+    const row = document.createElement("div");
+    row.className = "row";
+    row.appendChild(makeHoldButton(a.toUpperCase() + "-", coord, a, "-"));
+    row.appendChild(makeHoldButton(a.toUpperCase() + "+", coord, a, "+"));
+    tcpDiv.appendChild(row);
+  });
+}
+
+async function saveWaypoint() {
+  const name = document.getElementById("waypointName").value.trim();
+  if (!name) {
+    alert("ใส่ชื่อ waypoint ก่อนครับ");
+    return;
+  }
+
+  const res = await fetch("/api/waypoint/save", {
+    method: "POST",
+    headers: {"Content-Type": "application/json"},
+    body: JSON.stringify({name: name, side: side})
+  });
+  const data = await res.json();
+  document.getElementById("status").textContent = JSON.stringify(data, null, 2);
+  loadWaypoints();
+}
+
+async function runWaypoint(name) {
+  const ok = confirm("Run waypoint: " + name + " ?");
+  if (!ok) return;
+
+  const res = await fetch("/api/waypoint/run", {
+    method: "POST",
+    headers: {"Content-Type": "application/json"},
+    body: JSON.stringify({
+      name: name,
+      side: "both",
+      vel: parseFloat(document.getElementById("moveVel").value),
+      acc: parseFloat(document.getElementById("moveAcc").value)
+    })
+  });
+  const data = await res.json();
+  document.getElementById("status").textContent = JSON.stringify(data, null, 2);
+  refreshStatus();
+}
+
+async function loadWaypoints() {
+  const res = await fetch("/api/waypoints");
+  const data = await res.json();
+
+  const box = document.getElementById("waypointList");
+  box.innerHTML = "";
+
+  const names = Object.keys(data);
+  if (names.length === 0) {
+    box.innerHTML = "<div class='small'>ยังไม่มี waypoint</div>";
+    renderSequence();
+    return;
+  }
+
+  names.forEach(name => {
+    const div = document.createElement("div");
+    div.className = "waypoint";
+
+    const title = document.createElement("div");
+    title.innerHTML = "<strong>" + name + "</strong> <span class='small'>" + (data[name].created_at || "") + "</span>";
+
+    const runBtn = document.createElement("button");
+    runBtn.className = "orange";
+    runBtn.textContent = "Run";
+    runBtn.onclick = () => runWaypoint(name);
+
+    const addBtn = document.createElement("button");
+    addBtn.textContent = "Add";
+    addBtn.onclick = () => addToSequence(name);
+
+    div.appendChild(title);
+    div.appendChild(runBtn);
+    div.appendChild(addBtn);
+    box.appendChild(div);
+  });
+
+  renderSequence();
+}
+
+function addToSequence(name) {
+  sequence.push(name);
+  renderSequence();
+}
+
+function removeSequenceIndex(i) {
+  sequence.splice(i, 1);
+  renderSequence();
+}
+
+function clearSequence() {
+  sequence = [];
+  renderSequence();
+}
+
+function renderSequence() {
+  const box = document.getElementById("sequenceList");
+  if (!box) return;
+
+  if (sequence.length === 0) {
+    box.innerHTML = "<div class='small'>ยังไม่มี step ใน sequence</div>";
+    return;
+  }
+
+  box.innerHTML = "";
+  sequence.forEach((name, i) => {
+    const row = document.createElement("div");
+    row.className = "row";
+
+    const label = document.createElement("span");
+    label.innerHTML = "<strong>" + (i + 1) + ".</strong> " + name;
+
+    const rm = document.createElement("button");
+    rm.textContent = "Remove";
+    rm.onclick = () => removeSequenceIndex(i);
+
+    row.appendChild(label);
+    row.appendChild(rm);
+    box.appendChild(row);
+  });
+}
+
+async function runSequence() {
+  if (sequence.length === 0) {
+    alert("ยังไม่มี waypoint ใน sequence");
+    return;
+  }
+
+  const ok = confirm("Run sequence: " + sequence.join(" → ") + " ?");
+  if (!ok) return;
+
+  const res = await fetch("/api/sequence/run", {
+    method: "POST",
+    headers: {"Content-Type": "application/json"},
+    body: JSON.stringify({
+      names: sequence,
+      side: "both",
+      vel: parseFloat(document.getElementById("moveVel").value),
+      acc: parseFloat(document.getElementById("moveAcc").value)
+    })
+  });
+
+  const data = await res.json();
+  document.getElementById("status").textContent = JSON.stringify(data, null, 2);
+  refreshStatus();
+}
+
+
+async function saveNamedWaypoint(name) {
+  const ok = confirm("Save current robot pose as: " + name + " ?");
+  if (!ok) return;
+
+  const res = await fetch("/api/waypoint/save", {
+    method: "POST",
+    headers: {"Content-Type": "application/json"},
+    body: JSON.stringify({name: name, side: "both"})
+  });
+
+  const data = await res.json();
+  document.getElementById("status").textContent = JSON.stringify(data, null, 2);
+  loadWaypoints();
+}
+
+function getPickTemplateNames() {
+  return ["pre_grasp", "grasp", "lift", "place", "retreat"];
+}
+
+function addPickTemplateToSequence() {
+  sequence = sequence.concat(getPickTemplateNames());
+  renderSequence();
+}
+
+async function runPickTemplate() {
+  const names = getPickTemplateNames();
+
+  const ok = confirm(
+    "Run Pick Template?\\n\\n" +
+    names.join(" → ") +
+    "\\n\\nตรวจสอบพื้นที่หุ่นและเตรียม E-stop ก่อนกด OK"
+  );
+  if (!ok) return;
+
+  const res = await fetch("/api/sequence/run", {
+    method: "POST",
+    headers: {"Content-Type": "application/json"},
+    body: JSON.stringify({
+      names: names,
+      side: "both",
+      vel: parseFloat(document.getElementById("moveVel").value),
+      acc: parseFloat(document.getElementById("moveAcc").value)
+    })
+  });
+
+  const data = await res.json();
+  document.getElementById("status").textContent = JSON.stringify(data, null, 2);
+  refreshStatus();
+}
+
+async function refreshStatus() {
+  const res = await fetch("/api/status");
+  const data = await res.json();
+  document.getElementById("status").textContent = JSON.stringify(data, null, 2);
+}
+
+setSide("left");
+setCoord("base");
+buildButtons();
+loadWaypoints();
+setInterval(refreshStatus, 1000);
+refreshStatus();
+</script>
+
+<script id="d31-ui-script">
+(function () {
+  const jointNames = ["J1", "J2", "J3", "J4", "J5", "J6"];
+  let d31LastStatus = null;
+
+  function fmt(v) {
+    const n = Number(v);
+    if (!Number.isFinite(n)) return "-";
+    return n.toFixed(3);
+  }
+
+  function radToDeg(v) {
+    return Number(v) * 180.0 / Math.PI;
+  }
+
+  function setRow(rowId, values, convertDeg=false) {
+    const row = document.getElementById(rowId);
+    if (!row) return;
+    const vals = Array.isArray(values) ? values.slice(0, 6) : [];
+    row.innerHTML = "";
+    for (let i = 0; i < 6; i++) {
+      const td = document.createElement("td");
+      const raw = vals[i];
+      td.textContent = raw === undefined ? "-" : fmt(convertDeg ? radToDeg(raw) : raw);
+      row.appendChild(td);
+    }
+  }
+
+  function findArrayByCandidates(obj, candidates) {
+    if (!obj) return null;
+
+    for (const key of candidates) {
+      if (Array.isArray(obj[key]) && obj[key].length >= 6) return obj[key];
+    }
+
+    for (const key of candidates) {
+      const parts = key.split(".");
+      let cur = obj;
+      let ok = true;
+      for (const p of parts) {
+        if (cur && Object.prototype.hasOwnProperty.call(cur, p)) {
+          cur = cur[p];
+        } else {
+          ok = false;
+          break;
+        }
+      }
+      if (ok && Array.isArray(cur) && cur.length >= 6) return cur;
+    }
+
+    return null;
+  }
+
+  function findDeepArray(obj, side, words) {
+    if (!obj || typeof obj !== "object") return null;
+
+    for (const [k, v] of Object.entries(obj)) {
+      const key = String(k).toLowerCase();
+      if (
+        Array.isArray(v) &&
+        v.length >= 6 &&
+        key.includes(side) &&
+        words.some(w => key.includes(w))
+      ) {
+        return v;
+      }
+
+      if (v && typeof v === "object") {
+        const found = findDeepArray(v, side, words);
+        if (found) return found;
+      }
+    }
+
+    return null;
+  }
+
+  function extractStatusArrays(data) {
+    const leftJoint = findArrayByCandidates(data, [
+      "left_joint", "left_joints", "left_joint_position", "left_joint_positions",
+      "left.joint", "left.joints", "left.joint_position", "left.joint_positions"
+    ]) || findDeepArray(data, "left", ["joint"]);
+
+    const rightJoint = findArrayByCandidates(data, [
+      "right_joint", "right_joints", "right_joint_position", "right_joint_positions",
+      "right.joint", "right.joints", "right.joint_position", "right.joint_positions"
+    ]) || findDeepArray(data, "right", ["joint"]);
+
+    const leftTcp = findArrayByCandidates(data, [
+      "left_tcp", "left_pose", "left_tcp_pose", "left_cartesian", "left_cart",
+      "left.tcp", "left.pose", "left.tcp_pose", "left.cartesian", "left.cart"
+    ]) || findDeepArray(data, "left", ["tcp", "pose", "cart"]);
+
+    const rightTcp = findArrayByCandidates(data, [
+      "right_tcp", "right_pose", "right_tcp_pose", "right_cartesian", "right_cart",
+      "right.tcp", "right.pose", "right.tcp_pose", "right.cartesian", "right.cart"
+    ]) || findDeepArray(data, "right", ["tcp", "pose", "cart"]);
+
+    return {leftJoint, rightJoint, leftTcp, rightTcp};
+  }
+
+  async function d31RefreshPoseMonitor() {
+    try {
+      const res = await fetch("/api/status");
+      const data = await res.json();
+      d31LastStatus = data;
+
+      const a = extractStatusArrays(data);
+      setRow("d31-left-joint-row", a.leftJoint, true);
+      setRow("d31-right-joint-row", a.rightJoint, true);
+      setRow("d31-left-tcp-row", a.leftTcp, false);
+      setRow("d31-right-tcp-row", a.rightTcp, false);
+    } catch (e) {
+      console.warn("D31 pose monitor error:", e);
+    }
+  }
+
+  function makeJointInputs(containerId, prefix) {
+    const c = document.getElementById(containerId);
+    if (!c || c.dataset.ready === "1") return;
+    c.dataset.ready = "1";
+
+    jointNames.forEach((name, i) => {
+      const label = document.createElement("label");
+      label.textContent = name + " ";
+      const inp = document.createElement("input");
+      inp.type = "number";
+      inp.step = "0.001";
+      inp.className = "d31-num-input";
+      inp.id = `${prefix}-${i}`;
+      label.appendChild(inp);
+      c.appendChild(label);
+    });
+  }
+
+  function collectJointInputs(prefix) {
+    const vals = [];
+    for (let i = 0; i < 6; i++) {
+      const el = document.getElementById(`${prefix}-${i}`);
+      const n = Number(el.value);
+      if (!Number.isFinite(n)) {
+        throw new Error(`${prefix} J${i + 1} is empty or invalid`);
+      }
+      vals.push(n);
+    }
+    return vals;
+  }
+
+  window.d31FillJointInputsFromCurrent = function () {
+    if (!d31LastStatus) {
+      alert("ยังไม่มี status จากหุ่น กรุณารอสักครู่");
+      return;
+    }
+
+    const a = extractStatusArrays(d31LastStatus);
+
+    if (a.leftJoint) {
+      a.leftJoint.slice(0, 6).forEach((v, i) => {
+        const el = document.getElementById(`d31-left-${i}`);
+        if (el) el.value = fmt(radToDeg(v));
+      });
+    }
+
+    if (a.rightJoint) {
+      a.rightJoint.slice(0, 6).forEach((v, i) => {
+        const el = document.getElementById(`d31-right-${i}`);
+        if (el) el.value = fmt(radToDeg(v));
+      });
+    }
+  };
+
+  window.d31SendDirectJointMove = async function () {
+    const side = document.getElementById("d31-direct-side").value;
+
+    let leftDeg = null;
+    let rightDeg = null;
+
+    try {
+      if (side === "left" || side === "both") leftDeg = collectJointInputs("d31-left");
+      if (side === "right" || side === "both") rightDeg = collectJointInputs("d31-right");
+    } catch (e) {
+      alert(e.message);
+      return;
+    }
+
+    const velEl = document.getElementById("moveVel");
+    const accEl = document.getElementById("moveAcc");
+
+    const payload = {
+      side: side,
+      left_deg: leftDeg,
+      right_deg: rightDeg,
+      vel: velEl ? Number(velEl.value) : 0.08,
+      acc: accEl ? Number(accEl.value) : 0.15
+    };
+
+    const ok = confirm(
+      "Confirm direct joint move?\\n\\n" +
+      "Side: " + side + "\\n" +
+      "ตรวจสอบพื้นที่หุ่น และเตรียม E-stop ก่อนกด OK"
+    );
+    if (!ok) return;
+
+    const res = await fetch("/api/direct/joint_move", {
+      method: "POST",
+      headers: {"Content-Type": "application/json"},
+      body: JSON.stringify(payload)
+    });
+
+    const data = await res.json();
+    const st = document.getElementById("status");
+    if (st) st.textContent = JSON.stringify(data, null, 2);
+  };
+
+  async function d31RefreshWaypointManager() {
+    const box = document.getElementById("d31-wp-list");
+    if (!box) return;
+
+    try {
+      const res = await fetch("/api/waypoints");
+      const data = await res.json();
+      const names = Object.keys(data || {}).sort();
+
+      if (names.length === 0) {
+        box.textContent = "No waypoint saved.";
+        return;
+      }
+
+      box.innerHTML = "";
+      names.forEach(name => {
+        const row = document.createElement("div");
+        row.className = "d31-wp-row";
+
+        const title = document.createElement("div");
+        title.textContent = name;
+
+        const actions = document.createElement("div");
+        actions.className = "d31-wp-actions";
+
+        const runBtn = document.createElement("button");
+        runBtn.textContent = "Run";
+        runBtn.onclick = () => d31RunWaypoint(name);
+
+        const addBtn = document.createElement("button");
+        addBtn.textContent = "Add";
+        addBtn.onclick = () => d31AddWaypointToSequence(name);
+
+        const delBtn = document.createElement("button");
+        delBtn.textContent = "Delete";
+        delBtn.className = "stop";
+        delBtn.onclick = () => d31DeleteWaypoint(name);
+
+        actions.appendChild(runBtn);
+        actions.appendChild(addBtn);
+        actions.appendChild(delBtn);
+
+        row.appendChild(title);
+        row.appendChild(actions);
+        box.appendChild(row);
+      });
+    } catch (e) {
+      box.textContent = "Waypoint manager error: " + e;
+    }
+  }
+
+  async function d31RunWaypoint(name) {
+    const velEl = document.getElementById("moveVel");
+    const accEl = document.getElementById("moveAcc");
+
+    const res = await fetch("/api/waypoint/run", {
+      method: "POST",
+      headers: {"Content-Type": "application/json"},
+      body: JSON.stringify({
+        name: name,
+        side: "both",
+        vel: velEl ? Number(velEl.value) : 0.08,
+        acc: accEl ? Number(accEl.value) : 0.15
+      })
+    });
+
+    const data = await res.json();
+    const st = document.getElementById("status");
+    if (st) st.textContent = JSON.stringify(data, null, 2);
+  }
+
+  function d31AddWaypointToSequence(name) {
+    if (typeof sequence !== "undefined" && Array.isArray(sequence)) {
+      sequence.push(name);
+      if (typeof renderSequence === "function") renderSequence();
+      return;
+    }
+    alert("ไม่พบตัวแปร sequence ของหน้าเว็บเดิม");
+  }
+
+  async function d31DeleteWaypoint(name) {
+    const ok = confirm("Delete waypoint: " + name + " ?");
+    if (!ok) return;
+
+    const res = await fetch("/api/waypoint/delete", {
+      method: "POST",
+      headers: {"Content-Type": "application/json"},
+      body: JSON.stringify({name: name})
+    });
+
+    const data = await res.json();
+    const st = document.getElementById("status");
+    if (st) st.textContent = JSON.stringify(data, null, 2);
+
+    await d31RefreshWaypointManager();
+    if (typeof loadWaypoints === "function") loadWaypoints();
+  }
+
+  function d31CompactJogPanels() {
+    if (document.getElementById("d31-jog-grid")) return;
+
+    const headings = Array.from(document.querySelectorAll(".panel h2"));
+    const jointH = headings.find(h => h.textContent.trim().toLowerCase().startsWith("joint jog"));
+    const tcpH = headings.find(h => h.textContent.trim().toLowerCase().startsWith("tcp jog"));
+
+    if (!jointH || !tcpH) return;
+
+    const jointPanel = jointH.closest(".panel");
+    const tcpPanel = tcpH.closest(".panel");
+    if (!jointPanel || !tcpPanel || jointPanel === tcpPanel) return;
+
+    const grid = document.createElement("div");
+    grid.id = "d31-jog-grid";
+    grid.className = "d31-grid-2";
+
+    jointPanel.parentNode.insertBefore(grid, jointPanel);
+    grid.appendChild(jointPanel);
+    grid.appendChild(tcpPanel);
+  }
+
+  window.addEventListener("load", () => {
+    makeJointInputs("d31-left-inputs", "d31-left");
+    makeJointInputs("d31-right-inputs", "d31-right");
+    d31CompactJogPanels();
+    d31RefreshPoseMonitor();
+    d31RefreshWaypointManager();
+
+    setInterval(d31RefreshPoseMonitor, 500);
+    setInterval(d31RefreshWaypointManager, 3000);
+  });
+})();
+</script>
+
+
+<script id="d31-layout-cleanup-script">
+(function () {
+  function getPanelTitle(panel) {
+    const h = panel.querySelector("h1, h2, h3");
+    return h ? h.textContent.trim() : "";
+  }
+
+  function findPanelByTitleContains(text) {
+    const target = text.toLowerCase();
+    const headings = Array.from(document.querySelectorAll("h1, h2, h3"));
+    for (const h of headings) {
+      if (h.textContent.trim().toLowerCase().includes(target)) {
+        return h.closest(".panel") || h.parentElement;
+      }
+    }
+    return null;
+  }
+
+  function removePanelByExactTitle(title) {
+    const target = title.toLowerCase();
+    const panels = Array.from(document.querySelectorAll(".panel"));
+    for (const panel of panels) {
+      const t = getPanelTitle(panel).toLowerCase();
+      if (t === target) {
+        panel.remove();
+      }
+    }
+  }
+
+  function removePanelByTitleContains(text) {
+    const target = text.toLowerCase();
+    const panels = Array.from(document.querySelectorAll(".panel"));
+    for (const panel of panels) {
+      const t = getPanelTitle(panel).toLowerCase();
+      if (t.includes(target)) {
+        panel.remove();
+      }
+    }
+  }
+
+  function moveManualJogNextToLivePosition() {
+    if (document.getElementById("d31-top-grid")) return;
+
+    const livePanel =
+      document.getElementById("d31-control-panel") ||
+      findPanelByTitleContains("live position");
+
+    const manualPanel =
+      findPanelByTitleContains("dual jaka a12 manual jog") ||
+      findPanelByTitleContains("manual jog");
+
+    if (!livePanel || !manualPanel || livePanel === manualPanel) {
+      console.warn("D31 layout: live/manual panel not found yet");
+      return;
+    }
+
+    const grid = document.createElement("div");
+    grid.id = "d31-top-grid";
+    grid.className = "d31-top-grid";
+
+    livePanel.parentNode.insertBefore(grid, livePanel);
+    grid.appendChild(livePanel);
+    grid.appendChild(manualPanel);
+  }
+
+  function ensureWaypointManager() {
+    let manager = document.getElementById("d31-waypoint-manager");
+
+    if (!manager) {
+      manager = document.createElement("div");
+      manager.className = "panel";
+      manager.id = "d31-waypoint-manager";
+
+      const topGrid = document.getElementById("d31-top-grid");
+      if (topGrid && topGrid.parentNode) {
+        topGrid.parentNode.insertBefore(manager, topGrid.nextSibling);
+      } else {
+        document.body.insertBefore(manager, document.body.firstChild);
+      }
+    }
+
+    manager.innerHTML = `
+      <h2>Waypoint Manager</h2>
+
+      <div class="d31-wp-save-row">
+        <input id="d31-wp-name-input" placeholder="waypoint name เช่น p1_pre_grasp" />
+        <button class="green" onclick="d31SaveCurrentWaypoint()">Save Current</button>
+        <button onclick="d31ReloadWaypointManager()">Reload List</button>
+      </div>
+
+      <div id="d31-wp-compact-list" class="d31-wp-compact-list">Loading...</div>
+    `;
+  }
+
+  function waypointTime(wp) {
+    if (!wp || typeof wp !== "object") return "";
+    return wp.created_at || wp.time || wp.timestamp || wp.saved_at || "";
+  }
+
+  window.d31ReloadWaypointManager = async function () {
+    const box = document.getElementById("d31-wp-compact-list");
+    if (!box) return;
+
+    try {
+      const res = await fetch("/api/waypoints");
+      const data = await res.json();
+      const names = Object.keys(data || {}).sort();
+
+      if (names.length === 0) {
+        box.textContent = "No waypoint saved.";
+        return;
+      }
+
+      box.innerHTML = "";
+
+      for (const name of names) {
+        const row = document.createElement("div");
+        row.className = "d31-wp-compact-row";
+
+        const left = document.createElement("div");
+        const nameEl = document.createElement("span");
+        nameEl.className = "d31-wp-name";
+        nameEl.textContent = name;
+
+        const timeEl = document.createElement("span");
+        timeEl.className = "d31-wp-time";
+        timeEl.textContent = waypointTime(data[name]);
+
+        left.appendChild(nameEl);
+        if (timeEl.textContent) left.appendChild(timeEl);
+
+        const actions = document.createElement("div");
+        actions.className = "d31-wp-actions";
+
+        const runBtn = document.createElement("button");
+        runBtn.className = "orange";
+        runBtn.textContent = "Run";
+        runBtn.onclick = () => d31RunWaypointCompact(name);
+
+        const addBtn = document.createElement("button");
+        addBtn.textContent = "Add";
+        addBtn.onclick = () => d31AddWaypointCompact(name);
+
+        const delBtn = document.createElement("button");
+        delBtn.className = "stop";
+        delBtn.textContent = "Delete";
+        delBtn.onclick = () => d31DeleteWaypointCompact(name);
+
+        actions.appendChild(runBtn);
+        actions.appendChild(addBtn);
+        actions.appendChild(delBtn);
+
+        row.appendChild(left);
+        row.appendChild(actions);
+        box.appendChild(row);
+      }
+    } catch (e) {
+      box.textContent = "Waypoint Manager error: " + e;
+    }
+  };
+
+  window.d31SaveCurrentWaypoint = async function () {
+    const input = document.getElementById("d31-wp-name-input");
+    const name = input ? input.value.trim() : "";
+
+    if (!name) {
+      alert("กรุณาใส่ชื่อ waypoint ก่อนครับ");
+      return;
+    }
+
+    const res = await fetch("/api/waypoint/save", {
+      method: "POST",
+      headers: {"Content-Type": "application/json"},
+      body: JSON.stringify({ name: name, side: "both" })
+    });
+
+    const data = await res.json();
+
+    const st = document.getElementById("status");
+    if (st) st.textContent = JSON.stringify(data, null, 2);
+
+    await d31ReloadWaypointManager();
+
+    if (typeof loadWaypoints === "function") {
+      loadWaypoints();
+    }
+  };
+
+  window.d31RunWaypointCompact = async function (name) {
+    const velEl = document.getElementById("moveVel");
+    const accEl = document.getElementById("moveAcc");
+
+    const res = await fetch("/api/waypoint/run", {
+      method: "POST",
+      headers: {"Content-Type": "application/json"},
+      body: JSON.stringify({
+        name: name,
+        side: "both",
+        vel: velEl ? Number(velEl.value) : 0.08,
+        acc: accEl ? Number(accEl.value) : 0.15
+      })
+    });
+
+    const data = await res.json();
+
+    const st = document.getElementById("status");
+    if (st) st.textContent = JSON.stringify(data, null, 2);
+  };
+
+  window.d31AddWaypointCompact = function (name) {
+    if (typeof addToSequence === "function") {
+      addToSequence(name);
+      return;
+    }
+
+    if (typeof sequence !== "undefined" && Array.isArray(sequence)) {
+      sequence.push(name);
+      if (typeof renderSequence === "function") renderSequence();
+      return;
+    }
+
+    alert("ไม่พบ sequence function ของหน้าเว็บเดิมครับ");
+  };
+
+  window.d31DeleteWaypointCompact = async function (name) {
+    const ok = confirm("Delete waypoint: " + name + " ?");
+    if (!ok) return;
+
+    const res = await fetch("/api/waypoint/delete", {
+      method: "POST",
+      headers: {"Content-Type": "application/json"},
+      body: JSON.stringify({ name: name })
+    });
+
+    const data = await res.json();
+
+    const st = document.getElementById("status");
+    if (st) st.textContent = JSON.stringify(data, null, 2);
+
+    await d31ReloadWaypointManager();
+
+    if (typeof loadWaypoints === "function") {
+      loadWaypoints();
+    }
+  };
+
+  function d31CleanupLayout() {
+    // เอา Pick Template ออก
+    removePanelByTitleContains("pick & place template");
+
+    // เอา Waypoint panel เดิมออก เหลือเฉพาะ Waypoint Manager
+    removePanelByExactTitle("waypoint");
+
+    // สร้าง/จัด Waypoint Manager ใหม่
+    ensureWaypointManager();
+
+    // ย้าย Manual Jog ไปอยู่ข้าง Live Position
+    moveManualJogNextToLivePosition();
+
+    // โหลด waypoint list แบบ compact
+    d31ReloadWaypointManager();
+  }
+
+  window.addEventListener("load", () => {
+    d31CleanupLayout();
+
+    // เผื่อ script เดิมสร้าง panel ช้ากว่าเรา
+    setTimeout(d31CleanupLayout, 500);
+    setTimeout(d31CleanupLayout, 1500);
+  });
+})();
+</script>
+
+
+<script id="d31-waypoint-loading-fix">
+(function () {
+  function updateStatus(data) {
+    const st = document.getElementById("status");
+    if (st) st.textContent = JSON.stringify(data, null, 2);
+  }
+
+  function findPanelByTitle(titleText) {
+    const target = titleText.toLowerCase();
+    const hs = Array.from(document.querySelectorAll("h1, h2, h3"));
+    for (const h of hs) {
+      if (h.textContent.trim().toLowerCase().includes(target)) {
+        return h.closest(".panel") || h.parentElement;
+      }
+    }
+    return null;
+  }
+
+  function removeOldWaypointPanel() {
+    const panels = Array.from(document.querySelectorAll(".panel"));
+    for (const panel of panels) {
+      const h = panel.querySelector("h1, h2, h3");
+      if (!h) continue;
+      const title = h.textContent.trim().toLowerCase();
+
+      // ลบเฉพาะ panel ชื่อ Waypoint เดิม ไม่ลบ Waypoint Manager
+      if (title === "waypoint") {
+        panel.remove();
+      }
+
+      // ลบ Pick Template
+      if (title.includes("pick & place template")) {
+        panel.remove();
+      }
+    }
+  }
+
+  function ensureWaypointManagerPanel() {
+    removeOldWaypointPanel();
+
+    let panel = document.getElementById("d31-waypoint-manager");
+    if (!panel) {
+      panel = findPanelByTitle("waypoint manager");
+      if (panel) panel.id = "d31-waypoint-manager";
+    }
+
+    if (!panel) {
+      panel = document.createElement("div");
+      panel.className = "panel";
+      panel.id = "d31-waypoint-manager";
+
+      const topGrid = document.getElementById("d31-top-grid");
+      if (topGrid && topGrid.parentNode) {
+        topGrid.parentNode.insertBefore(panel, topGrid.nextSibling);
+      } else {
+        document.body.insertBefore(panel, document.body.firstChild);
+      }
+    }
+
+    panel.innerHTML = `
+      <h2>Waypoint Manager</h2>
+
+      <div class="d31-wp-save-row">
+        <input id="d31-wp-name-input" placeholder="waypoint name เช่น p1_pre_grasp" />
+        <button class="green" onclick="d31SaveCurrentWaypointFixed()">Save Current</button>
+        <button onclick="d31ReloadWaypointManagerFixed()">Reload List</button>
+      </div>
+
+      <div id="d31-wp-compact-list" class="d31-wp-compact-list">Loading...</div>
+    `;
+
+    return panel;
+  }
+
+  function waypointTime(wp) {
+    if (!wp || typeof wp !== "object") return "";
+    return wp.created_at || wp.time || wp.timestamp || wp.saved_at || "";
+  }
+
+  async function fetchWaypoints() {
+    const res = await fetch("/api/waypoints", { cache: "no-store" });
+    if (!res.ok) {
+      throw new Error("/api/waypoints HTTP " + res.status);
+    }
+    return await res.json();
+  }
+
+  window.d31ReloadWaypointManagerFixed = async function () {
+    ensureWaypointManagerPanel();
+
+    const box = document.getElementById("d31-wp-compact-list");
+    if (!box) return;
+
+    try {
+      const data = await fetchWaypoints();
+      const names = Object.keys(data || {}).sort();
+
+      if (names.length === 0) {
+        box.textContent = "No waypoint saved.";
+        return;
+      }
+
+      box.innerHTML = "";
+
+      for (const name of names) {
+        const row = document.createElement("div");
+        row.className = "d31-wp-compact-row";
+
+        const left = document.createElement("div");
+
+        const nameEl = document.createElement("span");
+        nameEl.className = "d31-wp-name";
+        nameEl.textContent = name;
+
+        const timeEl = document.createElement("span");
+        timeEl.className = "d31-wp-time";
+        const t = waypointTime(data[name]);
+        if (t) timeEl.textContent = " " + t;
+
+        left.appendChild(nameEl);
+        if (t) left.appendChild(timeEl);
+
+        const actions = document.createElement("div");
+        actions.className = "d31-wp-actions";
+
+        const runBtn = document.createElement("button");
+        runBtn.className = "orange";
+        runBtn.textContent = "Run";
+        runBtn.onclick = () => d31RunWaypointFixed(name);
+
+        const addBtn = document.createElement("button");
+        addBtn.textContent = "Add";
+        addBtn.onclick = () => d31AddWaypointFixed(name);
+
+        const delBtn = document.createElement("button");
+        delBtn.className = "stop";
+        delBtn.textContent = "Delete";
+        delBtn.onclick = () => d31DeleteWaypointFixed(name);
+
+        actions.appendChild(runBtn);
+        actions.appendChild(addBtn);
+        actions.appendChild(delBtn);
+
+        row.appendChild(left);
+        row.appendChild(actions);
+        box.appendChild(row);
+      }
+    } catch (e) {
+      box.textContent = "Waypoint load error: " + e.message;
+      console.error(e);
+    }
+  };
+
+  window.d31SaveCurrentWaypointFixed = async function () {
+    const input = document.getElementById("d31-wp-name-input");
+    const name = input ? input.value.trim() : "";
+
+    if (!name) {
+      alert("กรุณาใส่ชื่อ waypoint ก่อนครับ");
+      return;
+    }
+
+    const res = await fetch("/api/waypoint/save", {
+      method: "POST",
+      headers: {"Content-Type": "application/json"},
+      body: JSON.stringify({ name: name, side: "both" })
+    });
+
+    const data = await res.json();
+    updateStatus(data);
+
+    await d31ReloadWaypointManagerFixed();
+
+    if (typeof loadWaypoints === "function") {
+      loadWaypoints();
+    }
+  };
+
+  window.d31RunWaypointFixed = async function (name) {
+    const velEl = document.getElementById("moveVel");
+    const accEl = document.getElementById("moveAcc");
+
+    const res = await fetch("/api/waypoint/run", {
+      method: "POST",
+      headers: {"Content-Type": "application/json"},
+      body: JSON.stringify({
+        name: name,
+        side: "both",
+        vel: velEl ? Number(velEl.value) : 0.08,
+        acc: accEl ? Number(accEl.value) : 0.15
+      })
+    });
+
+    const data = await res.json();
+    updateStatus(data);
+  };
+
+  window.d31AddWaypointFixed = function (name) {
+    if (typeof addToSequence === "function") {
+      addToSequence(name);
+      return;
+    }
+
+    if (typeof sequence !== "undefined" && Array.isArray(sequence)) {
+      sequence.push(name);
+      if (typeof renderSequence === "function") renderSequence();
+      return;
+    }
+
+    alert("ไม่พบ sequence function ของหน้าเว็บเดิมครับ");
+  };
+
+  window.d31DeleteWaypointFixed = async function (name) {
+    const ok = confirm("Delete waypoint: " + name + " ?");
+    if (!ok) return;
+
+    const res = await fetch("/api/waypoint/delete", {
+      method: "POST",
+      headers: {"Content-Type": "application/json"},
+      body: JSON.stringify({ name: name })
+    });
+
+    const data = await res.json();
+    updateStatus(data);
+
+    await d31ReloadWaypointManagerFixed();
+
+    if (typeof loadWaypoints === "function") {
+      loadWaypoints();
+    }
+  };
+
+  function bootWaypointManager() {
+    ensureWaypointManagerPanel();
+    d31ReloadWaypointManagerFixed();
+  }
+
+  // เรียกหลายจังหวะ เพราะ script เก่าบางตัวอาจจัด layout ซ้ำหลัง load
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", bootWaypointManager);
+  } else {
+    setTimeout(bootWaypointManager, 0);
+  }
+
+  window.addEventListener("load", bootWaypointManager);
+
+  setTimeout(bootWaypointManager, 300);
+  setTimeout(bootWaypointManager, 900);
+  setTimeout(bootWaypointManager, 1800);
+  setTimeout(bootWaypointManager, 3000);
+})();
+</script>
+
+</body>
+</html>

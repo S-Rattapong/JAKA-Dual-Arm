@@ -1,0 +1,1773 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <title>Dual JAKA A12 Control</title>
+
+  <style>
+    :root {
+      --bg: #111827;
+      --panel: #1f2937;
+      --panel2: #0f172a;
+      --line: #374151;
+      --text: #e5e7eb;
+      --muted: #9ca3af;
+      --blue: #2563eb;
+      --green: #059669;
+      --orange: #d97706;
+      --red: #dc2626;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      margin: 0;
+      padding: 16px;
+    }
+
+    h1, h2, h3 {
+      margin-top: 0;
+    }
+
+    h1 {
+      margin-bottom: 14px;
+      font-size: 26px;
+    }
+
+    h2 {
+      font-size: 22px;
+      margin-bottom: 12px;
+    }
+
+    h3 {
+      font-size: 16px;
+      margin: 12px 0 8px;
+      color: #f9fafb;
+    }
+
+    .panel {
+      background: var(--panel);
+      border-radius: 12px;
+      padding: 16px;
+      margin-bottom: 14px;
+      border: 1px solid rgba(255,255,255,0.03);
+    }
+
+    .top-grid {
+      display: grid;
+      grid-template-columns: 1.1fr 0.9fr;
+      gap: 14px;
+      align-items: start;
+    }
+
+    .two-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+      align-items: start;
+    }
+
+    .row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin: 8px 0;
+      align-items: center;
+    }
+
+    .small {
+      font-size: 13px;
+      color: var(--muted);
+    }
+
+    button {
+      border: none;
+      border-radius: 8px;
+      padding: 10px 14px;
+      background: #374151;
+      color: white;
+      font-size: 15px;
+      cursor: pointer;
+      min-width: 74px;
+      user-select: none;
+      touch-action: none;
+    }
+
+    button:hover {
+      background: #4b5563;
+    }
+
+    button.active {
+      background: var(--blue);
+    }
+
+    button.green {
+      background: var(--green);
+    }
+
+    button.green:hover {
+      background: #047857;
+    }
+
+    button.orange {
+      background: var(--orange);
+    }
+
+    button.orange:hover {
+      background: #b45309;
+    }
+
+    button.stop {
+      background: var(--red);
+      font-weight: bold;
+      min-width: 140px;
+    }
+
+    button.stop:hover {
+      background: #b91c1c;
+    }
+
+    select, input {
+      padding: 8px;
+      border-radius: 6px;
+      border: 1px solid #4b5563;
+      background: var(--bg);
+      color: white;
+    }
+
+    input.num {
+      width: 78px;
+      text-align: right;
+    }
+
+    input.wide {
+      min-width: 280px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+    }
+
+    th, td {
+      border: 1px solid #334155;
+      padding: 5px 6px;
+      text-align: center;
+    }
+
+    th {
+      background: #111827;
+      color: #cbd5e1;
+    }
+
+    td {
+      background: #0b1120;
+    }
+
+    .jog-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    .jog-section {
+      background: var(--panel2);
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      padding: 10px;
+    }
+
+    .jog-row {
+      display: grid;
+      grid-template-columns: 54px 1fr 1fr;
+      gap: 6px;
+      align-items: center;
+      margin: 6px 0;
+    }
+
+    .jog-label {
+      color: var(--muted);
+      font-weight: bold;
+      text-align: center;
+    }
+
+    .direct-inputs {
+      display: grid;
+      grid-template-columns: repeat(6, minmax(72px, 1fr));
+      gap: 6px;
+    }
+
+    .direct-inputs label {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    .wp-list {
+      display: flex;
+      flex-direction: column;
+      gap: 7px;
+      margin-top: 10px;
+    }
+
+    .wp-row {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 10px;
+      align-items: center;
+      padding: 8px 10px;
+      border: 1px solid #41485f;
+      border-radius: 8px;
+      background: var(--panel2);
+    }
+
+    .wp-name {
+      font-weight: 700;
+    }
+
+    .wp-time {
+      font-size: 12px;
+      color: var(--muted);
+      margin-left: 6px;
+      font-weight: 400;
+    }
+
+    .wp-actions {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+
+    .sequence-box {
+      background: var(--panel2);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 10px;
+      min-height: 52px;
+    }
+
+    .seq-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 0;
+      border-bottom: 1px solid #263244;
+    }
+
+    .seq-row:last-child {
+      border-bottom: none;
+    }
+
+    pre {
+      background: #0b1120;
+      padding: 12px;
+      border-radius: 8px;
+      overflow: auto;
+      max-height: 260px;
+      border: 1px solid var(--line);
+    }
+
+    @media (max-width: 1200px) {
+      .top-grid,
+      .two-grid,
+      .jog-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 700px) {
+      .direct-inputs {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      .wp-row {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <h1>Dual JAKA A12 Control</h1>
+
+  <div class="top-grid">
+    <div class="panel">
+      <h2>Live Position / Direct Move</h2>
+
+      <div class="two-grid">
+        <div>
+          <h3>Left Robot</h3>
+          <table>
+            <tr><th>J1°</th><th>J2°</th><th>J3°</th><th>J4°</th><th>J5°</th><th>J6°</th></tr>
+            <tr id="leftJointRow"><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td></tr>
+            <tr><th>X</th><th>Y</th><th>Z</th><th>Rx</th><th>Ry</th><th>Rz</th></tr>
+            <tr id="leftTcpRow"><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td></tr>
+          </table>
+        </div>
+
+        <div>
+          <h3>Right Robot</h3>
+          <table>
+            <tr><th>J1°</th><th>J2°</th><th>J3°</th><th>J4°</th><th>J5°</th><th>J6°</th></tr>
+            <tr id="rightJointRow"><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td></tr>
+            <tr><th>X</th><th>Y</th><th>Z</th><th>Rx</th><th>Ry</th><th>Rz</th></tr>
+            <tr id="rightTcpRow"><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td></tr>
+          </table>
+        </div>
+      </div>
+
+      <h3>Direct Joint Move</h3>
+      <div class="small">กรอกค่า Joint เป็นองศา แล้วกด Confirm เพื่อสั่งหุ่นเคลื่อนที่</div>
+
+      <div class="row">
+        <label>Target side:
+          <select id="directSide">
+            <option value="both">Both</option>
+            <option value="left">Left</option>
+            <option value="right">Right</option>
+          </select>
+        </label>
+
+        <button onclick="fillJointInputsFromCurrent()">Fill Current</button>
+        <button class="orange" onclick="sendDirectJointMove()">Confirm Joint Move</button>
+        <button class="stop" onclick="stopBoth()">STOP BOTH</button>
+      </div>
+
+      <div class="two-grid">
+        <div>
+          <h3>Left Target (deg)</h3>
+          <div class="direct-inputs" id="leftJointInputs"></div>
+        </div>
+        <div>
+          <h3>Right Target (deg)</h3>
+          <div class="direct-inputs" id="rightJointInputs"></div>
+        </div>
+      </div>
+
+
+      <h3>Direct TCP Move</h3>
+      <div class="small">
+        Safe TCP Move ใช้หลักการ TCP → IK → Joint Move ดังนั้นความเร็วจะอิงจาก Move vel / Move acc ด้านบน ไม่ใช้ linear_move โดยตรง
+      </div>
+
+      <div class="row">
+        <label>Target side:
+          <select id="directTcpSide">
+            <option value="both">Both</option>
+            <option value="left">Left</option>
+            <option value="right">Right</option>
+          </select>
+        </label>
+    <button onclick="fillTcpInputsFromCurrent()">Fill Current TCP</button>
+        <button class="orange" onclick="sendDirectTcpMove()">Confirm Safe TCP Move</button>
+        <button class="stop" onclick="stopBoth()">STOP BOTH</button>
+      </div>
+
+      <div class="two-grid">
+        <div>
+          <h3>Left TCP Target</h3>
+          <div class="direct-inputs" id="leftTcpInputs"></div>
+        </div>
+        <div>
+          <h3>Right TCP Target</h3>
+          <div class="direct-inputs" id="rightTcpInputs"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <h2>Dual JAKA A12 Manual Jog</h2>
+
+      <div class="row">
+        <strong>Robot:</strong>
+        <button id="side-left" onclick="setSide('left')">Left</button>
+        <button id="side-right" onclick="setSide('right')">Right</button>
+        <button id="side-both" onclick="setSide('both')">Both</button>
+      </div>
+
+      <div class="row">
+        <strong>Mode:</strong>
+        <button id="coord-joint" onclick="setCoord('joint')">Joint</button>
+        <button id="coord-base" onclick="setCoord('base')">Base TCP</button>
+        <button id="coord-tool" onclick="setCoord('tool')">Tool TCP</button>
+      </div>
+
+      <div class="row">
+        <strong>Both Sync:</strong>
+        <select id="syncMode">
+          <option value="same">Same</option>
+          <option value="mirror">Mirror</option>
+          <option value="raw">Raw</option>
+        </select>
+      </div>
+
+      <div class="row">
+        <label>Linear:</label>
+        <input id="linearSpeed" type="number" value="5" step="1" min="1" max="50" class="num" />
+        <label>Rotate:</label>
+        <input id="rotateSpeed" type="number" value="2" step="0.5" min="0.5" max="20" class="num" />
+        <label>Joint:</label>
+        <input id="jointSpeed" type="number" value="0.03" step="0.01" min="0.005" max="0.2" class="num" />
+      </div>
+
+      <div class="row">
+        <label>Move vel:</label>
+        <input id="moveVel" type="number" value="2.0" step="0.1" min="0.02" max="3.0" class="num" />
+        <label>Move acc:</label>
+        <input id="moveAcc" type="number" value="1.2" step="0.1" min="0.04" max="3.0" class="num" />
+      </div>
+
+      <div class="row">
+        <button class="stop" onclick="stopBoth()">STOP BOTH</button>
+        <button class="green" onclick="homeBoth()">Home Both</button>
+        <button onclick="refreshStatus()">Refresh Status</button>
+      </div>
+
+      <div class="jog-grid">
+        <div class="jog-section">
+          <h3>Joint Jog</h3>
+          <div id="jointButtons"></div>
+        </div>
+
+        <div class="jog-section">
+          <h3>TCP Jog 6 Axis</h3>
+          <div id="tcpButtons"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="panel">
+    <h2>Waypoint Manager</h2>
+
+    <div class="row">
+      <input id="waypointName" class="wide" placeholder="waypoint name เช่น p1_pre_grasp" />
+      <button class="green" onclick="saveWaypoint()">Save Current</button>
+      <button onclick="loadWaypoints(true)">Reload List</button>
+    </div>
+
+    <div id="waypointList" class="wp-list">Loading...</div>
+  </div>
+
+  <div class="two-grid">
+    <div class="panel">
+      <h2>Program / Sequence</h2>
+      <div class="small">กด Add จาก Waypoint Manager เพื่อเรียงลำดับงาน</div>
+
+      <div class="row" style="margin-top: 10px;">
+        <label>Program name:</label>
+        <input id="programName" type="text" value="demo_pick_place" style="min-width: 180px;" />
+        <button onclick="saveProgramFile()">Save File</button>
+        <button onclick="refreshProgramList()">Refresh List</button>
+        <select id="programSelect" style="min-width: 180px;"></select>
+        <button onclick="loadSelectedProgram()">Load File</button>
+        <button class="stop" onclick="deleteSelectedProgram()">Delete File</button>
+      </div>
+
+      <div id="sequenceList" class="sequence-box"></div>
+
+      <div class="row">
+        <button class="green" onclick="runSequence()">Run Program</button>
+        <button onclick="saveProgramFile()">Save Program</button>
+        <button onclick="loadSelectedProgram()">Load Program</button>
+        <button onclick="clearSequence()">Clear Sequence</button>
+        <button class="stop" onclick="stopBoth()">STOP BOTH</button>
+      </div>
+    </div>
+
+    <div class="panel">
+      
+    <div class="card">
+      <h2>D32 Object Frame / Cooperative Setup</h2>
+      <div class="small">
+        ขั้นนี้ยังไม่สั่งหุ่นเคลื่อนที่ ใช้สำหรับบันทึก object frame และ grasp offset ของ TCP ซ้าย/ขวา
+      </div>
+
+      <div class="row" style="margin-top: 10px;">
+        <label>Object name:</label>
+        <input id="objectName" type="text" value="demo_object" style="min-width: 180px;" />
+        <button onclick="fillObjectPoseFromMidpoint()">Fill Object From TCP Midpoint</button>
+        <button onclick="captureObjectFrameCurrent()">Capture & Save Object Frame</button>
+        <button class="orange" onclick="previewObjectTargets()">Preview Cooperative Targets</button>
+        <button onclick="resetObjectPoseToCaptured()">Reset Target To Captured Pose</button>
+        <button onclick="refreshObjectList()">Refresh Objects</button>
+      </div>
+
+      <h3>Object Pose Target / Capture Reference</h3>
+      <div id="objectPoseInputs" class="targets"></div>
+
+      <div class="row" style="margin-top: 10px;">
+        <select id="objectSelect" style="min-width: 220px;"></select>
+        <button onclick="loadSelectedObjectFrame()">Load Object</button>
+        <button class="stop" onclick="deleteSelectedObjectFrame()">Delete Object</button>
+      </div>
+
+      <pre id="objectFrameView" class="statusbox">Object frame not loaded yet.</pre>
+    </div>
+
+<h2>Status</h2>
+      <pre id="status">loading...</pre>
+    </div>
+  </div>
+
+<script>
+let side = "both";
+let coord = "base";
+let heartbeatTimer = null;
+let sequence = [];
+let latestLoadedObjectFrame = null;
+let lastStatus = null;
+let waypointLoading = false;
+
+function $(id) {
+  return document.getElementById(id);
+}
+
+function fmt(v) {
+  const n = Number(v);
+  if (!Number.isFinite(n)) return "-";
+  return n.toFixed(3);
+}
+
+function radToDeg(v) {
+  return Number(v) * 180.0 / Math.PI;
+}
+
+function setStatus(data) {
+  const el = $("status");
+  if (el) el.textContent = JSON.stringify(data, null, 2);
+}
+
+async function api(path, options = {}) {
+  const res = await fetch(path, options);
+  const data = await res.json();
+  return data;
+}
+
+function setSide(v) {
+  side = v;
+  ["left", "right", "both"].forEach(s => {
+    $("side-" + s).classList.toggle("active", s === v);
+  });
+}
+
+function setCoord(v) {
+  coord = v;
+  ["joint", "base", "tool"].forEach(c => {
+    $("coord-" + c).classList.toggle("active", c === v);
+  });
+  buildButtons();
+}
+
+function speedFor(axis, jogCoord) {
+  axis = axis.toLowerCase();
+  if (jogCoord === "joint") return parseFloat($("jointSpeed").value);
+  if (["rx", "ry", "rz"].includes(axis)) return parseFloat($("rotateSpeed").value);
+  return parseFloat($("linearSpeed").value);
+}
+
+async function startJog(jogCoord, axis, direction) {
+  const payload = {
+    side,
+    coord: jogCoord,
+    axis,
+    direction,
+    speed: speedFor(axis, jogCoord),
+    sync_mode: $("syncMode").value
+  };
+
+  const data = await api("/api/jog/start", {
+    method: "POST",
+    headers: {"Content-Type": "application/json"},
+    body: JSON.stringify(payload)
+  });
+
+  setStatus(data);
+
+  if (heartbeatTimer) clearInterval(heartbeatTimer);
+  heartbeatTimer = setInterval(() => {
+    fetch("/api/jog/heartbeat", {method: "POST"});
+  }, 80);
+}
+
+async function stopJog() {
+  if (heartbeatTimer) {
+    clearInterval(heartbeatTimer);
+    heartbeatTimer = null;
+  }
+
+  await fetch("/api/jog/stop", {
+    method: "POST",
+    headers: {"Content-Type": "application/json"},
+    body: JSON.stringify({side})
+  });
+
+  refreshStatus();
+}
+
+async function stopBoth() {
+  if (heartbeatTimer) {
+    clearInterval(heartbeatTimer);
+    heartbeatTimer = null;
+  }
+
+  const data = await api("/api/stop", {
+    method: "POST",
+    headers: {"Content-Type": "application/json"},
+    body: JSON.stringify({side: "both"})
+  });
+
+  setStatus(data);
+  refreshPoseMonitor();
+}
+
+async function homeBoth() {
+  const ok = confirm("Home Both จะสั่งแขนทั้งสองกลับตำแหน่ง Home ที่ตั้งไว้ ต้องแน่ใจว่าพื้นที่ปลอดภัยแล้ว");
+  if (!ok) return;
+
+  const data = await api("/api/home", {
+    method: "POST",
+    headers: {"Content-Type": "application/json"},
+    body: JSON.stringify({
+      side: "both",
+      vel: parseFloat($("moveVel").value),
+      acc: parseFloat($("moveAcc").value)
+    })
+  });
+
+  setStatus(data);
+}
+
+function makeHoldButton(label, jogCoord, axis, direction) {
+  const b = document.createElement("button");
+  b.textContent = label;
+
+  let holding = false;
+  let capturedPointerId = null;
+
+  const start = (e) => {
+    e.preventDefault();
+
+    if (holding) return;
+    holding = true;
+    capturedPointerId = e.pointerId;
+
+    b.classList.add("active");
+
+    if (b.setPointerCapture && e.pointerId !== undefined) {
+      try {
+        b.setPointerCapture(e.pointerId);
+      } catch (_) {}
+    }
+
+    startJog(jogCoord, axis, direction);
+  };
+
+  const stop = (e) => {
+    if (e) e.preventDefault();
+
+    if (!holding) return;
+    holding = false;
+
+    b.classList.remove("active");
+
+    if (b.releasePointerCapture && capturedPointerId !== null) {
+      try {
+        b.releasePointerCapture(capturedPointerId);
+      } catch (_) {}
+    }
+
+    capturedPointerId = null;
+    stopJog();
+  };
+
+  b.addEventListener("pointerdown", start);
+  b.addEventListener("pointerup", stop);
+  b.addEventListener("pointercancel", stop);
+  b.addEventListener("lostpointercapture", stop);
+
+  // กัน browser เปิด context menu ตอนกดค้าง
+  b.addEventListener("contextmenu", (e) => e.preventDefault());
+
+  return b;
+}
+
+
+function buildButtons() {
+  const jointDiv = $("jointButtons");
+  jointDiv.innerHTML = "";
+
+  ["j1", "j2", "j3", "j4", "j5", "j6"].forEach(j => {
+    const row = document.createElement("div");
+    row.className = "jog-row";
+
+    const label = document.createElement("div");
+    label.className = "jog-label";
+    label.textContent = j.toUpperCase();
+
+    row.appendChild(label);
+    row.appendChild(makeHoldButton("-", "joint", j, "-"));
+    row.appendChild(makeHoldButton("+", "joint", j, "+"));
+    jointDiv.appendChild(row);
+  });
+
+  const tcpDiv = $("tcpButtons");
+  tcpDiv.innerHTML = "";
+
+  ["x", "y", "z", "rx", "ry", "rz"].forEach(a => {
+    const row = document.createElement("div");
+    row.className = "jog-row";
+
+    const label = document.createElement("div");
+    label.className = "jog-label";
+    label.textContent = a.toUpperCase();
+
+    row.appendChild(label);
+    row.appendChild(makeHoldButton("-", coord === "joint" ? "base" : coord, a, "-"));
+    row.appendChild(makeHoldButton("+", coord === "joint" ? "base" : coord, a, "+"));
+    tcpDiv.appendChild(row);
+  });
+}
+
+function findDeepArray(obj, sideName, words) {
+  if (!obj || typeof obj !== "object") return null;
+
+  for (const [k, v] of Object.entries(obj)) {
+    const key = String(k).toLowerCase();
+
+    if (
+      Array.isArray(v) &&
+      v.length >= 6 &&
+      key.includes(sideName) &&
+      words.some(w => key.includes(w))
+    ) {
+      return v;
+    }
+
+    if (v && typeof v === "object") {
+      const found = findDeepArray(v, sideName, words);
+      if (found) return found;
+    }
+  }
+
+  return null;
+}
+
+function findArrayByCandidates(obj, candidates) {
+  if (!obj) return null;
+
+  for (const key of candidates) {
+    if (Array.isArray(obj[key]) && obj[key].length >= 6) return obj[key];
+  }
+
+  for (const key of candidates) {
+    const parts = key.split(".");
+    let cur = obj;
+    let ok = true;
+
+    for (const p of parts) {
+      if (cur && Object.prototype.hasOwnProperty.call(cur, p)) {
+        cur = cur[p];
+      } else {
+        ok = false;
+        break;
+      }
+    }
+
+    if (ok && Array.isArray(cur) && cur.length >= 6) return cur;
+  }
+
+  return null;
+}
+
+function extractStatusArrays(data) {
+  const leftJoint = findArrayByCandidates(data, [
+    "left_joint", "left_joints", "left_joint_position", "left_joint_positions",
+    "left.joint", "left.joints", "left.joint_position", "left.joint_positions"
+  ]) || findDeepArray(data, "left", ["joint"]);
+
+  const rightJoint = findArrayByCandidates(data, [
+    "right_joint", "right_joints", "right_joint_position", "right_joint_positions",
+    "right.joint", "right.joints", "right.joint_position", "right.joint_positions"
+  ]) || findDeepArray(data, "right", ["joint"]);
+
+  const leftTcp = findArrayByCandidates(data, [
+    "left_tcp", "left_pose", "left_tcp_pose", "left_cartesian", "left_cart",
+    "left.tcp", "left.pose", "left.tcp_pose", "left.cartesian", "left.cart"
+  ]) || findDeepArray(data, "left", ["tcp", "pose", "cart"]);
+
+  const rightTcp = findArrayByCandidates(data, [
+    "right_tcp", "right_pose", "right_tcp_pose", "right_cartesian", "right_cart",
+    "right.tcp", "right.pose", "right.tcp_pose", "right.cartesian", "right.cart"
+  ]) || findDeepArray(data, "right", ["tcp", "pose", "cart"]);
+
+  return {leftJoint, rightJoint, leftTcp, rightTcp};
+}
+
+function setTableRow(rowId, values, convertDeg=false) {
+  const row = $(rowId);
+  if (!row) return;
+
+  const vals = Array.isArray(values) ? values.slice(0, 6) : [];
+  row.innerHTML = "";
+
+  for (let i = 0; i < 6; i++) {
+    const td = document.createElement("td");
+    const raw = vals[i];
+    td.textContent = raw === undefined ? "-" : fmt(convertDeg ? radToDeg(raw) : raw);
+    row.appendChild(td);
+  }
+}
+
+async function refreshPoseMonitor() {
+  try {
+    const data = await api("/api/status");
+    lastStatus = data;
+
+    const a = extractStatusArrays(data);
+    setTableRow("leftJointRow", a.leftJoint, true);
+    setTableRow("rightJointRow", a.rightJoint, true);
+    setTableRow("leftTcpRow", a.leftTcp, false);
+    setTableRow("rightTcpRow", a.rightTcp, false);
+  } catch (e) {
+    console.warn("pose monitor error:", e);
+  }
+}
+
+async function refreshStatus() {
+  const data = await api("/api/status");
+  setStatus(data);
+  lastStatus = data;
+
+  const a = extractStatusArrays(data);
+  setTableRow("leftJointRow", a.leftJoint, true);
+  setTableRow("rightJointRow", a.rightJoint, true);
+  setTableRow("leftTcpRow", a.leftTcp, false);
+  setTableRow("rightTcpRow", a.rightTcp, false);
+}
+
+function makeDirectInputs(containerId, prefix) {
+  const box = $(containerId);
+  box.innerHTML = "";
+
+  ["J1", "J2", "J3", "J4", "J5", "J6"].forEach((j, i) => {
+    const label = document.createElement("label");
+    label.textContent = j;
+
+    const input = document.createElement("input");
+    input.type = "number";
+    input.step = "0.001";
+    input.className = "num";
+    input.id = `${prefix}-${i}`;
+
+    label.appendChild(input);
+    box.appendChild(label);
+  });
+}
+
+function fillJointInputsFromCurrent() {
+  if (!lastStatus) {
+    alert("ยังไม่มี status จากหุ่น กรุณารอสักครู่");
+    return;
+  }
+
+  const a = extractStatusArrays(lastStatus);
+
+  if (a.leftJoint) {
+    a.leftJoint.slice(0, 6).forEach((v, i) => {
+      $(`left-${i}`).value = fmt(radToDeg(v));
+    });
+  }
+
+  if (a.rightJoint) {
+    a.rightJoint.slice(0, 6).forEach((v, i) => {
+      $(`right-${i}`).value = fmt(radToDeg(v));
+    });
+  }
+}
+
+function collectJointInputs(prefix) {
+  const vals = [];
+
+  for (let i = 0; i < 6; i++) {
+    const el = $(`${prefix}-${i}`);
+    const n = Number(el.value);
+
+    if (!Number.isFinite(n)) {
+      throw new Error(`${prefix} J${i + 1} is empty or invalid`);
+    }
+
+    vals.push(n);
+  }
+
+  return vals;
+}
+
+async function sendDirectJointMove() {
+  const targetSide = $("directSide").value;
+
+  let leftDeg = null;
+  let rightDeg = null;
+
+  try {
+    if (targetSide === "left" || targetSide === "both") leftDeg = collectJointInputs("left");
+    if (targetSide === "right" || targetSide === "both") rightDeg = collectJointInputs("right");
+  } catch (e) {
+    alert(e.message);
+    return;
+  }
+
+  const ok = confirm(
+    "Confirm direct joint move?\n\n" +
+    "Side: " + targetSide + "\n" +
+    "ตรวจสอบพื้นที่หุ่น และเตรียม E-stop ก่อนกด OK"
+  );
+  if (!ok) return;
+
+  const data = await api("/api/direct/joint_move", {
+    method: "POST",
+    headers: {"Content-Type": "application/json"},
+    body: JSON.stringify({
+      side: targetSide,
+      left_deg: leftDeg,
+      right_deg: rightDeg,
+      vel: parseFloat($("moveVel").value),
+      acc: parseFloat($("moveAcc").value)
+    })
+  });
+
+  setStatus(data);
+}
+
+
+function makeTcpInputs(containerId, prefix) {
+  const box = $(containerId);
+  box.innerHTML = "";
+
+  ["X", "Y", "Z", "Rx", "Ry", "Rz"].forEach((name, i) => {
+    const label = document.createElement("label");
+    label.textContent = name;
+
+    const input = document.createElement("input");
+    input.type = "number";
+    input.step = "0.001";
+    input.className = "num";
+    input.id = `${prefix}-${i}`;
+
+    label.appendChild(input);
+    box.appendChild(label);
+  });
+}
+
+function fillTcpInputsFromCurrent() {
+  if (!lastStatus) {
+    alert("ยังไม่มี status จากหุ่น กรุณารอสักครู่");
+    return;
+  }
+
+  const a = extractStatusArrays(lastStatus);
+
+  if (a.leftTcp) {
+    a.leftTcp.slice(0, 6).forEach((v, i) => {
+      $(`leftTcp-${i}`).value = fmt(v);
+    });
+  } else {
+    alert("ยังไม่มีค่า TCP ของ Left จาก /api/status");
+  }
+
+  if (a.rightTcp) {
+    a.rightTcp.slice(0, 6).forEach((v, i) => {
+      $(`rightTcp-${i}`).value = fmt(v);
+    });
+  } else {
+    alert("ยังไม่มีค่า TCP ของ Right จาก /api/status");
+  }
+}
+
+function collectTcpInputs(prefix) {
+  const vals = [];
+
+  for (let i = 0; i < 6; i++) {
+    const el = $(`${prefix}-${i}`);
+    const n = Number(el.value);
+
+    if (!Number.isFinite(n)) {
+      throw new Error(`${prefix} value ${i + 1} is empty or invalid`);
+    }
+
+    vals.push(n);
+  }
+
+  return vals;
+}
+
+async function sendDirectTcpMove() {
+  const targetSide = $("directTcpSide").value;
+
+  let leftPose = null;
+  let rightPose = null;
+
+  try {
+    if (targetSide === "left" || targetSide === "both") leftPose = collectTcpInputs("leftTcp");
+    if (targetSide === "right" || targetSide === "both") rightPose = collectTcpInputs("rightTcp");
+  } catch (e) {
+    alert(e.message);
+    return;
+  }
+
+  const ok = confirm(
+    "Confirm SAFE TCP target?\n\n" +
+    "Method: TCP → IK → Joint Move\n" +
+    "Side: " + targetSide + "\n\n" +
+    "คำแนะนำ: ใช้ Fill Current TCP ก่อน แล้วแก้ค่า X/Y/Z ทีละน้อย เช่น 1-2 mm\n" +
+    "ตรวจสอบพื้นที่หุ่น และเตรียม E-stop ก่อนกด OK"
+  );
+  if (!ok) return;
+
+  const data = await api("/api/direct/tcp_move", {
+    method: "POST",
+    headers: {"Content-Type": "application/json"},
+    body: JSON.stringify({
+      side: targetSide,
+      left_pose: leftPose,
+      right_pose: rightPose,
+      vel: parseFloat($("moveVel").value),
+      acc: parseFloat($("moveAcc").value)
+    })
+  });
+
+  setStatus(data);
+}
+
+
+
+async function saveWaypoint() {
+  const name = $("waypointName").value.trim();
+
+  if (!name) {
+    alert("ใส่ชื่อ waypoint ก่อนครับ");
+    return;
+  }
+
+  const data = await api("/api/waypoint/save", {
+    method: "POST",
+    headers: {"Content-Type": "application/json"},
+    body: JSON.stringify({name, side: "both"})
+  });
+
+  setStatus(data);
+  await loadWaypoints(false);
+}
+
+async function runWaypoint(name) {
+  const ok = confirm("Run waypoint: " + name + " ?");
+  if (!ok) return;
+
+  const data = await api("/api/waypoint/run", {
+    method: "POST",
+    headers: {"Content-Type": "application/json"},
+    body: JSON.stringify({
+      name,
+      side: "both",
+      vel: parseFloat($("moveVel").value),
+      acc: parseFloat($("moveAcc").value)
+    })
+  });
+
+  setStatus(data);
+}
+
+async function deleteWaypoint(name) {
+  const ok = confirm("Delete waypoint: " + name + " ?");
+  if (!ok) return;
+
+  const data = await api("/api/waypoint/delete", {
+    method: "POST",
+    headers: {"Content-Type": "application/json"},
+    body: JSON.stringify({name})
+  });
+
+  setStatus(data);
+  await loadWaypoints(false);
+}
+
+async function loadWaypoints(showLoading=false) {
+  if (waypointLoading) return;
+  waypointLoading = true;
+
+  const box = $("waypointList");
+  if (showLoading) box.textContent = "Loading...";
+
+  try {
+    const data = await api("/api/waypoints");
+    const names = Object.keys(data || {}).sort();
+
+    if (names.length === 0) {
+      box.innerHTML = "<div class='small'>ยังไม่มี waypoint</div>";
+      waypointLoading = false;
+      return;
+    }
+
+    box.innerHTML = "";
+
+    names.forEach(name => {
+      const wp = data[name] || {};
+      const row = document.createElement("div");
+      row.className = "wp-row";
+
+      const title = document.createElement("div");
+      title.innerHTML =
+        `<span class="wp-name">${name}</span>` +
+        `<span class="wp-time">${wp.created_at || ""}</span>`;
+
+      const actions = document.createElement("div");
+      actions.className = "wp-actions";
+
+      const runBtn = document.createElement("button");
+      runBtn.className = "orange";
+      runBtn.textContent = "Run";
+      runBtn.onclick = () => runWaypoint(name);
+
+      const addBtn = document.createElement("button");
+      addBtn.textContent = "Add";
+      addBtn.onclick = () => addToSequence(name);
+
+      const delBtn = document.createElement("button");
+      delBtn.className = "stop";
+      delBtn.textContent = "Delete";
+      delBtn.onclick = () => deleteWaypoint(name);
+
+      actions.appendChild(runBtn);
+      actions.appendChild(addBtn);
+      actions.appendChild(delBtn);
+
+      row.appendChild(title);
+      row.appendChild(actions);
+      box.appendChild(row);
+    });
+  } catch (e) {
+    box.textContent = "Waypoint load error: " + e.message;
+  } finally {
+    waypointLoading = false;
+  }
+}
+
+function normalizeProgramStep(step) {
+  if (typeof step === "string") {
+    return {
+      name: step,
+      side: "both",
+      vel: parseFloat($("moveVel").value),
+      acc: parseFloat($("moveAcc").value),
+      delay: 0
+    };
+  }
+
+  return {
+    name: step.name,
+    side: step.side || "both",
+    vel: Number.isFinite(parseFloat(step.vel)) ? parseFloat(step.vel) : parseFloat($("moveVel").value),
+    acc: Number.isFinite(parseFloat(step.acc)) ? parseFloat(step.acc) : parseFloat($("moveAcc").value),
+    delay: Number.isFinite(parseFloat(step.delay)) ? parseFloat(step.delay) : 0
+  };
+}
+
+function addToSequence(name) {
+  sequence.push({
+    name: name,
+    side: "both",
+    vel: parseFloat($("moveVel").value),
+    acc: parseFloat($("moveAcc").value),
+    delay: 0
+  });
+  renderSequence();
+}
+
+function updateSequenceStep(i, key, value) {
+  sequence = sequence.map(normalizeProgramStep);
+
+  if (!sequence[i]) return;
+
+  if (key === "name" || key === "side") {
+    sequence[i][key] = value;
+  } else {
+    const v = parseFloat(value);
+    sequence[i][key] = Number.isFinite(v) ? v : 0;
+    if (key === "delay" && sequence[i][key] < 0) sequence[i][key] = 0;
+  }
+}
+
+function removeSequenceIndex(i) {
+  sequence.splice(i, 1);
+  renderSequence();
+}
+
+function clearSequence() {
+  sequence = [];
+  renderSequence();
+}
+
+function renderSequence() {
+  const box = $("sequenceList");
+  sequence = sequence.map(normalizeProgramStep);
+
+  if (sequence.length === 0) {
+    box.innerHTML = "<div class='small'>ยังไม่มี step ใน program</div>";
+    return;
+  }
+
+  let html = `
+    <table>
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Waypoint</th>
+          <th>Side</th>
+          <th>Vel</th>
+          <th>Acc</th>
+          <th>Delay after</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody>
+  `;
+
+  sequence.forEach((step, i) => {
+    html += `
+      <tr>
+        <td>${i + 1}</td>
+        <td><b>${step.name}</b></td>
+        <td>
+          <select onchange="updateSequenceStep(${i}, 'side', this.value)">
+            <option value="both" ${step.side === "both" ? "selected" : ""}>both</option>
+            <option value="left" ${step.side === "left" ? "selected" : ""}>left</option>
+            <option value="right" ${step.side === "right" ? "selected" : ""}>right</option>
+          </select>
+        </td>
+        <td>
+          <input class="num" type="number" step="0.1" min="0.02" max="3.0"
+            value="${step.vel}"
+            onchange="updateSequenceStep(${i}, 'vel', this.value)" />
+        </td>
+        <td>
+          <input class="num" type="number" step="0.1" min="0.04" max="3.0"
+            value="${step.acc}"
+            onchange="updateSequenceStep(${i}, 'acc', this.value)" />
+        </td>
+        <td>
+          <input class="num" type="number" step="0.1" min="0" max="30"
+            value="${step.delay}"
+            onchange="updateSequenceStep(${i}, 'delay', this.value)" />
+          <span class="small">s</span>
+        </td>
+        <td>
+          <button class="stop" onclick="removeSequenceIndex(${i})">Remove</button>
+        </td>
+      </tr>
+    `;
+  });
+
+  html += "</tbody></table>";
+  box.innerHTML = html;
+}
+
+function saveProgramLocal() {
+  sequence = sequence.map(normalizeProgramStep);
+  localStorage.setItem("dual_jaka_program", JSON.stringify(sequence));
+  setStatus({
+    ok: true,
+    message: "Program saved to browser localStorage",
+    steps: sequence
+  });
+}
+
+function loadProgramLocal() {
+  const raw = localStorage.getItem("dual_jaka_program");
+  if (!raw) {
+    alert("ยังไม่มี program ที่ save ไว้ใน browser นี้");
+    return;
+  }
+
+  try {
+    sequence = JSON.parse(raw).map(normalizeProgramStep);
+    renderSequence();
+    setStatus({
+      ok: true,
+      message: "Program loaded from browser localStorage",
+      steps: sequence
+    });
+  } catch (e) {
+    alert("Load program failed: " + e.message);
+  }
+}
+
+async function saveProgramFile() {
+  sequence = sequence.map(normalizeProgramStep);
+
+  if (sequence.length === 0) {
+    alert("ยังไม่มี step ใน program");
+    return;
+  }
+
+  const name = ($("programName")?.value || "program").trim();
+
+  const data = await api("/api/program/save", {
+    method: "POST",
+    headers: {"Content-Type": "application/json"},
+    body: JSON.stringify({
+      name: name,
+      steps: sequence
+    })
+  });
+
+  setStatus(data);
+
+  if (data.ok) {
+    await refreshProgramList();
+  makeObjectPoseInputs();
+  refreshObjectList();
+  }
+}
+
+async function refreshProgramList() {
+  const sel = $("programSelect");
+  if (!sel) return;
+
+  const data = await api("/api/program/list");
+  sel.innerHTML = "";
+
+  if (!data.ok) {
+    setStatus(data);
+    return;
+  }
+
+  if (!data.programs || data.programs.length === 0) {
+    const opt = document.createElement("option");
+    opt.value = "";
+    opt.textContent = "(no saved programs)";
+    sel.appendChild(opt);
+    return;
+  }
+
+  data.programs.forEach(item => {
+    const opt = document.createElement("option");
+    opt.value = item.name;
+    opt.textContent = `${item.name} (${item.modified_at})`;
+    sel.appendChild(opt);
+  });
+}
+
+async function loadSelectedProgram() {
+  const sel = $("programSelect");
+  const nameFromSelect = sel ? sel.value : "";
+  const nameFromInput = $("programName") ? $("programName").value.trim() : "";
+
+  const name = nameFromSelect || nameFromInput;
+
+  if (!name) {
+    alert("เลือก program หรือกรอกชื่อ program ก่อน");
+    return;
+  }
+
+  const data = await api("/api/program/load", {
+    method: "POST",
+    headers: {"Content-Type": "application/json"},
+    body: JSON.stringify({name: name})
+  });
+
+  if (!data.ok) {
+    setStatus(data);
+    alert(data.error || "Load program failed");
+    return;
+  }
+
+  sequence = (data.steps || []).map(normalizeProgramStep);
+
+  if ($("programName")) {
+    $("programName").value = data.name || name;
+  }
+
+  renderSequence();
+  setStatus(data);
+}
+
+async function deleteSelectedProgram() {
+  const sel = $("programSelect");
+  const name = sel ? sel.value : "";
+
+  if (!name) {
+    alert("เลือก program ที่จะลบก่อน");
+    return;
+  }
+
+  const ok = confirm("Delete program file: " + name + " ?");
+  if (!ok) return;
+
+  const data = await api("/api/program/delete", {
+    method: "POST",
+    headers: {"Content-Type": "application/json"},
+    body: JSON.stringify({name: name})
+  });
+
+  setStatus(data);
+  await refreshProgramList();
+}
+
+
+function makeObjectPoseInputs() {
+  const labels = ["X", "Y", "Z", "Rx", "Ry", "Rz"];
+  const box = $("objectPoseInputs");
+  if (!box) return;
+
+  box.innerHTML = "";
+
+  labels.forEach((label, i) => {
+    const wrap = document.createElement("div");
+    wrap.className = "target-item";
+
+    const l = document.createElement("label");
+    l.textContent = label;
+
+    const input = document.createElement("input");
+    input.type = "number";
+    input.id = "objectPose" + i;
+    input.step = i < 3 ? "0.1" : "0.001";
+    input.value = "0";
+
+    wrap.appendChild(l);
+    wrap.appendChild(input);
+    box.appendChild(wrap);
+  });
+}
+
+
+function ensureObjectPoseInputs() {
+  const box = $("objectPoseInputs");
+  if (!box) {
+    return false;
+  }
+
+  if (!$("objectPose0")) {
+    makeObjectPoseInputs();
+  }
+
+  return !!$("objectPose0");
+}
+
+function angleMean2(a, b) {
+  return Math.atan2(Math.sin(a) + Math.sin(b), Math.cos(a) + Math.cos(b));
+}
+
+function setObjectPoseInputs(pose) {
+  ensureObjectPoseInputs();
+
+  for (let i = 0; i < 6; i++) {
+    const el = $("objectPose" + i);
+    if (!el) continue;
+    el.value = Number(pose[i]).toFixed(i < 3 ? 3 : 6);
+  }
+}
+
+function collectObjectPoseInputs() {
+  ensureObjectPoseInputs();
+
+  const pose = [];
+
+  for (let i = 0; i < 6; i++) {
+    const el = $("objectPose" + i);
+    if (!el) throw new Error("Object pose input missing: " + i);
+
+    const v = parseFloat(el.value);
+    if (!Number.isFinite(v)) {
+      throw new Error("Object pose value invalid at index " + i);
+    }
+
+    pose.push(v);
+  }
+
+  return pose;
+}
+
+async function fillObjectPoseFromMidpoint() {
+  ensureObjectPoseInputs();
+
+  const data = await api("/api/status");
+
+  const left = data?.left?.tcp;
+  const right = data?.right?.tcp;
+
+  if (!Array.isArray(left) || left.length < 6) {
+    alert("left TCP missing");
+    return;
+  }
+
+  if (!Array.isArray(right) || right.length < 6) {
+    alert("right TCP missing");
+    return;
+  }
+
+  const pose = [
+    (left[0] + right[0]) / 2.0,
+    (left[1] + right[1]) / 2.0,
+    (left[2] + right[2]) / 2.0,
+    angleMean2(left[3], right[3]),
+    angleMean2(left[4], right[4]),
+    angleMean2(left[5], right[5]),
+  ];
+
+  setObjectPoseInputs(pose);
+
+  $("objectFrameView").textContent =
+    "Filled object pose from midpoint of current left/right TCP.\\n" +
+    "ยังไม่ได้ save จนกว่าจะกด Capture & Save Object Frame";
+}
+
+
+
+function resetObjectPoseToCaptured() {
+  if (!latestLoadedObjectFrame || !Array.isArray(latestLoadedObjectFrame.object_pose)) {
+    alert("ยังไม่มี object frame ที่ load/capture ไว้");
+    return;
+  }
+
+  setObjectPoseInputs(latestLoadedObjectFrame.object_pose);
+
+  $("objectFrameView").textContent =
+    "Reset target object pose to captured object_pose.\\n\\n" +
+    JSON.stringify({
+      object: latestLoadedObjectFrame.name || latestLoadedObjectFrame.object || latestLoadedObjectFrame.file,
+      object_pose: latestLoadedObjectFrame.object_pose
+    }, null, 2);
+}
+
+async function previewObjectTargets() {
+  const sel = $("objectSelect");
+  const selectedName = sel ? sel.value : "";
+  const inputName = $("objectName") ? $("objectName").value.trim() : "";
+  const name = selectedName || inputName;
+
+  if (!name) {
+    alert("เลือก object หรือกรอก object name ก่อน");
+    return;
+  }
+
+  let targetPose = null;
+  try {
+    targetPose = collectObjectPoseInputs();
+  } catch (e) {
+    alert(e.message);
+    return;
+  }
+
+  const data = await api("/api/object/preview_targets", {
+    method: "POST",
+    headers: {"Content-Type": "application/json"},
+    body: JSON.stringify({
+      name: name,
+      target_object_pose: targetPose
+    })
+  });
+
+  $("objectFrameView").textContent = JSON.stringify(data, null, 2);
+  setStatus(data);
+}
+
+
+async function captureObjectFrameCurrent() {
+  ensureObjectPoseInputs();
+
+  const name = ($("objectName")?.value || "demo_object").trim();
+
+  let objectPose = null;
+  try {
+    objectPose = collectObjectPoseInputs();
+  } catch (e) {
+    alert(e.message);
+    return;
+  }
+
+  const ok = confirm(
+    "Capture object frame?\\n\\n" +
+    "Name: " + name + "\\n" +
+    "ระบบจะอ่าน TCP ปัจจุบันของ left/right แล้วคำนวณ grasp offset\\n\\n" +
+    "ขั้นนี้ไม่สั่งหุ่นเคลื่อนที่"
+  );
+
+  if (!ok) return;
+
+  const data = await api("/api/object/capture_current", {
+    method: "POST",
+    headers: {"Content-Type": "application/json"},
+    body: JSON.stringify({
+      name: name,
+      object_pose: objectPose
+    })
+  });
+
+  $("objectFrameView").textContent = JSON.stringify(data, null, 2);
+  setStatus(data);
+
+  if (data.ok) {
+    latestLoadedObjectFrame = data;
+    if (Array.isArray(data.object_pose)) {
+      setObjectPoseInputs(data.object_pose);
+    }
+    await refreshObjectList();
+  }
+}
+
+async function refreshObjectList() {
+  const sel = $("objectSelect");
+  if (!sel) return;
+
+  const data = await api("/api/object/list");
+  sel.innerHTML = "";
+
+  if (!data.ok) {
+    setStatus(data);
+    return;
+  }
+
+  if (!data.objects || data.objects.length === 0) {
+    const opt = document.createElement("option");
+    opt.value = "";
+    opt.textContent = "(no saved objects)";
+    sel.appendChild(opt);
+    return;
+  }
+
+  data.objects.forEach(item => {
+    const opt = document.createElement("option");
+    opt.value = item.name;
+    opt.textContent = `${item.name} (${item.modified_at})`;
+    sel.appendChild(opt);
+  });
+}
+
+async function loadSelectedObjectFrame() {
+  const sel = $("objectSelect");
+  const name = sel ? sel.value : "";
+
+  if (!name) {
+    alert("เลือก object ก่อน");
+    return;
+  }
+
+  const data = await api("/api/object/load", {
+    method: "POST",
+    headers: {"Content-Type": "application/json"},
+    body: JSON.stringify({name: name})
+  });
+
+  $("objectFrameView").textContent = JSON.stringify(data, null, 2);
+  setStatus(data);
+
+  if (data.ok && Array.isArray(data.object_pose)) {
+    latestLoadedObjectFrame = data;
+    setObjectPoseInputs(data.object_pose);
+    if ($("objectName")) $("objectName").value = data.name || name;
+  }
+}
+
+async function deleteSelectedObjectFrame() {
+  const sel = $("objectSelect");
+  const name = sel ? sel.value : "";
+
+  if (!name) {
+    alert("เลือก object ที่จะลบก่อน");
+    return;
+  }
+
+  const ok = confirm("Delete object frame: " + name + " ?");
+  if (!ok) return;
+
+  const data = await api("/api/object/delete", {
+    method: "POST",
+    headers: {"Content-Type": "application/json"},
+    body: JSON.stringify({name: name})
+  });
+
+  $("objectFrameView").textContent = JSON.stringify(data, null, 2);
+  setStatus(data);
+  await refreshObjectList();
+}
+
+
+async function runSequence() {
+  sequence = sequence.map(normalizeProgramStep);
+
+  if (sequence.length === 0) {
+    alert("ยังไม่มี waypoint ใน program");
+    return;
+  }
+
+  const summary = sequence.map((s, i) => {
+    return `${i + 1}. ${s.name} [${s.side}] v=${s.vel} a=${s.acc} delay=${s.delay}s`;
+  }).join("\n");
+
+  const ok = confirm(
+    "Run program?\n\n" +
+    summary + "\n\n" +
+    "ตรวจสอบพื้นที่หุ่น และเตรียม E-stop ก่อนกด OK"
+  );
+
+  if (!ok) return;
+
+  const data = await api("/api/program/run", {
+    method: "POST",
+    headers: {"Content-Type": "application/json"},
+    body: JSON.stringify({
+      side: "both",
+      vel: parseFloat($("moveVel").value),
+      acc: parseFloat($("moveAcc").value),
+      steps: sequence
+    })
+  });
+
+  setStatus(data);
+}
+
+
+function init() {
+  makeDirectInputs("leftJointInputs", "left");
+  makeDirectInputs("rightJointInputs", "right");
+  makeTcpInputs("leftTcpInputs", "leftTcp");
+  makeTcpInputs("rightTcpInputs", "rightTcp");
+
+  setSide("both");
+  setCoord("base");
+  buildButtons();
+  renderSequence();
+
+  loadWaypoints(true);
+  refreshStatus();
+
+  setInterval(refreshPoseMonitor, 500);
+}
+
+init();
+
+// D32_OBJECT_POSE_DOM_READY_HOTFIX
+document.addEventListener("DOMContentLoaded", () => {
+  try {
+    ensureObjectPoseInputs();
+    if (typeof refreshObjectList === "function") {
+      refreshObjectList();
+    }
+  } catch (e) {
+    console.warn("Object pose init skipped:", e);
+  }
+});
+
+</script>
+</body>
+</html>

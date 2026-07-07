@@ -1,0 +1,58 @@
+----- LEFT JOINT -----
+header:
+  stamp:
+    sec: 1782116253
+    nanosec: 713093626
+  frame_id: ''
+name:
+- joint_1
+- joint_2
+- joint_3
+- joint_4
+- joint_5
+- joint_6
+position:
+- 2.8181028366088863
+- 0.6005005240440368
+- -1.7843303680419924
+- 1.3221564292907713
+- 0.2156650573015213
+- 1.0896085500717163
+velocity: []
+effort: []
+---
+----- RIGHT JOINT -----
+header:
+  stamp:
+    sec: 1782116254
+    nanosec: 807230368
+  frame_id: ''
+name:
+- joint_1
+- joint_2
+- joint_3
+- joint_4
+- joint_5
+- joint_6
+position:
+- 0.3300157189369201
+- 2.253940582275391
+- 1.5918420553207397
+- -1.3463665246963503
+- 3.300674200057982
+- 0.7286149859428406
+velocity: []
+effort: []
+---
+----- LEFT STATE -----
+motion_state: 0
+power_state: 1
+servo_state: 1
+collision_state: 0
+---
+----- RIGHT STATE -----
+motion_state: 0
+power_state: 1
+servo_state: 1
+collision_state: 0
+---

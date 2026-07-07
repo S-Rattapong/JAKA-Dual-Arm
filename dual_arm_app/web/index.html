@@ -1,0 +1,3492 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <title>Dual JAKA A12 Control</title>
+
+  <style>
+    :root {
+      --bg: #111827;
+      --panel: #1f2937;
+      --panel2: #0f172a;
+      --line: #374151;
+      --text: #e5e7eb;
+      --muted: #9ca3af;
+      --blue: #2563eb;
+      --green: #059669;
+      --orange: #d97706;
+      --red: #dc2626;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      margin: 0;
+      padding: 16px;
+    }
+
+    h1, h2, h3 {
+      margin-top: 0;
+    }
+
+    h1 {
+      margin-bottom: 14px;
+      font-size: 26px;
+    }
+
+    h2 {
+      font-size: 22px;
+      margin-bottom: 12px;
+    }
+
+    h3 {
+      font-size: 16px;
+      margin: 12px 0 8px;
+      color: #f9fafb;
+    }
+
+    .panel {
+      background: var(--panel);
+      border-radius: 12px;
+      padding: 16px;
+      margin-bottom: 14px;
+      border: 1px solid rgba(255,255,255,0.03);
+    }
+
+    .top-grid {
+      display: grid;
+      grid-template-columns: 1.1fr 0.9fr;
+      gap: 14px;
+      align-items: start;
+    }
+
+    .two-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+      align-items: start;
+    }
+
+    .row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin: 8px 0;
+      align-items: center;
+    }
+
+    .small {
+      font-size: 13px;
+      color: var(--muted);
+    }
+
+    button {
+      border: none;
+      border-radius: 8px;
+      padding: 10px 14px;
+      background: #374151;
+      color: white;
+      font-size: 15px;
+      cursor: pointer;
+      min-width: 74px;
+      user-select: none;
+      touch-action: none;
+    }
+
+    button:hover {
+      background: #4b5563;
+    }
+
+    button.active {
+      background: var(--blue);
+    }
+
+    button.green {
+      background: var(--green);
+    }
+
+    button.green:hover {
+      background: #047857;
+    }
+
+    button.orange {
+      background: var(--orange);
+    }
+
+    button.orange:hover {
+      background: #b45309;
+    }
+
+    button.stop {
+      background: var(--red);
+      font-weight: bold;
+      min-width: 140px;
+    }
+
+    button.stop:hover {
+      background: #b91c1c;
+    }
+
+    select, input {
+      padding: 8px;
+      border-radius: 6px;
+      border: 1px solid #4b5563;
+      background: var(--bg);
+      color: white;
+    }
+
+    input.num {
+      width: 78px;
+      text-align: right;
+    }
+
+    input.wide {
+      min-width: 280px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+    }
+
+    th, td {
+      border: 1px solid #334155;
+      padding: 5px 6px;
+      text-align: center;
+    }
+
+    th {
+      background: #111827;
+      color: #cbd5e1;
+    }
+
+    td {
+      background: #0b1120;
+    }
+
+    .jog-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    .jog-section {
+      background: var(--panel2);
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      padding: 10px;
+    }
+
+    .jog-row {
+      display: grid;
+      grid-template-columns: 54px 1fr 1fr;
+      gap: 6px;
+      align-items: center;
+      margin: 6px 0;
+    }
+
+    .jog-label {
+      color: var(--muted);
+      font-weight: bold;
+      text-align: center;
+    }
+
+    .direct-inputs {
+      display: grid;
+      grid-template-columns: repeat(6, minmax(72px, 1fr));
+      gap: 6px;
+    }
+
+    .direct-inputs label {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    .wp-list {
+      display: flex;
+      flex-direction: column;
+      gap: 7px;
+      margin-top: 10px;
+    }
+
+    .wp-row {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 10px;
+      align-items: center;
+      padding: 8px 10px;
+      border: 1px solid #41485f;
+      border-radius: 8px;
+      background: var(--panel2);
+    }
+
+    .wp-name {
+      font-weight: 700;
+    }
+
+    .wp-time {
+      font-size: 12px;
+      color: var(--muted);
+      margin-left: 6px;
+      font-weight: 400;
+    }
+
+    .wp-actions {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+
+    .sequence-box {
+      background: var(--panel2);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 10px;
+      min-height: 52px;
+    }
+
+    .seq-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 0;
+      border-bottom: 1px solid #263244;
+    }
+
+    .seq-row:last-child {
+      border-bottom: none;
+    }
+
+    pre {
+      background: #0b1120;
+      padding: 12px;
+      border-radius: 8px;
+      overflow: auto;
+      max-height: 260px;
+      border: 1px solid var(--line);
+    }
+
+    @media (max-width: 1200px) {
+      .top-grid,
+      .two-grid,
+      .jog-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 700px) {
+      .direct-inputs {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      .wp-row {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <h1>Dual JAKA A12 Control</h1>
+
+  <div class="top-grid">
+    <div class="panel">
+      <h2>Live Position / Direct Move</h2>
+
+      <div class="two-grid">
+        <div>
+          <h3>Left Robot</h3>
+          <table>
+            <tr><th>J1°</th><th>J2°</th><th>J3°</th><th>J4°</th><th>J5°</th><th>J6°</th></tr>
+            <tr id="leftJointRow"><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td></tr>
+            <tr><th>X</th><th>Y</th><th>Z</th><th>Rx</th><th>Ry</th><th>Rz</th></tr>
+            <tr id="leftTcpRow"><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td></tr>
+          </table>
+        </div>
+
+        <div>
+          <h3>Right Robot</h3>
+          <table>
+            <tr><th>J1°</th><th>J2°</th><th>J3°</th><th>J4°</th><th>J5°</th><th>J6°</th></tr>
+            <tr id="rightJointRow"><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td></tr>
+            <tr><th>X</th><th>Y</th><th>Z</th><th>Rx</th><th>Ry</th><th>Rz</th></tr>
+            <tr id="rightTcpRow"><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td></tr>
+          </table>
+        </div>
+      </div>
+
+      <h3>Direct Joint Move</h3>
+      <div class="small">กรอกค่า Joint เป็นองศา แล้วกด Confirm เพื่อสั่งหุ่นเคลื่อนที่</div>
+
+      <div class="row">
+        <label>Target side:
+          <select id="directSide">
+            <option value="both">Both</option>
+            <option value="left">Left</option>
+            <option value="right">Right</option>
+          </select>
+        </label>
+
+        <button onclick="fillJointInputsFromCurrent()">Fill Current</button>
+        <button class="orange" onclick="sendDirectJointMove()">Confirm Joint Move</button>
+        <button class="stop" onclick="stopBoth()">STOP BOTH</button>
+      </div>
+
+      <div class="two-grid">
+        <div>
+          <h3>Left Target (deg)</h3>
+          <div class="direct-inputs" id="leftJointInputs"></div>
+        </div>
+        <div>
+          <h3>Right Target (deg)</h3>
+          <div class="direct-inputs" id="rightJointInputs"></div>
+        </div>
+      </div>
+
+
+      <h3>Direct TCP Move</h3>
+      <div class="small">
+        Safe TCP Move ใช้หลักการ TCP → IK → Joint Move ดังนั้นความเร็วจะอิงจาก Move vel / Move acc ด้านบน ไม่ใช้ linear_move โดยตรง
+      </div>
+
+      <div class="row">
+        <label>Target side:
+          <select id="directTcpSide">
+            <option value="both">Both</option>
+            <option value="left">Left</option>
+            <option value="right">Right</option>
+          </select>
+        </label>
+    <button onclick="fillTcpInputsFromCurrent()">Fill Current TCP</button>
+        <button class="orange" onclick="sendDirectTcpMove()">Confirm Safe TCP Move</button>
+        <button class="stop" onclick="stopBoth()">STOP BOTH</button>
+      </div>
+
+      <div class="two-grid">
+        <div>
+          <h3>Left TCP Target</h3>
+          <div class="direct-inputs" id="leftTcpInputs"></div>
+        </div>
+        <div>
+          <h3>Right TCP Target</h3>
+          <div class="direct-inputs" id="rightTcpInputs"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <h2>Dual JAKA A12 Manual Jog</h2>
+
+      <div class="row">
+        <strong>Robot:</strong>
+        <button id="side-left" onclick="setSide('left')">Left</button>
+        <button id="side-right" onclick="setSide('right')">Right</button>
+        <button id="side-both" onclick="setSide('both')">Both</button>
+      </div>
+
+      <div class="row">
+        <strong>Mode:</strong>
+        <button id="coord-joint" onclick="setCoord('joint')">Joint</button>
+        <button id="coord-base" onclick="setCoord('base')">Base TCP</button>
+        <button id="coord-tool" onclick="setCoord('tool')">Tool TCP</button>
+      </div>
+
+      <div class="row">
+        <strong>Both Sync:</strong>
+        <select id="syncMode">
+          <option value="same">Same</option>
+          <option value="mirror">Mirror</option>
+          <option value="raw">Raw</option>
+        </select>
+      </div>
+
+      <div class="row">
+        <label>Linear:</label>
+        <input id="linearSpeed" type="number" value="5" step="1" min="1" max="50" class="num" />
+        <label>Rotate:</label>
+        <input id="rotateSpeed" type="number" value="2" step="0.5" min="0.5" max="20" class="num" />
+        <label>Joint:</label>
+        <input id="jointSpeed" type="number" value="0.03" step="0.01" min="0.005" max="0.2" class="num" />
+      </div>
+
+      <div class="row">
+        <label>Move vel:</label>
+        <input id="moveVel" type="number" value="2.0" step="0.1" min="0.02" max="3.0" class="num" />
+        <label>Move acc:</label>
+        <input id="moveAcc" type="number" value="1.2" step="0.1" min="0.04" max="3.0" class="num" />
+      </div>
+
+      <div class="row">
+        <button class="stop" onclick="stopBoth()">STOP BOTH</button>
+        <button class="green" onclick="homeBoth()">Home Both</button>
+        <button onclick="refreshStatus()">Refresh Status</button>
+      </div>
+
+      <div class="jog-grid">
+        <div class="jog-section">
+          <h3>Joint Jog</h3>
+          <div id="jointButtons"></div>
+        </div>
+
+        <div class="jog-section">
+          <h3>TCP Jog 6 Axis</h3>
+          <div id="tcpButtons"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="panel">
+    <h2>Waypoint Manager</h2>
+
+    <div class="row">
+      <input id="waypointName" class="wide" placeholder="waypoint name เช่น p1_pre_grasp" />
+      <button class="green" onclick="saveWaypoint()">Save Current</button>
+      <button onclick="loadWaypoints(true)">Reload List</button>
+    </div>
+
+    <div id="waypointList" class="wp-list">Loading...</div>
+  </div>
+
+  <div class="two-grid">
+    <div class="panel">
+      <h2>Program / Sequence</h2>
+      <div class="small">กด Add จาก Waypoint Manager เพื่อเรียงลำดับงาน</div>
+
+      <div class="row" style="margin-top: 10px;">
+        <label>Program name:</label>
+        <input id="programName" type="text" value="demo_pick_place" style="min-width: 180px;" />
+        <button onclick="saveProgramFile()">Save File</button>
+        <button onclick="refreshProgramList()">Refresh List</button>
+        <select id="programSelect" style="min-width: 180px;"></select>
+        <button onclick="loadSelectedProgram()">Load File</button>
+        <button class="stop" onclick="deleteSelectedProgram()">Delete File</button>
+      </div>
+
+      <div id="sequenceList" class="sequence-box"></div>
+
+      <div class="row">
+        <button class="green" onclick="runSequence()">Run Program</button>
+        <button onclick="saveProgramFile()">Save Program</button>
+        <button onclick="loadSelectedProgram()">Load Program</button>
+        <button onclick="clearSequence()">Clear Sequence</button>
+        <button class="stop" onclick="stopBoth()">STOP BOTH</button>
+      </div>
+    </div>
+
+    <div class="panel">
+      
+    <div class="card">
+      
+  <section class="card">
+    <h2>D32.5C Servo Smooth Motion Test</h2>
+    <p class="hint">
+      Servo mode ใช้ทดสอบ motion แบบ smooth ในอนาคต รอบแรกให้ทดสอบ Tiny Servo กับแขนเดียวก่อน
+    </p>
+
+    <div class="row">
+      <label>Servo side:</label>
+      <select id="servoSide">
+        <option value="left" selected>left</option>
+        <option value="right">right</option>
+        <option value="both">both</option>
+      </select>
+
+      <label>Joint:</label>
+      <select id="servoJointIndex">
+        <option value="0">J1</option>
+        <option value="1">J2</option>
+        <option value="2">J3</option>
+        <option value="3">J4</option>
+        <option value="4">J5</option>
+        <option value="5" selected>J6</option>
+      </select>
+
+      <label>Delta rad:</label>
+      <input id="servoDelta" type="number" value="0.0005" step="0.0001" class="num" />
+
+      <label>Repeats:</label>
+      <input id="servoRepeats" type="number" value="1" step="1" min="1" max="20" class="num" />
+    </div>
+
+    <div class="row">
+      <button onclick="enableServoSelected(true)">Enable Servo</button>
+      <button onclick="enableServoSelected(false)">Disable Servo</button>
+      <button class="orange" onclick="servoTinyTest()">Tiny Servo Test</button>
+    </div>
+  </section>
+
+<h2>D32 Object Frame / Cooperative Setup</h2>
+      <div class="small">
+        ขั้นนี้ยังไม่สั่งหุ่นเคลื่อนที่ ใช้สำหรับบันทึก object frame และ grasp offset ของ TCP ซ้าย/ขวา
+      </div>
+      <div class="small" style="margin-top: 6px; color: #f59e0b;">
+        Safety note: After Home/Jog/Stop/manual reposition, click Sync Current From Live TCP before executing object motion.
+      </div>
+      <div class="small" style="margin-top: 6px; color: #f59e0b;">
+        D33 Safety: max translation 30 mm, max rotation 0.12 rad per execute. Use Sync Current From Live TCP after Home/Jog/Stop/manual reposition.
+      </div>
+
+      <div class="row" style="margin-top: 10px;">
+        <label>Object name:</label>
+        <input id="objectName" type="text" value="demo_object" style="min-width: 180px;" />
+        <button onclick="fillObjectPoseFromMidpoint()">Fill Object From TCP Midpoint</button>
+        <button onclick="captureObjectFrameCurrent()">Capture & Save Object Frame</button>
+        <button class="orange" onclick="validateObjectTarget()">Validate Target</button>
+        <button class="orange" onclick="validateObjectIkJump()">Validate IK Jump</button>
+        <button class="orange" onclick="previewObjectTargets()">Preview Cooperative Targets</button>
+        <button class="green" onclick="executeObjectMove()">Execute Cooperative Move</button>
+        <button onclick="resetObjectPoseToCaptured()">Reset Target To Captured Pose</button>
+        <button onclick="resetObjectPoseToCurrent()">Reset Target To Stored Current Pose</button>
+        <button class="orange" onclick="syncCurrentObjectPoseFromLive()">Sync Current From Live TCP</button>
+        <button onclick="setCurrentObjectPoseFromInputs()">Set Current Object Pose = Inputs</button>
+        <button onclick="refreshObjectList()">Refresh Objects</button>
+      </div>
+
+      <h3>Object Pose Target / Capture Reference</h3>
+      <div class="row">
+        <label>Interp steps:</label>
+        <input id="objectInterpSteps" type="number" value="10" step="1" min="1" max="100" class="num" />
+        <label>Step delay:</label>
+        <input id="objectInterpDelay" type="number" value="0.02" step="0.01" min="0" max="2" class="num" />
+        <button class="green" onclick="executeObjectInterpolatedMove()">Execute Interpolated Move</button>
+      </div>
+      <div class="row">
+        <label>Servo steps:</label>
+        <input id="objectServoSteps" type="number" value="120" step="1" min="10" max="500" class="num" />
+        <label>Servo interval:</label>
+        <input id="objectServoInterval" type="number" value="0.025" step="0.001" min="0.008" max="0.2" class="num" />
+        <button class="green" onclick="executeObjectServoStream()">Execute Servo Smooth Move</button>
+      </div>
+
+      <div id="objectPoseInputs" class="targets"></div>
+
+      <div class="row" style="margin-top: 10px;">
+        <select id="objectSelect" style="min-width: 220px;"></select>
+        <button onclick="loadSelectedObjectFrame()">Load Object</button>
+        <button class="stop" onclick="deleteSelectedObjectFrame()">Delete Object</button>
+      </div>
+
+      <h3>D35 Object Frame Calibration</h3>
+      <div class="small" style="margin-top: 6px; color: #f59e0b;">
+        Move the robot manually/jog to touch the selected physical point, then click Capture. This does not move the robot. Existing Execute still uses legacy frame until D35.6.
+      </div>
+      <div class="row" style="margin-top: 10px;">
+        <label>Object: <input id="d35ObjectName" value="Test2" style="width:120px; margin-right:12px;">
+Capture source:</label>
+        <select id="calibrationSource">
+          <option value="left_tcp">left_tcp</option>
+          <option value="right_tcp">right_tcp</option>
+          <option value="midpoint">midpoint</option>
+        </select>
+        <button onclick="captureCalibrationPoint('origin')">Capture Origin</button>
+        <button onclick="captureCalibrationPoint('x_axis')">Capture X Axis Point</button>
+        <button onclick="captureCalibrationPoint('y_helper')">Capture Y Helper Point</button>
+      </div>
+      <div class="row">
+        <label>Axis length mm:</label>
+        <input id="calibrationAxisLength" type="number" value="100" step="10" min="10" max="1000" class="num" />
+        <button class="orange" onclick="computeCalibratedObjectFrame()">Compute Calibrated Object Frame</button>
+        <button onclick="showCalibrationStatus()">Show Calibration Status</button>
+        <button onclick="previewCalibratedAxes()">Preview Calibrated Axes</button>
+      </div>
+      <pre id="calibrationView" class="statusbox">Calibration not loaded yet.</pre>
+
+      <h3>D35.5A World/Base Calibration</h3>
+      <div class="small" style="margin-top: 6px; color: #f59e0b;">
+        Move each robot TCP manually/jog to touch the SAME physical point, then capture left/right for that point. This does not move the robot. Existing Execute still uses legacy frame until D35.6.
+      </div>
+      <div class="row" style="margin-top: 10px;">
+        <button onclick="captureWorldCalibrationPoint('origin', 'left')">Capture Origin Left</button>
+        <button onclick="captureWorldCalibrationPoint('origin', 'right')">Capture Origin Right</button>
+        <button onclick="captureWorldCalibrationPoint('x_axis', 'left')">Capture X Axis Left</button>
+        <button onclick="captureWorldCalibrationPoint('x_axis', 'right')">Capture X Axis Right</button>
+        <button onclick="captureWorldCalibrationPoint('y_helper', 'left')">Capture Y Helper Left</button>
+        <button onclick="captureWorldCalibrationPoint('y_helper', 'right')">Capture Y Helper Right</button>
+      </div>
+      <div class="row">
+        <button class="orange" onclick="computeWorldCalibrationTransform()">Compute World Transform</button>
+        <button onclick="showWorldCalibrationStatus()">Show World Calibration Status</button>
+        <button onclick="previewLiveWorldTransform()">Preview Live World Transform</button>
+      </div>
+
+      <h3>D35.5B Calibrated Rigid Preview With World Transform</h3>
+      <div class="small" style="margin-top: 6px; color: #f59e0b;">
+        Preview only. No motion is sent. Existing Execute still uses legacy frame until D35.6.
+      </div>
+      <div class="row" style="margin-top: 10px;">
+        <label>Object:</label>
+        <input id="d355ObjectName" value="Test1" style="width:120px;">
+        <label>dx:</label><input id="d355Dx" type="number" value="0" step="1" class="num">
+        <label>dy:</label><input id="d355Dy" type="number" value="0" step="1" class="num">
+        <label>dz:</label><input id="d355Dz" type="number" value="0" step="1" class="num">
+        <label>drx:</label><input id="d355Drx" type="number" value="0" step="0.01" class="num">
+        <label>dry:</label><input id="d355Dry" type="number" value="0" step="0.01" class="num">
+        <label>drz:</label><input id="d355Drz" type="number" value="0.10" step="0.01" class="num">
+      </div>
+      <div class="row">
+        <button class="orange" onclick="previewCalibratedRigidWithWorldTransform()">Preview Calibrated Rigid With World Transform</button>
+      </div>
+
+      <h3>D35.5D IK / Joint Jump Validation</h3>
+      <div class="small" style="margin-top: 6px; color: #f59e0b;">
+        This validation calls IK only. It does not move the robot. Do not execute calibrated rigid motion until IK validation passes.
+      </div>
+      <div class="row" style="margin-top: 10px;">
+        <label>Object:</label>
+        <input id="d355dObjectName" value="Test1" style="width:120px;">
+        <label>dx:</label><input id="d355dDx" type="number" value="0" step="1" class="num">
+        <label>dy:</label><input id="d355dDy" type="number" value="0" step="1" class="num">
+        <label>dz:</label><input id="d355dDz" type="number" value="0" step="1" class="num">
+        <label>drx:</label><input id="d355dDrx" type="number" value="0" step="0.01" class="num">
+        <label>dry:</label><input id="d355dDry" type="number" value="0" step="0.01" class="num">
+        <label>drz:</label><input id="d355dDrz" type="number" value="0.10" step="0.01" class="num">
+      </div>
+      <div class="row">
+        <label>max joint delta rad:</label>
+        <input id="d355dMaxJointDelta" type="number" value="0.35" step="0.01" min="0" class="num">
+        <label>max sum rad:</label>
+        <input id="d355dMaxJointDeltaSum" type="number" value="1.2" step="0.05" min="0" class="num">
+        <button class="orange" onclick="validateCalibratedWorldIk()">Validate Calibrated World IK</button>
+      </div>
+
+      <h3>D35.6 Calibrated World Rigid Execute</h3>
+      <div class="small" style="margin-top: 6px; color: #ef4444; font-weight: 700;">
+        WARNING: This can move the real robots. Start with +Z 2 mm only. Keep E-stop ready.
+      </div>
+      <div class="row" style="margin-top: 10px;">
+        <label>Object:</label>
+        <input id="d356ObjectName" value="Test1" style="width:120px;">
+        <label>dx:</label><input id="d356Dx" type="number" value="0" step="1" class="num">
+        <label>dy:</label><input id="d356Dy" type="number" value="0" step="1" class="num">
+        <label>dz:</label><input id="d356Dz" type="number" value="2" step="1" class="num">
+        <label>drx:</label><input id="d356Drx" type="number" value="0" step="0.005" class="num">
+        <label>dry:</label><input id="d356Dry" type="number" value="0" step="0.005" class="num">
+        <label>drz:</label><input id="d356Drz" type="number" value="0" step="0.005" class="num">
+      </div>
+      <div class="row">
+        <label><input id="d356DryRun" type="checkbox" checked> dry_run</label>
+        <label>confirm_execute:</label>
+        <input id="d356Confirm" value="" style="width:300px;">
+        <label>speed_scale:</label>
+        <input id="d356SpeedScale" type="number" value="0.03" step="0.005" min="0" max="0.05" class="num">
+      </div>
+      <div class="row">
+        <label>max translation mm:</label>
+        <input id="d356MaxTranslation" type="number" value="5.0" step="0.5" min="0" max="10" class="num">
+        <label>max rotation rad:</label>
+        <input id="d356MaxRotation" type="number" value="0.02" step="0.005" min="0" max="0.05" class="num">
+        <label>max joint rad:</label>
+        <input id="d356MaxJointDelta" type="number" value="0.12" step="0.01" min="0" max="0.2" class="num">
+        <label>max sum rad:</label>
+        <input id="d356MaxJointDeltaSum" type="number" value="0.35" step="0.05" min="0" max="0.6" class="num">
+      </div>
+      <div class="row">
+        <button class="orange" onclick="runD356CalibratedWorldRigid(true)">Dry Run D35.6</button>
+        <button class="stop" onclick="runD356CalibratedWorldRigid(false)">Execute D35.6</button>
+      </div>
+
+      <h3>D35.6A Verified Object Pose Commit</h3>
+      <div class="small" style="margin-top: 6px; color: #f59e0b; font-weight: 700;">
+        This does not move the robot. It only verifies live TCP after the last execute and updates the stored object pose if verified.
+      </div>
+      <div class="row" style="margin-top: 10px;">
+        <label>Object:</label>
+        <input id="d356aObjectName" value="Test1" style="width:120px;">
+        <label>position tol mm:</label>
+        <input id="d356aPositionTolerance" type="number" value="1.5" step="0.1" min="0" class="num">
+        <label>orientation tol rad:</label>
+        <input id="d356aOrientationTolerance" type="number" value="0.05" step="0.005" min="0" class="num">
+      </div>
+      <div class="row">
+        <label>confirm_commit:</label>
+        <input id="d356aConfirmCommit" value="" style="width:320px;">
+      </div>
+      <div class="row">
+        <button class="orange" onclick="d356aPendingCommitStatus()">Pending Commit Status</button>
+        <button class="orange" onclick="d356aVerifyPendingExecute()">Verify Pending Execute</button>
+        <button class="stop" onclick="d356aCommitVerifiedObjectPose()">Commit Verified Object Pose</button>
+      </div>
+
+      <h3>D35.6A-R Recover Pending Commit</h3>
+      <div class="small" style="margin-top: 6px; color: #f59e0b; font-weight: 700;">
+        Recovery only. This does not move the robot. Use it when a calibrated execute happened before pending commit tracking existed.
+      </div>
+      <div class="row" style="margin-top: 10px;">
+        <label>Object:</label>
+        <input id="d356arObjectName" value="Test1" style="width:120px;">
+        <label>dx:</label><input id="d356arDx" type="number" value="0" step="1" class="num">
+        <label>dy:</label><input id="d356arDy" type="number" value="0" step="1" class="num">
+        <label>dz:</label><input id="d356arDz" type="number" value="2" step="1" class="num">
+        <label>drx:</label><input id="d356arDrx" type="number" value="0" step="0.005" class="num">
+        <label>dry:</label><input id="d356arDry" type="number" value="0" step="0.005" class="num">
+        <label>drz:</label><input id="d356arDrz" type="number" value="0" step="0.005" class="num">
+      </div>
+      <div class="row">
+        <label>confirm_recover:</label>
+        <input id="d356arConfirmRecover" value="" style="width:360px;">
+        <button class="orange" onclick="d356arRecoverPendingCommit()">Recover Pending Commit</button>
+      </div>
+
+      <h3>D35.7 Large Calibrated World Rigid Execute</h3>
+      <div class="small" style="margin-top: 6px; color: #ef4444; font-weight: 700;">
+        WARNING: This mode can move the real robots with larger object-frame motion. Recommended first large test: +Z 50 mm with segmentation 10 mm. Keep E-stop ready. Verify and commit after execution.
+      </div>
+      <div class="row" style="margin-top: 10px;">
+        <label>Object:</label>
+        <input id="d357ObjectName" value="Test1" style="width:120px;">
+        <label>dx:</label><input id="d357Dx" type="number" value="0" step="1" class="num">
+        <label>dy:</label><input id="d357Dy" type="number" value="0" step="1" class="num">
+        <label>dz:</label><input id="d357Dz" type="number" value="50" step="1" class="num">
+        <label>drx:</label><input id="d357Drx" type="number" value="0" step="0.01" class="num">
+        <label>dry:</label><input id="d357Dry" type="number" value="0" step="0.01" class="num">
+        <label>drz:</label><input id="d357Drz" type="number" value="0" step="0.01" class="num">
+      </div>
+      <div class="row">
+        <label><input id="d357DryRun" type="checkbox" checked> dry_run</label>
+        <label>max translation mm:</label>
+        <input id="d357MaxTranslation" type="number" value="100.0" step="5" min="0" max="100" class="num">
+        <label>max rotation rad:</label>
+        <input id="d357MaxRotation" type="number" value="0.5" step="0.05" min="0" max="0.5" class="num">
+        <label>speed_scale:</label>
+        <input id="d357SpeedScale" type="number" value="0.03" step="0.005" min="0" max="0.05" class="num">
+      </div>
+      <div class="row">
+        <label>segment trans mm:</label>
+        <input id="d357MaxSegmentTranslation" type="number" value="10.0" step="1" min="0.1" max="10" class="num">
+        <label>segment rot rad:</label>
+        <input id="d357MaxSegmentRotation" type="number" value="0.05" step="0.005" min="0.001" max="0.05" class="num">
+        <label>confirm_execute:</label>
+        <input id="d357Confirm" value="" style="width:350px;">
+      </div>
+      <div class="row">
+        <button class="orange" onclick="runD357CalibratedWorldRigidLarge(true)">Dry Run D35.7</button>
+        <button class="stop" onclick="runD357CalibratedWorldRigidLarge(false)">Execute D35.7</button>
+      </div>
+
+      <pre id="objectFrameView" class="statusbox">Object frame not loaded yet.</pre>
+    </div>
+
+<h2>Status</h2>
+      <pre id="status">loading...</pre>
+    </div>
+  </div>
+
+<script>
+let side = "both";
+let coord = "base";
+let heartbeatTimer = null;
+let sequence = [];
+let latestLoadedObjectFrame = null;
+let lastStatus = null;
+let waypointLoading = false;
+
+function $(id) {
+  return document.getElementById(id);
+}
+
+function fmt(v) {
+  const n = Number(v);
+  if (!Number.isFinite(n)) return "-";
+  return n.toFixed(3);
+}
+
+function radToDeg(v) {
+  return Number(v) * 180.0 / Math.PI;
+}
+
+function setStatus(data) {
+  const el = $("status");
+  if (el) el.textContent = JSON.stringify(data, null, 2);
+}
+
+async function api(path, options = {}) {
+  const res = await fetch(path, options);
+  const data = await res.json();
+  return data;
+}
+
+function setSide(v) {
+  side = v;
+  ["left", "right", "both"].forEach(s => {
+    $("side-" + s).classList.toggle("active", s === v);
+  });
+}
+
+function setCoord(v) {
+  coord = v;
+  ["joint", "base", "tool"].forEach(c => {
+    $("coord-" + c).classList.toggle("active", c === v);
+  });
+  buildButtons();
+}
+
+function speedFor(axis, jogCoord) {
+  axis = axis.toLowerCase();
+  if (jogCoord === "joint") return parseFloat($("jointSpeed").value);
+  if (["rx", "ry", "rz"].includes(axis)) return parseFloat($("rotateSpeed").value);
+  return parseFloat($("linearSpeed").value);
+}
+
+async function startJog(jogCoord, axis, direction) {
+  const payload = {
+    side,
+    coord: jogCoord,
+    axis,
+    direction,
+    speed: speedFor(axis, jogCoord),
+    sync_mode: $("syncMode").value
+  };
+
+  const data = await api("/api/jog/start", {
+    method: "POST",
+    headers: {"Content-Type": "application/json"},
+    body: JSON.stringify(payload)
+  });
+
+  setStatus(data);
+
+  if (heartbeatTimer) clearInterval(heartbeatTimer);
+  heartbeatTimer = setInterval(() => {
+    fetch("/api/jog/heartbeat", {method: "POST"});
+  }, 80);
+}
+
+async function stopJog() {
+  if (heartbeatTimer) {
+    clearInterval(heartbeatTimer);
+    heartbeatTimer = null;
+  }
+
+  await fetch("/api/jog/stop", {
+    method: "POST",
+    headers: {"Content-Type": "application/json"},
+    body: JSON.stringify({side})
+  });
+
+  refreshStatus();
+}
+
+async function stopBoth() {
+  if (heartbeatTimer) {
+    clearInterval(heartbeatTimer);
+    heartbeatTimer = null;
+  }
+
+  const data = await api("/api/stop", {
+    method: "POST",
+    headers: {"Content-Type": "application/json"},
+    body: JSON.stringify({side: "both"})
+  });
+
+  setStatus(data);
+  refreshPoseMonitor();
+}
+
+async function homeBoth() {
+  const ok = confirm("Home Both จะสั่งแขนทั้งสองกลับตำแหน่ง Home ที่ตั้งไว้ ต้องแน่ใจว่าพื้นที่ปลอดภัยแล้ว");
+  if (!ok) return;
+
+  const data = await api("/api/home", {
+    method: "POST",
+    headers: {"Content-Type": "application/json"},
+    body: JSON.stringify({
+      side: "both",
+      vel: parseFloat($("moveVel").value),
+      acc: parseFloat($("moveAcc").value)
+    })
+  });
+
+  setStatus(data);
+}
+
+function makeHoldButton(label, jogCoord, axis, direction) {
+  const b = document.createElement("button");
+  b.textContent = label;
+
+  let holding = false;
+  let capturedPointerId = null;
+
+  const start = (e) => {
+    e.preventDefault();
+
+    if (holding) return;
+    holding = true;
+    capturedPointerId = e.pointerId;
+
+    b.classList.add("active");
+
+    if (b.setPointerCapture && e.pointerId !== undefined) {
+      try {
+        b.setPointerCapture(e.pointerId);
+      } catch (_) {}
+    }
+
+    startJog(jogCoord, axis, direction);
+  };
+
+  const stop = (e) => {
+    if (e) e.preventDefault();
+
+    if (!holding) return;
+    holding = false;
+
+    b.classList.remove("active");
+
+    if (b.releasePointerCapture && capturedPointerId !== null) {
+      try {
+        b.releasePointerCapture(capturedPointerId);
+      } catch (_) {}
+    }
+
+    capturedPointerId = null;
+    stopJog();
+  };
+
+  b.addEventListener("pointerdown", start);
+  b.addEventListener("pointerup", stop);
+  b.addEventListener("pointercancel", stop);
+  b.addEventListener("lostpointercapture", stop);
+
+  // กัน browser เปิด context menu ตอนกดค้าง
+  b.addEventListener("contextmenu", (e) => e.preventDefault());
+
+  return b;
+}
+
+
+function buildButtons() {
+  const jointDiv = $("jointButtons");
+  jointDiv.innerHTML = "";
+
+  ["j1", "j2", "j3", "j4", "j5", "j6"].forEach(j => {
+    const row = document.createElement("div");
+    row.className = "jog-row";
+
+    const label = document.createElement("div");
+    label.className = "jog-label";
+    label.textContent = j.toUpperCase();
+
+    row.appendChild(label);
+    row.appendChild(makeHoldButton("-", "joint", j, "-"));
+    row.appendChild(makeHoldButton("+", "joint", j, "+"));
+    jointDiv.appendChild(row);
+  });
+
+  const tcpDiv = $("tcpButtons");
+  tcpDiv.innerHTML = "";
+
+  ["x", "y", "z", "rx", "ry", "rz"].forEach(a => {
+    const row = document.createElement("div");
+    row.className = "jog-row";
+
+    const label = document.createElement("div");
+    label.className = "jog-label";
+    label.textContent = a.toUpperCase();
+
+    row.appendChild(label);
+    row.appendChild(makeHoldButton("-", coord === "joint" ? "base" : coord, a, "-"));
+    row.appendChild(makeHoldButton("+", coord === "joint" ? "base" : coord, a, "+"));
+    tcpDiv.appendChild(row);
+  });
+}
+
+function findDeepArray(obj, sideName, words) {
+  if (!obj || typeof obj !== "object") return null;
+
+  for (const [k, v] of Object.entries(obj)) {
+    const key = String(k).toLowerCase();
+
+    if (
+      Array.isArray(v) &&
+      v.length >= 6 &&
+      key.includes(sideName) &&
+      words.some(w => key.includes(w))
+    ) {
+      return v;
+    }
+
+    if (v && typeof v === "object") {
+      const found = findDeepArray(v, sideName, words);
+      if (found) return found;
+    }
+  }
+
+  return null;
+}
+
+function findArrayByCandidates(obj, candidates) {
+  if (!obj) return null;
+
+  for (const key of candidates) {
+    if (Array.isArray(obj[key]) && obj[key].length >= 6) return obj[key];
+  }
+
+  for (const key of candidates) {
+    const parts = key.split(".");
+    let cur = obj;
+    let ok = true;
+
+    for (const p of parts) {
+      if (cur && Object.prototype.hasOwnProperty.call(cur, p)) {
+        cur = cur[p];
+      } else {
+        ok = false;
+        break;
+      }
+    }
+
+    if (ok && Array.isArray(cur) && cur.length >= 6) return cur;
+  }
+
+  return null;
+}
+
+function extractStatusArrays(data) {
+  const leftJoint = findArrayByCandidates(data, [
+    "left_joint", "left_joints", "left_joint_position", "left_joint_positions",
+    "left.joint", "left.joints", "left.joint_position", "left.joint_positions"
+  ]) || findDeepArray(data, "left", ["joint"]);
+
+  const rightJoint = findArrayByCandidates(data, [
+    "right_joint", "right_joints", "right_joint_position", "right_joint_positions",
+    "right.joint", "right.joints", "right.joint_position", "right.joint_positions"
+  ]) || findDeepArray(data, "right", ["joint"]);
+
+  const leftTcp = findArrayByCandidates(data, [
+    "left_tcp", "left_pose", "left_tcp_pose", "left_cartesian", "left_cart",
+    "left.tcp", "left.pose", "left.tcp_pose", "left.cartesian", "left.cart"
+  ]) || findDeepArray(data, "left", ["tcp", "pose", "cart"]);
+
+  const rightTcp = findArrayByCandidates(data, [
+    "right_tcp", "right_pose", "right_tcp_pose", "right_cartesian", "right_cart",
+    "right.tcp", "right.pose", "right.tcp_pose", "right.cartesian", "right.cart"
+  ]) || findDeepArray(data, "right", ["tcp", "pose", "cart"]);
+
+  return {leftJoint, rightJoint, leftTcp, rightTcp};
+}
+
+function setTableRow(rowId, values, convertDeg=false) {
+  const row = $(rowId);
+  if (!row) return;
+
+  const vals = Array.isArray(values) ? values.slice(0, 6) : [];
+  row.innerHTML = "";
+
+  for (let i = 0; i < 6; i++) {
+    const td = document.createElement("td");
+    const raw = vals[i];
+    td.textContent = raw === undefined ? "-" : fmt(convertDeg ? radToDeg(raw) : raw);
+    row.appendChild(td);
+  }
+}
+
+async function refreshPoseMonitor() {
+  try {
+    const data = await api("/api/status");
+    lastStatus = data;
+
+    const a = extractStatusArrays(data);
+    setTableRow("leftJointRow", a.leftJoint, true);
+    setTableRow("rightJointRow", a.rightJoint, true);
+    setTableRow("leftTcpRow", a.leftTcp, false);
+    setTableRow("rightTcpRow", a.rightTcp, false);
+  } catch (e) {
+    console.warn("pose monitor error:", e);
+  }
+}
+
+async function refreshStatus() {
+  const data = await api("/api/status");
+  setStatus(data);
+  lastStatus = data;
+
+  const a = extractStatusArrays(data);
+  setTableRow("leftJointRow", a.leftJoint, true);
+  setTableRow("rightJointRow", a.rightJoint, true);
+  setTableRow("leftTcpRow", a.leftTcp, false);
+  setTableRow("rightTcpRow", a.rightTcp, false);
+}
+
+function makeDirectInputs(containerId, prefix) {
+  const box = $(containerId);
+  box.innerHTML = "";
+
+  ["J1", "J2", "J3", "J4", "J5", "J6"].forEach((j, i) => {
+    const label = document.createElement("label");
+    label.textContent = j;
+
+    const input = document.createElement("input");
+    input.type = "number";
+    input.step = "0.001";
+    input.className = "num";
+    input.id = `${prefix}-${i}`;
+
+    label.appendChild(input);
+    box.appendChild(label);
+  });
+}
+
+function fillJointInputsFromCurrent() {
+  if (!lastStatus) {
+    alert("ยังไม่มี status จากหุ่น กรุณารอสักครู่");
+    return;
+  }
+
+  const a = extractStatusArrays(lastStatus);
+
+  if (a.leftJoint) {
+    a.leftJoint.slice(0, 6).forEach((v, i) => {
+      $(`left-${i}`).value = fmt(radToDeg(v));
+    });
+  }
+
+  if (a.rightJoint) {
+    a.rightJoint.slice(0, 6).forEach((v, i) => {
+      $(`right-${i}`).value = fmt(radToDeg(v));
+    });
+  }
+}
+
+function collectJointInputs(prefix) {
+  const vals = [];
+
+  for (let i = 0; i < 6; i++) {
+    const el = $(`${prefix}-${i}`);
+    const n = Number(el.value);
+
+    if (!Number.isFinite(n)) {
+      throw new Error(`${prefix} J${i + 1} is empty or invalid`);
+    }
+
+    vals.push(n);
+  }
+
+  return vals;
+}
+
+async function sendDirectJointMove() {
+  const targetSide = $("directSide").value;
+
+  let leftDeg = null;
+  let rightDeg = null;
+
+  try {
+    if (targetSide === "left" || targetSide === "both") leftDeg = collectJointInputs("left");
+    if (targetSide === "right" || targetSide === "both") rightDeg = collectJointInputs("right");
+  } catch (e) {
+    alert(e.message);
+    return;
+  }
+
+  const ok = confirm(
+    "Confirm direct joint move?\n\n" +
+    "Side: " + targetSide + "\n" +
+    "ตรวจสอบพื้นที่หุ่น และเตรียม E-stop ก่อนกด OK"
+  );
+  if (!ok) return;
+
+  const data = await api("/api/direct/joint_move", {
+    method: "POST",
+    headers: {"Content-Type": "application/json"},
+    body: JSON.stringify({
+      side: targetSide,
+      left_deg: leftDeg,
+      right_deg: rightDeg,
+      vel: parseFloat($("moveVel").value),
+      acc: parseFloat($("moveAcc").value)
+    })
+  });
+
+  setStatus(data);
+}
+
+
+function makeTcpInputs(containerId, prefix) {
+  const box = $(containerId);
+  box.innerHTML = "";
+
+  ["X", "Y", "Z", "Rx", "Ry", "Rz"].forEach((name, i) => {
+    const label = document.createElement("label");
+    label.textContent = name;
+
+    const input = document.createElement("input");
+    input.type = "number";
+    input.step = "0.001";
+    input.className = "num";
+    input.id = `${prefix}-${i}`;
+
+    label.appendChild(input);
+    box.appendChild(label);
+  });
+}
+
+function fillTcpInputsFromCurrent() {
+  if (!lastStatus) {
+    alert("ยังไม่มี status จากหุ่น กรุณารอสักครู่");
+    return;
+  }
+
+  const a = extractStatusArrays(lastStatus);
+
+  if (a.leftTcp) {
+    a.leftTcp.slice(0, 6).forEach((v, i) => {
+      $(`leftTcp-${i}`).value = fmt(v);
+    });
+  } else {
+    alert("ยังไม่มีค่า TCP ของ Left จาก /api/status");
+  }
+
+  if (a.rightTcp) {
+    a.rightTcp.slice(0, 6).forEach((v, i) => {
+      $(`rightTcp-${i}`).value = fmt(v);
+    });
+  } else {
+    alert("ยังไม่มีค่า TCP ของ Right จาก /api/status");
+  }
+}
+
+function collectTcpInputs(prefix) {
+  const vals = [];
+
+  for (let i = 0; i < 6; i++) {
+    const el = $(`${prefix}-${i}`);
+    const n = Number(el.value);
+
+    if (!Number.isFinite(n)) {
+      throw new Error(`${prefix} value ${i + 1} is empty or invalid`);
+    }
+
+    vals.push(n);
+  }
+
+  return vals;
+}
+
+async function sendDirectTcpMove() {
+  const targetSide = $("directTcpSide").value;
+
+  let leftPose = null;
+  let rightPose = null;
+
+  try {
+    if (targetSide === "left" || targetSide === "both") leftPose = collectTcpInputs("leftTcp");
+    if (targetSide === "right" || targetSide === "both") rightPose = collectTcpInputs("rightTcp");
+  } catch (e) {
+    alert(e.message);
+    return;
+  }
+
+  const ok = confirm(
+    "Confirm SAFE TCP target?\n\n" +
+    "Method: TCP → IK → Joint Move\n" +
+    "Side: " + targetSide + "\n\n" +
+    "คำแนะนำ: ใช้ Fill Current TCP ก่อน แล้วแก้ค่า X/Y/Z ทีละน้อย เช่น 1-2 mm\n" +
+    "ตรวจสอบพื้นที่หุ่น และเตรียม E-stop ก่อนกด OK"
+  );
+  if (!ok) return;
+
+  const data = await api("/api/direct/tcp_move", {
+    method: "POST",
+    headers: {"Content-Type": "application/json"},
+    body: JSON.stringify({
+      side: targetSide,
+      left_pose: leftPose,
+      right_pose: rightPose,
+      vel: parseFloat($("moveVel").value),
+      acc: parseFloat($("moveAcc").value)
+    })
+  });
+
+  setStatus(data);
+}
+
+
+
+async function saveWaypoint() {
+  const name = $("waypointName").value.trim();
+
+  if (!name) {
+    alert("ใส่ชื่อ waypoint ก่อนครับ");
+    return;
+  }
+
+  const data = await api("/api/waypoint/save", {
+    method: "POST",
+    headers: {"Content-Type": "application/json"},
+    body: JSON.stringify({name, side: "both"})
+  });
+
+  setStatus(data);
+  await loadWaypoints(false);
+}
+
+async function runWaypoint(name) {
+  const ok = confirm("Run waypoint: " + name + " ?");
+  if (!ok) return;
+
+  const data = await api("/api/waypoint/run", {
+    method: "POST",
+    headers: {"Content-Type": "application/json"},
+    body: JSON.stringify({
+      name,
+      side: "both",
+      vel: parseFloat($("moveVel").value),
+      acc: parseFloat($("moveAcc").value)
+    })
+  });
+
+  setStatus(data);
+}
+
+async function deleteWaypoint(name) {
+  const ok = confirm("Delete waypoint: " + name + " ?");
+  if (!ok) return;
+
+  const data = await api("/api/waypoint/delete", {
+    method: "POST",
+    headers: {"Content-Type": "application/json"},
+    body: JSON.stringify({name})
+  });
+
+  setStatus(data);
+  await loadWaypoints(false);
+}
+
+async function loadWaypoints(showLoading=false) {
+  if (waypointLoading) return;
+  waypointLoading = true;
+
+  const box = $("waypointList");
+  if (showLoading) box.textContent = "Loading...";
+
+  try {
+    const data = await api("/api/waypoints");
+    const names = Object.keys(data || {}).sort();
+
+    if (names.length === 0) {
+      box.innerHTML = "<div class='small'>ยังไม่มี waypoint</div>";
+      waypointLoading = false;
+      return;
+    }
+
+    box.innerHTML = "";
+
+    names.forEach(name => {
+      const wp = data[name] || {};
+      const row = document.createElement("div");
+      row.className = "wp-row";
+
+      const title = document.createElement("div");
+      title.innerHTML =
+        `<span class="wp-name">${name}</span>` +
+        `<span class="wp-time">${wp.created_at || ""}</span>`;
+
+      const actions = document.createElement("div");
+      actions.className = "wp-actions";
+
+      const runBtn = document.createElement("button");
+      runBtn.className = "orange";
+      runBtn.textContent = "Run";
+      runBtn.onclick = () => runWaypoint(name);
+
+      const addBtn = document.createElement("button");
+      addBtn.textContent = "Add";
+      addBtn.onclick = () => addToSequence(name);
+
+      const delBtn = document.createElement("button");
+      delBtn.className = "stop";
+      delBtn.textContent = "Delete";
+      delBtn.onclick = () => deleteWaypoint(name);
+
+      actions.appendChild(runBtn);
+      actions.appendChild(addBtn);
+      actions.appendChild(delBtn);
+
+      row.appendChild(title);
+      row.appendChild(actions);
+      box.appendChild(row);
+    });
+  } catch (e) {
+    box.textContent = "Waypoint load error: " + e.message;
+  } finally {
+    waypointLoading = false;
+  }
+}
+
+function normalizeProgramStep(step) {
+  if (typeof step === "string") {
+    return {
+      name: step,
+      side: "both",
+      vel: parseFloat($("moveVel").value),
+      acc: parseFloat($("moveAcc").value),
+      delay: 0
+    };
+  }
+
+  return {
+    name: step.name,
+    side: step.side || "both",
+    vel: Number.isFinite(parseFloat(step.vel)) ? parseFloat(step.vel) : parseFloat($("moveVel").value),
+    acc: Number.isFinite(parseFloat(step.acc)) ? parseFloat(step.acc) : parseFloat($("moveAcc").value),
+    delay: Number.isFinite(parseFloat(step.delay)) ? parseFloat(step.delay) : 0
+  };
+}
+
+function addToSequence(name) {
+  sequence.push({
+    name: name,
+    side: "both",
+    vel: parseFloat($("moveVel").value),
+    acc: parseFloat($("moveAcc").value),
+    delay: 0
+  });
+  renderSequence();
+}
+
+function updateSequenceStep(i, key, value) {
+  sequence = sequence.map(normalizeProgramStep);
+
+  if (!sequence[i]) return;
+
+  if (key === "name" || key === "side") {
+    sequence[i][key] = value;
+  } else {
+    const v = parseFloat(value);
+    sequence[i][key] = Number.isFinite(v) ? v : 0;
+    if (key === "delay" && sequence[i][key] < 0) sequence[i][key] = 0;
+  }
+}
+
+function removeSequenceIndex(i) {
+  sequence.splice(i, 1);
+  renderSequence();
+}
+
+function clearSequence() {
+  sequence = [];
+  renderSequence();
+}
+
+function renderSequence() {
+  const box = $("sequenceList");
+  sequence = sequence.map(normalizeProgramStep);
+
+  if (sequence.length === 0) {
+    box.innerHTML = "<div class='small'>ยังไม่มี step ใน program</div>";
+    return;
+  }
+
+  let html = `
+    <table>
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Waypoint</th>
+          <th>Side</th>
+          <th>Vel</th>
+          <th>Acc</th>
+          <th>Delay after</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody>
+  `;
+
+  sequence.forEach((step, i) => {
+    html += `
+      <tr>
+        <td>${i + 1}</td>
+        <td><b>${step.name}</b></td>
+        <td>
+          <select onchange="updateSequenceStep(${i}, 'side', this.value)">
+            <option value="both" ${step.side === "both" ? "selected" : ""}>both</option>
+            <option value="left" ${step.side === "left" ? "selected" : ""}>left</option>
+            <option value="right" ${step.side === "right" ? "selected" : ""}>right</option>
+          </select>
+        </td>
+        <td>
+          <input class="num" type="number" step="0.1" min="0.02" max="3.0"
+            value="${step.vel}"
+            onchange="updateSequenceStep(${i}, 'vel', this.value)" />
+        </td>
+        <td>
+          <input class="num" type="number" step="0.1" min="0.04" max="3.0"
+            value="${step.acc}"
+            onchange="updateSequenceStep(${i}, 'acc', this.value)" />
+        </td>
+        <td>
+          <input class="num" type="number" step="0.1" min="0" max="30"
+            value="${step.delay}"
+            onchange="updateSequenceStep(${i}, 'delay', this.value)" />
+          <span class="small">s</span>
+        </td>
+        <td>
+          <button class="stop" onclick="removeSequenceIndex(${i})">Remove</button>
+        </td>
+      </tr>
+    `;
+  });
+
+  html += "</tbody></table>";
+  box.innerHTML = html;
+}
+
+function saveProgramLocal() {
+  sequence = sequence.map(normalizeProgramStep);
+  localStorage.setItem("dual_jaka_program", JSON.stringify(sequence));
+  setStatus({
+    ok: true,
+    message: "Program saved to browser localStorage",
+    steps: sequence
+  });
+}
+
+function loadProgramLocal() {
+  const raw = localStorage.getItem("dual_jaka_program");
+  if (!raw) {
+    alert("ยังไม่มี program ที่ save ไว้ใน browser นี้");
+    return;
+  }
+
+  try {
+    sequence = JSON.parse(raw).map(normalizeProgramStep);
+    renderSequence();
+    setStatus({
+      ok: true,
+      message: "Program loaded from browser localStorage",
+      steps: sequence
+    });
+  } catch (e) {
+    alert("Load program failed: " + e.message);
+  }
+}
+
+async function saveProgramFile() {
+  sequence = sequence.map(normalizeProgramStep);
+
+  if (sequence.length === 0) {
+    alert("ยังไม่มี step ใน program");
+    return;
+  }
+
+  const name = ($("programName")?.value || "program").trim();
+
+  const data = await api("/api/program/save", {
+    method: "POST",
+    headers: {"Content-Type": "application/json"},
+    body: JSON.stringify({
+      name: name,
+      steps: sequence
+    })
+  });
+
+  setStatus(data);
+
+  if (data.ok) {
+    await refreshProgramList();
+  makeObjectPoseInputs();
+  refreshObjectList();
+  }
+}
+
+async function refreshProgramList() {
+  const sel = $("programSelect");
+  if (!sel) return;
+
+  const data = await api("/api/program/list");
+  sel.innerHTML = "";
+
+  if (!data.ok) {
+    setStatus(data);
+    return;
+  }
+
+  if (!data.programs || data.programs.length === 0) {
+    const opt = document.createElement("option");
+    opt.value = "";
+    opt.textContent = "(no saved programs)";
+    sel.appendChild(opt);
+    return;
+  }
+
+  data.programs.forEach(item => {
+    const opt = document.createElement("option");
+    opt.value = item.name;
+    opt.textContent = `${item.name} (${item.modified_at})`;
+    sel.appendChild(opt);
+  });
+}
+
+async function loadSelectedProgram() {
+  const sel = $("programSelect");
+  const nameFromSelect = sel ? sel.value : "";
+  const nameFromInput = $("programName") ? $("programName").value.trim() : "";
+
+  const name = nameFromSelect || nameFromInput;
+
+  if (!name) {
+    alert("เลือก program หรือกรอกชื่อ program ก่อน");
+    return;
+  }
+
+  const data = await api("/api/program/load", {
+    method: "POST",
+    headers: {"Content-Type": "application/json"},
+    body: JSON.stringify({name: name})
+  });
+
+  if (!data.ok) {
+    setStatus(data);
+    alert(data.error || "Load program failed");
+    return;
+  }
+
+  sequence = (data.steps || []).map(normalizeProgramStep);
+
+  if ($("programName")) {
+    $("programName").value = data.name || name;
+  }
+
+  renderSequence();
+  setStatus(data);
+}
+
+async function deleteSelectedProgram() {
+  const sel = $("programSelect");
+  const name = sel ? sel.value : "";
+
+  if (!name) {
+    alert("เลือก program ที่จะลบก่อน");
+    return;
+  }
+
+  const ok = confirm("Delete program file: " + name + " ?");
+  if (!ok) return;
+
+  const data = await api("/api/program/delete", {
+    method: "POST",
+    headers: {"Content-Type": "application/json"},
+    body: JSON.stringify({name: name})
+  });
+
+  setStatus(data);
+  await refreshProgramList();
+}
+
+
+function makeObjectPoseInputs() {
+  const labels = ["X", "Y", "Z", "Rx", "Ry", "Rz"];
+  const box = $("objectPoseInputs");
+  if (!box) return;
+
+  box.innerHTML = "";
+
+  labels.forEach((label, i) => {
+    const wrap = document.createElement("div");
+    wrap.className = "target-item";
+
+    const l = document.createElement("label");
+    l.textContent = label;
+
+    const input = document.createElement("input");
+    input.type = "number";
+    input.id = "objectPose" + i;
+    input.step = i < 3 ? "0.1" : "0.001";
+    input.value = "0";
+
+    wrap.appendChild(l);
+    wrap.appendChild(input);
+    box.appendChild(wrap);
+  });
+}
+
+
+function ensureObjectPoseInputs() {
+  const box = $("objectPoseInputs");
+  if (!box) {
+    return false;
+  }
+
+  if (!$("objectPose0")) {
+    makeObjectPoseInputs();
+  }
+
+  return !!$("objectPose0");
+}
+
+function angleMean2(a, b) {
+  return Math.atan2(Math.sin(a) + Math.sin(b), Math.cos(a) + Math.cos(b));
+}
+
+function setObjectPoseInputs(pose) {
+  ensureObjectPoseInputs();
+
+  for (let i = 0; i < 6; i++) {
+    const el = $("objectPose" + i);
+    if (!el) continue;
+    el.value = Number(pose[i]).toFixed(i < 3 ? 3 : 6);
+  }
+}
+
+function collectObjectPoseInputs() {
+  ensureObjectPoseInputs();
+
+  const pose = [];
+
+  for (let i = 0; i < 6; i++) {
+    const el = $("objectPose" + i);
+    if (!el) throw new Error("Object pose input missing: " + i);
+
+    const v = parseFloat(el.value);
+    if (!Number.isFinite(v)) {
+      throw new Error("Object pose value invalid at index " + i);
+    }
+
+    pose.push(v);
+  }
+
+  return pose;
+}
+
+async function fillObjectPoseFromMidpoint() {
+  ensureObjectPoseInputs();
+
+  const data = await api("/api/status");
+
+  const left = data?.left?.tcp;
+  const right = data?.right?.tcp;
+
+  if (!Array.isArray(left) || left.length < 6) {
+    alert("left TCP missing");
+    return;
+  }
+
+  if (!Array.isArray(right) || right.length < 6) {
+    alert("right TCP missing");
+    return;
+  }
+
+  const pose = [
+    (left[0] + right[0]) / 2.0,
+    (left[1] + right[1]) / 2.0,
+    (left[2] + right[2]) / 2.0,
+    angleMean2(left[3], right[3]),
+    angleMean2(left[4], right[4]),
+    angleMean2(left[5], right[5]),
+  ];
+
+  setObjectPoseInputs(pose);
+
+  $("objectFrameView").textContent =
+    "Filled object pose from midpoint of current left/right TCP.\\n" +
+    "ยังไม่ได้ save จนกว่าจะกด Capture & Save Object Frame";
+}
+
+
+
+function resetObjectPoseToCaptured() {
+  if (!latestLoadedObjectFrame || !Array.isArray(latestLoadedObjectFrame.object_pose)) {
+    alert("ยังไม่มี object frame ที่ load/capture ไว้");
+    return;
+  }
+
+  setObjectPoseInputs(latestLoadedObjectFrame.object_pose);
+
+  $("objectFrameView").textContent =
+    "Reset target object pose to captured object_pose.\\n\\n" +
+    JSON.stringify({
+      object: latestLoadedObjectFrame.name || latestLoadedObjectFrame.object || latestLoadedObjectFrame.file,
+      object_pose: latestLoadedObjectFrame.object_pose
+    }, null, 2);
+}
+
+
+
+async function resetObjectPoseToCurrent() {
+  const sel = $("objectSelect");
+  const selectedName = sel ? sel.value : "";
+  const inputName = $("objectName") ? $("objectName").value.trim() : "";
+  const name = selectedName || inputName;
+
+  if (!name) {
+    alert("เลือก object หรือกรอก object name ก่อน");
+    return;
+  }
+
+  const fresh = await loadObjectByName(name, {updateInputs: false});
+  if (!fresh.ok) {
+    alert("load object failed: " + (fresh.error || JSON.stringify(fresh)));
+    return;
+  }
+
+  const p = latestLoadedObjectFrame.current_object_pose || latestLoadedObjectFrame.object_pose;
+
+  if (!Array.isArray(p)) {
+    alert("object frame ไม่มี current_object_pose/object_pose");
+    return;
+  }
+
+  setObjectPoseInputs(p);
+
+  $("objectFrameView").textContent =
+    "Reset target object pose to STORED current_object_pose.\\n\\n" +
+    JSON.stringify({
+      object: latestLoadedObjectFrame.name || latestLoadedObjectFrame.object || latestLoadedObjectFrame.file,
+      current_object_pose: p
+    }, null, 2);
+}
+
+async function setCurrentObjectPoseFromInputs() {
+  const sel = $("objectSelect");
+  const selectedName = sel ? sel.value : "";
+  const inputName = $("objectName") ? $("objectName").value.trim() : "";
+  const name = selectedName || inputName;
+
+  if (!name) {
+    alert("เลือก object หรือกรอก object name ก่อน");
+    return;
+  }
+
+  let pose = null;
+  try {
+    pose = collectObjectPoseInputs();
+  } catch (e) {
+    alert(e.message);
+    return;
+  }
+
+  const ok = confirm(
+    "Set current object pose = current input values?\\n\\n" +
+    "ใช้เมื่อคุณแน่ใจว่าชิ้นงานอยู่ pose นี้จริง ๆ แล้ว\\n" +
+    "ขั้นนี้ไม่สั่งหุ่นเคลื่อนที่"
+  );
+
+  if (!ok) return;
+
+  const data = await api("/api/object/set_current_pose", {
+    method: "POST",
+    headers: {"Content-Type": "application/json"},
+    body: JSON.stringify({
+      name: name,
+      current_object_pose: pose
+    })
+  });
+
+  $("objectFrameView").textContent = JSON.stringify(data, null, 2);
+  setStatus(data);
+
+  if (data.ok) {
+    await loadObjectByName(name);
+  }
+}
+
+function updateLoadedObjectFrame(data, name, options = {}) {
+  if (!data || !data.ok) {
+    return false;
+  }
+
+  const record = data.updated_object_frame || data;
+  latestLoadedObjectFrame = record;
+
+  const updateInputs = options.updateInputs !== false;
+  if (updateInputs) {
+    if (Array.isArray(record.current_object_pose)) {
+      setObjectPoseInputs(record.current_object_pose);
+    } else if (Array.isArray(record.object_pose)) {
+      setObjectPoseInputs(record.object_pose);
+    }
+  }
+
+  const objectName = record.name || data.name || name;
+  if ($("objectName")) $("objectName").value = objectName || "";
+  const sel = $("objectSelect");
+  if (sel && objectName) {
+    const found = Array.from(sel.options).some(opt => opt.value === objectName);
+    if (found) sel.value = objectName;
+  }
+
+  return true;
+}
+
+async function loadObjectByName(name, options = {}) {
+  const data = await api("/api/object/load", {
+    method: "POST",
+    headers: {"Content-Type": "application/json"},
+    body: JSON.stringify({name: name})
+  });
+
+  if (data.ok) {
+    updateLoadedObjectFrame(data, name, options);
+  }
+
+  return data;
+}
+
+async function executeObjectInterpolatedMove() {
+  const sel = $("objectSelect");
+  const selectedName = sel ? sel.value : "";
+  const inputName = $("objectName") ? $("objectName").value.trim() : "";
+  const name = selectedName || inputName;
+
+  if (!name) {
+    alert("เลือก object หรือกรอก object name ก่อน");
+    return;
+  }
+
+  let targetPose = null;
+  try {
+    targetPose = collectObjectPoseInputs();
+  } catch (e) {
+    alert(e.message);
+    return;
+  }
+
+  const steps = parseInt($("objectInterpSteps")?.value || "10");
+  const delay = parseFloat($("objectInterpDelay")?.value || "0");
+
+  const ok = confirm(
+    "Execute Interpolated Cooperative Move?\\n\\n" +
+    "Object: " + name + "\\n" +
+    "Steps: " + steps + "\\n" +
+    "Method: object pose interpolation → TCP targets → IK → sync joint_move\\n\\n" +
+    "เริ่มจาก translation เล็ก ๆ ก่อน เช่น Z +10 mm\\n" +
+    "เตรียม E-stop ก่อนกด OK"
+  );
+
+  if (!ok) return;
+
+  const data = await api("/api/object/execute_interpolated", {
+    method: "POST",
+    headers: {"Content-Type": "application/json"},
+    body: JSON.stringify({
+      name: name,
+      side: "both",
+      target_object_pose: targetPose,
+      vel: parseFloat($("moveVel").value),
+      acc: parseFloat($("moveAcc").value),
+      steps: steps,
+      delay: delay
+    })
+  });
+
+  $("objectFrameView").textContent = JSON.stringify(data, null, 2);
+  setStatus(data);
+}
+
+
+async function executeObjectMove() {
+  const sel = $("objectSelect");
+  const selectedName = sel ? sel.value : "";
+  const inputName = $("objectName") ? $("objectName").value.trim() : "";
+  const name = selectedName || inputName;
+
+  if (!name) {
+    alert("เลือก object หรือกรอก object name ก่อน");
+    return;
+  }
+
+  let targetPose = null;
+  try {
+    targetPose = collectObjectPoseInputs();
+  } catch (e) {
+    alert(e.message);
+    return;
+  }
+
+  const ok = confirm(
+    "Execute Cooperative Object Move?\\n\\n" +
+    "Object: " + name + "\\n" +
+    "Method: Object target → TCP targets → IK → Joint Move\\n\\n" +
+    "สำหรับ D32.4A ให้ทดสอบเฉพาะ translation เล็ก ๆ ก่อน เช่น Z +5 mm\\n" +
+    "ตรวจสอบพื้นที่หุ่นและเตรียม E-stop ก่อนกด OK"
+  );
+
+  if (!ok) return;
+
+  const data = await api("/api/object/execute_move", {
+    method: "POST",
+    headers: {"Content-Type": "application/json"},
+    body: JSON.stringify({
+      name: name,
+      side: "both",
+      target_object_pose: targetPose,
+      vel: parseFloat($("moveVel").value),
+      acc: parseFloat($("moveAcc").value)
+    })
+  });
+
+  $("objectFrameView").textContent = JSON.stringify(data, null, 2);
+  setStatus(data);
+}
+
+
+async function previewObjectTargets() {
+  const sel = $("objectSelect");
+  const selectedName = sel ? sel.value : "";
+  const inputName = $("objectName") ? $("objectName").value.trim() : "";
+  const name = selectedName || inputName;
+
+  if (!name) {
+    alert("เลือก object หรือกรอก object name ก่อน");
+    return;
+  }
+
+  let targetPose = null;
+  try {
+    targetPose = collectObjectPoseInputs();
+  } catch (e) {
+    alert(e.message);
+    return;
+  }
+
+  const data = await api("/api/object/preview_targets", {
+    method: "POST",
+    headers: {"Content-Type": "application/json"},
+    body: JSON.stringify({
+      name: name,
+      target_object_pose: targetPose
+    })
+  });
+
+  $("objectFrameView").textContent = JSON.stringify(data, null, 2);
+  setStatus(data);
+}
+
+async function validateObjectTarget() {
+  const sel = $("objectSelect");
+  const selectedName = sel ? sel.value : "";
+  const inputName = $("objectName") ? $("objectName").value.trim() : "";
+  const name = selectedName || inputName;
+
+  if (!name) {
+    alert("เลือก object หรือกรอก object name ก่อน");
+    return;
+  }
+
+  let targetPose = null;
+  try {
+    targetPose = collectObjectPoseInputs();
+  } catch (e) {
+    alert(e.message);
+    return;
+  }
+
+  const data = await api("/api/object/validate_motion", {
+    method: "POST",
+    headers: {"Content-Type": "application/json"},
+    body: JSON.stringify({
+      name: name,
+      target_object_pose: targetPose
+    })
+  });
+
+  $("objectFrameView").textContent = JSON.stringify(data, null, 2);
+  setStatus(data);
+
+  if (!data.ok) {
+    const code = data.code || data.motion_limit_check?.code || "";
+    if (code === "object_motion_limit_exceeded") {
+      alert("Target exceeds safe motion limit. Reduce translation/rotation or split into smaller moves.");
+    }
+  }
+}
+
+async function validateObjectIkJump() {
+  const sel = $("objectSelect");
+  const selectedName = sel ? sel.value : "";
+  const inputName = $("objectName") ? $("objectName").value.trim() : "";
+  const name = selectedName || inputName;
+
+  if (!name) {
+    alert("เลือก object หรือกรอก object name ก่อน");
+    return;
+  }
+
+  let targetPose = null;
+  try {
+    targetPose = collectObjectPoseInputs();
+  } catch (e) {
+    alert(e.message);
+    return;
+  }
+
+  const data = await api("/api/object/validate_ik_jump", {
+    method: "POST",
+    headers: {"Content-Type": "application/json"},
+    body: JSON.stringify({
+      name: name,
+      side: "both",
+      target_object_pose: targetPose
+    })
+  });
+
+  $("objectFrameView").textContent = JSON.stringify(data, null, 2);
+  setStatus(data);
+
+  if (!data.ok) {
+    const code = data.code || "";
+    if (code === "ik_joint_jump_limit_exceeded") {
+      alert("IK target requires a large joint jump. Use a nearer target, sync current pose, or split the move.");
+    }
+  }
+}
+
+function getSelectedObjectNameForCalibration() {
+  const sel = $("objectSelect");
+  const selectedName = sel ? sel.value : "";
+  const inputName = $("objectName") ? $("objectName").value.trim() : "";
+  return selectedName || inputName;
+}
+
+function showCalibrationResult(data) {
+  const text = JSON.stringify(data, null, 2);
+  const calView = $("calibrationView");
+  if (calView) calView.textContent = text;
+  if ($("objectFrameView")) $("objectFrameView").textContent = text;
+  setStatus(data);
+}
+
+async function captureCalibrationPoint(pointType) {
+  const name = getSelectedObjectNameForCalibration();
+  if (!name) {
+    alert("เลือก object หรือกรอก object name ก่อน");
+    return;
+  }
+
+  const source = $("calibrationSource") ? $("calibrationSource").value : "left_tcp";
+  const data = await api("/api/object/calibration/capture_point", {
+    method: "POST",
+    headers: {"Content-Type": "application/json"},
+    body: JSON.stringify({
+      name: name,
+      point_type: pointType,
+      source: source
+    })
+  });
+
+  showCalibrationResult(data);
+}
+
+async function computeCalibratedObjectFrame() {
+  const name = getSelectedObjectNameForCalibration();
+  if (!name) {
+    alert("เลือก object หรือกรอก object name ก่อน");
+    return;
+  }
+
+  const data = await api("/api/object/calibration/compute_frame", {
+    method: "POST",
+    headers: {"Content-Type": "application/json"},
+    body: JSON.stringify({name: name})
+  });
+
+  showCalibrationResult(data);
+}
+
+async function showCalibrationStatus() {
+  const name = getSelectedObjectNameForCalibration();
+  if (!name) {
+    alert("เลือก object หรือกรอก object name ก่อน");
+    return;
+  }
+
+  const data = await api("/api/object/calibration/status", {
+    method: "POST",
+    headers: {"Content-Type": "application/json"},
+    body: JSON.stringify({name: name})
+  });
+
+  showCalibrationResult(data);
+}
+
+async function previewCalibratedAxes() {
+  const name = getSelectedObjectNameForCalibration();
+  if (!name) {
+    alert("เลือก object หรือกรอก object name ก่อน");
+    return;
+  }
+
+  const axisLength = parseFloat($("calibrationAxisLength")?.value || "100");
+  const data = await api("/api/object/preview_calibrated_axes", {
+    method: "POST",
+    headers: {"Content-Type": "application/json"},
+    body: JSON.stringify({
+      name: name,
+      axis_length_mm: axisLength
+    })
+  });
+
+  showCalibrationResult(data);
+}
+
+async function captureWorldCalibrationPoint(pointType, side) {
+  const data = await api("/api/world_calibration/capture_point", {
+    method: "POST",
+    headers: {"Content-Type": "application/json"},
+    body: JSON.stringify({
+      point_type: pointType,
+      side: side
+    })
+  });
+
+  showCalibrationResult(data);
+}
+
+async function computeWorldCalibrationTransform() {
+  const data = await api("/api/world_calibration/compute_transform", {
+    method: "POST",
+    headers: {"Content-Type": "application/json"},
+    body: JSON.stringify({})
+  });
+
+  showCalibrationResult(data);
+}
+
+async function showWorldCalibrationStatus() {
+  const data = await api("/api/world_calibration/status", {
+    method: "POST",
+    headers: {"Content-Type": "application/json"},
+    body: JSON.stringify({})
+  });
+
+  showCalibrationResult(data);
+}
+
+async function previewLiveWorldTransform() {
+  const data = await api("/api/world_calibration/preview_live", {
+    method: "POST",
+    headers: {"Content-Type": "application/json"},
+    body: JSON.stringify({})
+  });
+
+  showCalibrationResult(data);
+}
+
+function collectD355TargetDelta() {
+  return [
+    parseFloat($("d355Dx")?.value || "0"),
+    parseFloat($("d355Dy")?.value || "0"),
+    parseFloat($("d355Dz")?.value || "0"),
+    parseFloat($("d355Drx")?.value || "0"),
+    parseFloat($("d355Dry")?.value || "0"),
+    parseFloat($("d355Drz")?.value || "0")
+  ];
+}
+
+async function previewCalibratedRigidWithWorldTransform() {
+  const typedName = $("d355ObjectName") ? $("d355ObjectName").value.trim() : "";
+  const selectedName = getSelectedObjectNameForCalibration();
+  const name = typedName || selectedName;
+  if (!name) {
+    alert("เลือก object หรือกรอก object name ก่อน");
+    return;
+  }
+
+  const data = await api("/api/object/preview_calibrated_rigid_compare_world", {
+    method: "POST",
+    headers: {"Content-Type": "application/json"},
+    body: JSON.stringify({
+      name: name,
+      target_delta: collectD355TargetDelta()
+    })
+  });
+
+  showCalibrationResult(data);
+}
+
+function collectD355dTargetDelta() {
+  return [
+    parseFloat($("d355dDx")?.value || "0"),
+    parseFloat($("d355dDy")?.value || "0"),
+    parseFloat($("d355dDz")?.value || "0"),
+    parseFloat($("d355dDrx")?.value || "0"),
+    parseFloat($("d355dDry")?.value || "0"),
+    parseFloat($("d355dDrz")?.value || "0")
+  ];
+}
+
+async function validateCalibratedWorldIk() {
+  const typedName = $("d355dObjectName") ? $("d355dObjectName").value.trim() : "";
+  const selectedName = getSelectedObjectNameForCalibration();
+  const name = typedName || selectedName;
+  if (!name) {
+    alert("เลือก object หรือกรอก object name ก่อน");
+    return;
+  }
+
+  const data = await api("/api/object/validate_calibrated_world_ik", {
+    method: "POST",
+    headers: {"Content-Type": "application/json"},
+    body: JSON.stringify({
+      name: name,
+      target_delta: collectD355dTargetDelta(),
+      max_joint_delta_rad: parseFloat($("d355dMaxJointDelta")?.value || "0.35"),
+      max_joint_delta_sum_rad: parseFloat($("d355dMaxJointDeltaSum")?.value || "1.2")
+    })
+  });
+
+  showCalibrationResult(data);
+  if (!data.ok) {
+    alert("Calibrated world IK validation failed. Do not execute this target.");
+  }
+}
+
+function collectD356TargetDelta() {
+  return [
+    parseFloat($("d356Dx")?.value || "0"),
+    parseFloat($("d356Dy")?.value || "0"),
+    parseFloat($("d356Dz")?.value || "0"),
+    parseFloat($("d356Drx")?.value || "0"),
+    parseFloat($("d356Dry")?.value || "0"),
+    parseFloat($("d356Drz")?.value || "0")
+  ];
+}
+
+async function runD356CalibratedWorldRigid(forceDryRun) {
+  const typedName = $("d356ObjectName") ? $("d356ObjectName").value.trim() : "";
+  const selectedName = getSelectedObjectNameForCalibration();
+  const name = typedName || selectedName;
+  if (!name) {
+    alert("เลือก object หรือกรอก object name ก่อน");
+    return;
+  }
+
+  const dryRun = forceDryRun ? true : false;
+  if (!dryRun) {
+    const confirmText = $("d356Confirm")?.value || "";
+    if (confirmText !== "EXECUTE_CALIBRATED_WORLD_RIGID") {
+      alert("พิมพ์ EXECUTE_CALIBRATED_WORLD_RIGID ใน confirm_execute ก่อน execute จริง");
+      return;
+    }
+    const ok = confirm(
+      "D35.6 can move the real robots.\n\n" +
+      "Start with +Z 2 mm only. Keep E-stop ready.\n\n" +
+      "Execute now?"
+    );
+    if (!ok) return;
+  }
+
+  if ($("d356DryRun")) $("d356DryRun").checked = dryRun;
+  const data = await api("/api/object/execute_calibrated_world_rigid", {
+    method: "POST",
+    headers: {"Content-Type": "application/json"},
+    body: JSON.stringify({
+      name: name,
+      target_delta: collectD356TargetDelta(),
+      dry_run: dryRun,
+      confirm_execute: $("d356Confirm")?.value || "",
+      max_translation_mm: parseFloat($("d356MaxTranslation")?.value || "5.0"),
+      max_rotation_rad: parseFloat($("d356MaxRotation")?.value || "0.02"),
+      max_joint_delta_rad: parseFloat($("d356MaxJointDelta")?.value || "0.12"),
+      max_joint_delta_sum_rad: parseFloat($("d356MaxJointDeltaSum")?.value || "0.35"),
+      speed_scale: parseFloat($("d356SpeedScale")?.value || "0.03")
+    })
+  });
+
+  showCalibrationResult(data);
+  if (!data.ok) {
+    alert("D35.6 request was rejected: " + (data.reason || data.error || "unknown"));
+  }
+}
+
+function getD356aObjectName() {
+  const typedName = $("d356aObjectName") ? $("d356aObjectName").value.trim() : "";
+  const selectedName = getSelectedObjectNameForCalibration();
+  return typedName || selectedName;
+}
+
+function collectD356aTolerancePayload() {
+  return {
+    position_tolerance_mm: parseFloat($("d356aPositionTolerance")?.value || "1.5"),
+    orientation_tolerance_rad: parseFloat($("d356aOrientationTolerance")?.value || "0.05")
+  };
+}
+
+async function d356aPendingCommitStatus() {
+  const name = getD356aObjectName();
+  if (!name) {
+    alert("เลือก object หรือกรอก object name ก่อน");
+    return;
+  }
+
+  const data = await api("/api/object/pending_calibrated_execute_commit_status", {
+    method: "POST",
+    headers: {"Content-Type": "application/json"},
+    body: JSON.stringify({name: name})
+  });
+  showCalibrationResult(data);
+}
+
+async function d356aVerifyPendingExecute() {
+  const name = getD356aObjectName();
+  if (!name) {
+    alert("เลือก object หรือกรอก object name ก่อน");
+    return;
+  }
+
+  const data = await api("/api/object/verify_pending_calibrated_execute_commit", {
+    method: "POST",
+    headers: {"Content-Type": "application/json"},
+    body: JSON.stringify({
+      name: name,
+      ...collectD356aTolerancePayload()
+    })
+  });
+  showCalibrationResult(data);
+  if (!data.ready_to_commit) {
+    alert("Pending execute verification is not ready to commit.");
+  }
+}
+
+async function d356aCommitVerifiedObjectPose() {
+  const name = getD356aObjectName();
+  if (!name) {
+    alert("เลือก object หรือกรอก object name ก่อน");
+    return;
+  }
+
+  const confirmText = $("d356aConfirmCommit")?.value || "";
+  if (confirmText !== "COMMIT_CALIBRATED_OBJECT_POSE") {
+    alert("พิมพ์ COMMIT_CALIBRATED_OBJECT_POSE ใน confirm_commit ก่อน commit");
+    return;
+  }
+
+  const ok = confirm(
+    "D35.6A will not move the robot.\n\n" +
+    "It will verify live TCP and update the stored calibrated object pose if verified.\n\n" +
+    "Commit object pose now?"
+  );
+  if (!ok) return;
+
+  const data = await api("/api/object/commit_pending_calibrated_execute_pose", {
+    method: "POST",
+    headers: {"Content-Type": "application/json"},
+    body: JSON.stringify({
+      name: name,
+      confirm_commit: confirmText,
+      ...collectD356aTolerancePayload()
+    })
+  });
+  showCalibrationResult(data);
+  if (!data.ok || !data.committed) {
+    alert("D35.6A commit was rejected: " + (data.reason || data.error || "unknown"));
+  }
+}
+
+function collectD356arTargetDelta() {
+  return [
+    parseFloat($("d356arDx")?.value || "0"),
+    parseFloat($("d356arDy")?.value || "0"),
+    parseFloat($("d356arDz")?.value || "0"),
+    parseFloat($("d356arDrx")?.value || "0"),
+    parseFloat($("d356arDry")?.value || "0"),
+    parseFloat($("d356arDrz")?.value || "0")
+  ];
+}
+
+function getD356arObjectName() {
+  const typedName = $("d356arObjectName") ? $("d356arObjectName").value.trim() : "";
+  const selectedName = getSelectedObjectNameForCalibration();
+  return typedName || selectedName;
+}
+
+async function d356arRecoverPendingCommit() {
+  const name = getD356arObjectName();
+  if (!name) {
+    alert("เลือก object หรือกรอก object name ก่อน");
+    return;
+  }
+
+  const confirmText = $("d356arConfirmRecover")?.value || "";
+  if (confirmText !== "RECOVER_PENDING_CALIBRATED_COMMIT") {
+    alert("พิมพ์ RECOVER_PENDING_CALIBRATED_COMMIT ใน confirm_recover ก่อน recover");
+    return;
+  }
+
+  const ok = confirm(
+    "D35.6A-R will not move the robot.\n\n" +
+    "It will recover a pending commit from the current live TCP and known target_delta.\n\n" +
+    "Recover pending commit now?"
+  );
+  if (!ok) return;
+
+  const data = await api("/api/object/recover_pending_calibrated_execute_commit", {
+    method: "POST",
+    headers: {"Content-Type": "application/json"},
+    body: JSON.stringify({
+      name: name,
+      target_delta: collectD356arTargetDelta(),
+      confirm_recover: confirmText,
+      ...collectD356aTolerancePayload()
+    })
+  });
+  showCalibrationResult(data);
+  if (!data.ok || !data.recovered) {
+    alert("D35.6A-R recovery was rejected: " + (data.reason || data.error || "unknown"));
+  }
+}
+
+function collectD357TargetDelta() {
+  return [
+    parseFloat($("d357Dx")?.value || "0"),
+    parseFloat($("d357Dy")?.value || "0"),
+    parseFloat($("d357Dz")?.value || "0"),
+    parseFloat($("d357Drx")?.value || "0"),
+    parseFloat($("d357Dry")?.value || "0"),
+    parseFloat($("d357Drz")?.value || "0")
+  ];
+}
+
+async function runD357CalibratedWorldRigidLarge(forceDryRun) {
+  const typedName = $("d357ObjectName") ? $("d357ObjectName").value.trim() : "";
+  const selectedName = getSelectedObjectNameForCalibration();
+  const name = typedName || selectedName;
+  if (!name) {
+    alert("เลือก object หรือกรอก object name ก่อน");
+    return;
+  }
+
+  const dryRun = forceDryRun ? true : false;
+  if (!dryRun) {
+    const confirmText = $("d357Confirm")?.value || "";
+    if (confirmText !== "EXECUTE_LARGE_CALIBRATED_WORLD_RIGID") {
+      alert("พิมพ์ EXECUTE_LARGE_CALIBRATED_WORLD_RIGID ใน confirm_execute ก่อน execute จริง");
+      return;
+    }
+    const ok = confirm(
+      "D35.7 can move the real robots with larger segmented motion.\n\n" +
+      "Recommended first test: +Z 50 mm, segment 10 mm. Keep E-stop ready.\n\n" +
+      "Execute now?"
+    );
+    if (!ok) return;
+  }
+
+  if ($("d357DryRun")) $("d357DryRun").checked = dryRun;
+  const data = await api("/api/object/execute_calibrated_world_rigid_large", {
+    method: "POST",
+    headers: {"Content-Type": "application/json"},
+    body: JSON.stringify({
+      name: name,
+      target_delta: collectD357TargetDelta(),
+      dry_run: dryRun,
+      confirm_execute: $("d357Confirm")?.value || "",
+      max_translation_mm: parseFloat($("d357MaxTranslation")?.value || "100.0"),
+      max_rotation_rad: parseFloat($("d357MaxRotation")?.value || "0.5"),
+      max_segment_translation_mm: parseFloat($("d357MaxSegmentTranslation")?.value || "10.0"),
+      max_segment_rotation_rad: parseFloat($("d357MaxSegmentRotation")?.value || "0.05"),
+      max_joint_delta_rad_per_segment: 0.12,
+      max_joint_delta_sum_rad_per_segment: 0.35,
+      speed_scale: parseFloat($("d357SpeedScale")?.value || "0.03"),
+      auto_commit: false
+    })
+  });
+
+  showCalibrationResult(data);
+  if (!data.ok) {
+    alert("D35.7 request was rejected: " + (data.reason || data.error || "unknown"));
+  }
+}
+
+
+async function captureObjectFrameCurrent() {
+  ensureObjectPoseInputs();
+
+  const name = ($("objectName")?.value || "demo_object").trim();
+
+  let objectPose = null;
+  try {
+    objectPose = collectObjectPoseInputs();
+  } catch (e) {
+    alert(e.message);
+    return;
+  }
+
+  const ok = confirm(
+    "Capture object frame?\\n\\n" +
+    "Name: " + name + "\\n" +
+    "ระบบจะอ่าน TCP ปัจจุบันของ left/right แล้วคำนวณ grasp offset\\n\\n" +
+    "ขั้นนี้ไม่สั่งหุ่นเคลื่อนที่"
+  );
+
+  if (!ok) return;
+
+  const data = await api("/api/object/capture_current", {
+    method: "POST",
+    headers: {"Content-Type": "application/json"},
+    body: JSON.stringify({
+      name: name,
+      object_pose: objectPose
+    })
+  });
+
+  $("objectFrameView").textContent = JSON.stringify(data, null, 2);
+  setStatus(data);
+
+  if (data.ok) {
+    updateLoadedObjectFrame(data, name, {updateInputs: true});
+    await refreshObjectList();
+    updateLoadedObjectFrame(data, name, {updateInputs: true});
+  }
+}
+
+async function refreshObjectList() {
+  const sel = $("objectSelect");
+  if (!sel) return;
+
+  const data = await api("/api/object/list");
+  sel.innerHTML = "";
+
+  if (!data.ok) {
+    setStatus(data);
+    return;
+  }
+
+  if (!data.objects || data.objects.length === 0) {
+    const opt = document.createElement("option");
+    opt.value = "";
+    opt.textContent = "(no saved objects)";
+    sel.appendChild(opt);
+    return;
+  }
+
+  data.objects.forEach(item => {
+    const opt = document.createElement("option");
+    opt.value = item.name;
+    opt.textContent = `${item.name} (${item.modified_at})`;
+    sel.appendChild(opt);
+  });
+}
+
+async function loadSelectedObjectFrame() {
+  const sel = $("objectSelect");
+  const name = sel ? sel.value : "";
+
+  if (!name) {
+    alert("เลือก object ก่อน");
+    return;
+  }
+
+  const data = await loadObjectByName(name);
+
+  $("objectFrameView").textContent = JSON.stringify(data, null, 2);
+  setStatus(data);
+}
+
+async function deleteSelectedObjectFrame() {
+  const sel = $("objectSelect");
+  const name = sel ? sel.value : "";
+
+  if (!name) {
+    alert("เลือก object ที่จะลบก่อน");
+    return;
+  }
+
+  const ok = confirm("Delete object frame: " + name + " ?");
+  if (!ok) return;
+
+  const data = await api("/api/object/delete", {
+    method: "POST",
+    headers: {"Content-Type": "application/json"},
+    body: JSON.stringify({name: name})
+  });
+
+  $("objectFrameView").textContent = JSON.stringify(data, null, 2);
+  setStatus(data);
+  await refreshObjectList();
+}
+
+
+async function runSequence() {
+  sequence = sequence.map(normalizeProgramStep);
+
+  if (sequence.length === 0) {
+    alert("ยังไม่มี waypoint ใน program");
+    return;
+  }
+
+  const summary = sequence.map((s, i) => {
+    return `${i + 1}. ${s.name} [${s.side}] v=${s.vel} a=${s.acc} delay=${s.delay}s`;
+  }).join("\n");
+
+  const ok = confirm(
+    "Run program?\n\n" +
+    summary + "\n\n" +
+    "ตรวจสอบพื้นที่หุ่น และเตรียม E-stop ก่อนกด OK"
+  );
+
+  if (!ok) return;
+
+  const data = await api("/api/program/run", {
+    method: "POST",
+    headers: {"Content-Type": "application/json"},
+    body: JSON.stringify({
+      side: "both",
+      vel: parseFloat($("moveVel").value),
+      acc: parseFloat($("moveAcc").value),
+      steps: sequence
+    })
+  });
+
+  setStatus(data);
+}
+
+
+function init() {
+  makeDirectInputs("leftJointInputs", "left");
+  makeDirectInputs("rightJointInputs", "right");
+  makeTcpInputs("leftTcpInputs", "leftTcp");
+  makeTcpInputs("rightTcpInputs", "rightTcp");
+
+  setSide("both");
+  setCoord("base");
+  buildButtons();
+  renderSequence();
+
+  loadWaypoints(true);
+  refreshStatus();
+
+  setInterval(refreshPoseMonitor, 500);
+}
+
+init();
+
+// D32_OBJECT_POSE_DOM_READY_HOTFIX
+document.addEventListener("DOMContentLoaded", () => {
+  try {
+    ensureObjectPoseInputs();
+    if (typeof refreshObjectList === "function") {
+      refreshObjectList();
+    }
+  } catch (e) {
+    console.warn("Object pose init skipped:", e);
+  }
+});
+
+
+
+function servoOutput(data) {
+  const el = $("objectFrameView") || $("statusJson") || $("status");
+  if (el) {
+    el.textContent = JSON.stringify(data, null, 2);
+  }
+  setStatus(data);
+}
+
+async function enableServoSelected(enable) {
+  const side = $("servoSide") ? $("servoSide").value : "left";
+
+  const ok = confirm(
+    (enable ? "Enable" : "Disable") + " servo mode?\n\n" +
+    "Side: " + side + "\n\n" +
+    "Servo mode มีผลกับการควบคุมหุ่นจริง ตรวจสอบพื้นที่และ E-stop ก่อนกด OK"
+  );
+
+  if (!ok) return;
+
+  const data = await api("/api/servo/enable", {
+    method: "POST",
+    headers: {"Content-Type": "application/json"},
+    body: JSON.stringify({
+      side: side,
+      enable: enable
+    })
+  });
+
+  servoOutput(data);
+}
+
+async function servoTinyTest() {
+  const side = $("servoSide") ? $("servoSide").value : "left";
+  const jointIndex = parseInt($("servoJointIndex") ? $("servoJointIndex").value : "5");
+  const delta = parseFloat($("servoDelta") ? $("servoDelta").value : "0.0005");
+  const repeats = parseInt($("servoRepeats") ? $("servoRepeats").value : "1");
+
+  const ok = confirm(
+    "Run Tiny Servo Test?\n\n" +
+    "Side: " + side + "\n" +
+    "Joint: J" + (jointIndex + 1) + "\n" +
+    "Delta: " + delta + " rad\n" +
+    "Repeats: " + repeats + "\n\n" +
+    "คำสั่งนี้จะขยับ joint แบบ incremental เล็กมาก\n" +
+    "เตรียม E-stop และเริ่มจาก side = left ก่อน"
+  );
+
+  if (!ok) return;
+
+  const data = await api("/api/servo/tiny_test", {
+    method: "POST",
+    headers: {"Content-Type": "application/json"},
+    body: JSON.stringify({
+      side: side,
+      joint_index: jointIndex,
+      delta: delta,
+      repeats: repeats,
+      interval: 0.05,
+      auto_enable: true,
+      auto_disable: true
+    })
+  });
+
+  servoOutput(data);
+}
+
+
+
+
+async function syncCurrentObjectPoseFromLive() {
+  const objectSelect = $("objectSelect");
+  const nameInput = $("objectName");
+
+  const name =
+    (objectSelect && objectSelect.value ? objectSelect.value : "") ||
+    (nameInput && nameInput.value ? nameInput.value.trim() : "");
+
+  if (!name) {
+    alert("Please select or enter object name first.");
+    return;
+  }
+
+  const ok = confirm(
+    "Sync current_object_pose from LIVE TCP midpoint?\\n\\n" +
+    "This will NOT move the robot.\\n" +
+    "Use this after Home/Jog/Stop/manual reposition before executing object motion."
+  );
+
+  if (!ok) return;
+
+  const data = await api("/api/object/sync_current_from_live", {
+    method: "POST",
+    headers: {"Content-Type": "application/json"},
+    body: JSON.stringify({name: name})
+  });
+
+  const view = $("objectFrameView") || $("statusJson") || $("status");
+  if (view) view.textContent = JSON.stringify(data, null, 2);
+  setStatus(data);
+
+  if (data.ok && (data.updated_object_frame || data.live_object_pose)) {
+    updateLoadedObjectFrame(data, name, {updateInputs: true});
+    const pose = data.current_object_pose || data.live_object_pose;
+    if (Array.isArray(pose)) {
+      setObjectPoseInputs(pose);
+    }
+    alert(
+      "Synced current object pose from live TCP.\\n" +
+      "Z = " + Number((pose || [0, 0, 0])[2]).toFixed(3)
+    );
+  } else {
+    alert("Sync failed: " + (data.error || JSON.stringify(data)));
+  }
+}
+
+async function executeObjectServoStream() {
+  const sel = $("objectSelect");
+  const selectedName = sel ? sel.value : "";
+  const inputName = $("objectName") ? $("objectName").value.trim() : "";
+  const name = selectedName || inputName;
+
+  if (!name) {
+    alert("เลือก object หรือกรอก object name ก่อน");
+    return;
+  }
+
+  let targetPose = null;
+  try {
+    targetPose = collectObjectPoseInputs();
+  } catch (e) {
+    alert(e.message);
+    return;
+  }
+
+  const steps = parseInt($("objectServoSteps")?.value || "120");
+  const interval = parseFloat($("objectServoInterval")?.value || "0.025");
+
+  const ok = confirm(
+    "Execute SERVO Smooth Cooperative Move?\n\n" +
+    "Object: " + name + "\n" +
+    "Steps: " + steps + "\n" +
+    "Interval: " + interval + " s\n" +
+    "Estimated duration: " + (steps * interval).toFixed(2) + " s\n\n" +
+    "รอบนี้เป็น servo_j incremental streaming และจะขยับหุ่นจริง\n" +
+    "แนะนำเริ่มจาก Z +20 mm, steps 120, interval 0.025\n\n" +
+    "ตรวจสอบพื้นที่และเตรียม E-stop ก่อนกด OK"
+  );
+
+  if (!ok) return;
+
+  const data = await api("/api/object/servo_stream", {
+    method: "POST",
+    headers: {"Content-Type": "application/json"},
+    body: JSON.stringify({
+      name: name,
+      side: "both",
+      target_object_pose: targetPose,
+      steps: steps,
+      interval: interval,
+      auto_enable: true,
+      auto_disable: true
+    })
+  });
+
+  $("objectFrameView").textContent = JSON.stringify(data, null, 2);
+  setStatus(data);
+
+  if (data.ok) {
+    await loadObjectByName(name);
+  }
+}
+
+</script>
+
+<!-- D33.3D Real Motion Detection From Status -->
+<script>
+(function () {
+  let prevMotionSnapshot = null;
+  let movingHoldUntil = 0;
+  let lastBackendActivity = null;
+
+  const MOVING_HOLD_MS = 900;
+  const STATUS_POLL_MS = 250;
+
+  function ensureBadge() {
+    let b = document.getElementById("robotActivityBadge");
+    if (!b) {
+      b = document.createElement("div");
+      b.id = "robotActivityBadge";
+      document.body.appendChild(b);
+    }
+    b.style.position = "fixed";
+    b.style.right = "18px";
+    b.style.bottom = "18px";
+    b.style.zIndex = "99999";
+    b.style.padding = "10px 14px";
+    b.style.borderRadius = "12px";
+    b.style.fontFamily = "system-ui, sans-serif";
+    b.style.fontSize = "14px";
+    b.style.fontWeight = "700";
+    b.style.color = "white";
+    b.style.boxShadow = "0 4px 18px rgba(0,0,0,0.25)";
+    return b;
+  }
+
+  function setBadge(mode, title, sub) {
+    const b = ensureBadge();
+    b.className = mode;
+    if (mode === "idle") b.style.background = "#166534";
+    else if (mode === "running") b.style.background = "#c2410c";
+    else if (mode === "moving") b.style.background = "#ca8a04";
+    else if (mode === "error") b.style.background = "#991b1b";
+    else b.style.background = "#334155";
+    b.innerHTML = `${title}<span class="sub" style="display:block;font-size:11px;font-weight:500;opacity:.9;margin-top:2px;">${sub || ""}</span>`;
+  }
+
+  function isNumericArray(x) {
+    return Array.isArray(x) && x.length >= 3 && x.slice(0, 6).every(v => typeof v === "number" && Number.isFinite(v));
+  }
+
+  function collectPoseLikeArrays(obj, path = "", out = {}) {
+    if (!obj) return out;
+
+    if (isNumericArray(obj)) {
+      const low = path.toLowerCase();
+      const useful =
+        low.includes("joint") ||
+        low.includes("tcp") ||
+        low.includes("tool") ||
+        low.includes("pose") ||
+        low.includes("position") ||
+        low.includes("cartesian");
+
+      const side =
+        low.includes("left") ||
+        low.includes("right");
+
+      if (useful && side) out[path] = obj.slice(0, 6);
+    } else if (Array.isArray(obj)) {
+      obj.forEach((v, i) => collectPoseLikeArrays(v, `${path}[${i}]`, out));
+    } else if (typeof obj === "object") {
+      Object.entries(obj).forEach(([k, v]) => {
+        const next = path ? `${path}.${k}` : k;
+        collectPoseLikeArrays(v, next, out);
+      });
+    }
+
+    return out;
+  }
+
+  function maxAbsDelta(a, b) {
+    if (!Array.isArray(a) || !Array.isArray(b)) return 0;
+    const n = Math.min(a.length, b.length);
+    let m = 0;
+    for (let i = 0; i < n; i++) {
+      const d = Math.abs(Number(a[i]) - Number(b[i]));
+      if (Number.isFinite(d)) m = Math.max(m, d);
+    }
+    return m;
+  }
+
+  function detectMoving(snapshot, prev) {
+    if (!snapshot || !prev) return { moving: false, maxDelta: 0, key: null };
+
+    let maxDelta = 0;
+    let maxKey = null;
+    let moving = false;
+
+    for (const [key, arr] of Object.entries(snapshot)) {
+      if (!prev[key]) continue;
+      const d = maxAbsDelta(arr, prev[key]);
+      const low = key.toLowerCase();
+
+      // TCP/tool/pose are usually mm/rad. Joint may be rad or deg depending on backend.
+      const threshold = low.includes("joint") ? 0.0005 : 0.05;
+
+      if (d > maxDelta) {
+        maxDelta = d;
+        maxKey = key;
+      }
+      if (d > threshold) moving = true;
+    }
+
+    return { moving, maxDelta, key: maxKey };
+  }
+
+  async function pollBackendActivity() {
+    try {
+      const res = await fetch("/api/robot/activity", { cache: "no-store" });
+      lastBackendActivity = await res.json();
+    } catch (e) {
+      lastBackendActivity = { state: "offline", error: "Cannot read backend activity" };
+    }
+  }
+
+  async function pollRealMotionStatus() {
+    try {
+      const res = await fetch("/api/status", { cache: "no-store" });
+      const status = await res.json();
+
+      const snap = collectPoseLikeArrays(status);
+      const det = detectMoving(snap, prevMotionSnapshot);
+      prevMotionSnapshot = snap;
+
+      const now = Date.now();
+      if (det.moving) {
+        movingHoldUntil = now + MOVING_HOLD_MS;
+      }
+
+      const backend = lastBackendActivity || {};
+      const backendRunning = backend.active || backend.active_commands > 0 || backend.state === "running";
+      const backendError = backend.state === "error" || backend.state === "offline";
+      const realMoving = now < movingHoldUntil;
+
+      if (backendError) {
+        setBadge("error", "🔴 ERROR", backend.last_error || backend.error || "Backend/activity error");
+      } else if (realMoving) {
+        setBadge("moving", "🟡 MOVING", det.key ? `Live pose changing: ${det.key}` : "Robot still moving");
+      } else if (backendRunning) {
+        setBadge("running", "🟠 COMMAND", backend.last_path || "Backend command active");
+      } else {
+        setBadge("idle", "🟢 IDLE", "Live pose stable");
+      }
+    } catch (e) {
+      setBadge("error", "🔴 STATUS ERROR", "Cannot read /api/status");
+    }
+  }
+
+  setInterval(pollBackendActivity, 500);
+  setInterval(pollRealMotionStatus, STATUS_POLL_MS);
+  setTimeout(pollBackendActivity, 200);
+  setTimeout(pollRealMotionStatus, 400);
+})();
+</script>
+
+
+<!-- D33.3E Safety Checklist Panel -->
+<style>
+  #safetyChecklistPanel {
+    position: fixed;
+    right: 18px;
+    bottom: 88px;
+    z-index: 99998;
+    min-width: 260px;
+    padding: 12px 14px;
+    border-radius: 14px;
+    font-family: system-ui, sans-serif;
+    font-size: 13px;
+    color: white;
+    background: rgba(15, 23, 42, 0.95);
+    border: 1px solid rgba(255,255,255,0.18);
+    box-shadow: 0 4px 18px rgba(0,0,0,0.25);
+  }
+  #safetyChecklistPanel .title {
+    font-weight: 800;
+    margin-bottom: 8px;
+  }
+  #safetyChecklistPanel .row {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    margin: 4px 0;
+  }
+  #safetyChecklistPanel .label {
+    opacity: 0.9;
+  }
+  #safetyChecklistPanel .value {
+    font-weight: 800;
+  }
+  #safetyChecklistPanel .pass { color: #86efac; }
+  #safetyChecklistPanel .fail { color: #fca5a5; }
+  #safetyChecklistPanel .warn { color: #fde68a; }
+  #safetyChecklistPanel .neutral { color: #cbd5e1; }
+  #safetyChecklistPanel .small {
+    margin-top: 8px;
+    font-size: 11px;
+    opacity: 0.82;
+    line-height: 1.25;
+  }
+</style>
+
+<div id="safetyChecklistPanel">
+  <div class="title">🛡️ Safety Checklist</div>
+  <div class="row"><span class="label">Motion Limit</span><span id="safetyMotionLimit" class="value neutral">-</span></div>
+  <div class="row"><span class="label">Freshness</span><span id="safetyFreshness" class="value neutral">-</span></div>
+  <div class="row"><span class="label">IK Jump</span><span id="safetyIkJump" class="value neutral">-</span></div>
+  <div class="row"><span class="label">Last Result</span><span id="safetyLastResult" class="value neutral">READY</span></div>
+  <div id="safetyChecklistNote" class="small">Use Sync → Validate → Preview → Execute.</div>
+</div>
+
+<script>
+(function () {
+  function setText(id, text, cls) {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.textContent = text;
+    el.className = "value " + (cls || "neutral");
+  }
+
+  function fmtNum(x, digits) {
+    if (typeof x !== "number" || !Number.isFinite(x)) return "-";
+    return x.toFixed(digits);
+  }
+
+  function updateFromResult(data) {
+    if (!data || typeof data !== "object") return;
+
+    const note = document.getElementById("safetyChecklistNote");
+
+    const ml = data.motion_limit_check || (
+      data.code && String(data.code).includes("object_motion")
+        ? data
+        : null
+    );
+
+    if (ml && typeof ml === "object") {
+      if (ml.ok) {
+        setText("safetyMotionLimit", "PASS", "pass");
+      } else {
+        setText("safetyMotionLimit", "FAIL", "fail");
+      }
+
+      if (note && typeof ml.translation_delta_mm === "number") {
+        note.textContent =
+          `ΔT ${fmtNum(ml.translation_delta_mm, 2)} mm, ` +
+          `ΔR ${fmtNum(ml.rotation_delta_rad, 4)} rad`;
+      }
+    }
+
+    const fr = data.freshness_check;
+    if (fr && typeof fr === "object") {
+      if (fr.ok) {
+        setText("safetyFreshness", "PASS", "pass");
+      } else {
+        setText("safetyFreshness", "STALE", "fail");
+      }
+    }
+
+    const ik = data.ik_joint_jump_check || (
+      data.code && String(data.code).includes("ik_joint_jump")
+        ? data
+        : null
+    );
+
+    if (ik && typeof ik === "object") {
+      if (ik.ok) {
+        setText("safetyIkJump", "PASS", "pass");
+      } else {
+        setText("safetyIkJump", "FAIL", "fail");
+      }
+    }
+
+    if (data.ok === false) {
+      setText("safetyLastResult", "BLOCKED", "fail");
+      if (note) note.textContent = data.code || data.error || "Command blocked";
+    } else if (data.ok === true && data.message && String(data.message).includes("completed")) {
+      setText("safetyLastResult", "EXECUTED", "pass");
+    } else if (data.ok === true) {
+      setText("safetyLastResult", "READY", "pass");
+    }
+  }
+
+  const oldFetch = window.fetch;
+  window.fetch = async function () {
+    const res = await oldFetch.apply(this, arguments);
+
+    try {
+      const clone = res.clone();
+      clone.json().then(updateFromResult).catch(() => {});
+    } catch (e) {}
+
+    return res;
+  };
+
+  window.__updateSafetyChecklist = updateFromResult;
+})();
+</script>
+
+
+<!-- D33.4 Demo Ready Execute Gate -->
+<style>
+  #demoReadyPanel {
+    position: fixed;
+    left: 18px;
+    bottom: 18px;
+    z-index: 99998;
+    min-width: 270px;
+    padding: 12px 14px;
+    border-radius: 14px;
+    font-family: system-ui, sans-serif;
+    font-size: 13px;
+    color: white;
+    background: rgba(15, 23, 42, 0.95);
+    border: 1px solid rgba(255,255,255,0.18);
+    box-shadow: 0 4px 18px rgba(0,0,0,0.25);
+  }
+  #demoReadyPanel .demo-title {
+    font-weight: 900;
+    margin-bottom: 8px;
+  }
+  #demoReadyPanel .demo-state {
+    font-weight: 900;
+    font-size: 15px;
+    padding: 7px 9px;
+    border-radius: 10px;
+    margin-bottom: 8px;
+    text-align: center;
+  }
+  #demoReadyPanel .ready {
+    background: #166534;
+  }
+  #demoReadyPanel .not-ready {
+    background: #92400e;
+  }
+  #demoReadyPanel .blocked {
+    background: #991b1b;
+  }
+  #demoReadyPanel .demo-row {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    margin: 4px 0;
+  }
+  #demoReadyPanel .pass { color: #86efac; font-weight: 800; }
+  #demoReadyPanel .fail { color: #fca5a5; font-weight: 800; }
+  #demoReadyPanel .pending { color: #cbd5e1; font-weight: 800; }
+  #demoReadyPanel .small {
+    margin-top: 8px;
+    font-size: 11px;
+    opacity: 0.82;
+    line-height: 1.25;
+  }
+</style>
+
+<div id="demoReadyPanel">
+  <div class="demo-title">🎬 Demo Execute Gate</div>
+  <div id="demoReadyState" class="demo-state not-ready">⚠️ NOT READY</div>
+  <div class="demo-row"><span>1. Motion Limit</span><span id="demoMotionLimit" class="pending">PENDING</span></div>
+  <div class="demo-row"><span>2. Freshness</span><span id="demoFreshness" class="pending">PENDING</span></div>
+  <div class="demo-row"><span>3. IK Jump</span><span id="demoIkJump" class="pending">PENDING</span></div>
+  <div class="small">Recommended flow: Sync → Validate Target → Validate IK Jump → Preview → Execute.</div>
+</div>
+
+<script>
+(function () {
+  const demoSafety = {
+    motionLimit: null,
+    freshness: null,
+    ikJump: null,
+    lastBlocked: false,
+    lastUpdatedAt: 0
+  };
+
+  function el(id) {
+    return document.getElementById(id);
+  }
+
+  function setItem(id, val) {
+    const node = el(id);
+    if (!node) return;
+
+    if (val === true) {
+      node.textContent = "PASS";
+      node.className = "pass";
+    } else if (val === false) {
+      node.textContent = "FAIL";
+      node.className = "fail";
+    } else {
+      node.textContent = "PENDING";
+      node.className = "pending";
+    }
+  }
+
+  function isReady() {
+    return demoSafety.motionLimit === true &&
+           demoSafety.freshness === true &&
+           demoSafety.ikJump === true;
+  }
+
+  function renderDemoReady() {
+    setItem("demoMotionLimit", demoSafety.motionLimit);
+    setItem("demoFreshness", demoSafety.freshness);
+    setItem("demoIkJump", demoSafety.ikJump);
+
+    const state = el("demoReadyState");
+    if (!state) return;
+
+    if (demoSafety.lastBlocked) {
+      state.textContent = "⛔ BLOCKED";
+      state.className = "demo-state blocked";
+    } else if (isReady()) {
+      state.textContent = "✅ READY TO EXECUTE";
+      state.className = "demo-state ready";
+    } else {
+      state.textContent = "⚠️ NOT READY";
+      state.className = "demo-state not-ready";
+    }
+  }
+
+  function updateDemoSafetyFromResult(data) {
+    if (!data || typeof data !== "object") return;
+
+    // Reset blocked flag when a new successful validation/check comes in.
+    if (data.ok === true) demoSafety.lastBlocked = false;
+    if (data.ok === false) demoSafety.lastBlocked = true;
+
+    const ml = data.motion_limit_check || (
+      data.code && String(data.code).includes("object_motion") ? data : null
+    );
+    if (ml && typeof ml === "object") {
+      demoSafety.motionLimit = !!ml.ok;
+    }
+
+    const fr = data.freshness_check;
+    if (fr && typeof fr === "object") {
+      demoSafety.freshness = !!fr.ok;
+    }
+
+    const ik = data.ik_joint_jump_check || (
+      data.code && String(data.code).includes("ik_joint_jump") ? data : null
+    );
+    if (ik && typeof ik === "object") {
+      demoSafety.ikJump = !!ik.ok;
+    }
+
+    // When object is loaded/synced, require fresh validation again.
+    if (data.object || data.current_object_pose || data.live_object_pose) {
+      if (!data.motion_limit_check && !data.ik_joint_jump_check && !data.freshness_check) {
+        demoSafety.motionLimit = null;
+        demoSafety.ikJump = null;
+        // Sync response itself can imply freshness only if it has live/current pose,
+        // but require preview/freshness guard before execute for clarity.
+        demoSafety.freshness = null;
+        demoSafety.lastBlocked = false;
+      }
+    }
+
+    demoSafety.lastUpdatedAt = Date.now();
+    renderDemoReady();
+  }
+
+  function isExecuteEndpoint(url, options) {
+    const u = String(url || "");
+    const method = String((options && options.method) || "GET").toUpperCase();
+    if (method === "GET") return false;
+    return (
+      u.includes("/api/object/servo_stream") ||
+      u.includes("/api/object/execute_move") ||
+      u.includes("/api/object/execute_interpolated")
+    );
+  }
+
+  const prevFetch = window.fetch;
+  window.fetch = async function(url, options) {
+    if (isExecuteEndpoint(url, options) && !isReady()) {
+      const proceed = window.confirm(
+        "Safety checklist is NOT READY.\n\n" +
+        "Recommended: Sync → Validate Target → Validate IK Jump → Preview first.\n\n" +
+        "Continue execute anyway?"
+      );
+      if (!proceed) {
+        return new Response(JSON.stringify({
+          ok: false,
+          code: "ui_execute_cancelled_not_ready",
+          motion_blocked: true,
+          error: "User cancelled execute because safety checklist was not ready."
+        }), {
+          status: 200,
+          headers: { "Content-Type": "application/json" }
+        });
+      }
+    }
+
+    const res = await prevFetch.apply(this, arguments);
+
+    try {
+      const clone = res.clone();
+      clone.json().then(updateDemoSafetyFromResult).catch(() => {});
+    } catch (e) {}
+
+    return res;
+  };
+
+  window.__demoSafety = demoSafety;
+  window.__updateDemoSafetyFromResult = updateDemoSafetyFromResult;
+  renderDemoReady();
+})();
+</script>
+
+
+<script>
+function getD35ObjectName() {
+  const el = document.getElementById("d35ObjectName");
+  if (el && el.value && el.value.trim()) return el.value.trim();
+
+  const candidates = [
+    "objectName",
+    "object_name",
+    "selectedObjectName",
+    "objectSelect",
+    "objectDropdown"
+  ];
+
+  for (const id of candidates) {
+    const x = document.getElementById(id);
+    if (x && x.value && x.value.trim()) return x.value.trim();
+  }
+
+  return "Test2";
+}
+</script>
+
+</body>
+</html>

@@ -1,0 +1,707 @@
+#!/usr/bin/env python3
+import json
+import threading
+import time
+from pathlib import Path
+from typing import Optional, Dict, Any
+
+import yaml
+import rclpy
+from rclpy.node import Node
+
+from fastapi import FastAPI
+from fastapi.responses import FileResponse
+from fastapi.middleware.cors import CORSMiddleware
+from pydantic import BaseModel
+
+from std_srvs.srv import Empty
+from sensor_msgs.msg import JointState
+from jaka_msgs.msg import RobotMsg
+from jaka_msgs.srv import Move
+
+
+COORD_MODE = {
+    "joint": 0,
+    "base": 1,
+    "tool": 2,
+}
+
+AXIS_INDEX = {
+    "j1": 0, "joint1": 0, "1": 0,
+    "j2": 1, "joint2": 1, "2": 1,
+    "j3": 2, "joint3": 2, "3": 2,
+    "j4": 3, "joint4": 3, "4": 3,
+    "j5": 4, "joint5": 4, "5": 4,
+    "j6": 5, "joint6": 5, "6": 5,
+
+    "x": 0,
+    "y": 1,
+    "z": 2,
+    "rx": 3,
+    "ry": 4,
+    "rz": 5,
+}
+
+
+class JogStartRequest(BaseModel):
+    side: str
+    coord: str
+    axis: str
+    direction: str
+    speed: float
+    sync_mode: str = "same"
+
+
+class StopRequest(BaseModel):
+    side: str = "both"
+
+
+class HomeRequest(BaseModel):
+    side: str = "both"
+    vel: Optional[float] = None
+    acc: Optional[float] = None
+    vel: Optional[float] = None
+    acc: Optional[float] = None
+
+
+class WaypointSaveRequest(BaseModel):
+    name: str
+    side: str = "both"
+
+
+class WaypointRunRequest(BaseModel):
+    name: str
+    side: str = "both"
+    vel: Optional[float] = None
+    acc: Optional[float] = None
+
+
+class SequenceRunRequest(BaseModel):
+    names: list[str]
+    side: str = "both"
+    vel: Optional[float] = None
+    acc: Optional[float] = None
+
+
+class DualJakaWebNode(Node):
+    def __init__(self, cfg):
+        super().__init__("dual_jaka_web_backend")
+        self.cfg = cfg
+
+        self.left_joint = None
+        self.right_joint = None
+        self.left_state = None
+        self.right_state = None
+
+        self.active_jog: Optional[Dict[str, Any]] = None
+        self.active_sequence: Optional[Dict[str, Any]] = None
+        self.sequence_cancel_requested = False
+        self.stop_generation = 0
+        self.active_motion: Optional[Dict[str, Any]] = None
+        self.active_lock = threading.Lock()
+        self.last_jog_time = 0.0
+        self.deadman_timeout = 0.45
+        self.repeat_period = 0.12
+
+        self.waypoint_path = Path.home() / "jaka_ws/dual_arm_app/tasks/waypoints.json"
+        self.waypoint_path.parent.mkdir(parents=True, exist_ok=True)
+
+        self.create_subscription(JointState, f"{cfg['left']['prefix']}/joint_position", self.left_joint_cb, 10)
+        self.create_subscription(JointState, f"{cfg['right']['prefix']}/joint_position", self.right_joint_cb, 10)
+        self.create_subscription(RobotMsg, f"{cfg['left']['prefix']}/robot_states", self.left_state_cb, 10)
+        self.create_subscription(RobotMsg, f"{cfg['right']['prefix']}/robot_states", self.right_state_cb, 10)
+
+        self.left_jog = self.create_client(Move, f"{cfg['left']['prefix']}/jog")
+        self.right_jog = self.create_client(Move, f"{cfg['right']['prefix']}/jog")
+        self.left_move = self.create_client(Move, f"{cfg['left']['prefix']}/joint_move")
+        self.right_move = self.create_client(Move, f"{cfg['right']['prefix']}/joint_move")
+        self.left_stop = self.create_client(Empty, f"{cfg['left']['prefix']}/stop_move")
+        self.right_stop = self.create_client(Empty, f"{cfg['right']['prefix']}/stop_move")
+
+        self.jog_thread = threading.Thread(target=self.jog_loop, daemon=True)
+        self.jog_thread.start()
+
+    def left_joint_cb(self, msg):
+        self.left_joint = list(msg.position)[:6]
+
+    def right_joint_cb(self, msg):
+        self.right_joint = list(msg.position)[:6]
+
+    def left_state_cb(self, msg):
+        self.left_state = msg
+
+    def right_state_cb(self, msg):
+        self.right_state = msg
+
+    def robot_state_dict(self, state):
+        if state is None:
+            return None
+        return {
+            "power_state": int(state.power_state),
+            "servo_state": int(state.servo_state),
+            "motion_state": int(state.motion_state),
+            "collision_state": int(state.collision_state),
+        }
+
+    def status(self):
+        return {
+            "left": {
+                "joint": self.left_joint,
+                "state": self.robot_state_dict(self.left_state),
+            },
+            "right": {
+                "joint": self.right_joint,
+                "state": self.robot_state_dict(self.right_state),
+            },
+            "active_jog": self.active_jog,
+            "active_motion": self.active_motion,
+            "active_sequence": self.active_sequence,
+            "waypoints": self.load_waypoints(),
+        }
+
+    def safe_state_ok(self, side):
+        selected = []
+        if side in ("left", "both"):
+            selected.append(("LEFT", self.left_state))
+        if side in ("right", "both"):
+            selected.append(("RIGHT", self.right_state))
+
+        for label, s in selected:
+            if s is None:
+                return False, f"{label}: no state"
+            if s.power_state != 1:
+                return False, f"{label}: power_state={s.power_state}"
+            if s.servo_state != 1:
+                return False, f"{label}: servo_state={s.servo_state}"
+            if s.collision_state != 0:
+                return False, f"{label}: collision_state={s.collision_state}"
+
+        return True, "ok"
+
+    def axis_to_index(self, axis, direction):
+        axis = axis.lower()
+        if axis not in AXIS_INDEX:
+            raise ValueError(f"Unknown axis: {axis}")
+
+        base = AXIS_INDEX[axis] * 2
+        if direction == "+":
+            return base
+        if direction == "-":
+            return base + 1
+        raise ValueError("direction must be + or -")
+
+    def invert_index_direction(self, idx):
+        return idx + 1 if idx % 2 == 0 else idx - 1
+
+    def get_side_signs(self, side, coord):
+        motion = self.cfg.setdefault("motion", {})
+
+        if side == "left":
+            if coord == "joint":
+                return motion.get("left_joint_sign_same_physical", [1, 1, 1, 1, 1, 1])
+            if coord == "base":
+                return motion.get("left_tcp_base_sign_same_physical", [1, 1, 1, 1, 1, 1])
+            if coord == "tool":
+                return motion.get("left_tcp_tool_sign_same_physical", [1, 1, 1, 1, 1, 1])
+
+        if side == "right":
+            if coord == "joint":
+                return motion.get("right_joint_sign_same_physical", [1, 1, 1, 1, 1, 1])
+            if coord == "base":
+                return motion.get("right_tcp_base_sign_same_physical", [1, 1, 1, 1, 1, 1])
+            if coord == "tool":
+                return motion.get("right_tcp_tool_sign_same_physical", [1, 1, 1, 1, 1, 1])
+
+        return [1, 1, 1, 1, 1, 1]
+
+    def apply_sign_to_index(self, idx, factor):
+        return self.invert_index_direction(idx) if factor < 0 else idx
+
+    def compute_indices(self, side, coord, axis, direction, sync_mode):
+        base_idx = self.axis_to_index(axis, direction)
+
+        if sync_mode == "raw":
+            return base_idx, base_idx
+
+        axis_i = AXIS_INDEX[axis.lower()]
+        left_signs = self.get_side_signs("left", coord)
+        right_signs = self.get_side_signs("right", coord)
+
+        if len(left_signs) != 6:
+            raise ValueError("left sign map must contain 6 values")
+        if len(right_signs) != 6:
+            raise ValueError("right sign map must contain 6 values")
+
+        left_factor = float(left_signs[axis_i])
+        right_factor = float(right_signs[axis_i])
+
+        if side == "both" and sync_mode == "mirror":
+            right_factor *= -1.0
+        elif sync_mode != "same":
+            raise ValueError("sync_mode must be raw, same, or mirror")
+
+        left_idx = self.apply_sign_to_index(base_idx, left_factor)
+        right_idx = self.apply_sign_to_index(base_idx, right_factor)
+
+        return left_idx, right_idx
+
+    def make_jog_request(self, coord, index, speed):
+        req = Move.Request()
+        req.pose = [0.0] * 6
+        req.has_ref = False
+        req.ref_joint = []
+        req.mvvelo = 0.0
+        req.mvacc = float(speed)  # driver jog ใช้ mvacc เป็น jog velocity
+        req.mvtime = 0.0
+        req.mvradii = 0.0
+        req.coord_mode = int(COORD_MODE[coord])
+        req.index = int(index)
+        return req
+
+    def make_joint_move_request(self, joints, vel, acc):
+        req = Move.Request()
+        req.pose = [float(x) for x in joints]
+        req.has_ref = False
+        req.ref_joint = []
+        req.mvvelo = float(vel)
+        req.mvacc = float(acc)
+        req.mvtime = 0.0
+        req.mvradii = 0.0
+        req.coord_mode = 0
+        req.index = 0
+        return req
+
+    def send_jog_once(self, cmd):
+        side = cmd["side"]
+        coord = cmd["coord"]
+        axis = cmd["axis"]
+        direction = cmd["direction"]
+        speed = cmd["speed"]
+        sync_mode = cmd["sync_mode"]
+
+        ok, msg = self.safe_state_ok(side)
+        if not ok:
+            self.get_logger().error(f"Unsafe state during jog: {msg}")
+            self.stop_motion("both")
+            with self.active_lock:
+                self.active_jog = None
+            return
+
+        left_idx, right_idx = self.compute_indices(
+            side=side,
+            coord=coord,
+            axis=axis,
+            direction=direction,
+            sync_mode=sync_mode,
+        )
+
+        if side in ("left", "both"):
+            self.left_jog.call_async(self.make_jog_request(coord, left_idx, speed))
+
+        if side in ("right", "both"):
+            self.right_jog.call_async(self.make_jog_request(coord, right_idx, speed))
+
+    def jog_loop(self):
+        while True:
+            time.sleep(self.repeat_period)
+            with self.active_lock:
+                cmd = dict(self.active_jog) if self.active_jog else None
+
+            if cmd is None:
+                continue
+
+            if time.time() - self.last_jog_time > self.deadman_timeout:
+                self.get_logger().warn("Jog deadman timeout. Stop both.")
+                self.stop_motion("both")
+                with self.active_lock:
+                    self.active_jog = None
+                continue
+
+            self.send_jog_once(cmd)
+
+    def start_jog(self, req: JogStartRequest):
+        if req.side not in ("left", "right", "both"):
+            return {"ok": False, "error": "side must be left, right, or both"}
+        if req.coord not in ("joint", "base", "tool"):
+            return {"ok": False, "error": "coord must be joint, base, or tool"}
+        if req.direction not in ("+", "-"):
+            return {"ok": False, "error": "direction must be + or -"}
+        if req.sync_mode not in ("raw", "same", "mirror"):
+            return {"ok": False, "error": "sync_mode must be raw, same, or mirror"}
+
+        ok, msg = self.safe_state_ok(req.side)
+        if not ok:
+            return {"ok": False, "error": msg}
+
+        cmd = {
+            "side": req.side,
+            "coord": req.coord,
+            "axis": req.axis.lower(),
+            "direction": req.direction,
+            "speed": float(req.speed),
+            "sync_mode": req.sync_mode,
+        }
+
+        with self.active_lock:
+            self.active_jog = cmd
+            self.last_jog_time = time.time()
+
+        self.send_jog_once(cmd)
+
+        return {"ok": True, "active_jog": cmd}
+
+    def heartbeat_jog(self):
+        with self.active_lock:
+            if self.active_jog is None:
+                return {"ok": False, "error": "no active jog"}
+            self.last_jog_time = time.time()
+            return {"ok": True, "active_jog": self.active_jog}
+
+    def stop_jog(self, side="both"):
+        with self.active_lock:
+            self.active_jog = None
+            self.active_motion = None
+        self.stop_motion(side)
+        return {"ok": True, "stopped": side}
+
+    def stop_motion(self, side="both"):
+        req = Empty.Request()
+        if side in ("left", "both"):
+            self.left_stop.call_async(req)
+        if side in ("right", "both"):
+            self.right_stop.call_async(req)
+
+    def move_both_joint(self, left_target=None, right_target=None, side="both", vel=None, acc=None):
+        # Send one controller-side joint_move command and return immediately.
+        # Requires patched jaka_driver where joint_move is non-blocking.
+        ok, msg = self.safe_state_ok(side)
+        if not ok:
+            return {"ok": False, "error": msg}
+
+        vel = float(vel if vel is not None else self.cfg["motion"].get("default_joint_vel", 0.18))
+        acc = float(acc if acc is not None else self.cfg["motion"].get("default_joint_acc", 0.30))
+
+        if side in ("left", "both") and left_target is None:
+            return {"ok": False, "error": "left target missing"}
+
+        if side in ("right", "both") and right_target is None:
+            return {"ok": False, "error": "right target missing"}
+
+        self.motion_cancel_requested = False
+        self.active_motion = {
+            "side": side,
+            "vel": vel,
+            "acc": acc,
+            "started_at": time.strftime("%Y-%m-%d %H:%M:%S"),
+            "type": "single_nonblocking_joint_move",
+            "status": "sent",
+        }
+
+        if side in ("left", "both"):
+            self.left_move.call_async(
+                self.make_joint_move_request(left_target, vel, acc)
+            )
+
+        if side in ("right", "both"):
+            self.right_move.call_async(
+                self.make_joint_move_request(right_target, vel, acc)
+            )
+
+        return {
+            "ok": True,
+            "accepted": True,
+            "message": "single non-blocking joint_move sent",
+            "side": side,
+            "vel": vel,
+            "acc": acc,
+        }
+
+    def request_stop_all(self, side="both"):
+        # Global stop latch:
+        # กด STOP ครั้งเดียวต้องหยุด motion ปัจจุบัน + ยกเลิก sequence ทั้งหมด
+        self.stop_generation = getattr(self, "stop_generation", 0) + 1
+        self.motion_cancel_requested = True
+        self.sequence_cancel_requested = True
+
+        with self.active_lock:
+            self.active_jog = None
+
+            if self.active_motion is not None:
+                self.active_motion["status"] = "stop_requested"
+                self.active_motion["stop_generation"] = self.stop_generation
+
+            if self.active_sequence is not None:
+                self.active_sequence["status"] = "stop_requested"
+                self.active_sequence["stop_generation"] = self.stop_generation
+                self.active_sequence["reason"] = "STOP BOTH pressed"
+
+        self.stop_motion("both")
+
+        return {
+            "ok": True,
+            "stop_requested": side,
+            "stop_generation": self.stop_generation,
+            "message": "STOP BOTH: current motion and full sequence cancelled",
+        }
+
+    def home(self, side="both", vel=None, acc=None):
+        home_cfg = self.cfg.get("home", {})
+        left_home = home_cfg.get("left")
+        right_home = home_cfg.get("right")
+
+        return self.move_both_joint(
+            left_target=left_home,
+            right_target=right_home,
+            side=side,
+            vel=vel,
+            acc=acc,
+        )
+
+    def load_waypoints(self):
+        if not self.waypoint_path.exists():
+            return {}
+        try:
+            return json.loads(self.waypoint_path.read_text())
+        except Exception:
+            return {}
+
+    def save_waypoints(self, data):
+        self.waypoint_path.write_text(json.dumps(data, indent=2))
+
+    def save_waypoint(self, name, side="both"):
+        name = name.strip()
+        if not name:
+            return {"ok": False, "error": "waypoint name is empty"}
+
+        if self.left_joint is None or self.right_joint is None:
+            return {"ok": False, "error": "joint feedback missing"}
+
+        data = self.load_waypoints()
+        data[name] = {
+            "created_at": time.strftime("%Y-%m-%d %H:%M:%S"),
+            "side": side,
+        }
+
+        if side in ("left", "both"):
+            data[name]["left"] = self.left_joint
+        if side in ("right", "both"):
+            data[name]["right"] = self.right_joint
+
+        self.save_waypoints(data)
+        return {"ok": True, "name": name, "waypoint": data[name]}
+
+    def run_waypoint(self, name, side="both", vel=None, acc=None):
+        data = self.load_waypoints()
+        if name not in data:
+            return {"ok": False, "error": f"waypoint not found: {name}"}
+
+        wp = data[name]
+        left = wp.get("left")
+        right = wp.get("right")
+
+        return self.move_both_joint(
+            left_target=left,
+            right_target=right,
+            side=side,
+            vel=vel,
+            acc=acc,
+        )
+
+    def is_motion_idle(self, side="both"):
+        selected = []
+        if side in ("left", "both"):
+            selected.append(self.left_state)
+        if side in ("right", "both"):
+            selected.append(self.right_state)
+
+        for st in selected:
+            if st is None:
+                return False
+            if int(st.motion_state) != 0:
+                return False
+        return True
+
+    def wait_motion_done(self, side="both", timeout=120.0, stop_generation_at_start=None):
+        start = time.time()
+        saw_moving = False
+
+        def should_cancel():
+            if self.sequence_cancel_requested:
+                return True
+            if self.motion_cancel_requested:
+                return True
+            if stop_generation_at_start is not None:
+                if getattr(self, "stop_generation", 0) != stop_generation_at_start:
+                    return True
+            return False
+
+        while time.time() - start < timeout:
+            if should_cancel():
+                self.stop_motion("both")
+                return False, "cancelled"
+
+            if not self.is_motion_idle(side):
+                saw_moving = True
+
+            if saw_moving and self.is_motion_idle(side):
+                return True, "done"
+
+            # สำหรับ motion ที่สั้นมาก อาจไม่ทันเห็น motion_state เปลี่ยน
+            if not saw_moving and time.time() - start > 1.0 and self.is_motion_idle(side):
+                return True, "done_or_short_motion"
+
+            time.sleep(0.05)
+
+        return False, "timeout"
+
+    def run_sequence(self, names, side="both", vel=None, acc=None):
+        if not names:
+            return {"ok": False, "error": "sequence is empty"}
+
+        if self.active_sequence is not None and self.active_sequence.get("status") == "running":
+            return {
+                "ok": False,
+                "error": "sequence already running",
+                "active_sequence": self.active_sequence,
+            }
+
+        data = self.load_waypoints()
+        missing = [n for n in names if n not in data]
+        if missing:
+            return {"ok": False, "error": f"missing waypoints: {missing}"}
+
+        self.sequence_cancel_requested = False
+        self.motion_cancel_requested = False
+
+        stop_generation_at_start = getattr(self, "stop_generation", 0)
+
+        self.active_sequence = {
+            "status": "running",
+            "names": names,
+            "current_index": 0,
+            "current_name": None,
+            "started_at": time.strftime("%Y-%m-%d %H:%M:%S"),
+            "side": side,
+            "vel": vel,
+            "acc": acc,
+            "stop_generation_at_start": stop_generation_at_start,
+        }
+
+        th = threading.Thread(
+            target=self._sequence_thread,
+            args=(names, side, vel, acc, stop_generation_at_start),
+            daemon=True,
+        )
+        th.start()
+
+        return {
+            "ok": True,
+            "accepted": True,
+            "message": "sequence started",
+            "names": names,
+            "side": side,
+            "vel": vel,
+            "acc": acc,
+            "stop_generation_at_start": stop_generation_at_start,
+        }
+
+    def _sequence_thread(self, names, side="both", vel=None, acc=None, stop_generation_at_start=0):
+        try:
+            def should_cancel():
+                return (
+                    self.sequence_cancel_requested
+                    or self.motion_cancel_requested
+                    or getattr(self, "stop_generation", 0) != stop_generation_at_start
+                )
+
+            for i, name in enumerate(names):
+                if should_cancel():
+                    self.stop_motion("both")
+                    self.active_sequence = {
+                        "status": "cancelled",
+                        "cancelled_at": name,
+                        "index": i,
+                        "reason": "stop requested before step",
+                        "stop_generation": getattr(self, "stop_generation", 0),
+                    }
+                    return
+
+                if self.active_sequence is not None:
+                    self.active_sequence["status"] = "running"
+                    self.active_sequence["current_index"] = i
+                    self.active_sequence["current_name"] = name
+
+                result = self.run_waypoint(name, side=side, vel=vel, acc=acc)
+
+                if should_cancel():
+                    self.stop_motion("both")
+                    self.active_sequence = {
+                        "status": "cancelled",
+                        "cancelled_at": name,
+                        "index": i,
+                        "reason": "stop requested after sending waypoint",
+                        "stop_generation": getattr(self, "stop_generation", 0),
+                    }
+                    return
+
+                if not result.get("ok", False):
+                    self.active_sequence = {
+                        "status": "error",
+                        "error": result,
+                        "failed_at": name,
+                        "index": i,
+                    }
+                    return
+
+                ok, msg = self.wait_motion_done(
+                    side=side,
+                    timeout=120.0,
+                    stop_generation_at_start=stop_generation_at_start,
+                )
+
+                if should_cancel():
+                    self.stop_motion("both")
+                    self.active_sequence = {
+                        "status": "cancelled",
+                        "cancelled_at": name,
+                        "index": i,
+                        "reason": "stop requested after current motion",
+                        "stop_generation": getattr(self, "stop_generation", 0),
+                    }
+                    return
+
+                if not ok:
+                    self.active_sequence = {
+                        "status": "cancelled" if msg == "cancelled" else "error",
+                        "message": msg,
+                        "at": name,
+                        "index": i,
+                        "stop_generation": getattr(self, "stop_generation", 0),
+                    }
+                    return
+
+                time.sleep(0.15)
+
+                if should_cancel():
+                    self.stop_motion("both")
+                    self.active_sequence = {
+                        "status": "cancelled",
+                        "cancelled_at": name,
+                        "index": i,
+                        "reason": "stop requested before next step",
+                        "stop_generation": getattr(self, "stop_generation", 0),
+                    }
+                    return
+
+            self.active_sequence = {
+                "status": "done",
+                "finished_at": time.strftime("%Y-%m-%d %H:%M:%S"),
+                "names": names,
+            }
+
+        except Exception as e:
+            self.active_sequence = {
+                "status": "error",
+                "error": str(e),
+            }
+

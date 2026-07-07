@@ -123,7 +123,7 @@ bool joint_move_callback(const shared_ptr<jaka_msgs::srv::Move::Request> request
     double tol = 0.5;
     OptionalCond *option_cond = nullptr;
 
-    int ret = robot.joint_move(&joint_pose, MoveMode::ABS, false, speed, accel, tol, option_cond);
+    int ret = robot.joint_move(&joint_pose, MoveMode::ABS, true, speed, accel, tol, option_cond);
     switch(ret)
     {
         case 0:

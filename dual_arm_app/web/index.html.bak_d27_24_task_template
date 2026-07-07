@@ -1,0 +1,468 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <title>Dual JAKA A12 Manual Jog</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #111827;
+      color: #e5e7eb;
+      margin: 0;
+      padding: 20px;
+    }
+    h1 { margin-top: 0; }
+    .panel {
+      background: #1f2937;
+      border-radius: 12px;
+      padding: 16px;
+      margin-bottom: 16px;
+    }
+    .row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin: 10px 0;
+      align-items: center;
+    }
+    button {
+      border: none;
+      border-radius: 8px;
+      padding: 12px 18px;
+      background: #374151;
+      color: white;
+      font-size: 16px;
+      cursor: pointer;
+      min-width: 80px;
+    }
+    button:hover { background: #4b5563; }
+    button.active { background: #2563eb; }
+    button.stop {
+      background: #dc2626;
+      font-weight: bold;
+      min-width: 180px;
+    }
+    button.stop:hover { background: #b91c1c; }
+    button.green { background: #059669; }
+    button.green:hover { background: #047857; }
+    button.orange { background: #d97706; }
+    button.orange:hover { background: #b45309; }
+    .small { font-size: 13px; color: #9ca3af; }
+    select, input {
+      padding: 8px;
+      border-radius: 6px;
+      border: 1px solid #4b5563;
+      background: #111827;
+      color: white;
+    }
+    pre {
+      background: #0b1120;
+      padding: 12px;
+      border-radius: 8px;
+      overflow: auto;
+      max-height: 280px;
+    }
+    .waypoint {
+      background: #111827;
+      border: 1px solid #374151;
+      border-radius: 8px;
+      padding: 10px;
+      margin: 8px 0;
+    }
+  </style>
+</head>
+<body>
+  <h1>Dual JAKA A12 Manual Jog</h1>
+
+  <div class="panel">
+    <div class="row">
+      <strong>Robot:</strong>
+      <button id="side-left" onclick="setSide('left')">Left</button>
+      <button id="side-right" onclick="setSide('right')">Right</button>
+      <button id="side-both" onclick="setSide('both')">Both</button>
+
+      <strong>Mode:</strong>
+      <button id="coord-joint" onclick="setCoord('joint')">Joint</button>
+      <button id="coord-base" onclick="setCoord('base')">Base TCP</button>
+      <button id="coord-tool" onclick="setCoord('tool')">Tool TCP</button>
+
+      <strong>Both Sync:</strong>
+      <select id="syncMode">
+        <option value="same">Same</option>
+        <option value="mirror">Mirror</option>
+        <option value="raw">Raw</option>
+      </select>
+    </div>
+
+    <div class="row">
+      <label>Linear speed:</label>
+      <input id="linearSpeed" type="number" value="5" step="1" min="1" max="50" />
+      <span class="small">X/Y/Z</span>
+
+      <label>Rotate speed:</label>
+      <input id="rotateSpeed" type="number" value="2" step="0.5" min="0.5" max="20" />
+      <span class="small">Rx/Ry/Rz</span>
+
+      <label>Joint speed:</label>
+      <input id="jointSpeed" type="number" value="0.03" step="0.01" min="0.005" max="0.2" />
+      <span class="small">J1-J6</span>
+
+      <label>Move vel:</label>
+      <input id="moveVel" type="number" value="0.12" step="0.02" min="0.02" max="0.5" />
+      <label>Move acc:</label>
+      <input id="moveAcc" type="number" value="0.20" step="0.02" min="0.04" max="0.8" />
+      <span class="small">Home / Waypoint</span>
+    </div>
+
+    <div class="row">
+      <button class="stop" onclick="stopBoth()">STOP BOTH</button>
+      <button class="green" onclick="homeBoth()">Home Both</button>
+      <button onclick="refreshStatus()">Refresh Status</button>
+    </div>
+  </div>
+
+  <div class="panel">
+    <h2>Joint Jog</h2>
+    <div id="jointButtons"></div>
+  </div>
+
+  <div class="panel">
+    <h2>TCP Jog 6 Axis</h2>
+    <div id="tcpButtons"></div>
+  </div>
+
+  <div class="panel">
+    <h2>Waypoint</h2>
+    <div class="row">
+      <input id="waypointName" placeholder="waypoint name เช่น pre_grasp" />
+      <button class="green" onclick="saveWaypoint()">Save Current</button>
+      <button onclick="loadWaypoints()">Reload List</button>
+    </div>
+    <div id="waypointList"></div>
+  </div>
+
+  <div class="panel">
+    <h2>Program / Sequence</h2>
+    <div class="small">กด Add จาก waypoint list เพื่อเรียงลำดับงาน แล้วกด Run Sequence</div>
+    <div id="sequenceList" class="waypoint"></div>
+    <div class="row">
+      <button class="green" onclick="runSequence()">Run Sequence</button>
+      <button onclick="clearSequence()">Clear Sequence</button>
+      <button class="stop" onclick="stopBoth()">STOP BOTH</button>
+    </div>
+  </div>
+
+  <div class="panel">
+    <h2>Status</h2>
+    <pre id="status">loading...</pre>
+  </div>
+
+<script>
+let side = "left";
+let coord = "base";
+let heartbeatTimer = null;
+let sequence = [];
+
+function setSide(v) {
+  side = v;
+  ["left", "right", "both"].forEach(s => {
+    document.getElementById("side-" + s).classList.toggle("active", s === v);
+  });
+}
+
+function setCoord(v) {
+  coord = v;
+  ["joint", "base", "tool"].forEach(c => {
+    document.getElementById("coord-" + c).classList.toggle("active", c === v);
+  });
+  buildButtons();
+}
+
+function speedFor(axis, jogCoord) {
+  axis = axis.toLowerCase();
+  if (jogCoord === "joint") {
+    return parseFloat(document.getElementById("jointSpeed").value);
+  }
+  if (["rx", "ry", "rz"].includes(axis)) {
+    return parseFloat(document.getElementById("rotateSpeed").value);
+  }
+  return parseFloat(document.getElementById("linearSpeed").value);
+}
+
+async function startJog(jogCoord, axis, direction) {
+  const payload = {
+    side: side,
+    coord: jogCoord,
+    axis: axis,
+    direction: direction,
+    speed: speedFor(axis, jogCoord),
+    sync_mode: document.getElementById("syncMode").value
+  };
+
+  const res = await fetch("/api/jog/start", {
+    method: "POST",
+    headers: {"Content-Type": "application/json"},
+    body: JSON.stringify(payload)
+  });
+  const data = await res.json();
+  document.getElementById("status").textContent = JSON.stringify(data, null, 2);
+
+  if (heartbeatTimer) clearInterval(heartbeatTimer);
+  heartbeatTimer = setInterval(async () => {
+    await fetch("/api/jog/heartbeat", {method: "POST"});
+  }, 150);
+}
+
+async function stopJog() {
+  if (heartbeatTimer) {
+    clearInterval(heartbeatTimer);
+    heartbeatTimer = null;
+  }
+
+  await fetch("/api/jog/stop", {
+    method: "POST",
+    headers: {"Content-Type": "application/json"},
+    body: JSON.stringify({side: side})
+  });
+  refreshStatus();
+}
+
+async function stopBoth() {
+  if (heartbeatTimer) {
+    clearInterval(heartbeatTimer);
+    heartbeatTimer = null;
+  }
+
+  const res = await fetch("/api/stop", {
+    method: "POST",
+    headers: {"Content-Type": "application/json"},
+    body: JSON.stringify({
+      side: "both",
+      vel: parseFloat(document.getElementById("moveVel").value),
+      acc: parseFloat(document.getElementById("moveAcc").value)
+    })
+  });
+  const data = await res.json();
+  document.getElementById("status").textContent = JSON.stringify(data, null, 2);
+  refreshStatus();
+}
+
+async function homeBoth() {
+  const ok = confirm("Home Both จะสั่งแขนทั้งสองกลับตำแหน่ง Home ที่ตั้งไว้ ต้องแน่ใจว่าพื้นที่ปลอดภัยแล้ว");
+  if (!ok) return;
+
+  const res = await fetch("/api/home", {
+    method: "POST",
+    headers: {"Content-Type": "application/json"},
+    body: JSON.stringify({side: "both"})
+  });
+  const data = await res.json();
+  document.getElementById("status").textContent = JSON.stringify(data, null, 2);
+  refreshStatus();
+}
+
+function makeHoldButton(label, jogCoord, axis, direction) {
+  const b = document.createElement("button");
+  b.textContent = label;
+
+  const start = (e) => {
+    e.preventDefault();
+    startJog(jogCoord, axis, direction);
+  };
+
+  const stop = (e) => {
+    e.preventDefault();
+    stopJog();
+  };
+
+  b.addEventListener("mousedown", start);
+  b.addEventListener("mouseup", stop);
+  b.addEventListener("mouseleave", stop);
+  b.addEventListener("touchstart", start);
+  b.addEventListener("touchend", stop);
+  b.addEventListener("touchcancel", stop);
+
+  return b;
+}
+
+function buildButtons() {
+  const jointDiv = document.getElementById("jointButtons");
+  jointDiv.innerHTML = "";
+
+  ["j1", "j2", "j3", "j4", "j5", "j6"].forEach(j => {
+    const row = document.createElement("div");
+    row.className = "row";
+    row.appendChild(makeHoldButton(j.toUpperCase() + "-", "joint", j, "-"));
+    row.appendChild(makeHoldButton(j.toUpperCase() + "+", "joint", j, "+"));
+    jointDiv.appendChild(row);
+  });
+
+  const tcpDiv = document.getElementById("tcpButtons");
+  tcpDiv.innerHTML = "";
+
+  ["x", "y", "z", "rx", "ry", "rz"].forEach(a => {
+    const row = document.createElement("div");
+    row.className = "row";
+    row.appendChild(makeHoldButton(a.toUpperCase() + "-", coord, a, "-"));
+    row.appendChild(makeHoldButton(a.toUpperCase() + "+", coord, a, "+"));
+    tcpDiv.appendChild(row);
+  });
+}
+
+async function saveWaypoint() {
+  const name = document.getElementById("waypointName").value.trim();
+  if (!name) {
+    alert("ใส่ชื่อ waypoint ก่อนครับ");
+    return;
+  }
+
+  const res = await fetch("/api/waypoint/save", {
+    method: "POST",
+    headers: {"Content-Type": "application/json"},
+    body: JSON.stringify({name: name, side: side})
+  });
+  const data = await res.json();
+  document.getElementById("status").textContent = JSON.stringify(data, null, 2);
+  loadWaypoints();
+}
+
+async function runWaypoint(name) {
+  const ok = confirm("Run waypoint: " + name + " ?");
+  if (!ok) return;
+
+  const res = await fetch("/api/waypoint/run", {
+    method: "POST",
+    headers: {"Content-Type": "application/json"},
+    body: JSON.stringify({
+      name: name,
+      side: "both",
+      vel: parseFloat(document.getElementById("moveVel").value),
+      acc: parseFloat(document.getElementById("moveAcc").value)
+    })
+  });
+  const data = await res.json();
+  document.getElementById("status").textContent = JSON.stringify(data, null, 2);
+  refreshStatus();
+}
+
+async function loadWaypoints() {
+  const res = await fetch("/api/waypoints");
+  const data = await res.json();
+
+  const box = document.getElementById("waypointList");
+  box.innerHTML = "";
+
+  const names = Object.keys(data);
+  if (names.length === 0) {
+    box.innerHTML = "<div class='small'>ยังไม่มี waypoint</div>";
+    renderSequence();
+    return;
+  }
+
+  names.forEach(name => {
+    const div = document.createElement("div");
+    div.className = "waypoint";
+
+    const title = document.createElement("div");
+    title.innerHTML = "<strong>" + name + "</strong> <span class='small'>" + (data[name].created_at || "") + "</span>";
+
+    const runBtn = document.createElement("button");
+    runBtn.className = "orange";
+    runBtn.textContent = "Run";
+    runBtn.onclick = () => runWaypoint(name);
+
+    const addBtn = document.createElement("button");
+    addBtn.textContent = "Add";
+    addBtn.onclick = () => addToSequence(name);
+
+    div.appendChild(title);
+    div.appendChild(runBtn);
+    div.appendChild(addBtn);
+    box.appendChild(div);
+  });
+
+  renderSequence();
+}
+
+function addToSequence(name) {
+  sequence.push(name);
+  renderSequence();
+}
+
+function removeSequenceIndex(i) {
+  sequence.splice(i, 1);
+  renderSequence();
+}
+
+function clearSequence() {
+  sequence = [];
+  renderSequence();
+}
+
+function renderSequence() {
+  const box = document.getElementById("sequenceList");
+  if (!box) return;
+
+  if (sequence.length === 0) {
+    box.innerHTML = "<div class='small'>ยังไม่มี step ใน sequence</div>";
+    return;
+  }
+
+  box.innerHTML = "";
+  sequence.forEach((name, i) => {
+    const row = document.createElement("div");
+    row.className = "row";
+
+    const label = document.createElement("span");
+    label.innerHTML = "<strong>" + (i + 1) + ".</strong> " + name;
+
+    const rm = document.createElement("button");
+    rm.textContent = "Remove";
+    rm.onclick = () => removeSequenceIndex(i);
+
+    row.appendChild(label);
+    row.appendChild(rm);
+    box.appendChild(row);
+  });
+}
+
+async function runSequence() {
+  if (sequence.length === 0) {
+    alert("ยังไม่มี waypoint ใน sequence");
+    return;
+  }
+
+  const ok = confirm("Run sequence: " + sequence.join(" → ") + " ?");
+  if (!ok) return;
+
+  const res = await fetch("/api/sequence/run", {
+    method: "POST",
+    headers: {"Content-Type": "application/json"},
+    body: JSON.stringify({
+      names: sequence,
+      side: "both",
+      vel: parseFloat(document.getElementById("moveVel").value),
+      acc: parseFloat(document.getElementById("moveAcc").value)
+    })
+  });
+
+  const data = await res.json();
+  document.getElementById("status").textContent = JSON.stringify(data, null, 2);
+  refreshStatus();
+}
+
+async function refreshStatus() {
+  const res = await fetch("/api/status");
+  const data = await res.json();
+  document.getElementById("status").textContent = JSON.stringify(data, null, 2);
+}
+
+setSide("left");
+setCoord("base");
+buildButtons();
+loadWaypoints();
+setInterval(refreshStatus, 1000);
+refreshStatus();
+</script>
+</body>
+</html>

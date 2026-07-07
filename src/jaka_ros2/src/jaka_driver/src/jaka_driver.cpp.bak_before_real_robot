@@ -123,7 +123,7 @@ bool joint_move_callback(const shared_ptr<jaka_msgs::srv::Move::Request> request
     double tol = 0.5;
     OptionalCond *option_cond = nullptr;
 
-    int ret = robot.joint_move(&joint_pose, MoveMode::ABS, false, speed, accel, tol, option_cond);
+    int ret = robot.joint_move(&joint_pose, MoveMode::ABS, true, speed, accel, tol, option_cond);
     switch(ret)
     {
         case 0:
@@ -925,16 +925,6 @@ int main(int argc, char *argv[])
     bool read_only = node->declare_parameter("read_only", true);
     bool auto_enable = node->declare_parameter("auto_enable", false);
 
-    // Prefix for running multiple JAKA drivers in the same ROS graph.
-    // Example: /left_jaka_driver or /right_jaka_driver
-    string service_prefix = node->declare_parameter("service_prefix", string("/jaka_driver"));
-    if (!service_prefix.empty() && service_prefix[0] != '/') {
-        service_prefix = "/" + service_prefix;
-    }
-    while (service_prefix.size() > 1 && service_prefix.back() == '/') {
-        service_prefix.pop_back();
-    }
-
     RCLCPP_WARN(
         rclcpp::get_logger("jaka_driver"),
         "Starting JAKA driver with ip=%s, read_only=%s, auto_enable=%s",
@@ -967,44 +957,44 @@ int main(int argc, char *argv[])
     }
 
     //1.1 Linear motion (in customized user coordinate system)
-    auto linear_move_service = node->create_service<jaka_msgs::srv::Move>((service_prefix + "/linear_move"), &linear_move_callback);
+    auto linear_move_service = node->create_service<jaka_msgs::srv::Move>("/jaka_driver/linear_move", &linear_move_callback);
     //1.2 Joint motion
-    auto joint_move_service = node->create_service<jaka_msgs::srv::Move>((service_prefix + "/joint_move"), &joint_move_callback);
+    auto joint_move_service = node->create_service<jaka_msgs::srv::Move>("/jaka_driver/joint_move", &joint_move_callback);
     //1.3 Jog motion
-    auto jog_service = node->create_service<jaka_msgs::srv::Move>((service_prefix + "/jog"), &jog_callback);
+    auto jog_service = node->create_service<jaka_msgs::srv::Move>("/jaka_driver/jog", &jog_callback);
     //1.4 Servo Position Control Mode Enable
-    auto servo_move_enable_service = node->create_service<jaka_msgs::srv::ServoMoveEnable>((service_prefix + "/servo_move_enable"), &servo_move_enable_callback);
+    auto servo_move_enable_service = node->create_service<jaka_msgs::srv::ServoMoveEnable>("/jaka_driver/servo_move_enable", &servo_move_enable_callback);
     //1.5 Servo-mode motion in Cartesian space
-    auto servo_p_service = node->create_service<jaka_msgs::srv::ServoMove>((service_prefix + "/servo_p"), &servo_p_callback);
+    auto servo_p_service = node->create_service<jaka_msgs::srv::ServoMove>("/jaka_driver/servo_p", &servo_p_callback);
     //1.6 Joint space servo mode motion
-    auto servo_j_service = node->create_service<jaka_msgs::srv::ServoMove>((service_prefix + "/servo_j"), &servo_j_callback);
+    auto servo_j_service = node->create_service<jaka_msgs::srv::ServoMove>("/jaka_driver/servo_j", &servo_j_callback);
     //1.7 stop motion
-    auto stop_move_service = node->create_service<std_srvs::srv::Empty>((service_prefix + "/stop_move"), &stop_move_callback);
+    auto stop_move_service = node->create_service<std_srvs::srv::Empty>("/jaka_driver/stop_move", &stop_move_callback);
     //2.1 Setting tcp parameters
-    auto set_toolframe_service = node->create_service<jaka_msgs::srv::SetTcpFrame>((service_prefix + "/set_toolframe"), &set_toolFrame_callback);
+    auto set_toolframe_service = node->create_service<jaka_msgs::srv::SetTcpFrame>("/jaka_driver/set_toolframe", &set_toolFrame_callback);
     //2.2 Setting user coordinate system parameters
-    auto set_userframe_service = node->create_service<jaka_msgs::srv::SetUserFrame>((service_prefix + "/set_userframe"), &set_userFrame_callback);
+    auto set_userframe_service = node->create_service<jaka_msgs::srv::SetUserFrame>("/jaka_driver/set_userframe", &set_userFrame_callback);
     //2.3 Set the center of gravity parameters of the robot arm load
-    auto set_payload_service = node->create_service<jaka_msgs::srv::SetPayload>((service_prefix + "/set_payload"), &set_payload_callback);
+    auto set_payload_service = node->create_service<jaka_msgs::srv::SetPayload>("/jaka_driver/set_payload", &set_payload_callback);
     //2.4 Set free drive mode
-    auto drag_move_service = node->create_service<std_srvs::srv::SetBool>((service_prefix + "/drag_move"), &drag_mode_callback);
+    auto drag_move_service = node->create_service<std_srvs::srv::SetBool>("/jaka_driver/drag_move", &drag_mode_callback);
     //2.5 Set collision sensitivity
-    auto set_collisionlevel_service = node->create_service<jaka_msgs::srv::SetCollision>((service_prefix + "/set_collisionlevel"), &set_collisionLevel_callback);
+    auto set_collisionlevel_service = node->create_service<jaka_msgs::srv::SetCollision>("/jaka_driver/set_collisionlevel", &set_collisionLevel_callback);
     //2.6 Set IO
-    auto set_io_service = node->create_service<jaka_msgs::srv::SetIO>((service_prefix + "/set_io"),&set_io_callback);
+    auto set_io_service = node->create_service<jaka_msgs::srv::SetIO>("jaka_driver/set_io",&set_io_callback);
     //2.7 Get IO
-    auto get_io_service = node->create_service<jaka_msgs::srv::GetIO>((service_prefix + "/get_io"),&get_io_callback);
+    auto get_io_service = node->create_service<jaka_msgs::srv::GetIO>("jaka_driver/get_io",&get_io_callback);
     //2.8 Find the positive solution
-    auto get_fk_service = node->create_service<jaka_msgs::srv::GetFK>((service_prefix + "/get_fk"), &get_fk_callback);
+    auto get_fk_service = node->create_service<jaka_msgs::srv::GetFK>("jaka_driver/get_fk", &get_fk_callback);
     //2.9 Find the inverse solution
-    auto get_ik_service = node->create_service<jaka_msgs::srv::GetIK>((service_prefix + "/get_ik"), &get_ik_callback);
+    auto get_ik_service = node->create_service<jaka_msgs::srv::GetIK>("jaka_driver/get_ik", &get_ik_callback);
 
     // //3.1 End position pose status information reporting
-    tool_position_pub = node->create_publisher<geometry_msgs::msg::TwistStamped>((service_prefix + "/tool_position"), 10);
+    tool_position_pub = node->create_publisher<geometry_msgs::msg::TwistStamped>("/jaka_driver/tool_position", 10);
     // //3.2 Joint status information reporting
-    joint_position_pub = node->create_publisher<sensor_msgs::msg::JointState>((service_prefix + "/joint_position"), 10);
+    joint_position_pub = node->create_publisher<sensor_msgs::msg::JointState>("/jaka_driver/joint_position", 10);
     // //3.3 Report robot event status information
-    robot_state_pub = node->create_publisher<jaka_msgs::msg::RobotMsg>((service_prefix + "/robot_states"), 10);
+    robot_state_pub = node->create_publisher<jaka_msgs::msg::RobotMsg>("/jaka_driver/robot_states", 10);
     
     // Automatically stop robot jog and motion
     auto stop_jog = node->create_wall_timer(chrono::seconds(3), stop_jog_callback);

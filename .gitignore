@@ -1,15 +1,29 @@
+# ROS2 / colcon generated folders
 build/
 install/
 log/
 
+# Python cache
 __pycache__/
 *.pyc
 *.pyo
+*.pyd
+.pytest_cache/
+.mypy_cache/
 
-.cache/
+# Runtime / logs
+*.log
+*.bag
+*.db3
+*.mcap
+
+# OS / editor
+.DS_Store
+Thumbs.db
 .vscode/
 .idea/
 
-*.bag
-*.db3
-*.sqlite3
+# Temporary files
+*.tmp
+*.bak
+*.swp

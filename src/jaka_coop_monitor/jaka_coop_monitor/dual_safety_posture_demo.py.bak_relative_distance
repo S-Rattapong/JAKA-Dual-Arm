@@ -1108,7 +1108,6 @@ class DualSafetyPostureDemo(DualTaskPriorityJointLimitDemo):
 
     def initialize_state(self):
         super().initialize_state()
-        self.apply_desired_relative_distance_override_from_env()
 
         all_joint_names = self.left_joint_names + self.right_joint_names
         self.home_q_vector = np.array(
@@ -2058,79 +2057,6 @@ class DualSafetyPostureDemo(DualTaskPriorityJointLimitDemo):
             f'publish_period='
             f'{self.dual_gazebo_trajectory_publish_period:.3f}'
         )
-
-
-    def apply_desired_relative_distance_override_from_env(self):
-        """Override the distance between left and right end-effectors.
-
-        JAKA_DESIRED_RELATIVE_DISTANCE:
-            desired tip-to-tip distance in meters, e.g. 0.50
-        JAKA_DESIRED_RELATIVE_AXIS:
-            keep, +x, -x, +y, -y, +z, -z
-            keep = preserve the initial relative direction.
-        """
-        raw_distance = os.environ.get("JAKA_DESIRED_RELATIVE_DISTANCE", "").strip()
-        if not raw_distance:
-            return
-
-        try:
-            desired_distance = float(raw_distance)
-        except ValueError:
-            self.get_logger().warn(
-                f"Invalid JAKA_DESIRED_RELATIVE_DISTANCE={raw_distance!r}; ignoring."
-            )
-            return
-
-        if desired_distance <= 0.0:
-            self.get_logger().warn(
-                f"JAKA_DESIRED_RELATIVE_DISTANCE must be > 0, got {desired_distance}; ignoring."
-            )
-            return
-
-        old = np.array(self.desired_relative_position, dtype=float)
-        old_norm = float(np.linalg.norm(old))
-
-        axis = os.environ.get("JAKA_DESIRED_RELATIVE_AXIS", "keep").strip().lower()
-
-        if axis in ("keep", "current", "initial"):
-            if old_norm < 1e-9:
-                self.get_logger().warn(
-                    "Cannot keep relative direction because current desired_relative_position is near zero."
-                )
-                return
-            direction = old / old_norm
-        elif axis in ("x", "+x"):
-            direction = np.array([1.0, 0.0, 0.0])
-        elif axis == "-x":
-            direction = np.array([-1.0, 0.0, 0.0])
-        elif axis in ("y", "+y"):
-            direction = np.array([0.0, 1.0, 0.0])
-        elif axis == "-y":
-            direction = np.array([0.0, -1.0, 0.0])
-        elif axis in ("z", "+z"):
-            direction = np.array([0.0, 0.0, 1.0])
-        elif axis == "-z":
-            direction = np.array([0.0, 0.0, -1.0])
-        else:
-            self.get_logger().warn(
-                f"Unknown JAKA_DESIRED_RELATIVE_AXIS={axis!r}; using keep."
-            )
-            if old_norm < 1e-9:
-                return
-            direction = old / old_norm
-
-        self.desired_relative_position = direction * desired_distance
-
-        new = self.desired_relative_position
-        self.get_logger().warn(
-            "Overriding EE tip distance: "
-            f"old_distance={old_norm:.5f} m, "
-            f"new_distance={desired_distance:.5f} m, "
-            f"axis={axis}, "
-            f"old_desired_relative=[{old[0]:.5f}, {old[1]:.5f}, {old[2]:.5f}], "
-            f"new_desired_relative=[{new[0]:.5f}, {new[1]:.5f}, {new[2]:.5f}]"
-        )
-
 
     def process_marker_feedback(self, feedback):
         if feedback.event_type not in (

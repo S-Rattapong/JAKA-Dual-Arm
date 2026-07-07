@@ -1,0 +1,49 @@
+{
+  "name": "demo_pick_place",
+  "file": "demo_pick_place.json",
+  "saved_at": "2026-06-24 14:41:39",
+  "steps": [
+    {
+      "name": "pre_grasp",
+      "side": "both",
+      "vel": 2.0,
+      "acc": 1.2,
+      "delay": 0.0
+    },
+    {
+      "name": "grasp",
+      "side": "both",
+      "vel": 0.8,
+      "acc": 0.5,
+      "delay": 0.5
+    },
+    {
+      "name": "lift",
+      "side": "both",
+      "vel": 1.6,
+      "acc": 1.0,
+      "delay": 0.2
+    },
+    {
+      "name": "place",
+      "side": "both",
+      "vel": 0.8,
+      "acc": 0.5,
+      "delay": 0.5
+    },
+    {
+      "name": "retreat",
+      "side": "both",
+      "vel": 2.0,
+      "acc": 1.2,
+      "delay": 0.0
+    },
+    {
+      "name": "p3",
+      "side": "both",
+      "vel": 2.0,
+      "acc": 1.2,
+      "delay": 0.0
+    }
+  ]
+}
