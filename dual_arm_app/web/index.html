@@ -743,6 +743,16 @@ Capture source:</label>
         WARNING: This mode can move the real robots with larger object-frame motion. Recommended first large test: +Z 50 mm with segmentation 10 mm. Keep E-stop ready. Verify and commit after execution.
       </div>
       <div class="row" style="margin-top: 10px;">
+        <button class="orange" onclick="setD357Preset('z50')">Preset +Z50</button>
+        <button class="orange" onclick="setD357Preset('z-50')">Preset -Z50</button>
+        <button class="orange" onclick="setD357Preset('rz+0.3')">Preset Rz +0.3</button>
+        <button class="orange" onclick="setD357Preset('rz-0.3')">Preset Rz -0.3</button>
+        <button class="orange" onclick="setD357Preset('combo+20+0.1')">Preset +Z20 +Rz0.1</button>
+        <button class="orange" onclick="setD357Preset('combo-20-0.1')">Preset -Z20 -Rz0.1</button>
+        <button class="orange" onclick="setD357Preset('combo+40+0.2')">Preset +Z40 +Rz0.2</button>
+        <button class="orange" onclick="setD357Preset('combo-40-0.2')">Preset -Z40 -Rz0.2</button>
+      </div>
+      <div class="row" style="margin-top: 10px;">
         <label>Object:</label>
         <input id="d357ObjectName" value="Test1" style="width:120px;">
         <label>dx:</label><input id="d357Dx" type="number" value="0" step="1" class="num">
@@ -759,13 +769,13 @@ Capture source:</label>
         <label>max rotation rad:</label>
         <input id="d357MaxRotation" type="number" value="0.5" step="0.05" min="0" max="0.5" class="num">
         <label>speed_scale:</label>
-        <input id="d357SpeedScale" type="number" value="0.03" step="0.005" min="0" max="0.05" class="num">
+        <input id="d357SpeedScale" type="number" value="0.05" step="0.005" min="0" max="0.05" class="num">
       </div>
       <div class="row">
         <label>segment trans mm:</label>
         <input id="d357MaxSegmentTranslation" type="number" value="10.0" step="1" min="0.1" max="10" class="num">
         <label>segment rot rad:</label>
-        <input id="d357MaxSegmentRotation" type="number" value="0.05" step="0.005" min="0.001" max="0.05" class="num">
+        <input id="d357MaxSegmentRotation" type="number" value="0.026" step="0.001" min="0.001" max="0.05" class="num">
         <label>confirm_execute:</label>
         <input id="d357Confirm" value="" style="width:350px;">
       </div>
@@ -2538,6 +2548,83 @@ async function d356arRecoverPendingCommit() {
   }
 }
 
+function setD357Preset(kind) {
+  const presets = {
+    "z50": {
+      delta: [0, 0, 50, 0, 0, 0],
+      segmentRotation: 0.026,
+      note: "Translation-only tested preset: +Z 50 mm"
+    },
+    "z-50": {
+      delta: [0, 0, -50, 0, 0, 0],
+      segmentRotation: 0.026,
+      note: "Translation-only tested preset: -Z 50 mm"
+    },
+    "rz+0.3": {
+      delta: [0, 0, 0, 0, 0, 0.3],
+      segmentRotation: 0.04,
+      note: "Rotation-only tested preset: Rz +0.3 rad"
+    },
+    "rz-0.3": {
+      delta: [0, 0, 0, 0, 0, -0.3],
+      segmentRotation: 0.04,
+      note: "Rotation-only tested preset: Rz -0.3 rad"
+    },
+    "combo+20+0.1": {
+      delta: [0, 0, 20, 0, 0, 0.1],
+      segmentRotation: 0.026,
+      note: "Combined tested preset: +Z 20 mm and Rz +0.1 rad"
+    },
+    "combo-20-0.1": {
+      delta: [0, 0, -20, 0, 0, -0.1],
+      segmentRotation: 0.026,
+      note: "Combined tested preset: -Z 20 mm and Rz -0.1 rad"
+    },
+    "combo+40+0.2": {
+      delta: [0, 0, 40, 0, 0, 0.2],
+      segmentRotation: 0.026,
+      note: "Large combined tested preset: +Z 40 mm and Rz +0.2 rad"
+    },
+    "combo-40-0.2": {
+      delta: [0, 0, -40, 0, 0, -0.2],
+      segmentRotation: 0.026,
+      note: "Large combined tested preset: -Z 40 mm and Rz -0.2 rad"
+    }
+  };
+
+  const preset = presets[kind];
+  if (!preset) {
+    alert("Unknown D35.7 preset: " + kind);
+    return;
+  }
+
+  const ids = ["d357Dx", "d357Dy", "d357Dz", "d357Drx", "d357Dry", "d357Drz"];
+  ids.forEach((id, i) => {
+    if ($(id)) $(id).value = String(preset.delta[i]);
+  });
+
+  if ($("d357MaxTranslation")) $("d357MaxTranslation").value = "100";
+  if ($("d357MaxRotation")) $("d357MaxRotation").value = "0.5";
+  if ($("d357MaxSegmentTranslation")) $("d357MaxSegmentTranslation").value = "10";
+  if ($("d357MaxSegmentRotation")) $("d357MaxSegmentRotation").value = String(preset.segmentRotation);
+  if ($("d357SpeedScale")) $("d357SpeedScale").value = "0.05";
+  if ($("d357DryRun")) $("d357DryRun").checked = true;
+  if ($("d357Confirm")) $("d357Confirm").value = "";
+
+  setStatus({
+    ok: true,
+    mode: "D35.7 preset selected",
+    preset: kind,
+    target_delta: preset.delta,
+    max_segment_translation_mm: 10,
+    max_segment_rotation_rad: preset.segmentRotation,
+    speed_scale: 0.05,
+    dry_run: true,
+    note: preset.note,
+    warning: "Preset selection only. No motion was sent."
+  });
+}
+
 function collectD357TargetDelta() {
   return [
     parseFloat($("d357Dx")?.value || "0"),
@@ -2585,10 +2672,10 @@ async function runD357CalibratedWorldRigidLarge(forceDryRun) {
       max_translation_mm: parseFloat($("d357MaxTranslation")?.value || "100.0"),
       max_rotation_rad: parseFloat($("d357MaxRotation")?.value || "0.5"),
       max_segment_translation_mm: parseFloat($("d357MaxSegmentTranslation")?.value || "10.0"),
-      max_segment_rotation_rad: parseFloat($("d357MaxSegmentRotation")?.value || "0.05"),
+      max_segment_rotation_rad: parseFloat($("d357MaxSegmentRotation")?.value || "0.026"),
       max_joint_delta_rad_per_segment: 0.12,
       max_joint_delta_sum_rad_per_segment: 0.35,
-      speed_scale: parseFloat($("d357SpeedScale")?.value || "0.03"),
+      speed_scale: parseFloat($("d357SpeedScale")?.value || "0.05"),
       auto_commit: false
     })
   });
