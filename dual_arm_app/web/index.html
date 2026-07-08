@@ -780,8 +780,18 @@ Capture source:</label>
         <input id="d357Confirm" value="" style="width:350px;">
       </div>
       <div class="row">
+        <label><input id="d357AutoVerifyCommit" type="checkbox" checked> auto verify + commit after execute</label>
+        <label>commit pos tol mm:</label>
+        <input id="d357CommitPositionTolerance" type="number" value="1.5" step="0.1" min="0" class="num">
+        <label>commit ori tol rad:</label>
+        <input id="d357CommitOrientationTolerance" type="number" value="0.05" step="0.005" min="0" class="num">
+      </div>
+      <div class="row">
         <button class="orange" onclick="runD357CalibratedWorldRigidLarge(true)">Dry Run D35.7</button>
         <button class="stop" onclick="runD357CalibratedWorldRigidLarge(false)">Execute D35.7</button>
+        <button class="orange" onclick="d357PendingCommitStatus()">Pending Status</button>
+        <button class="orange" onclick="d357VerifyPendingCommit()">Verify Pending</button>
+        <button class="stop" onclick="d357CommitPendingPose()">Commit Pending</button>
       </div>
 
       <pre id="objectFrameView" class="statusbox">Object frame not loaded yet.</pre>
@@ -800,6 +810,8 @@ let sequence = [];
 let latestLoadedObjectFrame = null;
 let lastStatus = null;
 let waypointLoading = false;
+let lastD357DryRunKey = null;
+let lastD357DryRunSummary = null;
 
 function $(id) {
   return document.getElementById(id);
@@ -2611,6 +2623,9 @@ function setD357Preset(kind) {
   if ($("d357DryRun")) $("d357DryRun").checked = true;
   if ($("d357Confirm")) $("d357Confirm").value = "";
 
+  lastD357DryRunKey = null;
+  lastD357DryRunSummary = null;
+
   setStatus({
     ok: true,
     mode: "D35.7 preset selected",
@@ -2625,6 +2640,38 @@ function setD357Preset(kind) {
   });
 }
 
+function roundD357Number(value, digits = 9) {
+  const n = Number(value);
+  if (!Number.isFinite(n)) return null;
+  return Number(n.toFixed(digits));
+}
+
+function buildD357DryRunKeyFromPayload(payload) {
+  return JSON.stringify({
+    name: payload.name,
+    target_delta: (payload.target_delta || []).map(v => roundD357Number(v)),
+    max_translation_mm: roundD357Number(payload.max_translation_mm),
+    max_rotation_rad: roundD357Number(payload.max_rotation_rad),
+    max_segment_translation_mm: roundD357Number(payload.max_segment_translation_mm),
+    max_segment_rotation_rad: roundD357Number(payload.max_segment_rotation_rad),
+    max_joint_delta_rad_per_segment: roundD357Number(payload.max_joint_delta_rad_per_segment),
+    max_joint_delta_sum_rad_per_segment: roundD357Number(payload.max_joint_delta_sum_rad_per_segment),
+    speed_scale: roundD357Number(payload.speed_scale)
+  });
+}
+
+function describeD357Payload(payload) {
+  return {
+    name: payload.name,
+    target_delta: payload.target_delta,
+    max_translation_mm: payload.max_translation_mm,
+    max_rotation_rad: payload.max_rotation_rad,
+    max_segment_translation_mm: payload.max_segment_translation_mm,
+    max_segment_rotation_rad: payload.max_segment_rotation_rad,
+    speed_scale: payload.speed_scale
+  };
+}
+
 function collectD357TargetDelta() {
   return [
     parseFloat($("d357Dx")?.value || "0"),
@@ -2636,53 +2683,219 @@ function collectD357TargetDelta() {
   ];
 }
 
-async function runD357CalibratedWorldRigidLarge(forceDryRun) {
+function collectD357CommitTolerancePayload() {
+  return {
+    position_tolerance_mm: parseFloat($("d357CommitPositionTolerance")?.value || "1.5"),
+    orientation_tolerance_rad: parseFloat($("d357CommitOrientationTolerance")?.value || "0.05")
+  };
+}
+
+function getD357ObjectName() {
   const typedName = $("d357ObjectName") ? $("d357ObjectName").value.trim() : "";
   const selectedName = getSelectedObjectNameForCalibration();
-  const name = typedName || selectedName;
+  return typedName || selectedName;
+}
+
+async function d357PendingCommitStatus() {
+  const name = getD357ObjectName();
+  if (!name) {
+    alert("เลือก object หรือกรอก object name ก่อน");
+    return null;
+  }
+
+  const data = await api("/api/object/pending_calibrated_execute_commit_status", {
+    method: "POST",
+    headers: {"Content-Type": "application/json"},
+    body: JSON.stringify({name})
+  });
+
+  showCalibrationResult(data);
+  return data;
+}
+
+async function d357VerifyPendingCommit() {
+  const name = getD357ObjectName();
+  if (!name) {
+    alert("เลือก object หรือกรอก object name ก่อน");
+    return null;
+  }
+
+  const data = await api("/api/object/verify_pending_calibrated_execute_commit", {
+    method: "POST",
+    headers: {"Content-Type": "application/json"},
+    body: JSON.stringify({
+      name,
+      ...collectD357CommitTolerancePayload()
+    })
+  });
+
+  showCalibrationResult(data);
+  return data;
+}
+
+async function d357CommitPendingPose() {
+  const name = getD357ObjectName();
+  if (!name) {
+    alert("เลือก object หรือกรอก object name ก่อน");
+    return null;
+  }
+
+  const data = await api("/api/object/commit_pending_calibrated_execute_pose", {
+    method: "POST",
+    headers: {"Content-Type": "application/json"},
+    body: JSON.stringify({
+      name,
+      confirm_commit: "COMMIT_CALIBRATED_OBJECT_POSE",
+      ...collectD357CommitTolerancePayload()
+    })
+  });
+
+  showCalibrationResult(data);
+
+  if (data.ok && data.committed) {
+    lastD357DryRunKey = null;
+    lastD357DryRunSummary = null;
+    if ($("d357Confirm")) $("d357Confirm").value = "";
+  }
+
+  return data;
+}
+
+async function d357AutoVerifyCommitAfterExecute() {
+  const verify = await d357VerifyPendingCommit();
+
+  if (!verify || !verify.ok || !verify.ready_to_commit) {
+    alert("Execute สำเร็จแล้ว แต่ Auto Verify ยังไม่พร้อม Commit: " + ((verify && (verify.reason || verify.error)) || "unknown"));
+    return {ok: false, stage: "verify", verify};
+  }
+
+  const commit = await d357CommitPendingPose();
+
+  if (!commit || !commit.ok || !commit.committed) {
+    alert("Verify ผ่านแล้ว แต่ Auto Commit ไม่สำเร็จ: " + ((commit && (commit.reason || commit.error)) || "unknown"));
+    return {ok: false, stage: "commit", verify, commit};
+  }
+
+  setStatus({
+    ok: true,
+    mode: "D35.7 auto verify + commit complete",
+    verify,
+    commit,
+    warning: "No extra robot motion was sent after execute. Object pose state was verified and committed."
+  });
+
+  return {ok: true, verify, commit};
+}
+
+async function runD357CalibratedWorldRigidLarge(forceDryRun) {
+  const name = getD357ObjectName();
   if (!name) {
     alert("เลือก object หรือกรอก object name ก่อน");
     return;
   }
 
   const dryRun = forceDryRun ? true : false;
+  if ($("d357DryRun")) $("d357DryRun").checked = dryRun;
+
+  const payload = {
+    name: name,
+    target_delta: collectD357TargetDelta(),
+    dry_run: dryRun,
+    confirm_execute: $("d357Confirm")?.value || "",
+    max_translation_mm: parseFloat($("d357MaxTranslation")?.value || "100.0"),
+    max_rotation_rad: parseFloat($("d357MaxRotation")?.value || "0.5"),
+    max_segment_translation_mm: parseFloat($("d357MaxSegmentTranslation")?.value || "10.0"),
+    max_segment_rotation_rad: parseFloat($("d357MaxSegmentRotation")?.value || "0.026"),
+    max_joint_delta_rad_per_segment: 0.12,
+    max_joint_delta_sum_rad_per_segment: 0.35,
+    speed_scale: parseFloat($("d357SpeedScale")?.value || "0.05"),
+    auto_commit: false
+  };
+
+  const requestKey = buildD357DryRunKeyFromPayload(payload);
+
   if (!dryRun) {
-    const confirmText = $("d357Confirm")?.value || "";
-    if (confirmText !== "EXECUTE_LARGE_CALIBRATED_WORLD_RIGID") {
-      alert("พิมพ์ EXECUTE_LARGE_CALIBRATED_WORLD_RIGID ใน confirm_execute ก่อน execute จริง");
+    if (!lastD357DryRunKey) {
+      alert(
+        "ยังไม่มี Dry Run ที่ผ่านสำหรับ D35.7\n\n" +
+        "กรุณากด Dry Run D35.7 ก่อน Execute จริง"
+      );
       return;
     }
+
+    if (requestKey !== lastD357DryRunKey) {
+      alert(
+        "ค่า D35.7 ปัจจุบันไม่ตรงกับ Dry Run ล่าสุด\n\n" +
+        "กรุณากด Dry Run D35.7 ใหม่ก่อน Execute จริง\n\n" +
+        "Dry Run ล่าสุด:\n" + JSON.stringify(lastD357DryRunSummary, null, 2) + "\n\n" +
+        "ค่าปัจจุบัน:\n" + JSON.stringify(describeD357Payload(payload), null, 2)
+      );
+      return;
+    }
+
+    const confirmText = $("d357Confirm")?.value || "";
+    if (confirmText !== "EXECUTE_LARGE_CALIBRATED_WORLD_RIGID") {
+      alert("Dry Run ผ่านแล้ว แต่ยังไม่ได้พิมพ์ EXECUTE_LARGE_CALIBRATED_WORLD_RIGID ใน confirm_execute");
+      return;
+    }
+
     const ok = confirm(
       "D35.7 can move the real robots with larger segmented motion.\n\n" +
-      "Recommended first test: +Z 50 mm, segment 10 mm. Keep E-stop ready.\n\n" +
-      "Execute now?"
+      "Dry-run gate: PASSED. Current request matches the last successful dry run.\n\n" +
+      "Keep E-stop ready. Execute now?"
     );
     if (!ok) return;
   }
 
-  if ($("d357DryRun")) $("d357DryRun").checked = dryRun;
   const data = await api("/api/object/execute_calibrated_world_rigid_large", {
     method: "POST",
     headers: {"Content-Type": "application/json"},
-    body: JSON.stringify({
-      name: name,
-      target_delta: collectD357TargetDelta(),
-      dry_run: dryRun,
-      confirm_execute: $("d357Confirm")?.value || "",
-      max_translation_mm: parseFloat($("d357MaxTranslation")?.value || "100.0"),
-      max_rotation_rad: parseFloat($("d357MaxRotation")?.value || "0.5"),
-      max_segment_translation_mm: parseFloat($("d357MaxSegmentTranslation")?.value || "10.0"),
-      max_segment_rotation_rad: parseFloat($("d357MaxSegmentRotation")?.value || "0.026"),
-      max_joint_delta_rad_per_segment: 0.12,
-      max_joint_delta_sum_rad_per_segment: 0.35,
-      speed_scale: parseFloat($("d357SpeedScale")?.value || "0.05"),
-      auto_commit: false
-    })
+    body: JSON.stringify(payload)
   });
 
   showCalibrationResult(data);
+
+  if (dryRun) {
+    if (data.ok) {
+      lastD357DryRunKey = requestKey;
+      lastD357DryRunSummary = describeD357Payload(payload);
+      if ($("d357Confirm")) {
+        $("d357Confirm").value = "EXECUTE_LARGE_CALIBRATED_WORLD_RIGID";
+      }
+      setStatus({
+        ...data,
+        dry_run_gate: {
+          ready_for_execute: true,
+          confirm_auto_filled: true,
+          message: "D35.7 dry run passed. confirm_execute was auto-filled. Execute is allowed only while the current values remain unchanged.",
+          request: lastD357DryRunSummary
+        }
+      });
+    } else {
+      lastD357DryRunKey = null;
+      lastD357DryRunSummary = null;
+    }
+  }
+
   if (!data.ok) {
     alert("D35.7 request was rejected: " + (data.reason || data.error || "unknown"));
+    return;
+  }
+
+  if (!dryRun && data.executed) {
+    lastD357DryRunKey = null;
+    lastD357DryRunSummary = null;
+    if ($("d357Confirm")) $("d357Confirm").value = "";
+
+    if ($("d357AutoVerifyCommit")?.checked) {
+      await d357AutoVerifyCommitAfterExecute();
+    } else {
+      setStatus({
+        ...data,
+        pending_commit_required: true,
+        message: "Execute finished. Verify and commit the pending object pose before the next D35.7 dry run or execute."
+      });
+    }
   }
 }
 
