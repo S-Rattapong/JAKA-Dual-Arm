@@ -776,6 +776,8 @@ Capture source:</label>
         <input id="d357MaxSegmentTranslation" type="number" value="10.0" step="1" min="0.1" max="10" class="num">
         <label>segment rot rad:</label>
         <input id="d357MaxSegmentRotation" type="number" value="0.026" step="0.001" min="0.001" max="0.05" class="num">
+        <label>TCP rot limit rad:</label>
+        <input id="d357MaxSegmentTcpRotation" type="number" value="0.12" step="0.005" min="0.001" max="0.15" class="num">
         <label>confirm_execute:</label>
         <input id="d357Confirm" value="" style="width:350px;">
       </div>
@@ -2619,6 +2621,7 @@ function setD357Preset(kind) {
   if ($("d357MaxRotation")) $("d357MaxRotation").value = "0.5";
   if ($("d357MaxSegmentTranslation")) $("d357MaxSegmentTranslation").value = "10";
   if ($("d357MaxSegmentRotation")) $("d357MaxSegmentRotation").value = String(preset.segmentRotation);
+  if ($("d357MaxSegmentTcpRotation")) $("d357MaxSegmentTcpRotation").value = "0.12";
   if ($("d357SpeedScale")) $("d357SpeedScale").value = "0.05";
   if ($("d357DryRun")) $("d357DryRun").checked = true;
   if ($("d357Confirm")) $("d357Confirm").value = "";
@@ -2633,6 +2636,7 @@ function setD357Preset(kind) {
     target_delta: preset.delta,
     max_segment_translation_mm: 10,
     max_segment_rotation_rad: preset.segmentRotation,
+    max_segment_tcp_rotation_rad: 0.12,
     speed_scale: 0.05,
     dry_run: true,
     note: preset.note,
@@ -2654,6 +2658,7 @@ function buildD357DryRunKeyFromPayload(payload) {
     max_rotation_rad: roundD357Number(payload.max_rotation_rad),
     max_segment_translation_mm: roundD357Number(payload.max_segment_translation_mm),
     max_segment_rotation_rad: roundD357Number(payload.max_segment_rotation_rad),
+    max_segment_tcp_rotation_rad: roundD357Number(payload.max_segment_tcp_rotation_rad),
     max_joint_delta_rad_per_segment: roundD357Number(payload.max_joint_delta_rad_per_segment),
     max_joint_delta_sum_rad_per_segment: roundD357Number(payload.max_joint_delta_sum_rad_per_segment),
     speed_scale: roundD357Number(payload.speed_scale)
@@ -2668,6 +2673,7 @@ function describeD357Payload(payload) {
     max_rotation_rad: payload.max_rotation_rad,
     max_segment_translation_mm: payload.max_segment_translation_mm,
     max_segment_rotation_rad: payload.max_segment_rotation_rad,
+    max_segment_tcp_rotation_rad: payload.max_segment_tcp_rotation_rad,
     speed_scale: payload.speed_scale
   };
 }
@@ -2806,6 +2812,7 @@ async function runD357CalibratedWorldRigidLarge(forceDryRun) {
     max_rotation_rad: parseFloat($("d357MaxRotation")?.value || "0.5"),
     max_segment_translation_mm: parseFloat($("d357MaxSegmentTranslation")?.value || "10.0"),
     max_segment_rotation_rad: parseFloat($("d357MaxSegmentRotation")?.value || "0.026"),
+    max_segment_tcp_rotation_rad: parseFloat($("d357MaxSegmentTcpRotation")?.value || "0.12"),
     max_joint_delta_rad_per_segment: 0.12,
     max_joint_delta_sum_rad_per_segment: 0.35,
     speed_scale: parseFloat($("d357SpeedScale")?.value || "0.05"),

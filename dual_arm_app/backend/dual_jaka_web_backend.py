@@ -58,6 +58,7 @@ HARD_LARGE_MAX_TRANSLATION_MM = 100.0
 HARD_LARGE_MAX_ROTATION_RAD = 0.5
 HARD_LARGE_MAX_SEGMENT_TRANSLATION_MM = 10.0
 HARD_LARGE_MAX_SEGMENT_ROTATION_RAD = 0.05
+HARD_LARGE_MAX_SEGMENT_TCP_ROTATION_RAD = 0.15
 HARD_LARGE_MAX_JOINT_DELTA_RAD_PER_SEGMENT = 0.2
 HARD_LARGE_MAX_JOINT_DELTA_SUM_RAD_PER_SEGMENT = 0.6
 HARD_LARGE_MAX_SPEED_SCALE = 0.05
@@ -203,6 +204,7 @@ class ObjectCalibratedWorldRigidLargeExecuteRequest(BaseModel):
     max_rotation_rad: Optional[float] = 0.5
     max_segment_translation_mm: Optional[float] = 10.0
     max_segment_rotation_rad: Optional[float] = 0.05
+    max_segment_tcp_rotation_rad: Optional[float] = 0.12
     max_joint_delta_rad_per_segment: Optional[float] = 0.12
     max_joint_delta_sum_rad_per_segment: Optional[float] = 0.35
     speed_scale: Optional[float] = 0.03
@@ -1966,20 +1968,38 @@ class DualJakaWebNode(Node):
     def _pose6_difference_metrics(self, old_pose, new_pose):
         old_pose = self._validate_pose6(old_pose, "old_pose")
         new_pose = self._validate_pose6(new_pose, "new_pose")
+
         dp = [
             float(new_pose[0] - old_pose[0]),
             float(new_pose[1] - old_pose[1]),
             float(new_pose[2] - old_pose[2]),
         ]
-        dr = [
-            float(self._wrap_angle(new_pose[3] - old_pose[3])),
-            float(self._wrap_angle(new_pose[4] - old_pose[4])),
-            float(self._wrap_angle(new_pose[5] - old_pose[5])),
+        translation_mm = float(math.sqrt(sum(x * x for x in dp)))
+
+        # Use true SO(3) geodesic rotation distance instead of comparing RPY/Euler
+        # components directly. Direct RPY subtraction can report false jumps near
+        # gimbal-lock-like poses or around +/-pi wrapping.
+        T_old = self.pose6_to_transform(old_pose)
+        T_new = self.pose6_to_transform(new_pose)
+
+        R_old = [[float(T_old[r][c]) for c in range(3)] for r in range(3)]
+        R_new = [[float(T_new[r][c]) for c in range(3)] for r in range(3)]
+
+        # R_delta = R_old^T * R_new
+        R_delta = [
+            [
+                sum(R_old[k][i] * R_new[k][j] for k in range(3))
+                for j in range(3)
+            ]
+            for i in range(3)
         ]
-        return (
-            float(math.sqrt(sum(x * x for x in dp))),
-            float(max(abs(x) for x in dr)),
-        )
+
+        trace = R_delta[0][0] + R_delta[1][1] + R_delta[2][2]
+        cos_angle = (trace - 1.0) / 2.0
+        cos_angle = max(-1.0, min(1.0, cos_angle))
+        rotation_rad = float(math.acos(cos_angle))
+
+        return translation_mm, rotation_rad
 
     def preview_object_targets_rigid_compare(self, name, target_object_pose):
         try:
@@ -4179,6 +4199,7 @@ class DualJakaWebNode(Node):
         max_rotation_rad=0.5,
         max_segment_translation_mm=10.0,
         max_segment_rotation_rad=0.05,
+        max_segment_tcp_rotation_rad=0.12,
         max_joint_delta_rad_per_segment=0.12,
         max_joint_delta_sum_rad_per_segment=0.35,
         speed_scale=0.03,
@@ -4188,6 +4209,7 @@ class DualJakaWebNode(Node):
             "max_rotation_rad": max(0.0, float(max_rotation_rad if max_rotation_rad is not None else 0.5)),
             "max_segment_translation_mm": max(1e-9, float(max_segment_translation_mm if max_segment_translation_mm is not None else 10.0)),
             "max_segment_rotation_rad": max(1e-9, float(max_segment_rotation_rad if max_segment_rotation_rad is not None else 0.05)),
+            "max_segment_tcp_rotation_rad": max(1e-9, float(max_segment_tcp_rotation_rad if max_segment_tcp_rotation_rad is not None else 0.12)),
             "max_joint_delta_rad_per_segment": max(0.0, float(max_joint_delta_rad_per_segment if max_joint_delta_rad_per_segment is not None else 0.12)),
             "max_joint_delta_sum_rad_per_segment": max(0.0, float(max_joint_delta_sum_rad_per_segment if max_joint_delta_sum_rad_per_segment is not None else 0.35)),
             "speed_scale": max(0.0, float(speed_scale if speed_scale is not None else 0.03)),
@@ -4197,6 +4219,7 @@ class DualJakaWebNode(Node):
             "max_rotation_rad": min(requested["max_rotation_rad"], HARD_LARGE_MAX_ROTATION_RAD),
             "max_segment_translation_mm": min(requested["max_segment_translation_mm"], HARD_LARGE_MAX_SEGMENT_TRANSLATION_MM),
             "max_segment_rotation_rad": min(requested["max_segment_rotation_rad"], HARD_LARGE_MAX_SEGMENT_ROTATION_RAD),
+            "max_segment_tcp_rotation_rad": min(requested["max_segment_tcp_rotation_rad"], HARD_LARGE_MAX_SEGMENT_TCP_ROTATION_RAD),
             "max_joint_delta_rad_per_segment": min(
                 requested["max_joint_delta_rad_per_segment"],
                 HARD_LARGE_MAX_JOINT_DELTA_RAD_PER_SEGMENT,
@@ -4342,14 +4365,15 @@ class DualJakaWebNode(Node):
                     "segments": segments,
                     "warnings": ["No motion was sent."],
                 }
-            if max(left_disp_rot, right_disp_rot) > effective_limits["max_segment_rotation_rad"]:
+            if max(left_disp_rot, right_disp_rot) > effective_limits["max_segment_tcp_rotation_rad"]:
                 return {
                     "ok": False,
                     "reason": "segment_tcp_rotation_limit_exceeded",
                     "segment_index": idx,
                     "left_rotation_rad": left_disp_rot,
                     "right_rotation_rad": right_disp_rot,
-                    "limit_rad": effective_limits["max_segment_rotation_rad"],
+                    "limit_rad": effective_limits["max_segment_tcp_rotation_rad"],
+                    "object_segment_rotation_limit_rad": effective_limits["max_segment_rotation_rad"],
                     "segments": segments,
                     "warnings": ["No motion was sent."],
                 }
@@ -4511,6 +4535,7 @@ class DualJakaWebNode(Node):
         max_rotation_rad=0.5,
         max_segment_translation_mm=10.0,
         max_segment_rotation_rad=0.05,
+        max_segment_tcp_rotation_rad=0.12,
         max_joint_delta_rad_per_segment=0.12,
         max_joint_delta_sum_rad_per_segment=0.35,
         speed_scale=0.03,
@@ -4564,6 +4589,7 @@ class DualJakaWebNode(Node):
                 max_rotation_rad,
                 max_segment_translation_mm,
                 max_segment_rotation_rad,
+                max_segment_tcp_rotation_rad,
                 max_joint_delta_rad_per_segment,
                 max_joint_delta_sum_rad_per_segment,
                 speed_scale,
@@ -4593,6 +4619,7 @@ class DualJakaWebNode(Node):
                 "max_rotation_rad": HARD_LARGE_MAX_ROTATION_RAD,
                 "max_segment_translation_mm": HARD_LARGE_MAX_SEGMENT_TRANSLATION_MM,
                 "max_segment_rotation_rad": HARD_LARGE_MAX_SEGMENT_ROTATION_RAD,
+                "max_segment_tcp_rotation_rad": HARD_LARGE_MAX_SEGMENT_TCP_ROTATION_RAD,
                 "max_joint_delta_rad_per_segment": HARD_LARGE_MAX_JOINT_DELTA_RAD_PER_SEGMENT,
                 "max_joint_delta_sum_rad_per_segment": HARD_LARGE_MAX_JOINT_DELTA_SUM_RAD_PER_SEGMENT,
                 "max_speed_scale": HARD_LARGE_MAX_SPEED_SCALE,
@@ -6958,6 +6985,7 @@ def api_object_execute_calibrated_world_rigid_large(req: ObjectCalibratedWorldRi
         req.max_rotation_rad,
         req.max_segment_translation_mm,
         req.max_segment_rotation_rad,
+        req.max_segment_tcp_rotation_rad,
         req.max_joint_delta_rad_per_segment,
         req.max_joint_delta_sum_rad_per_segment,
         req.speed_scale,
