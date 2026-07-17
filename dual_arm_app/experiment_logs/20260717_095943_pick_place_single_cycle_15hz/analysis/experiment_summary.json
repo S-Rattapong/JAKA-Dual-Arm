@@ -1,0 +1,39 @@
+{
+  "experiment_directory": "/home/newtonrattapong/jaka_ws/dual_arm_app/experiment_logs/20260717_095943_pick_place_single_cycle_15hz",
+  "analysis_directory": "/home/newtonrattapong/jaka_ws/dual_arm_app/experiment_logs/20260717_095943_pick_place_single_cycle_15hz/analysis",
+  "log_duration_sec": 64.347802705,
+  "program_start_sec": 4.463530111,
+  "program_end_sec": 64.294443113,
+  "program_cycle_time_sec": 59.830913002,
+  "joint_samples": 1891,
+  "robot_state_samples": 1890,
+  "measured_joint_rate_hz": {
+    "left": 15.216987806249614,
+    "right": 15.328237691063745
+  },
+  "step_count": 23,
+  "successful_step_analyses": 23,
+  "collision_sample_count": 0,
+  "servo_not_ready_sample_count": 0,
+  "power_off_sample_count": 0,
+  "timing_summary_sec": {
+    "median_start_difference": 0.003989615999998364,
+    "max_start_difference": 0.043057318000002454,
+    "median_stop_difference": 0.017994719000000714,
+    "max_stop_difference": 0.06879353200000082,
+    "median_duration_difference": 0.021033315000003938,
+    "max_duration_difference": 0.06092371800000507
+  },
+  "progress_summary_percent": {
+    "median_max_mismatch": 3.0506671248009654,
+    "worst_max_mismatch": 6.052290532478914,
+    "median_rms_mismatch": 1.3347913462604615,
+    "worst_rms_mismatch": 2.8904888738428633
+  },
+  "limitations": [
+    "motion timing resolution is limited by approximately 15 Hz feedback",
+    "joint velocity and effort are not provided by the current driver",
+    "load sharing cannot be calculated from this dataset",
+    "progress is estimated from joint-space projection and is not Cartesian TCP progress"
+  ]
+}

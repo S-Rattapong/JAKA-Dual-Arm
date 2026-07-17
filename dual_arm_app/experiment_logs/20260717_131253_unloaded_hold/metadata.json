@@ -1,0 +1,27 @@
+{
+  "status": "completed",
+  "experiment_directory": "/home/newtonrattapong/jaka_ws/dual_arm_app/experiment_logs/20260717_131253_unloaded_hold",
+  "started_at": "2026-07-17T13:12:53.089472+07:00",
+  "finished_at": "2026-07-17T13:13:08.094211+07:00",
+  "duration_sec": 15.006808211999669,
+  "sample_counts": {
+    "left": 12,
+    "right": 13
+  },
+  "topics": {
+    "left_monitor": "/left_jaka_driver/joint_monitor_raw",
+    "right_monitor": "/right_jaka_driver/joint_monitor_raw",
+    "left_joint": "/left_jaka_driver/joint_position",
+    "right_joint": "/right_jaka_driver/joint_position"
+  },
+  "monitor_layout": {
+    "0_to_5": "current J1-J6",
+    "6_to_11": "SDK-reported torque J1-J6",
+    "12_to_17": "SDK-reported velocity J1-J6"
+  },
+  "notes": [
+    "This logger is read-only and sends no robot commands.",
+    "SDK-reported torque is not yet treated as calibrated N*m.",
+    "Use the same robot pose and tool configuration for unloaded and loaded tests."
+  ]
+}

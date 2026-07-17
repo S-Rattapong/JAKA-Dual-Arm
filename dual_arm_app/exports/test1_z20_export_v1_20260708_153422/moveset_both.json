@@ -1,0 +1,183 @@
+{
+  "ok": true,
+  "moveset": "test1_z20_export_v1",
+  "object": "Test1",
+  "target_delta": [
+    0.0,
+    0.0,
+    20.0,
+    0.0,
+    0.0,
+    0.0
+  ],
+  "segment_count": 2,
+  "source": "D35.7 dry_run execute_calibrated_world_rigid_large",
+  "warning": [
+    "This export was generated from dry-run only.",
+    "Running the .jks files in JAKA Software can move the real robot.",
+    "Left and right files are independent; simultaneous synchronization is not guaranteed without an external start/handshake mechanism.",
+    "Review speed, acceleration, tool, user frame, payload, IO mapping, and workspace clearance before running."
+  ],
+  "jks_speed_deg_s": 10.0,
+  "jks_acc_deg_s2": 60.0,
+  "request": {
+    "name": "Test1",
+    "target_delta": [
+      0.0,
+      0.0,
+      20.0,
+      0.0,
+      0.0,
+      0.0
+    ],
+    "dry_run": true,
+    "max_translation_mm": 100.0,
+    "max_rotation_rad": 0.5,
+    "max_segment_translation_mm": 10.0,
+    "max_segment_rotation_rad": 0.026,
+    "max_segment_tcp_rotation_rad": 0.12,
+    "speed_scale": 0.05
+  },
+  "plan_summary": {
+    "mode": "large_segmented_joint_move",
+    "segment_count": 2,
+    "segment_delta": [
+      0.0,
+      0.0,
+      10.0,
+      0.0,
+      0.0,
+      0.0
+    ],
+    "summary": {
+      "max_left_joint_jump_rad": 0.008391141891480824,
+      "max_right_joint_jump_rad": 0.008399724960327148,
+      "max_left_joint_delta_sum_rad": 0.025237823487259448,
+      "max_right_joint_delta_sum_rad": 0.02509646024554968
+    },
+    "warnings": [
+      "Dry run only. No motion was sent.",
+      "Large motion will be executed as segmented joint_move."
+    ]
+  },
+  "steps": [
+    {
+      "segment_index": 1,
+      "left_joint_rad": [
+        3.156501531600952,
+        0.355440616607666,
+        -0.9053280353546143,
+        0.0008794725872576237,
+        0.5417134165763855,
+        1.5230770111083984
+      ],
+      "right_joint_rad": [
+        -0.016885491088032722,
+        2.7895896434783936,
+        0.8975583910942078,
+        0.0032845952082425356,
+        2.5922048091888428,
+        1.4932494163513184
+      ],
+      "left_joint_deg": [
+        180.8542157873148,
+        20.365247199146857,
+        -51.871475500689975,
+        0.05039006744731286,
+        31.037892475439097,
+        87.26588460991124
+      ],
+      "right_joint_deg": [
+        -0.9674673743500394,
+        159.83171314471596,
+        51.42630767625064,
+        0.18819344284119105,
+        148.52239520003556,
+        85.556889317304
+      ],
+      "left_target_tcp_world": [
+        -1193.5169677734373,
+        -18.046621322631836,
+        136.42485046386716,
+        1.554816722869873,
+        -1.5092270374298116,
+        -3.1338093280792236
+      ],
+      "right_target_tcp_world": [
+        -1193.431733409489,
+        199.43942079770633,
+        138.54827684091921,
+        1.5349822976981495,
+        -1.5125181875006248,
+        0.03188700540565765
+      ],
+      "target_object_pose_world": [
+        -1102.38818359375,
+        -27.303255081176758,
+        176.94241333007812,
+        1.365414905928754e-06,
+        5.402181617424062e-07,
+        3.141592315953443
+      ]
+    },
+    {
+      "segment_index": 2,
+      "left_joint_rad": [
+        3.1481173038482666,
+        0.3537655770778656,
+        -0.9011089205741882,
+        0.0007990709273144603,
+        0.5391729474067688,
+        1.5147384405136108
+      ],
+      "right_joint_rad": [
+        -0.0085212467238307,
+        2.791228771209717,
+        0.8934032320976257,
+        0.0032403685618191957,
+        2.5947048664093018,
+        1.5016430616378784
+      ],
+      "left_joint_deg": [
+        180.37383492260946,
+        20.26927450357172,
+        -51.6297380304903,
+        0.045783391666723544,
+        30.892334314036958,
+        86.78811970765801
+      ],
+      "right_joint_deg": [
+        -0.48823147346517887,
+        159.92562824580364,
+        51.188234602540675,
+        0.1856594426591163,
+        148.66563792730906,
+        86.03780976695377
+      ],
+      "left_target_tcp_world": [
+        -1193.5169677734373,
+        -18.046621322631836,
+        146.42485046386716,
+        1.554816722869873,
+        -1.5092270374298116,
+        -3.1338093280792236
+      ],
+      "right_target_tcp_world": [
+        -1193.431733409489,
+        199.43942079770633,
+        148.54827684091921,
+        1.5349822976981495,
+        -1.5125181875006248,
+        0.03188700540565765
+      ],
+      "target_object_pose_world": [
+        -1102.38818359375,
+        -27.303255081176758,
+        186.94241333007812,
+        1.3654149059287539e-06,
+        5.402181617424062e-07,
+        3.141592315953443
+      ]
+    }
+  ]
+}

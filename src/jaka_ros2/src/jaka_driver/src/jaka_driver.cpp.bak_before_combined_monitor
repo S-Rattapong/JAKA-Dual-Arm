@@ -72,7 +72,6 @@ rclcpp::Publisher<jaka_msgs::msg::RobotMsg>::SharedPtr robot_state_pub;
 rclcpp::Publisher<std_msgs::msg::Float64MultiArray>::SharedPtr joint_current_pub;
 rclcpp::Publisher<std_msgs::msg::Float64MultiArray>::SharedPtr joint_torque_pub;
 rclcpp::Publisher<std_msgs::msg::Float64MultiArray>::SharedPtr joint_monitor_velocity_pub;
-rclcpp::Publisher<std_msgs::msg::Float64MultiArray>::SharedPtr joint_monitor_raw_pub;
 
 bool linear_move_callback(const shared_ptr<jaka_msgs::srv::Move::Request> request,
     shared_ptr<jaka_msgs::srv::Move::Response> response)
@@ -970,30 +969,13 @@ void get_conn_scoket_state(){
                         velocity_msg.data[i] = jm[i].instVel;
                     }
 
-                    std_msgs::msg::Float64MultiArray monitor_msg;
-                    monitor_msg.data.resize(18);
-
-                    for (size_t i = 0; i < 6; ++i)
-                    {
-                        // Index 0-5: current
-                        monitor_msg.data[i] = jm[i].instCurrent;
-
-                        // Index 6-11: torque
-                        monitor_msg.data[6 + i] = jm[i].instTorq;
-
-                        // Index 12-17: velocity
-                        monitor_msg.data[12 + i] = jm[i].instVel;
-                    }
-
                     if (joint_current_pub &&
                         joint_torque_pub &&
-                        joint_monitor_velocity_pub &&
-                        joint_monitor_raw_pub)
+                        joint_monitor_velocity_pub)
                     {
                         joint_current_pub->publish(current_msg);
                         joint_torque_pub->publish(torque_msg);
                         joint_monitor_velocity_pub->publish(velocity_msg);
-                        joint_monitor_raw_pub->publish(monitor_msg);
                     }
                 }
             }
@@ -1112,12 +1094,6 @@ int main(int argc, char *argv[])
     joint_monitor_velocity_pub =
         node->create_publisher<std_msgs::msg::Float64MultiArray>(
             (service_prefix + "/joint_monitor_velocity_raw"), 10);
-
-    // Combined synchronized monitor:
-    // [current J1-J6, torque J1-J6, velocity J1-J6]
-    joint_monitor_raw_pub =
-        node->create_publisher<std_msgs::msg::Float64MultiArray>(
-            (service_prefix + "/joint_monitor_raw"), 10);
     
     // Automatically stop robot jog and motion
     auto stop_jog = node->create_wall_timer(chrono::seconds(3), stop_jog_callback);

@@ -18,11 +18,11 @@
     -1102.38818359375,
     -27.303255081176758,
     166.94241333007812,
-    1.3654149059220346e-06,
-    5.402181617023386e-07,
+    1.3654149059287543e-06,
+    5.402181617424062e-07,
     3.141592315953443
   ],
-  "current_pose_updated_at": "2026-07-07T15:45:22",
+  "current_pose_updated_at": "2026-07-08T11:17:17",
   "object_pose_source": "manual",
   "left_tcp_at_capture": [
     -1249.37353515625,
@@ -108,16 +108,16 @@
       "x_axis": [
         -0.9999999999997972,
         3.376363501120319e-07,
-        -5.402181617023123e-07
+        -5.4021816174238e-07
       ],
       "y_axis": [
-        -3.3763708773369683e-07,
+        -3.376370877336969e-07,
         -0.9999999999990109,
-        1.365414905921411e-06
+        1.3654149059281307e-06
       ],
       "z_axis": [
-        -5.402177006880728e-07,
-        1.3654150883188208e-06,
+        -5.402177007281404e-07,
+        1.3654150883255406e-06,
         0.999999999998922
       ],
       "origin": [
@@ -129,26 +129,26 @@
         -1102.38818359375,
         -27.303255081176758,
         166.94241333007812,
-        1.3654149059220346e-06,
-        5.402181617023386e-07,
+        1.3654149059287543e-06,
+        5.402181617424062e-07,
         3.141592315953443
       ],
       "transform": [
         [
           -0.9999999999997972,
-          -3.3763708773369683e-07,
-          -5.402177006880728e-07,
+          -3.376370877336969e-07,
+          -5.402177007281404e-07,
           -1102.38818359375
         ],
         [
           3.376363501120319e-07,
           -0.9999999999990109,
-          1.3654150883188208e-06,
+          1.3654150883255406e-06,
           -27.303255081176758
         ],
         [
-          -5.402181617023123e-07,
-          1.365414905921411e-06,
+          -5.4021816174238e-07,
+          1.3654149059281307e-06,
           0.999999999998922,
           166.94241333007812
         ],
@@ -160,34 +160,34 @@
         ]
       ],
       "computed_at": "2026-07-07T08:41:50",
-      "last_committed_at": "2026-07-07T15:45:22"
+      "last_committed_at": "2026-07-08T11:17:17"
     },
-    "updated_at": "2026-07-07T15:45:22"
+    "updated_at": "2026-07-08T11:17:17"
   },
   "calibrated_object_pose": [
     -1102.38818359375,
     -27.303255081176758,
     166.94241333007812,
-    1.3654149059220346e-06,
-    5.402181617023386e-07,
+    1.3654149059287543e-06,
+    5.402181617424062e-07,
     3.141592315953443
   ],
   "calibrated_object_transform": [
     [
       -0.9999999999997972,
-      -3.3763708773369683e-07,
-      -5.402177006880728e-07,
+      -3.376370877336969e-07,
+      -5.402177007281404e-07,
       -1102.38818359375
     ],
     [
       3.376363501120319e-07,
       -0.9999999999990109,
-      1.3654150883188208e-06,
+      1.3654150883255406e-06,
       -27.303255081176758
     ],
     [
-      -5.402181617023123e-07,
-      1.365414905921411e-06,
+      -5.4021816174238e-07,
+      1.3654149059281307e-06,
       0.999999999998922,
       166.94241333007812
     ],
@@ -198,69 +198,69 @@
       1.0
     ]
   ],
-  "pending_calibrated_execute_commit_updated_at": "2026-07-07T15:45:22",
+  "pending_calibrated_execute_commit_updated_at": "2026-07-08T11:17:17",
   "last_calibrated_execute_commit": {
-    "id": "d35_7_1783413913300",
+    "id": "d35_7_1783484237314",
     "name": "Test1",
-    "created_at": "2026-07-07T15:45:13",
-    "updated_at": "2026-07-07T15:45:13",
+    "created_at": "2026-07-08T11:17:17",
+    "updated_at": "2026-07-08T11:17:17",
     "status": "committed",
     "source": "D35.7 large segmented execute",
     "target_delta": [
       0.0,
       0.0,
-      -40.0,
       0.0,
       0.0,
-      -0.2
+      -0.2,
+      0.0
     ],
     "previous_object_pose_world": [
       -1102.38818359375,
       -27.303255081176758,
-      206.94241333007812,
-      1.3654149059220363e-06,
-      5.402181617023386e-07,
-      -2.9415929912261443
+      166.94241333007812,
+      1.365414905928756e-06,
+      0.20000054021816172,
+      3.141592315953443
     ],
     "target_object_pose_world": [
       -1102.38818359375,
       -27.303255081176758,
       166.94241333007812,
-      1.3654149059220346e-06,
-      5.402181617023386e-07,
+      1.3654149059287543e-06,
+      5.402181617424062e-07,
       3.141592315953443
     ],
     "expected_left_tcp_world": [
-      -1193.396036774332,
-      -18.197408765709902,
-      130.6096954345703,
-      1.5440007448196411,
-      -1.5129995346069363,
-      -3.1230003356933587
+      -1193.5169605991662,
+      -18.046598917997695,
+      126.42497052427152,
+      1.5548166895679851,
+      -1.5092271074723282,
+      -3.1338092629886707
     ],
     "expected_right_tcp_world": [
-      -1193.1495355157842,
-      199.75137124811093,
-      130.609959362881,
-      1.5320174773245565,
-      -1.5109988614318115,
-      0.03457495749498539
+      -1193.4316747455434,
+      199.43937150334196,
+      128.54827610979845,
+      1.5349823323114122,
+      -1.5125181845159277,
+      0.031887052764528655
     ],
     "left_target_joint": [
-      3.1614317893981934,
-      0.35666772723197937,
-      -0.9082413911819458,
-      0.000267362454906106,
-      0.5433949828147888,
-      1.5321060419082642
+      3.1648926734924316,
+      0.35699161887168884,
+      -0.9092348217964172,
+      0.0009601684869267046,
+      0.5440661311149597,
+      1.5314222574234009
     ],
     "right_target_joint": [
-      -0.02355596423149109,
-      2.787665367126465,
-      0.9018343091011047,
-      0.0036005647853016853,
-      2.5896036624908447,
-      1.4848946332931519
+      -0.025256335735321045,
+      2.7880752086639404,
+      0.9013996720314026,
+      0.003328336402773857,
+      2.5898942947387695,
+      1.4848496913909912
     ],
     "segment_count": 8,
     "motion_results": [
@@ -272,12 +272,12 @@
           "message": "sync joint_move sent",
           "side": "both",
           "sync_enabled": true,
-          "target_duration": 0.47239065170288086,
-          "left_delta": 0.027324974536895752,
-          "right_delta": 0.047239065170288086,
-          "left_vel": 0.05784402049107931,
+          "target_duration": 0.23278474807739258,
+          "left_delta": 0.023081541061401145,
+          "right_delta": 0.023278474807739258,
+          "left_vel": 0.0991540092383001,
           "right_vel": 0.1,
-          "left_acc": 0.05,
+          "left_acc": 0.059492405542980055,
           "right_acc": 0.06,
           "left_send": true,
           "right_send": true
@@ -293,12 +293,12 @@
           "message": "sync joint_move sent",
           "side": "both",
           "sync_enabled": true,
-          "target_duration": 0.46130418777465376,
-          "left_delta": 0.027338683605194092,
-          "right_delta": 0.046130418777465376,
-          "left_vel": 0.05926389642608011,
+          "target_duration": 0.23254990577697754,
+          "left_delta": 0.023059368133544922,
+          "right_delta": 0.023254990577697754,
+          "left_vel": 0.09915879370710028,
           "right_vel": 0.1,
-          "left_acc": 0.05,
+          "left_acc": 0.05949527622426016,
           "right_acc": 0.06,
           "left_send": true,
           "right_send": true
@@ -314,12 +314,12 @@
           "message": "sync joint_move sent",
           "side": "both",
           "sync_enabled": true,
-          "target_duration": 0.45233964920042613,
-          "left_delta": 0.027343153953552246,
-          "right_delta": 0.04523396492004261,
-          "left_vel": 0.06044828040585235,
+          "target_duration": 0.23232340812683105,
+          "left_delta": 0.023037910461426003,
+          "right_delta": 0.023232340812683105,
+          "left_vel": 0.09916310477353639,
           "right_vel": 0.1,
-          "left_acc": 0.05,
+          "left_acc": 0.05949786286412183,
           "right_acc": 0.06,
           "left_send": true,
           "right_send": true
@@ -335,12 +335,12 @@
           "message": "sync joint_move sent",
           "side": "both",
           "sync_enabled": true,
-          "target_duration": 0.44499158859252486,
-          "left_delta": 0.02733767032623291,
-          "right_delta": 0.044499158859252486,
-          "left_vel": 0.061434128255547296,
+          "target_duration": 0.23210525512695312,
+          "left_delta": 0.023017525672912598,
+          "right_delta": 0.023210525512695312,
+          "left_vel": 0.09916848138713123,
           "right_vel": 0.1,
-          "left_acc": 0.05,
+          "left_acc": 0.05950108883227873,
           "right_acc": 0.06,
           "left_send": true,
           "right_send": true
@@ -356,12 +356,12 @@
           "message": "sync joint_move sent",
           "side": "both",
           "sync_enabled": true,
-          "target_duration": 0.4389166831970215,
-          "left_delta": 0.027325034141540416,
-          "right_delta": 0.04389166831970215,
-          "left_vel": 0.062255628887259044,
+          "target_duration": 0.23189902305603027,
+          "left_delta": 0.022998452186584473,
+          "right_delta": 0.023189902305603027,
+          "left_vel": 0.09917442464183086,
           "right_vel": 0.1,
-          "left_acc": 0.05,
+          "left_acc": 0.05950465478509851,
           "right_acc": 0.06,
           "left_send": true,
           "right_send": true
@@ -377,12 +377,12 @@
           "message": "sync joint_move sent",
           "side": "both",
           "sync_enabled": true,
-          "target_duration": 0.4338598251342729,
-          "left_delta": 0.027304470539092907,
-          "right_delta": 0.04338598251342729,
-          "left_vel": 0.06293385318781843,
+          "target_duration": 0.23170232772827148,
+          "left_delta": 0.0229799747467041,
+          "right_delta": 0.02317023277282715,
+          "left_vel": 0.09917886873218568,
           "right_vel": 0.1,
-          "left_acc": 0.05,
+          "left_acc": 0.059507321239311406,
           "right_acc": 0.06,
           "left_send": true,
           "right_send": true
@@ -398,12 +398,12 @@
           "message": "sync joint_move sent",
           "side": "both",
           "sync_enabled": true,
-          "target_duration": 0.4296517372131392,
-          "left_delta": 0.02727663516998302,
-          "right_delta": 0.04296517372131392,
-          "left_vel": 0.06348545300179197,
+          "target_duration": 0.23151874542236328,
+          "left_delta": 0.02296268939971924,
+          "right_delta": 0.023151874542236328,
+          "left_vel": 0.09918285172903837,
           "right_vel": 0.1,
-          "left_acc": 0.05,
+          "left_acc": 0.059509711037423016,
           "right_acc": 0.06,
           "left_send": true,
           "right_send": true
@@ -419,12 +419,12 @@
           "message": "sync joint_move sent",
           "side": "both",
           "sync_enabled": true,
-          "target_duration": 0.42614698410033736,
-          "left_delta": 0.02724313735961903,
-          "right_delta": 0.042614698410033736,
-          "left_vel": 0.06392896905543878,
+          "target_duration": 0.2313399314880371,
+          "left_delta": 0.02294635772705078,
+          "right_delta": 0.02313399314880371,
+          "left_vel": 0.09918891900526636,
           "right_vel": 0.1,
-          "left_acc": 0.05,
+          "left_acc": 0.05951335140315981,
           "right_acc": 0.06,
           "left_send": true,
           "right_send": true
@@ -433,2284 +433,59 @@
         "wait_message": "done"
       }
     ],
-    "last_verified_at": "2026-07-07T15:45:22",
+    "last_verified_at": "2026-07-08T11:17:17",
     "last_verification": {
       "ready_to_commit": true,
       "live": {
         "left_tcp_world": [
-          -1193.39599609375,
-          -18.197404861450195,
-          130.60972595214844,
-          1.5440007448196411,
-          -1.5129995346069336,
-          -3.123000383377075
+          -1193.5169677734375,
+          -18.046621322631836,
+          126.42485046386719,
+          1.554816722869873,
+          -1.5092270374298096,
+          -3.1338093280792236
         ],
         "right_tcp_world": [
-          -1193.1495043200948,
-          199.7512835315958,
-          130.60996047032924,
-          1.5320175167674177,
-          -1.5109988679233053,
-          0.03457486404686479
+          -1193.431733409489,
+          199.43942079770633,
+          128.54827684091924,
+          1.5349822976981495,
+          -1.5125181875006248,
+          0.03188700540565764
         ]
       },
       "expected": {
         "left_tcp_world": [
-          -1193.396036774332,
-          -18.197408765709902,
-          130.6096954345703,
-          1.5440007448196411,
-          -1.5129995346069363,
-          -3.1230003356933587
+          -1193.5169605991662,
+          -18.046598917997695,
+          126.42497052427152,
+          1.5548166895679851,
+          -1.5092271074723282,
+          -3.1338092629886707
         ],
         "right_tcp_world": [
-          -1193.1495355157842,
-          199.75137124811093,
-          130.609959362881,
-          1.5320174773245565,
-          -1.5109988614318115,
-          0.03457495749498539
+          -1193.4316747455434,
+          199.43937150334196,
+          128.54827610979845,
+          1.5349823323114122,
+          -1.5125181845159277,
+          0.031887052764528655
         ]
       },
       "errors": {
-        "left_position_error_mm": 5.100466228922147e-05,
-        "right_position_error_mm": 9.310523351553026e-05,
-        "left_orientation_error_rad": 4.7683716530855236e-08,
-        "right_orientation_error_rad": 9.344812060274599e-08
+        "left_position_error_mm": 0.0001223435265449137,
+        "right_position_error_mm": 7.662850254742116e-05,
+        "left_orientation_error_rad": 7.598131170262078e-08,
+        "right_orientation_error_rad": 8.161702118890975e-08
       },
       "tolerances": {
         "position_tolerance_mm": 1.5,
         "orientation_tolerance_rad": 0.05
       }
     },
-    "committed_at": "2026-07-07T15:45:22"
+    "committed_at": "2026-07-08T11:17:17"
   },
   "calibrated_execute_commit_history": [
-    {
-      "id": "d35_7_1783408517144",
-      "name": "Test1",
-      "created_at": "2026-07-07T14:15:17",
-      "updated_at": "2026-07-07T14:15:17",
-      "status": "committed",
-      "source": "D35.7 large segmented execute",
-      "target_delta": [
-        0.0,
-        0.0,
-        50.0,
-        0.0,
-        0.0,
-        0.0
-      ],
-      "previous_object_pose_world": [
-        -1102.38818359375,
-        -27.303255081176758,
-        166.94241333007812,
-        1.365414905922051e-06,
-        5.402181617023386e-07,
-        3.1415923159534422
-      ],
-      "target_object_pose_world": [
-        -1102.38818359375,
-        -27.303255081176758,
-        216.94241333007812,
-        1.3654149059220498e-06,
-        5.402181617023386e-07,
-        3.1415923159534422
-      ],
-      "expected_left_tcp_world": [
-        -1193.3959960937498,
-        -18.197372436523434,
-        180.60972595214844,
-        1.5440001487731934,
-        -1.5129996538162258,
-        -3.122999906539917
-      ],
-      "expected_right_tcp_world": [
-        -1193.1496263904062,
-        199.75122440379727,
-        180.6099680998112,
-        1.5320175167674177,
-        -1.5109988679233073,
-        0.0345748640468648
-      ],
-      "left_target_joint": [
-        3.119570255279541,
-        0.3473987579345703,
-        -0.8849014043807983,
-        -0.00012628655531443655,
-        0.5293695330619812,
-        1.4904601573944092
-      ],
-      "right_target_joint": [
-        0.01822296902537346,
-        2.796621561050415,
-        0.879146933555603,
-        0.003361316630616784,
-        2.6032462120056152,
-        1.5268354415893555
-      ],
-      "segment_count": 5,
-      "motion_results": [
-        {
-          "segment_index": 1,
-          "motion_result": {
-            "ok": true,
-            "accepted": true,
-            "message": "sync joint_move sent",
-            "side": "both",
-            "sync_enabled": true,
-            "target_duration": 0.15,
-            "left_delta": 0.00838923454284668,
-            "right_delta": 0.00840294361114502,
-            "left_vel": 0.05592823028564453,
-            "right_vel": 0.05601962407430013,
-            "left_acc": 0.036,
-            "right_acc": 0.036,
-            "left_send": true,
-            "right_send": true
-          },
-          "wait_done": true,
-          "wait_message": "done"
-        },
-        {
-          "segment_index": 2,
-          "motion_result": {
-            "ok": true,
-            "accepted": true,
-            "message": "sync joint_move sent",
-            "side": "both",
-            "sync_enabled": true,
-            "target_duration": 0.15,
-            "left_delta": 0.008381843566894087,
-            "right_delta": 0.008396744728088379,
-            "left_vel": 0.05587895711262725,
-            "right_vel": 0.05597829818725586,
-            "left_acc": 0.036,
-            "right_acc": 0.036,
-            "left_send": true,
-            "right_send": true
-          },
-          "wait_done": true,
-          "wait_message": "done"
-        },
-        {
-          "segment_index": 3,
-          "motion_result": {
-            "ok": true,
-            "accepted": true,
-            "message": "sync joint_move sent",
-            "side": "both",
-            "sync_enabled": true,
-            "target_duration": 0.15,
-            "left_delta": 0.008373498916625977,
-            "right_delta": 0.00838935375213623,
-            "left_vel": 0.055823326110839844,
-            "right_vel": 0.05592902501424154,
-            "left_acc": 0.036,
-            "right_acc": 0.036,
-            "left_send": true,
-            "right_send": true
-          },
-          "wait_done": true,
-          "wait_message": "done"
-        },
-        {
-          "segment_index": 4,
-          "motion_result": {
-            "ok": true,
-            "accepted": true,
-            "message": "sync joint_move sent",
-            "side": "both",
-            "sync_enabled": true,
-            "target_duration": 0.15,
-            "left_delta": 0.00836396217346147,
-            "right_delta": 0.008380651473999023,
-            "left_vel": 0.055759747823076466,
-            "right_vel": 0.055871009826660156,
-            "left_acc": 0.036,
-            "right_acc": 0.036,
-            "left_send": true,
-            "right_send": true
-          },
-          "wait_done": true,
-          "wait_message": "done"
-        },
-        {
-          "segment_index": 5,
-          "motion_result": {
-            "ok": true,
-            "accepted": true,
-            "message": "sync joint_move sent",
-            "side": "both",
-            "sync_enabled": true,
-            "target_duration": 0.15,
-            "left_delta": 0.008352994918823242,
-            "right_delta": 0.008371114730834961,
-            "left_vel": 0.05568663279215495,
-            "right_vel": 0.05580743153889974,
-            "left_acc": 0.036,
-            "right_acc": 0.036,
-            "left_send": true,
-            "right_send": true
-          },
-          "wait_done": true,
-          "wait_message": "done"
-        }
-      ],
-      "last_verified_at": "2026-07-07T14:15:32",
-      "last_verification": {
-        "ready_to_commit": true,
-        "live": {
-          "left_tcp_world": [
-            -1193.39599609375,
-            -18.197389602661133,
-            180.60980224609375,
-            1.5440001487731934,
-            -1.5129997730255127,
-            -3.122999906539917
-          ],
-          "right_tcp_world": [
-            -1193.1495661464633,
-            199.75122354412056,
-            180.60996047040499,
-            1.5320175167674177,
-            -1.5109988679233053,
-            0.03457486404686479
-          ]
-        },
-        "expected": {
-          "left_tcp_world": [
-            -1193.3959960937498,
-            -18.197372436523434,
-            180.60972595214844,
-            1.5440001487731934,
-            -1.5129996538162258,
-            -3.122999906539917
-          ],
-          "right_tcp_world": [
-            -1193.1496263904062,
-            199.75122440379727,
-            180.6099680998112,
-            1.5320175167674177,
-            -1.5109988679233073,
-            0.0345748640468648
-          ]
-        },
-        "errors": {
-          "left_position_error_mm": 7.820129394609237e-05,
-          "right_position_error_mm": 6.073120731912424e-05,
-          "left_orientation_error_rad": 1.1920928688624599e-07,
-          "right_orientation_error_rad": 1.9984014443252818e-15
-        },
-        "tolerances": {
-          "position_tolerance_mm": 1.5,
-          "orientation_tolerance_rad": 0.05
-        }
-      },
-      "committed_at": "2026-07-07T14:15:32"
-    },
-    {
-      "id": "d35_7_1783409328003",
-      "name": "Test1",
-      "created_at": "2026-07-07T14:28:48",
-      "updated_at": "2026-07-07T14:28:48",
-      "status": "committed",
-      "source": "D35.7 large segmented execute",
-      "target_delta": [
-        0.0,
-        0.0,
-        -50.0,
-        0.0,
-        0.0,
-        0.0
-      ],
-      "previous_object_pose_world": [
-        -1102.38818359375,
-        -27.303255081176758,
-        216.94241333007812,
-        1.3654149059220498e-06,
-        5.402181617023386e-07,
-        3.1415923159534422
-      ],
-      "target_object_pose_world": [
-        -1102.38818359375,
-        -27.303255081176758,
-        166.94241333007812,
-        1.3654149059220488e-06,
-        5.402181617023386e-07,
-        3.1415923159534422
-      ],
-      "expected_left_tcp_world": [
-        -1193.3959960937498,
-        -18.19738960266113,
-        130.60980224609378,
-        1.5440001487731934,
-        -1.512999773025515,
-        -3.122999906539917
-      ],
-      "expected_right_tcp_world": [
-        -1193.1495661464633,
-        199.75122354412062,
-        130.609960470405,
-        1.5320175167674177,
-        -1.5109988679233073,
-        0.0345748640468648
-      ],
-      "left_target_joint": [
-        3.1614317893981934,
-        0.356667697429657,
-        -0.908241331577301,
-        0.00026733154663816094,
-        0.5433948636054993,
-        1.5321061611175537
-      ],
-      "right_target_joint": [
-        -0.02355596236884594,
-        2.787665605545044,
-        0.9018338322639465,
-        0.003600564319640398,
-        2.589603900909424,
-        1.4848946332931519
-      ],
-      "segment_count": 5,
-      "motion_results": [
-        {
-          "segment_index": 1,
-          "motion_result": {
-            "ok": true,
-            "accepted": true,
-            "message": "sync joint_move sent",
-            "side": "both",
-            "sync_enabled": true,
-            "target_duration": 0.15,
-            "left_delta": 0.008352994918823242,
-            "right_delta": 0.008371114730834961,
-            "left_vel": 0.05568663279215495,
-            "right_vel": 0.05580743153889974,
-            "left_acc": 0.036,
-            "right_acc": 0.036,
-            "left_send": true,
-            "right_send": true
-          },
-          "wait_done": true,
-          "wait_message": "done"
-        },
-        {
-          "segment_index": 2,
-          "motion_result": {
-            "ok": true,
-            "accepted": true,
-            "message": "sync joint_move sent",
-            "side": "both",
-            "sync_enabled": true,
-            "target_duration": 0.15,
-            "left_delta": 0.008363962173461914,
-            "right_delta": 0.008380651473999023,
-            "left_vel": 0.05575974782307943,
-            "right_vel": 0.055871009826660156,
-            "left_acc": 0.036,
-            "right_acc": 0.036,
-            "left_send": true,
-            "right_send": true
-          },
-          "wait_done": true,
-          "wait_message": "done"
-        },
-        {
-          "segment_index": 3,
-          "motion_result": {
-            "ok": true,
-            "accepted": true,
-            "message": "sync joint_move sent",
-            "side": "both",
-            "sync_enabled": true,
-            "target_duration": 0.15,
-            "left_delta": 0.008373260498047319,
-            "right_delta": 0.00838935375213623,
-            "left_vel": 0.0558217366536488,
-            "right_vel": 0.05592902501424154,
-            "left_acc": 0.036,
-            "right_acc": 0.036,
-            "left_send": true,
-            "right_send": true
-          },
-          "wait_done": true,
-          "wait_message": "done"
-        },
-        {
-          "segment_index": 4,
-          "motion_result": {
-            "ok": true,
-            "accepted": true,
-            "message": "sync joint_move sent",
-            "side": "both",
-            "sync_enabled": true,
-            "target_duration": 0.15,
-            "left_delta": 0.008382081985473633,
-            "right_delta": 0.008396744728088379,
-            "left_vel": 0.05588054656982422,
-            "right_vel": 0.05597829818725586,
-            "left_acc": 0.036,
-            "right_acc": 0.036,
-            "left_send": true,
-            "right_send": true
-          },
-          "wait_done": true,
-          "wait_message": "done"
-        },
-        {
-          "segment_index": 5,
-          "motion_result": {
-            "ok": true,
-            "accepted": true,
-            "message": "sync joint_move sent",
-            "side": "both",
-            "sync_enabled": true,
-            "target_duration": 0.15,
-            "left_delta": 0.008389234542847124,
-            "right_delta": 0.00840294361114502,
-            "left_vel": 0.055928230285647494,
-            "right_vel": 0.05601962407430013,
-            "left_acc": 0.036,
-            "right_acc": 0.036,
-            "left_send": true,
-            "right_send": true
-          },
-          "wait_done": true,
-          "wait_message": "done"
-        }
-      ],
-      "last_verified_at": "2026-07-07T14:28:53",
-      "last_verification": {
-        "ready_to_commit": true,
-        "live": {
-          "left_tcp_world": [
-            -1193.39599609375,
-            -18.19740104675293,
-            130.60972595214844,
-            1.5440001487731934,
-            -1.5129996538162231,
-            -3.122999906539917
-          ],
-          "right_tcp_world": [
-            -1193.1496263904153,
-            199.75122440380494,
-            130.60996047041667,
-            1.5320175167674177,
-            -1.5109988679233053,
-            0.03457486404686479
-          ]
-        },
-        "expected": {
-          "left_tcp_world": [
-            -1193.3959960937498,
-            -18.19738960266113,
-            130.60980224609378,
-            1.5440001487731934,
-            -1.512999773025515,
-            -3.122999906539917
-          ],
-          "right_tcp_world": [
-            -1193.1495661464633,
-            199.75122354412062,
-            130.609960470405,
-            1.5320175167674177,
-            -1.5109988679233073,
-            0.0345748640468648
-          ]
-        },
-        "errors": {
-          "left_position_error_mm": 7.71474778124351e-05,
-          "right_position_error_mm": 6.025008557844187e-05,
-          "left_orientation_error_rad": 1.192092917712273e-07,
-          "right_orientation_error_rad": 1.9984014443252818e-15
-        },
-        "tolerances": {
-          "position_tolerance_mm": 1.5,
-          "orientation_tolerance_rad": 0.05
-        }
-      },
-      "committed_at": "2026-07-07T14:28:53"
-    },
-    {
-      "id": "d35_7_1783410106820",
-      "name": "Test1",
-      "created_at": "2026-07-07T14:41:46",
-      "updated_at": "2026-07-07T14:41:46",
-      "status": "committed",
-      "source": "D35.7 large segmented execute",
-      "target_delta": [
-        0.0,
-        0.0,
-        0.0,
-        0.0,
-        0.0,
-        0.3
-      ],
-      "previous_object_pose_world": [
-        -1102.38818359375,
-        -27.303255081176758,
-        166.94241333007812,
-        1.3654149059220488e-06,
-        5.402181617023386e-07,
-        3.1415923159534422
-      ],
-      "target_object_pose_world": [
-        -1102.38818359375,
-        -27.303255081176758,
-        166.94241333007812,
-        1.3654149059220452e-06,
-        5.402181617023386e-07,
-        -2.8415929912261455
-      ],
-      "expected_left_tcp_world": [
-        -1192.0222315365822,
-        -45.4987480152363,
-        130.60972595214844,
-        1.5440001487731934,
-        -1.5129996538162258,
-        -2.822999906539918
-      ],
-      "expected_right_tcp_world": [
-        -1256.1950884038752,
-        162.78833385809597,
-        130.60996047041667,
-        1.5320175167674177,
-        -1.5109988679233073,
-        0.33457486404686354
-      ],
-      "left_target_joint": [
-        3.1620028018951416,
-        0.41917210817337036,
-        -1.019431710243225,
-        -0.00913673173636198,
-        0.892010509967804,
-        1.5397149324417114
-      ],
-      "right_target_joint": [
-        -0.021894071251153946,
-        3.000694751739502,
-        0.45265427231788635,
-        -0.003773509291931987,
-        3.1256775856018066,
-        1.489417552947998
-      ],
-      "segment_count": 17,
-      "motion_results": [
-        {
-          "segment_index": 1,
-          "motion_result": {
-            "ok": true,
-            "accepted": true,
-            "message": "sync joint_move sent",
-            "side": "both",
-            "sync_enabled": true,
-            "target_duration": 0.48732757568358637,
-            "left_delta": 0.020069003105163574,
-            "right_delta": 0.02923965454101518,
-            "left_vel": 0.05,
-            "right_vel": 0.06,
-            "left_acc": 0.036,
-            "right_acc": 0.036,
-            "left_send": true,
-            "right_send": true
-          },
-          "wait_done": true,
-          "wait_message": "done"
-        },
-        {
-          "segment_index": 2,
-          "motion_result": {
-            "ok": true,
-            "accepted": true,
-            "message": "sync joint_move sent",
-            "side": "both",
-            "sync_enabled": true,
-            "target_duration": 0.4895607630411784,
-            "left_delta": 0.020126819610595814,
-            "right_delta": 0.029373645782470703,
-            "left_vel": 0.05,
-            "right_vel": 0.06,
-            "left_acc": 0.036,
-            "right_acc": 0.036,
-            "left_send": true,
-            "right_send": true
-          },
-          "wait_done": true,
-          "wait_message": "done"
-        },
-        {
-          "segment_index": 3,
-          "motion_result": {
-            "ok": true,
-            "accepted": true,
-            "message": "sync joint_move sent",
-            "side": "both",
-            "sync_enabled": true,
-            "target_duration": 0.4920879999796476,
-            "left_delta": 0.020184099674224854,
-            "right_delta": 0.029525279998778853,
-            "left_vel": 0.05,
-            "right_vel": 0.06,
-            "left_acc": 0.036,
-            "right_acc": 0.036,
-            "left_send": true,
-            "right_send": true
-          },
-          "wait_done": true,
-          "wait_message": "done"
-        },
-        {
-          "segment_index": 4,
-          "motion_result": {
-            "ok": true,
-            "accepted": true,
-            "message": "sync joint_move sent",
-            "side": "both",
-            "sync_enabled": true,
-            "target_duration": 0.49492120742797113,
-            "left_delta": 0.020240724086761364,
-            "right_delta": 0.029695272445678267,
-            "left_vel": 0.05,
-            "right_vel": 0.06,
-            "left_acc": 0.036,
-            "right_acc": 0.036,
-            "left_send": true,
-            "right_send": true
-          },
-          "wait_done": true,
-          "wait_message": "done"
-        },
-        {
-          "segment_index": 5,
-          "motion_result": {
-            "ok": true,
-            "accepted": true,
-            "message": "sync joint_move sent",
-            "side": "both",
-            "sync_enabled": true,
-            "target_duration": 0.49810012181599195,
-            "left_delta": 0.02029639482498169,
-            "right_delta": 0.029886007308959517,
-            "left_vel": 0.05,
-            "right_vel": 0.06,
-            "left_acc": 0.036,
-            "right_acc": 0.036,
-            "left_send": true,
-            "right_send": true
-          },
-          "wait_done": true,
-          "wait_message": "done"
-        },
-        {
-          "segment_index": 6,
-          "motion_result": {
-            "ok": true,
-            "accepted": true,
-            "message": "sync joint_move sent",
-            "side": "both",
-            "sync_enabled": true,
-            "target_duration": 0.5016803741455153,
-            "left_delta": 0.02035135030746449,
-            "right_delta": 0.030100822448730913,
-            "left_vel": 0.05,
-            "right_vel": 0.06,
-            "left_acc": 0.036,
-            "right_acc": 0.036,
-            "left_send": true,
-            "right_send": true
-          },
-          "wait_done": true,
-          "wait_message": "done"
-        },
-        {
-          "segment_index": 7,
-          "motion_result": {
-            "ok": true,
-            "accepted": true,
-            "message": "sync joint_move sent",
-            "side": "both",
-            "sync_enabled": true,
-            "target_duration": 0.5057175954182943,
-            "left_delta": 0.02040565013885509,
-            "right_delta": 0.030343055725097656,
-            "left_vel": 0.05,
-            "right_vel": 0.06,
-            "left_acc": 0.036,
-            "right_acc": 0.036,
-            "left_send": true,
-            "right_send": true
-          },
-          "wait_done": true,
-          "wait_message": "done"
-        },
-        {
-          "segment_index": 8,
-          "motion_result": {
-            "ok": true,
-            "accepted": true,
-            "message": "sync joint_move sent",
-            "side": "both",
-            "sync_enabled": true,
-            "target_duration": 0.5102793375650968,
-            "left_delta": 0.020459353923797607,
-            "right_delta": 0.030616760253905806,
-            "left_vel": 0.05,
-            "right_vel": 0.06,
-            "left_acc": 0.036,
-            "right_acc": 0.036,
-            "left_send": true,
-            "right_send": true
-          },
-          "wait_done": true,
-          "wait_message": "done"
-        },
-        {
-          "segment_index": 9,
-          "motion_result": {
-            "ok": true,
-            "accepted": true,
-            "message": "sync joint_move sent",
-            "side": "both",
-            "sync_enabled": true,
-            "target_duration": 0.5154490470886157,
-            "left_delta": 0.020512878894805908,
-            "right_delta": 0.03092694282531694,
-            "left_vel": 0.05,
-            "right_vel": 0.05999999999999999,
-            "left_acc": 0.036,
-            "right_acc": 0.036,
-            "left_send": true,
-            "right_send": true
-          },
-          "wait_done": true,
-          "wait_message": "done"
-        },
-        {
-          "segment_index": 10,
-          "motion_result": {
-            "ok": true,
-            "accepted": true,
-            "message": "sync joint_move sent",
-            "side": "both",
-            "sync_enabled": true,
-            "target_duration": 0.5213379859924243,
-            "left_delta": 0.020565330982208252,
-            "right_delta": 0.031280279159545454,
-            "left_vel": 0.05,
-            "right_vel": 0.05999999999999999,
-            "left_acc": 0.036,
-            "right_acc": 0.036,
-            "left_send": true,
-            "right_send": true
-          },
-          "wait_done": true,
-          "wait_message": "done"
-        },
-        {
-          "segment_index": 11,
-          "motion_result": {
-            "ok": true,
-            "accepted": true,
-            "message": "sync joint_move sent",
-            "side": "both",
-            "sync_enabled": true,
-            "target_duration": 0.5280852317809985,
-            "left_delta": 0.02061772346496582,
-            "right_delta": 0.03168511390685991,
-            "left_vel": 0.05,
-            "right_vel": 0.05999999999999999,
-            "left_acc": 0.036,
-            "right_acc": 0.036,
-            "left_send": true,
-            "right_send": true
-          },
-          "wait_done": true,
-          "wait_message": "done"
-        },
-        {
-          "segment_index": 12,
-          "motion_result": {
-            "ok": true,
-            "accepted": true,
-            "message": "sync joint_move sent",
-            "side": "both",
-            "sync_enabled": true,
-            "target_duration": 0.5358497301737541,
-            "left_delta": 0.020669758319854736,
-            "right_delta": 0.03215098381042525,
-            "left_vel": 0.05,
-            "right_vel": 0.06,
-            "left_acc": 0.036,
-            "right_acc": 0.036,
-            "left_send": true,
-            "right_send": true
-          },
-          "wait_done": true,
-          "wait_message": "done"
-        },
-        {
-          "segment_index": 13,
-          "motion_result": {
-            "ok": true,
-            "accepted": true,
-            "message": "sync joint_move sent",
-            "side": "both",
-            "sync_enabled": true,
-            "target_duration": 0.544893741607666,
-            "left_delta": 0.02072131633758545,
-            "right_delta": 0.03269362449645996,
-            "left_vel": 0.05,
-            "right_vel": 0.06,
-            "left_acc": 0.036,
-            "right_acc": 0.036,
-            "left_send": true,
-            "right_send": true
-          },
-          "wait_done": true,
-          "wait_message": "done"
-        },
-        {
-          "segment_index": 14,
-          "motion_result": {
-            "ok": true,
-            "accepted": true,
-            "message": "sync joint_move sent",
-            "side": "both",
-            "sync_enabled": true,
-            "target_duration": 0.5555113156636482,
-            "left_delta": 0.020772218704223744,
-            "right_delta": 0.03333067893981889,
-            "left_vel": 0.05,
-            "right_vel": 0.06,
-            "left_acc": 0.036,
-            "right_acc": 0.036,
-            "left_send": true,
-            "right_send": true
-          },
-          "wait_done": true,
-          "wait_message": "done"
-        },
-        {
-          "segment_index": 15,
-          "motion_result": {
-            "ok": true,
-            "accepted": true,
-            "message": "sync joint_move sent",
-            "side": "both",
-            "sync_enabled": true,
-            "target_duration": 0.5681355794270759,
-            "left_delta": 0.020823299884796254,
-            "right_delta": 0.034088134765624556,
-            "left_vel": 0.05,
-            "right_vel": 0.06,
-            "left_acc": 0.036,
-            "right_acc": 0.036,
-            "left_send": true,
-            "right_send": true
-          },
-          "wait_done": true,
-          "wait_message": "done"
-        },
-        {
-          "segment_index": 16,
-          "motion_result": {
-            "ok": true,
-            "accepted": true,
-            "message": "sync joint_move sent",
-            "side": "both",
-            "sync_enabled": true,
-            "target_duration": 0.583398342132561,
-            "left_delta": 0.020874500274658203,
-            "right_delta": 0.03500390052795366,
-            "left_vel": 0.05,
-            "right_vel": 0.05999999999999999,
-            "left_acc": 0.036,
-            "right_acc": 0.036,
-            "left_send": true,
-            "right_send": true
-          },
-          "wait_done": true,
-          "wait_message": "done"
-        },
-        {
-          "segment_index": 17,
-          "motion_result": {
-            "ok": true,
-            "accepted": true,
-            "message": "sync joint_move sent",
-            "side": "both",
-            "sync_enabled": true,
-            "target_duration": 0.6022254625956218,
-            "left_delta": 0.02092522382736206,
-            "right_delta": 0.036133527755737305,
-            "left_vel": 0.05,
-            "right_vel": 0.05999999999999999,
-            "left_acc": 0.036,
-            "right_acc": 0.036,
-            "left_send": true,
-            "right_send": true
-          },
-          "wait_done": true,
-          "wait_message": "done"
-        }
-      ],
-      "last_verified_at": "2026-07-07T14:57:58",
-      "last_verification": {
-        "ready_to_commit": true,
-        "live": {
-          "left_tcp_world": [
-            -1192.022216796875,
-            -45.49876403808594,
-            130.6096649169922,
-            1.5440003871917725,
-            -1.5129995346069336,
-            -2.823000192642212
-          ],
-          "right_tcp_world": [
-            -1256.1950416212094,
-            162.78846641182506,
-            130.60996098955843,
-            1.5320175072125835,
-            -1.5109988728400832,
-            0.33457483484978207
-          ]
-        },
-        "expected": {
-          "left_tcp_world": [
-            -1192.0222315365822,
-            -45.4987480152363,
-            130.60972595214844,
-            1.5440001487731934,
-            -1.5129996538162258,
-            -2.822999906539918
-          ],
-          "right_tcp_world": [
-            -1256.1950884038752,
-            162.78833385809597,
-            130.60996047041667,
-            1.5320175167674177,
-            -1.5109988679233073,
-            0.33457486404686354
-          ]
-        },
-        "errors": {
-          "left_position_error_mm": 6.480185937467502e-05,
-          "right_position_error_mm": 0.00014056805618822618,
-          "left_orientation_error_rad": 2.861022938560609e-07,
-          "right_orientation_error_rad": 2.9197081474752196e-08
-        },
-        "tolerances": {
-          "position_tolerance_mm": 1.5,
-          "orientation_tolerance_rad": 0.05
-        }
-      },
-      "committed_at": "2026-07-07T14:57:58"
-    },
-    {
-      "id": "d35_7_1783411418322",
-      "name": "Test1",
-      "created_at": "2026-07-07T15:03:38",
-      "updated_at": "2026-07-07T15:03:38",
-      "status": "committed",
-      "source": "D35.7 large segmented execute",
-      "target_delta": [
-        0.0,
-        0.0,
-        0.0,
-        0.0,
-        0.0,
-        -0.3
-      ],
-      "previous_object_pose_world": [
-        -1102.38818359375,
-        -27.303255081176758,
-        166.94241333007812,
-        1.3654149059220452e-06,
-        5.402181617023386e-07,
-        -2.8415929912261455
-      ],
-      "target_object_pose_world": [
-        -1102.38818359375,
-        -27.303255081176758,
-        166.94241333007812,
-        1.365414905922043e-06,
-        5.402181617023386e-07,
-        3.141592315953443
-      ],
-      "expected_left_tcp_world": [
-        -1193.3959867474455,
-        -18.197420709847158,
-        130.60966491699216,
-        1.5440003871917725,
-        -1.5129995346069363,
-        -3.12300019264221
-      ],
-      "expected_right_tcp_world": [
-        -1193.1495425249227,
-        199.751337211996,
-        130.60996098955843,
-        1.5320175072125835,
-        -1.510998872840085,
-        0.03457483484978421
-      ],
-      "left_target_joint": [
-        3.1614317893981934,
-        0.35666772723197937,
-        -0.9082413911819458,
-        0.00026734123821370304,
-        0.5433948636054993,
-        1.5321060419082642
-      ],
-      "right_target_joint": [
-        -0.023555966094136238,
-        2.787665367126465,
-        0.9018343091011047,
-        0.0036005647853016853,
-        2.5896036624908447,
-        1.4848946332931519
-      ],
-      "segment_count": 10,
-      "motion_results": [
-        {
-          "segment_index": 1,
-          "motion_result": {
-            "ok": true,
-            "accepted": true,
-            "message": "sync joint_move sent",
-            "side": "both",
-            "sync_enabled": true,
-            "target_duration": 0.6074118614196822,
-            "left_delta": 0.03554272651672363,
-            "right_delta": 0.06074118614196822,
-            "left_vel": 0.058515035306770075,
-            "right_vel": 0.1,
-            "left_acc": 0.05,
-            "right_acc": 0.06,
-            "left_send": true,
-            "right_send": true
-          },
-          "wait_done": true,
-          "wait_message": "done"
-        },
-        {
-          "segment_index": 2,
-          "motion_result": {
-            "ok": true,
-            "accepted": true,
-            "message": "sync joint_move sent",
-            "side": "both",
-            "sync_enabled": true,
-            "target_duration": 0.5790042877197132,
-            "left_delta": 0.03539544343948364,
-            "right_delta": 0.057900428771971324,
-            "left_vel": 0.06113157396274415,
-            "right_vel": 0.1,
-            "left_acc": 0.05,
-            "right_acc": 0.06,
-            "left_send": true,
-            "right_send": true
-          },
-          "wait_done": true,
-          "wait_message": "done"
-        },
-        {
-          "segment_index": 3,
-          "motion_result": {
-            "ok": true,
-            "accepted": true,
-            "message": "sync joint_move sent",
-            "side": "both",
-            "sync_enabled": true,
-            "target_duration": 0.5584645271301314,
-            "left_delta": 0.0352475643157959,
-            "right_delta": 0.05584645271301314,
-            "left_vel": 0.06311513552513003,
-            "right_vel": 0.1,
-            "left_acc": 0.05,
-            "right_acc": 0.06,
-            "left_send": true,
-            "right_send": true
-          },
-          "wait_done": true,
-          "wait_message": "done"
-        },
-        {
-          "segment_index": 4,
-          "motion_result": {
-            "ok": true,
-            "accepted": true,
-            "message": "sync joint_move sent",
-            "side": "both",
-            "sync_enabled": true,
-            "target_duration": 0.5429530143737793,
-            "left_delta": 0.03509885072708119,
-            "right_delta": 0.05429530143737793,
-            "left_vel": 0.06464436111025708,
-            "right_vel": 0.1,
-            "left_acc": 0.05,
-            "right_acc": 0.06,
-            "left_send": true,
-            "right_send": true
-          },
-          "wait_done": true,
-          "wait_message": "done"
-        },
-        {
-          "segment_index": 5,
-          "motion_result": {
-            "ok": true,
-            "accepted": true,
-            "message": "sync joint_move sent",
-            "side": "both",
-            "sync_enabled": true,
-            "target_duration": 0.5308771133422718,
-            "left_delta": 0.034948110580444336,
-            "right_delta": 0.05308771133422718,
-            "left_vel": 0.06583088572121638,
-            "right_vel": 0.1,
-            "left_acc": 0.05,
-            "right_acc": 0.06,
-            "left_send": true,
-            "right_send": true
-          },
-          "wait_done": true,
-          "wait_message": "done"
-        },
-        {
-          "segment_index": 6,
-          "motion_result": {
-            "ok": true,
-            "accepted": true,
-            "message": "sync joint_move sent",
-            "side": "both",
-            "sync_enabled": true,
-            "target_duration": 0.5212831497192427,
-            "left_delta": 0.034794509410858154,
-            "right_delta": 0.05212831497192427,
-            "left_vel": 0.06674781149092981,
-            "right_vel": 0.1,
-            "left_acc": 0.05,
-            "right_acc": 0.06,
-            "left_send": true,
-            "right_send": true
-          },
-          "wait_done": true,
-          "wait_message": "done"
-        },
-        {
-          "segment_index": 7,
-          "motion_result": {
-            "ok": true,
-            "accepted": true,
-            "message": "sync joint_move sent",
-            "side": "both",
-            "sync_enabled": true,
-            "target_duration": 0.513546466827397,
-            "left_delta": 0.034638941287994385,
-            "right_delta": 0.0513546466827397,
-            "left_vel": 0.06745045195615479,
-            "right_vel": 0.1,
-            "left_acc": 0.05,
-            "right_acc": 0.06,
-            "left_send": true,
-            "right_send": true
-          },
-          "wait_done": true,
-          "wait_message": "done"
-        },
-        {
-          "segment_index": 8,
-          "motion_result": {
-            "ok": true,
-            "accepted": true,
-            "message": "sync joint_move sent",
-            "side": "both",
-            "sync_enabled": true,
-            "target_duration": 0.5072474479675249,
-            "left_delta": 0.03447991609573353,
-            "right_delta": 0.050724744796752486,
-            "left_vel": 0.06797454818923213,
-            "right_vel": 0.1,
-            "left_acc": 0.05,
-            "right_acc": 0.06,
-            "left_send": true,
-            "right_send": true
-          },
-          "wait_done": true,
-          "wait_message": "done"
-        },
-        {
-          "segment_index": 9,
-          "motion_result": {
-            "ok": true,
-            "accepted": true,
-            "message": "sync joint_move sent",
-            "side": "both",
-            "sync_enabled": true,
-            "target_duration": 0.5020904541015625,
-            "left_delta": 0.03431779146194458,
-            "right_delta": 0.05020904541015625,
-            "left_vel": 0.06834981860659474,
-            "right_vel": 0.1,
-            "left_acc": 0.05,
-            "right_acc": 0.06,
-            "left_send": true,
-            "right_send": true
-          },
-          "wait_done": true,
-          "wait_message": "done"
-        },
-        {
-          "segment_index": 10,
-          "motion_result": {
-            "ok": true,
-            "accepted": true,
-            "message": "sync joint_move sent",
-            "side": "both",
-            "sync_enabled": true,
-            "target_duration": 0.4978609085083008,
-            "left_delta": 0.034151792526245006,
-            "right_delta": 0.04978609085083008,
-            "left_vel": 0.06859705580936487,
-            "right_vel": 0.1,
-            "left_acc": 0.05,
-            "right_acc": 0.06,
-            "left_send": true,
-            "right_send": true
-          },
-          "wait_done": true,
-          "wait_message": "done"
-        }
-      ],
-      "last_verified_at": "2026-07-07T15:04:02",
-      "last_verification": {
-        "ready_to_commit": true,
-        "live": {
-          "left_tcp_world": [
-            -1193.39599609375,
-            -18.197406768798828,
-            130.60972595214844,
-            1.5440003871917725,
-            -1.5129995346069336,
-            -3.123000144958496
-          ],
-          "right_tcp_world": [
-            -1193.1495043200948,
-            199.7512835315958,
-            130.60996047032924,
-            1.5320175167674177,
-            -1.5109988679233053,
-            0.03457486404686479
-          ]
-        },
-        "expected": {
-          "left_tcp_world": [
-            -1193.3959867474455,
-            -18.197420709847158,
-            130.60966491699216,
-            1.5440003871917725,
-            -1.5129995346069363,
-            -3.12300019264221
-          ],
-          "right_tcp_world": [
-            -1193.1495425249227,
-            199.751337211996,
-            130.60996098955843,
-            1.5320175072125835,
-            -1.510998872840085,
-            0.03457483484978421
-          ]
-        },
-        "errors": {
-          "left_position_error_mm": 6.33008415324028e-05,
-          "right_position_error_mm": 6.588978555144019e-05,
-          "left_orientation_error_rad": 4.7683713866319977e-08,
-          "right_orientation_error_rad": 2.9197080579634882e-08
-        },
-        "tolerances": {
-          "position_tolerance_mm": 1.5,
-          "orientation_tolerance_rad": 0.05
-        }
-      },
-      "committed_at": "2026-07-07T15:04:02"
-    },
-    {
-      "id": "d35_7_1783411864145",
-      "name": "Test1",
-      "created_at": "2026-07-07T15:11:04",
-      "updated_at": "2026-07-07T15:11:04",
-      "status": "committed",
-      "source": "D35.7 large segmented execute",
-      "target_delta": [
-        0.0,
-        0.0,
-        0.0,
-        0.0,
-        0.0,
-        0.3
-      ],
-      "previous_object_pose_world": [
-        -1102.38818359375,
-        -27.303255081176758,
-        166.94241333007812,
-        1.365414905922043e-06,
-        5.402181617023386e-07,
-        3.141592315953443
-      ],
-      "target_object_pose_world": [
-        -1102.38818359375,
-        -27.303255081176758,
-        166.94241333007812,
-        1.3654149059220414e-06,
-        5.402181617023386e-07,
-        -2.841592991226143
-      ],
-      "expected_left_tcp_world": [
-        -1192.022229845602,
-        -45.498753481715745,
-        130.60972595214844,
-        1.5440003871917725,
-        -1.5129995346069363,
-        -2.8230001449584954
-      ],
-      "expected_right_tcp_world": [
-        -1256.1949892591012,
-        162.7884264192781,
-        130.6099604703292,
-        1.5320175167674177,
-        -1.5109988679233073,
-        0.3345748640468653
-      ],
-      "left_target_joint": [
-        3.1620028018951416,
-        0.41917210817337036,
-        -1.019431710243225,
-        -0.009136714972555637,
-        0.892010509967804,
-        1.5397148132324219
-      ],
-      "right_target_joint": [
-        -0.021894071251153946,
-        3.000694751739502,
-        0.45265430212020874,
-        -0.003773509291931987,
-        3.1256775856018066,
-        1.489417552947998
-      ],
-      "segment_count": 8,
-      "motion_results": [
-        {
-          "segment_index": 1,
-          "motion_result": {
-            "ok": true,
-            "accepted": true,
-            "message": "sync joint_move sent",
-            "side": "both",
-            "sync_enabled": true,
-            "target_duration": 0.6229519844055176,
-            "left_delta": 0.042715609073638916,
-            "right_delta": 0.06229519844055176,
-            "left_vel": 0.06856966530799702,
-            "right_vel": 0.1,
-            "left_acc": 0.05,
-            "right_acc": 0.06,
-            "left_send": true,
-            "right_send": true
-          },
-          "wait_done": true,
-          "wait_message": "done"
-        },
-        {
-          "segment_index": 2,
-          "motion_result": {
-            "ok": true,
-            "accepted": true,
-            "message": "sync joint_move sent",
-            "side": "both",
-            "sync_enabled": true,
-            "target_duration": 0.6299114227294966,
-            "left_delta": 0.04297381639480591,
-            "right_delta": 0.06299114227294966,
-            "left_vel": 0.06822199890993275,
-            "right_vel": 0.1,
-            "left_acc": 0.05,
-            "right_acc": 0.06,
-            "left_send": true,
-            "right_send": true
-          },
-          "wait_done": true,
-          "wait_message": "done"
-        },
-        {
-          "segment_index": 3,
-          "motion_result": {
-            "ok": true,
-            "accepted": true,
-            "message": "sync joint_move sent",
-            "side": "both",
-            "sync_enabled": true,
-            "target_duration": 0.6388306617736816,
-            "left_delta": 0.04322463274002064,
-            "right_delta": 0.06388306617736816,
-            "left_vel": 0.06766211349344065,
-            "right_vel": 0.1,
-            "left_acc": 0.05,
-            "right_acc": 0.06,
-            "left_send": true,
-            "right_send": true
-          },
-          "wait_done": true,
-          "wait_message": "done"
-        },
-        {
-          "segment_index": 4,
-          "motion_result": {
-            "ok": true,
-            "accepted": true,
-            "message": "sync joint_move sent",
-            "side": "both",
-            "sync_enabled": true,
-            "target_duration": 0.6503343582153365,
-            "left_delta": 0.04346919059753429,
-            "right_delta": 0.06503343582153365,
-            "left_vel": 0.06684129486380438,
-            "right_vel": 0.1,
-            "left_acc": 0.05,
-            "right_acc": 0.06,
-            "left_send": true,
-            "right_send": true
-          },
-          "wait_done": true,
-          "wait_message": "done"
-        },
-        {
-          "segment_index": 5,
-          "motion_result": {
-            "ok": true,
-            "accepted": true,
-            "message": "sync joint_move sent",
-            "side": "both",
-            "sync_enabled": true,
-            "target_duration": 0.6653666496276811,
-            "left_delta": 0.0437084436416626,
-            "right_delta": 0.06653666496276811,
-            "left_vel": 0.0656907641315063,
-            "right_vel": 0.1,
-            "left_acc": 0.05,
-            "right_acc": 0.06,
-            "left_send": true,
-            "right_send": true
-          },
-          "wait_done": true,
-          "wait_message": "done"
-        },
-        {
-          "segment_index": 6,
-          "motion_result": {
-            "ok": true,
-            "accepted": true,
-            "message": "sync joint_move sent",
-            "side": "both",
-            "sync_enabled": true,
-            "target_duration": 0.6854915618896529,
-            "left_delta": 0.04394322633743275,
-            "right_delta": 0.06854915618896529,
-            "left_vel": 0.06410469330402424,
-            "right_vel": 0.1,
-            "left_acc": 0.05,
-            "right_acc": 0.06,
-            "left_send": true,
-            "right_send": true
-          },
-          "wait_done": true,
-          "wait_message": "done"
-        },
-        {
-          "segment_index": 7,
-          "motion_result": {
-            "ok": true,
-            "accepted": true,
-            "message": "sync joint_move sent",
-            "side": "both",
-            "sync_enabled": true,
-            "target_duration": 0.7133984565734819,
-            "left_delta": 0.04417550563812267,
-            "right_delta": 0.07133984565734819,
-            "left_vel": 0.06192262575153536,
-            "right_vel": 0.1,
-            "left_acc": 0.05,
-            "right_acc": 0.06,
-            "left_send": true,
-            "right_send": true
-          },
-          "wait_done": true,
-          "wait_message": "done"
-        },
-        {
-          "segment_index": 8,
-          "motion_result": {
-            "ok": true,
-            "accepted": true,
-            "message": "sync joint_move sent",
-            "side": "both",
-            "sync_enabled": true,
-            "target_duration": 0.7544541358947754,
-            "left_delta": 0.0444052219390868,
-            "right_delta": 0.07544541358947754,
-            "left_vel": 0.05885741733846105,
-            "right_vel": 0.1,
-            "left_acc": 0.05,
-            "right_acc": 0.06,
-            "left_send": true,
-            "right_send": true
-          },
-          "wait_done": true,
-          "wait_message": "done"
-        }
-      ],
-      "last_verified_at": "2026-07-07T15:11:28",
-      "last_verification": {
-        "ready_to_commit": true,
-        "live": {
-          "left_tcp_world": [
-            -1192.022216796875,
-            -45.49876022338867,
-            130.6096649169922,
-            1.5440006256103516,
-            -1.5129995346069336,
-            -2.823000431060791
-          ],
-          "right_tcp_world": [
-            -1256.1950416212114,
-            162.788451153036,
-            130.60996098954303,
-            1.5320175072125835,
-            -1.5109988728400832,
-            0.33457483484978207
-          ]
-        },
-        "expected": {
-          "left_tcp_world": [
-            -1192.022229845602,
-            -45.498753481715745,
-            130.60972595214844,
-            1.5440003871917725,
-            -1.5129995346069363,
-            -2.8230001449584954
-          ],
-          "right_tcp_world": [
-            -1256.1949892591012,
-            162.7884264192781,
-            130.6099604703292,
-            1.5320175167674177,
-            -1.5109988679233073,
-            0.3345748640468653
-          ]
-        },
-        "errors": {
-          "left_position_error_mm": 6.277746193585887e-05,
-          "right_position_error_mm": 5.791216578059472e-05,
-          "left_orientation_error_rad": 2.8610229563241774e-07,
-          "right_orientation_error_rad": 2.9197083251109035e-08
-        },
-        "tolerances": {
-          "position_tolerance_mm": 1.5,
-          "orientation_tolerance_rad": 0.05
-        }
-      },
-      "committed_at": "2026-07-07T15:11:28"
-    },
-    {
-      "id": "d35_7_1783412330305",
-      "name": "Test1",
-      "created_at": "2026-07-07T15:18:50",
-      "updated_at": "2026-07-07T15:18:50",
-      "status": "committed",
-      "source": "D35.7 large segmented execute",
-      "target_delta": [
-        0.0,
-        0.0,
-        0.0,
-        0.0,
-        0.0,
-        -0.3
-      ],
-      "previous_object_pose_world": [
-        -1102.38818359375,
-        -27.303255081176758,
-        166.94241333007812,
-        1.3654149059220414e-06,
-        5.402181617023386e-07,
-        -2.841592991226143
-      ],
-      "target_object_pose_world": [
-        -1102.38818359375,
-        -27.303255081176758,
-        166.94241333007812,
-        1.3654149059220397e-06,
-        5.402181617023386e-07,
-        3.141592315953443
-      ],
-      "expected_left_tcp_world": [
-        -1193.3959856201257,
-        -18.19741706552745,
-        130.6096649169922,
-        1.5440006256103516,
-        -1.5129995346069363,
-        -3.1230004310607917
-      ],
-      "expected_right_tcp_world": [
-        -1193.1495470342045,
-        199.7513226347189,
-        130.60996098954303,
-        1.5320175072125835,
-        -1.510998872840085,
-        0.03457483484978147
-      ],
-      "left_target_joint": [
-        3.1614317893981934,
-        0.35666772723197937,
-        -0.9082413911819458,
-        0.0002673573326319456,
-        0.5433948636054993,
-        1.5321060419082642
-      ],
-      "right_target_joint": [
-        -0.023555966094136238,
-        2.787665367126465,
-        0.9018343091011047,
-        0.0036005647853016853,
-        2.5896036624908447,
-        1.4848946332931519
-      ],
-      "segment_count": 8,
-      "motion_results": [
-        {
-          "segment_index": 1,
-          "motion_result": {
-            "ok": true,
-            "accepted": true,
-            "message": "sync joint_move sent",
-            "side": "both",
-            "sync_enabled": true,
-            "target_duration": 0.7544517517089888,
-            "left_delta": 0.044405221939086914,
-            "right_delta": 0.07544517517089888,
-            "left_vel": 0.058857603337125176,
-            "right_vel": 0.1,
-            "left_acc": 0.05,
-            "right_acc": 0.06,
-            "left_send": true,
-            "right_send": true
-          },
-          "wait_done": true,
-          "wait_message": "done"
-        },
-        {
-          "segment_index": 2,
-          "motion_result": {
-            "ok": true,
-            "accepted": true,
-            "message": "sync joint_move sent",
-            "side": "both",
-            "sync_enabled": true,
-            "target_duration": 0.713400840759264,
-            "left_delta": 0.04417550563812267,
-            "right_delta": 0.0713400840759264,
-            "left_vel": 0.06192241880610514,
-            "right_vel": 0.1,
-            "left_acc": 0.05,
-            "right_acc": 0.06,
-            "left_send": true,
-            "right_send": true
-          },
-          "wait_done": true,
-          "wait_message": "done"
-        },
-        {
-          "segment_index": 3,
-          "motion_result": {
-            "ok": true,
-            "accepted": true,
-            "message": "sync joint_move sent",
-            "side": "both",
-            "sync_enabled": true,
-            "target_duration": 0.6854867935180708,
-            "left_delta": 0.04394322633743275,
-            "right_delta": 0.06854867935180708,
-            "left_vel": 0.06410513922800223,
-            "right_vel": 0.1,
-            "left_acc": 0.05,
-            "right_acc": 0.06,
-            "left_send": true,
-            "right_send": true
-          },
-          "wait_done": true,
-          "wait_message": "done"
-        },
-        {
-          "segment_index": 4,
-          "motion_result": {
-            "ok": true,
-            "accepted": true,
-            "message": "sync joint_move sent",
-            "side": "both",
-            "sync_enabled": true,
-            "target_duration": 0.665371417999272,
-            "left_delta": 0.043708741664886586,
-            "right_delta": 0.0665371417999272,
-            "left_vel": 0.06569074126495528,
-            "right_vel": 0.1,
-            "left_acc": 0.05,
-            "right_acc": 0.06,
-            "left_send": true,
-            "right_send": true
-          },
-          "wait_done": true,
-          "wait_message": "done"
-        },
-        {
-          "segment_index": 5,
-          "motion_result": {
-            "ok": true,
-            "accepted": true,
-            "message": "sync joint_move sent",
-            "side": "both",
-            "sync_enabled": true,
-            "target_duration": 0.6503319740295455,
-            "left_delta": 0.0434688925743103,
-            "right_delta": 0.06503319740295455,
-            "left_vel": 0.06684108164784076,
-            "right_vel": 0.1,
-            "left_acc": 0.05,
-            "right_acc": 0.06,
-            "left_send": true,
-            "right_send": true
-          },
-          "wait_done": true,
-          "wait_message": "done"
-        },
-        {
-          "segment_index": 6,
-          "motion_result": {
-            "ok": true,
-            "accepted": true,
-            "message": "sync joint_move sent",
-            "side": "both",
-            "sync_enabled": true,
-            "target_duration": 0.6388282775878951,
-            "left_delta": 0.043224334716796764,
-            "right_delta": 0.0638828277587895,
-            "left_vel": 0.0676618995013877,
-            "right_vel": 0.1,
-            "left_acc": 0.05,
-            "right_acc": 0.06,
-            "left_send": true,
-            "right_send": true
-          },
-          "wait_done": true,
-          "wait_message": "done"
-        },
-        {
-          "segment_index": 7,
-          "motion_result": {
-            "ok": true,
-            "accepted": true,
-            "message": "sync joint_move sent",
-            "side": "both",
-            "sync_enabled": true,
-            "target_duration": 0.6299161911010698,
-            "left_delta": 0.042973875999450795,
-            "right_delta": 0.06299161911010698,
-            "left_vel": 0.06822157710271597,
-            "right_vel": 0.1,
-            "left_acc": 0.05,
-            "right_acc": 0.06,
-            "left_send": true,
-            "right_send": true
-          },
-          "wait_done": true,
-          "wait_message": "done"
-        },
-        {
-          "segment_index": 8,
-          "motion_result": {
-            "ok": true,
-            "accepted": true,
-            "message": "sync joint_move sent",
-            "side": "both",
-            "sync_enabled": true,
-            "target_duration": 0.6229519844055131,
-            "left_delta": 0.04271584749221813,
-            "right_delta": 0.062295198440551314,
-            "left_vel": 0.06857004803184329,
-            "right_vel": 0.1,
-            "left_acc": 0.05,
-            "right_acc": 0.06,
-            "left_send": true,
-            "right_send": true
-          },
-          "wait_done": true,
-          "wait_message": "done"
-        }
-      ],
-      "last_verified_at": "2026-07-07T15:19:00",
-      "last_verification": {
-        "ready_to_commit": true,
-        "live": {
-          "left_tcp_world": [
-            -1193.39599609375,
-            -18.197404861450195,
-            130.60972595214844,
-            1.5440006256103516,
-            -1.5129995346069336,
-            -3.123000383377075
-          ],
-          "right_tcp_world": [
-            -1193.1495043200948,
-            199.7512835315958,
-            130.60996047032924,
-            1.5320175167674177,
-            -1.5109988679233053,
-            0.03457486404686479
-          ]
-        },
-        "expected": {
-          "left_tcp_world": [
-            -1193.3959856201257,
-            -18.19741706552745,
-            130.6096649169922,
-            1.5440006256103516,
-            -1.5129995346069363,
-            -3.1230004310607917
-          ],
-          "right_tcp_world": [
-            -1193.1495470342045,
-            199.7513226347189,
-            130.60996098954303,
-            1.5320175072125835,
-            -1.510998872840085,
-            0.03457483484978147
-          ]
-        },
-        "errors": {
-          "left_position_error_mm": 6.311835396280246e-05,
-          "right_position_error_mm": 5.791216611286921e-05,
-          "left_orientation_error_rad": 4.7683716530855236e-08,
-          "right_orientation_error_rad": 2.919708331355908e-08
-        },
-        "tolerances": {
-          "position_tolerance_mm": 1.5,
-          "orientation_tolerance_rad": 0.05
-        }
-      },
-      "committed_at": "2026-07-07T15:19:00"
-    },
-    {
-      "id": "d35_7_1783413050621",
-      "name": "Test1",
-      "created_at": "2026-07-07T15:30:50",
-      "updated_at": "2026-07-07T15:30:50",
-      "status": "committed",
-      "source": "D35.7 large segmented execute",
-      "target_delta": [
-        0.0,
-        0.0,
-        20.0,
-        0.0,
-        0.0,
-        0.1
-      ],
-      "previous_object_pose_world": [
-        -1102.38818359375,
-        -27.303255081176758,
-        166.94241333007812,
-        1.3654149059220397e-06,
-        5.402181617023386e-07,
-        3.141592315953443
-      ],
-      "target_object_pose_world": [
-        -1102.38818359375,
-        -27.303255081176758,
-        186.94241333007812,
-        1.3654149059220388e-06,
-        5.402181617023386e-07,
-        -3.041592991226144
-      ],
-      "expected_left_tcp_world": [
-        -1193.850404243001,
-        -27.328517047579854,
-        150.60972595214844,
-        1.5440006256103516,
-        -1.5129995346069363,
-        -3.0230003833770756
-      ],
-      "expected_right_tcp_world": [
-        -1215.36370611748,
-        189.55594383632274,
-        150.6099604703292,
-        1.5320175167674177,
-        -1.5109988679233073,
-        0.13457486404686425
-      ],
-      "left_target_joint": [
-        3.1446938514709473,
-        0.37463846802711487,
-        -0.9353448152542114,
-        -0.00021986899082548916,
-        0.6525437831878662,
-        1.5158456563949585
-      ],
-      "right_target_joint": [
-        -0.0066525740548968315,
-        2.8501064777374268,
-        0.7664955258369446,
-        0.002389544388279319,
-        2.762460947036743,
-        1.5027974843978882
-      ],
-      "segment_count": 4,
-      "motion_results": [
-        {
-          "segment_index": 1,
-          "motion_result": {
-            "ok": true,
-            "accepted": true,
-            "message": "sync joint_move sent",
-            "side": "both",
-            "sync_enabled": true,
-            "target_duration": 0.4261469841003418,
-            "left_delta": 0.027243077754974365,
-            "right_delta": 0.04261469841003418,
-            "left_vel": 0.06392882918669121,
-            "right_vel": 0.1,
-            "left_acc": 0.05,
-            "right_acc": 0.06,
-            "left_send": true,
-            "right_send": true
-          },
-          "wait_done": true,
-          "wait_message": "done"
-        },
-        {
-          "segment_index": 2,
-          "motion_result": {
-            "ok": true,
-            "accepted": true,
-            "message": "sync joint_move sent",
-            "side": "both",
-            "sync_enabled": true,
-            "target_duration": 0.4296469688415572,
-            "left_delta": 0.027276933193206676,
-            "right_delta": 0.04296469688415572,
-            "left_vel": 0.06348685123219318,
-            "right_vel": 0.1,
-            "left_acc": 0.05,
-            "right_acc": 0.06,
-            "left_send": true,
-            "right_send": true
-          },
-          "wait_done": true,
-          "wait_message": "done"
-        },
-        {
-          "segment_index": 3,
-          "motion_result": {
-            "ok": true,
-            "accepted": true,
-            "message": "sync joint_move sent",
-            "side": "both",
-            "sync_enabled": true,
-            "target_duration": 0.4338645935058638,
-            "left_delta": 0.027304232120513916,
-            "right_delta": 0.04338645935058638,
-            "left_vel": 0.06293261199278961,
-            "right_vel": 0.1,
-            "left_acc": 0.05,
-            "right_acc": 0.06,
-            "left_send": true,
-            "right_send": true
-          },
-          "wait_done": true,
-          "wait_message": "done"
-        },
-        {
-          "segment_index": 4,
-          "motion_result": {
-            "ok": true,
-            "accepted": true,
-            "message": "sync joint_move sent",
-            "side": "both",
-            "sync_enabled": true,
-            "target_duration": 0.4389142990112349,
-            "left_delta": 0.027324676513671875,
-            "right_delta": 0.04389142990112349,
-            "left_vel": 0.06225515225917132,
-            "right_vel": 0.1,
-            "left_acc": 0.05,
-            "right_acc": 0.06,
-            "left_send": true,
-            "right_send": true
-          },
-          "wait_done": true,
-          "wait_message": "done"
-        }
-      ],
-      "last_verified_at": "2026-07-07T15:31:09",
-      "last_verification": {
-        "ready_to_commit": true,
-        "live": {
-          "left_tcp_world": [
-            -1193.8504638671875,
-            -27.3284969329834,
-            150.60972595214844,
-            1.5440006256103516,
-            -1.5129995346069336,
-            -3.023000478744507
-          ],
-          "right_tcp_world": [
-            -1215.363715020643,
-            189.55600635312493,
-            150.60996168981137,
-            1.5320174749408868,
-            -1.5109988593888373,
-            0.13457481384028674
-          ]
-        },
-        "expected": {
-          "left_tcp_world": [
-            -1193.850404243001,
-            -27.328517047579854,
-            150.60972595214844,
-            1.5440006256103516,
-            -1.5129995346069363,
-            -3.0230003833770756
-          ],
-          "right_tcp_world": [
-            -1215.36370611748,
-            189.55594383632274,
-            150.6099604703292,
-            1.5320175167674177,
-            -1.5109988679233073,
-            0.13457486404686425
-          ]
-        },
-        "errors": {
-          "left_position_error_mm": 6.292567516647606e-05,
-          "right_position_error_mm": 6.315935405085506e-05,
-          "left_orientation_error_rad": 9.536743128535363e-08,
-          "right_orientation_error_rad": 5.0206577506539674e-08
-        },
-        "tolerances": {
-          "position_tolerance_mm": 1.5,
-          "orientation_tolerance_rad": 0.05
-        }
-      },
-      "committed_at": "2026-07-07T15:31:09"
-    },
-    {
-      "id": "d35_7_1783413352214",
-      "name": "Test1",
-      "created_at": "2026-07-07T15:35:52",
-      "updated_at": "2026-07-07T15:35:52",
-      "status": "committed",
-      "source": "D35.7 large segmented execute",
-      "target_delta": [
-        0.0,
-        0.0,
-        -20.0,
-        0.0,
-        0.0,
-        -0.1
-      ],
-      "previous_object_pose_world": [
-        -1102.38818359375,
-        -27.303255081176758,
-        186.94241333007812,
-        1.3654149059220388e-06,
-        5.402181617023386e-07,
-        -3.041592991226144
-      ],
-      "target_object_pose_world": [
-        -1102.38818359375,
-        -27.303255081176758,
-        166.94241333007812,
-        1.365414905922038e-06,
-        5.402181617023386e-07,
-        3.141592315953443
-      ],
-      "expected_left_tcp_world": [
-        -1193.3960534119549,
-        -18.197378894856698,
-        130.60972595214844,
-        1.5440006256103516,
-        -1.5129995346069363,
-        -3.1230004787445065
-      ],
-      "expected_right_tcp_world": [
-        -1193.1495069375128,
-        199.75134662490754,
-        130.60996168981137,
-        1.5320174749408868,
-        -1.510998859388839,
-        0.03457481384028731
-      ],
-      "left_target_joint": [
-        3.1614317893981934,
-        0.356667697429657,
-        -0.908241331577301,
-        0.0002673568669706583,
-        0.5433948636054993,
-        1.5321060419082642
-      ],
-      "right_target_joint": [
-        -0.023555966094136238,
-        2.787665367126465,
-        0.9018343091011047,
-        0.0036005647853016853,
-        2.5896036624908447,
-        1.4848946332931519
-      ],
-      "segment_count": 4,
-      "motion_results": [
-        {
-          "segment_index": 1,
-          "motion_result": {
-            "ok": true,
-            "accepted": true,
-            "message": "sync joint_move sent",
-            "side": "both",
-            "sync_enabled": true,
-            "target_duration": 0.43891429901122603,
-            "left_delta": 0.027324974536895863,
-            "right_delta": 0.0438914299011226,
-            "left_vel": 0.062255831260117994,
-            "right_vel": 0.1,
-            "left_acc": 0.05,
-            "right_acc": 0.06,
-            "left_send": true,
-            "right_send": true
-          },
-          "wait_done": true,
-          "wait_message": "done"
-        },
-        {
-          "segment_index": 2,
-          "motion_result": {
-            "ok": true,
-            "accepted": true,
-            "message": "sync joint_move sent",
-            "side": "both",
-            "sync_enabled": true,
-            "target_duration": 0.4338622093200639,
-            "left_delta": 0.02730417251586925,
-            "right_delta": 0.04338622093200639,
-            "left_vel": 0.06293282044236936,
-            "right_vel": 0.1,
-            "left_acc": 0.05,
-            "right_acc": 0.06,
-            "left_send": true,
-            "right_send": true
-          },
-          "wait_done": true,
-          "wait_message": "done"
-        },
-        {
-          "segment_index": 3,
-          "motion_result": {
-            "ok": true,
-            "accepted": true,
-            "message": "sync joint_move sent",
-            "side": "both",
-            "sync_enabled": true,
-            "target_duration": 0.42965173721313477,
-            "left_delta": 0.027276933193206676,
-            "right_delta": 0.04296517372131348,
-            "left_vel": 0.06348614664084454,
-            "right_vel": 0.1,
-            "left_acc": 0.05,
-            "right_acc": 0.06,
-            "left_send": true,
-            "right_send": true
-          },
-          "wait_done": true,
-          "wait_message": "done"
-        },
-        {
-          "segment_index": 4,
-          "motion_result": {
-            "ok": true,
-            "accepted": true,
-            "message": "sync joint_move sent",
-            "side": "both",
-            "sync_enabled": true,
-            "target_duration": 0.4261445999145552,
-            "left_delta": 0.027242839336395264,
-            "right_delta": 0.04261445999145552,
-            "left_vel": 0.06392862737638265,
-            "right_vel": 0.1,
-            "left_acc": 0.05,
-            "right_acc": 0.06,
-            "left_send": true,
-            "right_send": true
-          },
-          "wait_done": true,
-          "wait_message": "done"
-        }
-      ],
-      "last_verified_at": "2026-07-07T15:36:09",
-      "last_verification": {
-        "ready_to_commit": true,
-        "live": {
-          "left_tcp_world": [
-            -1193.39599609375,
-            -18.197397232055664,
-            130.60972595214844,
-            1.5440006256103516,
-            -1.5129995346069336,
-            -3.123000383377075
-          ],
-          "right_tcp_world": [
-            -1193.1495043200948,
-            199.7512835315958,
-            130.60996047032924,
-            1.5320175167674177,
-            -1.5109988679233053,
-            0.03457486404686479
-          ]
-        },
-        "expected": {
-          "left_tcp_world": [
-            -1193.3960534119549,
-            -18.197378894856698,
-            130.60972595214844,
-            1.5440006256103516,
-            -1.5129995346069363,
-            -3.1230004787445065
-          ],
-          "right_tcp_world": [
-            -1193.1495069375128,
-            199.75134662490754,
-            130.60996168981137,
-            1.5320174749408868,
-            -1.510998859388839,
-            0.03457481384028731
-          ]
-        },
-        "errors": {
-          "left_position_error_mm": 6.017997571221326e-05,
-          "right_position_error_mm": 6.315935402904926e-05,
-          "left_orientation_error_rad": 9.536743128535363e-08,
-          "right_orientation_error_rad": 5.02065774787841e-08
-        },
-        "tolerances": {
-          "position_tolerance_mm": 1.5,
-          "orientation_tolerance_rad": 0.05
-        }
-      },
-      "committed_at": "2026-07-07T15:36:09"
-    },
     {
       "id": "d35_7_1783413665423",
       "name": "Test1",
@@ -3282,6 +1057,2168 @@
         }
       },
       "committed_at": "2026-07-07T15:45:22"
+    },
+    {
+      "id": "d35_7_1783417849812",
+      "name": "Test1",
+      "created_at": "2026-07-07T16:50:49",
+      "updated_at": "2026-07-07T16:50:49",
+      "status": "committed",
+      "source": "D35.7 large segmented execute",
+      "target_delta": [
+        0.0,
+        0.0,
+        50.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "previous_object_pose_world": [
+        -1102.38818359375,
+        -27.303255081176758,
+        166.94241333007812,
+        1.3654149059220346e-06,
+        5.402181617023386e-07,
+        3.141592315953443
+      ],
+      "target_object_pose_world": [
+        -1102.38818359375,
+        -27.303255081176758,
+        216.94241333007812,
+        1.3654149059220335e-06,
+        5.402181617023386e-07,
+        3.141592315953443
+      ],
+      "expected_left_tcp_world": [
+        -1193.39599609375,
+        -18.197404861450195,
+        180.60972595214844,
+        1.5440007448196411,
+        -1.5129995346069363,
+        -3.123000383377075
+      ],
+      "expected_right_tcp_world": [
+        -1193.1495043200948,
+        199.75128353159582,
+        180.6099604703292,
+        1.5320175167674177,
+        -1.5109988679233073,
+        0.0345748640468648
+      ],
+      "left_target_joint": [
+        3.119570255279541,
+        0.3473987877368927,
+        -0.8849014639854431,
+        -0.00012624735245481133,
+        0.5293696522712708,
+        1.4904600381851196
+      ],
+      "right_target_joint": [
+        0.018222970888018608,
+        2.796621322631836,
+        0.8791473507881165,
+        0.003361317329108715,
+        2.603245973587036,
+        1.5268354415893555
+      ],
+      "segment_count": 5,
+      "motion_results": [
+        {
+          "segment_index": 1,
+          "motion_result": {
+            "ok": true,
+            "accepted": true,
+            "message": "sync joint_move sent",
+            "side": "both",
+            "sync_enabled": true,
+            "target_duration": 0.15,
+            "left_delta": 0.00838923454284668,
+            "right_delta": 0.00840294361114502,
+            "left_vel": 0.05592823028564453,
+            "right_vel": 0.05601962407430013,
+            "left_acc": 0.05,
+            "right_acc": 0.05,
+            "left_send": true,
+            "right_send": true
+          },
+          "wait_done": true,
+          "wait_message": "done"
+        },
+        {
+          "segment_index": 2,
+          "motion_result": {
+            "ok": true,
+            "accepted": true,
+            "message": "sync joint_move sent",
+            "side": "both",
+            "sync_enabled": true,
+            "target_duration": 0.15,
+            "left_delta": 0.008381843566894087,
+            "right_delta": 0.008396744728088379,
+            "left_vel": 0.05587895711262725,
+            "right_vel": 0.05597829818725586,
+            "left_acc": 0.05,
+            "right_acc": 0.05,
+            "left_send": true,
+            "right_send": true
+          },
+          "wait_done": true,
+          "wait_message": "done"
+        },
+        {
+          "segment_index": 3,
+          "motion_result": {
+            "ok": true,
+            "accepted": true,
+            "message": "sync joint_move sent",
+            "side": "both",
+            "sync_enabled": true,
+            "target_duration": 0.15,
+            "left_delta": 0.008373498916625977,
+            "right_delta": 0.00838935375213623,
+            "left_vel": 0.055823326110839844,
+            "right_vel": 0.05592902501424154,
+            "left_acc": 0.05,
+            "right_acc": 0.05,
+            "left_send": true,
+            "right_send": true
+          },
+          "wait_done": true,
+          "wait_message": "done"
+        },
+        {
+          "segment_index": 4,
+          "motion_result": {
+            "ok": true,
+            "accepted": true,
+            "message": "sync joint_move sent",
+            "side": "both",
+            "sync_enabled": true,
+            "target_duration": 0.15,
+            "left_delta": 0.00836396217346147,
+            "right_delta": 0.008380651473999023,
+            "left_vel": 0.055759747823076466,
+            "right_vel": 0.055871009826660156,
+            "left_acc": 0.05,
+            "right_acc": 0.05,
+            "left_send": true,
+            "right_send": true
+          },
+          "wait_done": true,
+          "wait_message": "done"
+        },
+        {
+          "segment_index": 5,
+          "motion_result": {
+            "ok": true,
+            "accepted": true,
+            "message": "sync joint_move sent",
+            "side": "both",
+            "sync_enabled": true,
+            "target_duration": 0.15,
+            "left_delta": 0.008352994918823242,
+            "right_delta": 0.008371114730834961,
+            "left_vel": 0.05568663279215495,
+            "right_vel": 0.05580743153889974,
+            "left_acc": 0.05,
+            "right_acc": 0.05,
+            "left_send": true,
+            "right_send": true
+          },
+          "wait_done": true,
+          "wait_message": "done"
+        }
+      ],
+      "last_verified_at": "2026-07-07T16:54:06",
+      "last_verification": {
+        "ready_to_commit": true,
+        "live": {
+          "left_tcp_world": [
+            -1193.39599609375,
+            -18.1973934173584,
+            180.6097869873047,
+            1.5440007448196411,
+            -1.5129996538162231,
+            -3.123000383377075
+          ],
+          "right_tcp_world": [
+            -1193.1494440761387,
+            199.75131128214093,
+            180.60996047034644,
+            1.5320173975581282,
+            -1.5109988679233053,
+            0.03457486404686479
+          ]
+        },
+        "expected": {
+          "left_tcp_world": [
+            -1193.39599609375,
+            -18.197404861450195,
+            180.60972595214844,
+            1.5440007448196411,
+            -1.5129995346069363,
+            -3.123000383377075
+          ],
+          "right_tcp_world": [
+            -1193.1495043200948,
+            199.75128353159582,
+            180.6099604703292,
+            1.5320175167674177,
+            -1.5109988679233073,
+            0.0345748640468648
+          ]
+        },
+        "errors": {
+          "left_position_error_mm": 6.209877241554148e-05,
+          "right_position_error_mm": 6.632817653450437e-05,
+          "left_orientation_error_rad": 1.1920928688624599e-07,
+          "right_orientation_error_rad": 1.1920928955078125e-07
+        },
+        "tolerances": {
+          "position_tolerance_mm": 1.5,
+          "orientation_tolerance_rad": 0.05
+        }
+      },
+      "committed_at": "2026-07-07T16:54:06"
+    },
+    {
+      "id": "d35_7_1783418678158",
+      "name": "Test1",
+      "created_at": "2026-07-07T17:04:38",
+      "updated_at": "2026-07-07T17:04:38",
+      "status": "committed",
+      "source": "D35.7 large segmented execute",
+      "target_delta": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.3
+      ],
+      "previous_object_pose_world": [
+        -1102.38818359375,
+        -27.303255081176758,
+        216.94241333007812,
+        1.3654149059220335e-06,
+        5.402181617023386e-07,
+        3.141592315953443
+      ],
+      "target_object_pose_world": [
+        -1102.38818359375,
+        -27.303255081176758,
+        216.94241333007812,
+        1.3654149059220318e-06,
+        5.402181617023386e-07,
+        -2.841592991226143
+      ],
+      "expected_left_tcp_world": [
+        -1192.0222337912226,
+        -45.49874072659753,
+        180.60978698730472,
+        1.5440007448196411,
+        -1.5129996538162258,
+        -2.8230003833770745
+      ],
+      "expected_right_tcp_world": [
+        -1256.1949399066984,
+        162.78847073369286,
+        180.6099604703465,
+        1.5320173975581282,
+        -1.5109988679233073,
+        0.3345748640468653
+      ],
+      "left_target_joint": [
+        3.1189827919006348,
+        0.41062670946121216,
+        -0.9937038421630859,
+        0.010358140803873539,
+        0.8748345971107483,
+        1.4834638833999634
+      ],
+      "right_target_joint": [
+        0.016849800944328308,
+        3.017831325531006,
+        0.4130632281303406,
+        0.007509157061576843,
+        3.1480836868286133,
+        1.526471495628357
+      ],
+      "segment_count": 8,
+      "motion_results": [
+        {
+          "segment_index": 1,
+          "motion_result": {
+            "ok": true,
+            "accepted": true,
+            "message": "sync joint_move sent",
+            "side": "both",
+            "sync_enabled": true,
+            "target_duration": 0.6244087219238326,
+            "left_delta": 0.04246640205383312,
+            "right_delta": 0.06244087219238326,
+            "left_vel": 0.06801058435409445,
+            "right_vel": 0.1,
+            "left_acc": 0.05,
+            "right_acc": 0.06,
+            "left_send": true,
+            "right_send": true
+          },
+          "wait_done": true,
+          "wait_message": "done"
+        },
+        {
+          "segment_index": 2,
+          "motion_result": {
+            "ok": true,
+            "accepted": true,
+            "message": "sync joint_move sent",
+            "side": "both",
+            "sync_enabled": true,
+            "target_duration": 0.6327104568481401,
+            "left_delta": 0.042695701122283825,
+            "right_delta": 0.06327104568481401,
+            "left_vel": 0.06748063140124683,
+            "right_vel": 0.1,
+            "left_acc": 0.05,
+            "right_acc": 0.06,
+            "left_send": true,
+            "right_send": true
+          },
+          "wait_done": true,
+          "wait_message": "done"
+        },
+        {
+          "segment_index": 3,
+          "motion_result": {
+            "ok": true,
+            "accepted": true,
+            "message": "sync joint_move sent",
+            "side": "both",
+            "sync_enabled": true,
+            "target_duration": 0.6432223320007324,
+            "left_delta": 0.042912662029266246,
+            "right_delta": 0.06432223320007324,
+            "left_vel": 0.06671513082542878,
+            "right_vel": 0.1,
+            "left_acc": 0.05,
+            "right_acc": 0.06,
+            "left_send": true,
+            "right_send": true
+          },
+          "wait_done": true,
+          "wait_message": "done"
+        },
+        {
+          "segment_index": 4,
+          "motion_result": {
+            "ok": true,
+            "accepted": true,
+            "message": "sync joint_move sent",
+            "side": "both",
+            "sync_enabled": true,
+            "target_duration": 0.6567430496215776,
+            "left_delta": 0.04311782121658314,
+            "right_delta": 0.06567430496215776,
+            "left_vel": 0.06565401985057641,
+            "right_vel": 0.1,
+            "left_acc": 0.05,
+            "right_acc": 0.06,
+            "left_send": true,
+            "right_send": true
+          },
+          "wait_done": true,
+          "wait_message": "done"
+        },
+        {
+          "segment_index": 5,
+          "motion_result": {
+            "ok": true,
+            "accepted": true,
+            "message": "sync joint_move sent",
+            "side": "both",
+            "sync_enabled": true,
+            "target_duration": 0.6744980812072754,
+            "left_delta": 0.04331088066101085,
+            "right_delta": 0.06744980812072754,
+            "left_vel": 0.06421201463388787,
+            "right_vel": 0.1,
+            "left_acc": 0.05,
+            "right_acc": 0.06,
+            "left_send": true,
+            "right_send": true
+          },
+          "wait_done": true,
+          "wait_message": "done"
+        },
+        {
+          "segment_index": 6,
+          "motion_result": {
+            "ok": true,
+            "accepted": true,
+            "message": "sync joint_move sent",
+            "side": "both",
+            "sync_enabled": true,
+            "target_duration": 0.6985688209533736,
+            "left_delta": 0.0434911847114563,
+            "right_delta": 0.06985688209533736,
+            "left_vel": 0.062257552022006356,
+            "right_vel": 0.1,
+            "left_acc": 0.05,
+            "right_acc": 0.06,
+            "left_send": true,
+            "right_send": true
+          },
+          "wait_done": true,
+          "wait_message": "done"
+        },
+        {
+          "segment_index": 7,
+          "motion_result": {
+            "ok": true,
+            "accepted": true,
+            "message": "sync joint_move sent",
+            "side": "both",
+            "sync_enabled": true,
+            "target_duration": 0.7328081130981445,
+            "left_delta": 0.04365891218185425,
+            "right_delta": 0.07328081130981445,
+            "left_vel": 0.05957755025019358,
+            "right_vel": 0.1,
+            "left_acc": 0.05,
+            "right_acc": 0.06,
+            "left_send": true,
+            "right_send": true
+          },
+          "wait_done": true,
+          "wait_message": "done"
+        },
+        {
+          "segment_index": 8,
+          "motion_result": {
+            "ok": true,
+            "accepted": true,
+            "message": "sync joint_move sent",
+            "side": "both",
+            "sync_enabled": true,
+            "target_duration": 0.7854175567626953,
+            "left_delta": 0.04381138086318981,
+            "right_delta": 0.07854175567626953,
+            "left_vel": 0.05578100525759816,
+            "right_vel": 0.1,
+            "left_acc": 0.05,
+            "right_acc": 0.06,
+            "left_send": true,
+            "right_send": true
+          },
+          "wait_done": true,
+          "wait_message": "done"
+        }
+      ],
+      "last_verified_at": "2026-07-07T17:04:38",
+      "last_verification": {
+        "ready_to_commit": true,
+        "live": {
+          "left_tcp_world": [
+            -1192.022216796875,
+            -45.49871826171875,
+            180.6097869873047,
+            1.5440007448196411,
+            -1.5129996538162231,
+            -2.823000431060791
+          ],
+          "right_tcp_world": [
+            -1256.1949813772624,
+            162.7884941623779,
+            180.60995336018107,
+            1.532017388003294,
+            -1.5109988728400832,
+            0.33457483484978207
+          ]
+        },
+        "expected": {
+          "left_tcp_world": [
+            -1192.0222337912226,
+            -45.49874072659753,
+            180.60978698730472,
+            1.5440007448196411,
+            -1.5129996538162258,
+            -2.8230003833770745
+          ],
+          "right_tcp_world": [
+            -1256.1949399066984,
+            162.78847073369286,
+            180.6099604703465,
+            1.5320173975581282,
+            -1.5109988679233073,
+            0.3345748640468653
+          ]
+        },
+        "errors": {
+          "left_position_error_mm": 2.8168752683163537e-05,
+          "right_position_error_mm": 4.8158752139842604e-05,
+          "left_orientation_error_rad": 4.7683716530855236e-08,
+          "right_orientation_error_rad": 2.9197083251109035e-08
+        },
+        "tolerances": {
+          "position_tolerance_mm": 1.5,
+          "orientation_tolerance_rad": 0.05
+        }
+      },
+      "committed_at": "2026-07-07T17:04:38"
+    },
+    {
+      "id": "d35_7_1783418749263",
+      "name": "Test1",
+      "created_at": "2026-07-07T17:05:49",
+      "updated_at": "2026-07-07T17:05:49",
+      "status": "committed",
+      "source": "D35.7 large segmented execute",
+      "target_delta": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        -0.3
+      ],
+      "previous_object_pose_world": [
+        -1102.38818359375,
+        -27.303255081176758,
+        216.94241333007812,
+        1.3654149059220318e-06,
+        5.402181617023386e-07,
+        -2.841592991226143
+      ],
+      "target_object_pose_world": [
+        -1102.38818359375,
+        -27.303255081176758,
+        216.94241333007812,
+        1.3654149059220301e-06,
+        5.402181617023386e-07,
+        3.141592315953443
+      ],
+      "expected_left_tcp_world": [
+        -1193.3959732196042,
+        -18.197376978013097,
+        180.6097869873047,
+        1.5440007448196411,
+        -1.5129996538162258,
+        -3.1230004310607917
+      ],
+      "expected_right_tcp_world": [
+        -1193.1494767708323,
+        199.75134591980822,
+        180.6099533601811,
+        1.532017388003294,
+        -1.510998872840085,
+        0.03457483484978147
+      ],
+      "left_target_joint": [
+        3.119570255279541,
+        0.3473987579345703,
+        -0.8849014043807983,
+        -0.00012624412192963064,
+        0.5293696522712708,
+        1.4904600381851196
+      ],
+      "right_target_joint": [
+        0.01822296902537346,
+        2.796621322631836,
+        0.8791474103927612,
+        0.00336132338270545,
+        2.603245973587036,
+        1.5268354415893555
+      ],
+      "segment_count": 8,
+      "motion_results": [
+        {
+          "segment_index": 1,
+          "motion_result": {
+            "ok": true,
+            "accepted": true,
+            "message": "sync joint_move sent",
+            "side": "both",
+            "sync_enabled": true,
+            "target_duration": 0.7854151725768999,
+            "left_delta": 0.0438113808631897,
+            "right_delta": 0.07854151725768999,
+            "left_vel": 0.05578117458496148,
+            "right_vel": 0.1,
+            "left_acc": 0.05,
+            "right_acc": 0.06,
+            "left_send": true,
+            "right_send": true
+          },
+          "wait_done": true,
+          "wait_message": "done"
+        },
+        {
+          "segment_index": 2,
+          "motion_result": {
+            "ok": true,
+            "accepted": true,
+            "message": "sync joint_move sent",
+            "side": "both",
+            "sync_enabled": true,
+            "target_duration": 0.732808113098149,
+            "left_delta": 0.04365891218185414,
+            "right_delta": 0.0732808113098149,
+            "left_vel": 0.05957755025019307,
+            "right_vel": 0.1,
+            "left_acc": 0.05,
+            "right_acc": 0.06,
+            "left_send": true,
+            "right_send": true
+          },
+          "wait_done": true,
+          "wait_message": "done"
+        },
+        {
+          "segment_index": 3,
+          "motion_result": {
+            "ok": true,
+            "accepted": true,
+            "message": "sync joint_move sent",
+            "side": "both",
+            "sync_enabled": true,
+            "target_duration": 0.6985712051391468,
+            "left_delta": 0.0434911847114563,
+            "right_delta": 0.06985712051391468,
+            "left_vel": 0.062257339540345624,
+            "right_vel": 0.1,
+            "left_acc": 0.05,
+            "right_acc": 0.06,
+            "left_send": true,
+            "right_send": true
+          },
+          "wait_done": true,
+          "wait_message": "done"
+        },
+        {
+          "segment_index": 4,
+          "motion_result": {
+            "ok": true,
+            "accepted": true,
+            "message": "sync joint_move sent",
+            "side": "both",
+            "sync_enabled": true,
+            "target_duration": 0.674498081207271,
+            "left_delta": 0.043311119079589844,
+            "right_delta": 0.0674498081207271,
+            "left_vel": 0.06421236810943645,
+            "right_vel": 0.1,
+            "left_acc": 0.05,
+            "right_acc": 0.06,
+            "left_send": true,
+            "right_send": true
+          },
+          "wait_done": true,
+          "wait_message": "done"
+        },
+        {
+          "segment_index": 5,
+          "motion_result": {
+            "ok": true,
+            "accepted": true,
+            "message": "sync joint_move sent",
+            "side": "both",
+            "sync_enabled": true,
+            "target_duration": 0.656740665435791,
+            "left_delta": 0.04311758279800404,
+            "right_delta": 0.0656740665435791,
+            "left_vel": 0.06565389516331026,
+            "right_vel": 0.1,
+            "left_acc": 0.05,
+            "right_acc": 0.06,
+            "left_send": true,
+            "right_send": true
+          },
+          "wait_done": true,
+          "wait_message": "done"
+        },
+        {
+          "segment_index": 6,
+          "motion_result": {
+            "ok": true,
+            "accepted": true,
+            "message": "sync joint_move sent",
+            "side": "both",
+            "sync_enabled": true,
+            "target_duration": 0.6432223320007235,
+            "left_delta": 0.04291242361068737,
+            "right_delta": 0.06432223320007235,
+            "left_vel": 0.06671476016264792,
+            "right_vel": 0.1,
+            "left_acc": 0.05,
+            "right_acc": 0.06,
+            "left_send": true,
+            "right_send": true
+          },
+          "wait_done": true,
+          "wait_message": "done"
+        },
+        {
+          "segment_index": 7,
+          "motion_result": {
+            "ok": true,
+            "accepted": true,
+            "message": "sync joint_move sent",
+            "side": "both",
+            "sync_enabled": true,
+            "target_duration": 0.63271284103394,
+            "left_delta": 0.04269564151763916,
+            "right_delta": 0.063271284103394,
+            "left_vel": 0.0674802829161308,
+            "right_vel": 0.1,
+            "left_acc": 0.05,
+            "right_acc": 0.06,
+            "left_send": true,
+            "right_send": true
+          },
+          "wait_done": true,
+          "wait_message": "done"
+        },
+        {
+          "segment_index": 8,
+          "motion_result": {
+            "ok": true,
+            "accepted": true,
+            "message": "sync joint_move sent",
+            "side": "both",
+            "sync_enabled": true,
+            "target_duration": 0.6244087219238326,
+            "left_delta": 0.042466700077056774,
+            "right_delta": 0.06244087219238326,
+            "left_vel": 0.06801106164278885,
+            "right_vel": 0.1,
+            "left_acc": 0.05,
+            "right_acc": 0.06,
+            "left_send": true,
+            "right_send": true
+          },
+          "wait_done": true,
+          "wait_message": "done"
+        }
+      ],
+      "last_verified_at": "2026-07-07T17:05:49",
+      "last_verification": {
+        "ready_to_commit": true,
+        "live": {
+          "left_tcp_world": [
+            -1193.39599609375,
+            -18.197385787963867,
+            180.6097869873047,
+            1.5440007448196411,
+            -1.5129996538162231,
+            -3.123000383377075
+          ],
+          "right_tcp_world": [
+            -1193.1494440761428,
+            199.75128267191144,
+            180.60996047031756,
+            1.5320173975931155,
+            -1.5109989871325968,
+            0.034574864011814886
+          ]
+        },
+        "expected": {
+          "left_tcp_world": [
+            -1193.3959732196042,
+            -18.197376978013097,
+            180.6097869873047,
+            1.5440007448196411,
+            -1.5129996538162258,
+            -3.1230004310607917
+          ],
+          "right_tcp_world": [
+            -1193.1494767708323,
+            199.75134591980822,
+            180.6099533601811,
+            1.532017388003294,
+            -1.510998872840085,
+            0.03457483484978147
+          ]
+        },
+        "errors": {
+          "left_position_error_mm": 2.4512074112719378e-05,
+          "right_position_error_mm": 7.155273025776151e-05,
+          "left_orientation_error_rad": 4.7683716530855236e-08,
+          "right_orientation_error_rad": 1.142925118990945e-07
+        },
+        "tolerances": {
+          "position_tolerance_mm": 1.5,
+          "orientation_tolerance_rad": 0.05
+        }
+      },
+      "committed_at": "2026-07-07T17:05:49"
+    },
+    {
+      "id": "d35_7_1783475370454",
+      "name": "Test1",
+      "created_at": "2026-07-08T08:49:30",
+      "updated_at": "2026-07-08T08:49:30",
+      "status": "committed",
+      "source": "D35.7 large segmented execute",
+      "target_delta": [
+        0.0,
+        0.0,
+        -50.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "previous_object_pose_world": [
+        -1102.38818359375,
+        -27.303255081176758,
+        216.94241333007812,
+        1.3654149059220301e-06,
+        5.402181617023386e-07,
+        3.141592315953443
+      ],
+      "target_object_pose_world": [
+        -1102.38818359375,
+        -27.303255081176758,
+        166.94241333007812,
+        1.365414905922029e-06,
+        5.402181617023386e-07,
+        3.141592315953443
+      ],
+      "expected_left_tcp_world": [
+        -1193.5169677734373,
+        -18.046585083007812,
+        126.42483520507812,
+        1.5548171997070312,
+        -1.5092271566391005,
+        -3.133810043334961
+      ],
+      "expected_right_tcp_world": [
+        -1193.4316731655251,
+        199.43944091884927,
+        128.5482844703233,
+        1.5349813440478222,
+        -1.5125181875018716,
+        0.03188819747460479
+      ],
+      "left_target_joint": [
+        3.1648926734924316,
+        0.35699158906936646,
+        -0.9092348217964172,
+        0.0009602100471965969,
+        0.5440658926963806,
+        1.5314223766326904
+      ],
+      "right_target_joint": [
+        -0.025256333872675896,
+        2.7880752086639404,
+        0.901399552822113,
+        0.0033283934462815523,
+        2.5898945331573486,
+        1.4848495721817017
+      ],
+      "segment_count": 5,
+      "motion_results": [
+        {
+          "segment_index": 1,
+          "motion_result": {
+            "ok": true,
+            "accepted": true,
+            "message": "sync joint_move sent",
+            "side": "both",
+            "sync_enabled": true,
+            "target_duration": 0.15,
+            "left_delta": 0.008356702065729582,
+            "right_delta": 0.008368651615278555,
+            "left_vel": 0.05571134710486388,
+            "right_vel": 0.055791010768523705,
+            "left_acc": 0.05,
+            "right_acc": 0.05,
+            "left_send": true,
+            "right_send": true
+          },
+          "wait_done": true,
+          "wait_message": "done"
+        },
+        {
+          "segment_index": 2,
+          "motion_result": {
+            "ok": true,
+            "accepted": true,
+            "message": "sync joint_move sent",
+            "side": "both",
+            "sync_enabled": true,
+            "target_duration": 0.15,
+            "left_delta": 0.00836706161498979,
+            "right_delta": 0.008378148078918457,
+            "left_vel": 0.05578041076659861,
+            "right_vel": 0.05585432052612305,
+            "left_acc": 0.05,
+            "right_acc": 0.05,
+            "left_send": true,
+            "right_send": true
+          },
+          "wait_done": true,
+          "wait_message": "done"
+        },
+        {
+          "segment_index": 3,
+          "motion_result": {
+            "ok": true,
+            "accepted": true,
+            "message": "sync joint_move sent",
+            "side": "both",
+            "sync_enabled": true,
+            "target_duration": 0.15,
+            "left_delta": 0.00837612152099565,
+            "right_delta": 0.008386492729187012,
+            "left_vel": 0.055840810139971,
+            "right_vel": 0.055909951527913414,
+            "left_acc": 0.05,
+            "right_acc": 0.05,
+            "left_send": true,
+            "right_send": true
+          },
+          "wait_done": true,
+          "wait_message": "done"
+        },
+        {
+          "segment_index": 4,
+          "motion_result": {
+            "ok": true,
+            "accepted": true,
+            "message": "sync joint_move sent",
+            "side": "both",
+            "sync_enabled": true,
+            "target_duration": 0.15,
+            "left_delta": 0.008384227752685991,
+            "right_delta": 0.008393645286560059,
+            "left_vel": 0.055894851684573275,
+            "right_vel": 0.055957635243733726,
+            "left_acc": 0.05,
+            "right_acc": 0.05,
+            "left_send": true,
+            "right_send": true
+          },
+          "wait_done": true,
+          "wait_message": "done"
+        },
+        {
+          "segment_index": 5,
+          "motion_result": {
+            "ok": true,
+            "accepted": true,
+            "message": "sync joint_move sent",
+            "side": "both",
+            "sync_enabled": true,
+            "target_duration": 0.15,
+            "left_delta": 0.008391141891479048,
+            "right_delta": 0.0083998441696167,
+            "left_vel": 0.055940945943193654,
+            "right_vel": 0.055998961130778,
+            "left_acc": 0.05,
+            "right_acc": 0.05,
+            "left_send": true,
+            "right_send": true
+          },
+          "wait_done": true,
+          "wait_message": "done"
+        }
+      ],
+      "last_verified_at": "2026-07-08T08:49:30",
+      "last_verification": {
+        "ready_to_commit": true,
+        "live": {
+          "left_tcp_world": [
+            -1193.5169677734375,
+            -18.046581268310547,
+            126.42485046386719,
+            1.5548171997070312,
+            -1.5092271566390991,
+            -3.133810043334961
+          ],
+          "right_tcp_world": [
+            -1193.4317334094712,
+            199.4394837402035,
+            128.54828447037727,
+            1.534981463252314,
+            -1.5125181875016218,
+            0.03188795906081535
+          ]
+        },
+        "expected": {
+          "left_tcp_world": [
+            -1193.5169677734373,
+            -18.046585083007812,
+            126.42483520507812,
+            1.5548171997070312,
+            -1.5092271566391005,
+            -3.133810043334961
+          ],
+          "right_tcp_world": [
+            -1193.4316731655251,
+            199.43944091884927,
+            128.5482844703233,
+            1.5349813440478222,
+            -1.5125181875018716,
+            0.03188819747460479
+          ]
+        },
+        "errors": {
+          "left_position_error_mm": 1.5728399755926745e-05,
+          "right_position_error_mm": 7.39121195874872e-05,
+          "left_orientation_error_rad": 1.3322676295501878e-15,
+          "right_orientation_error_rad": 2.384137894398397e-07
+        },
+        "tolerances": {
+          "position_tolerance_mm": 1.5,
+          "orientation_tolerance_rad": 0.05
+        }
+      },
+      "committed_at": "2026-07-08T08:49:30"
+    },
+    {
+      "id": "d35_7_1783482361227",
+      "name": "Test1",
+      "created_at": "2026-07-08T10:46:01",
+      "updated_at": "2026-07-08T10:46:01",
+      "status": "committed",
+      "source": "D35.7 large segmented execute",
+      "target_delta": [
+        0.0,
+        0.0,
+        0.0,
+        0.2,
+        0.0,
+        0.0
+      ],
+      "previous_object_pose_world": [
+        -1102.38818359375,
+        -27.303255081176758,
+        166.94241333007812,
+        1.365414905922029e-06,
+        5.402181617023386e-07,
+        3.141592315953443
+      ],
+      "target_object_pose_world": [
+        -1102.38818359375,
+        -27.303255081176758,
+        166.94241333007812,
+        0.2000013654149059,
+        5.402181617023386e-07,
+        3.141592315953443
+      ],
+      "expected_left_tcp_world": [
+        -1193.5169699964117,
+        -26.280685161587396,
+        125.39349208895777,
+        2.838033433313423,
+        -1.3621137855601995,
+        1.8723380411266963
+      ],
+      "expected_right_tcp_world": [
+        -1193.4317135892345,
+        187.2919995028046,
+        84.26678779170564,
+        0.273274233357163,
+        -1.360810145768032,
+        1.2877485520934546
+      ],
+      "left_target_joint": [
+        3.1459386348724365,
+        0.35961416363716125,
+        -0.8554079532623291,
+        0.22633926570415497,
+        0.4774341285228729,
+        1.4059326648712158
+      ],
+      "right_target_joint": [
+        -0.0767383724451065,
+        2.7931149005889893,
+        0.9681252241134644,
+        0.24504876136779785,
+        2.5478007793426514,
+        1.2953206300735474
+      ],
+      "segment_count": 8,
+      "motion_results": [
+        {
+          "segment_index": 1,
+          "motion_result": {
+            "ok": true,
+            "accepted": true,
+            "message": "sync joint_move sent",
+            "side": "both",
+            "sync_enabled": true,
+            "target_duration": 0.2953510801307875,
+            "left_delta": 0.029063964553642973,
+            "right_delta": 0.02953510801307875,
+            "left_vel": 0.09840480197591576,
+            "right_vel": 0.1,
+            "left_acc": 0.05904288118554945,
+            "right_acc": 0.06,
+            "left_send": true,
+            "right_send": true
+          },
+          "wait_done": true,
+          "wait_message": "done"
+        },
+        {
+          "segment_index": 2,
+          "motion_result": {
+            "ok": true,
+            "accepted": true,
+            "message": "sync joint_move sent",
+            "side": "both",
+            "sync_enabled": true,
+            "target_duration": 0.2979145571589469,
+            "left_delta": 0.0288153700530529,
+            "right_delta": 0.029791455715894692,
+            "left_vel": 0.0967236053445988,
+            "right_vel": 0.1,
+            "left_acc": 0.058034163206759276,
+            "right_acc": 0.06,
+            "left_send": true,
+            "right_send": true
+          },
+          "wait_done": true,
+          "wait_message": "done"
+        },
+        {
+          "segment_index": 3,
+          "motion_result": {
+            "ok": true,
+            "accepted": true,
+            "message": "sync joint_move sent",
+            "side": "both",
+            "sync_enabled": true,
+            "target_duration": 0.3002090007066725,
+            "left_delta": 0.028561778366565704,
+            "right_delta": 0.030020900070667253,
+            "left_vel": 0.09513964704367002,
+            "right_vel": 0.1,
+            "left_acc": 0.057083788226202005,
+            "right_acc": 0.06,
+            "left_send": true,
+            "right_send": true
+          },
+          "wait_done": true,
+          "wait_message": "done"
+        },
+        {
+          "segment_index": 4,
+          "motion_result": {
+            "ok": true,
+            "accepted": true,
+            "message": "sync joint_move sent",
+            "side": "both",
+            "sync_enabled": true,
+            "target_duration": 0.30220039188861847,
+            "left_delta": 0.028305105865001665,
+            "right_delta": 0.030220039188861847,
+            "left_vel": 0.09366336584842694,
+            "right_vel": 0.1,
+            "left_acc": 0.05619801950905616,
+            "right_acc": 0.06,
+            "left_send": true,
+            "right_send": true
+          },
+          "wait_done": true,
+          "wait_message": "done"
+        },
+        {
+          "segment_index": 5,
+          "motion_result": {
+            "ok": true,
+            "accepted": true,
+            "message": "sync joint_move sent",
+            "side": "both",
+            "sync_enabled": true,
+            "target_duration": 0.30385687947273254,
+            "left_delta": 0.028046220541000366,
+            "right_delta": 0.030385687947273254,
+            "left_vel": 0.0923007587969295,
+            "right_vel": 0.1,
+            "left_acc": 0.0553804552781577,
+            "right_acc": 0.06,
+            "left_send": true,
+            "right_send": true
+          },
+          "wait_done": true,
+          "wait_message": "done"
+        },
+        {
+          "segment_index": 6,
+          "motion_result": {
+            "ok": true,
+            "accepted": true,
+            "message": "sync joint_move sent",
+            "side": "both",
+            "sync_enabled": true,
+            "target_duration": 0.3051421046257019,
+            "left_delta": 0.027787014842033414,
+            "right_delta": 0.03051421046257019,
+            "left_vel": 0.09106253912785307,
+            "right_vel": 0.1,
+            "left_acc": 0.05463752347671184,
+            "right_acc": 0.06,
+            "left_send": true,
+            "right_send": true
+          },
+          "wait_done": true,
+          "wait_message": "done"
+        },
+        {
+          "segment_index": 7,
+          "motion_result": {
+            "ok": true,
+            "accepted": true,
+            "message": "sync joint_move sent",
+            "side": "both",
+            "sync_enabled": true,
+            "target_duration": 0.30603155493736267,
+            "left_delta": 0.027528390288352966,
+            "right_delta": 0.030603155493736267,
+            "left_vel": 0.08995278377090025,
+            "right_vel": 0.1,
+            "left_acc": 0.05397167026254015,
+            "right_acc": 0.06,
+            "left_send": true,
+            "right_send": true
+          },
+          "wait_done": true,
+          "wait_message": "done"
+        },
+        {
+          "segment_index": 8,
+          "motion_result": {
+            "ok": true,
+            "accepted": true,
+            "message": "sync joint_move sent",
+            "side": "both",
+            "sync_enabled": true,
+            "target_duration": 0.30649811029434176,
+            "left_delta": 0.02727121114730835,
+            "right_delta": 0.030649811029434176,
+            "left_vel": 0.08897676765810651,
+            "right_vel": 0.1,
+            "left_acc": 0.0533860605948639,
+            "right_acc": 0.06,
+            "left_send": true,
+            "right_send": true
+          },
+          "wait_done": true,
+          "wait_message": "done"
+        }
+      ],
+      "last_verified_at": "2026-07-08T10:46:01",
+      "last_verification": {
+        "ready_to_commit": true,
+        "live": {
+          "left_tcp_world": [
+            -1193.5169677734375,
+            -26.280677795410156,
+            125.39358520507812,
+            2.838033676147461,
+            -1.3621138334274292,
+            1.8723379373550415
+          ],
+          "right_tcp_world": [
+            -1193.4316663606983,
+            187.2919945272909,
+            84.26678570201281,
+            0.2732740222927032,
+            -1.3608101969578374,
+            1.2877487525028384
+          ]
+        },
+        "expected": {
+          "left_tcp_world": [
+            -1193.5169699964117,
+            -26.280685161587396,
+            125.39349208895777,
+            2.838033433313423,
+            -1.3621137855601995,
+            1.8723380411266963
+          ],
+          "right_tcp_world": [
+            -1193.4317135892345,
+            187.2919995028046,
+            84.26678779170564,
+            0.273274233357163,
+            -1.360810145768032,
+            1.2877485520934546
+          ]
+        },
+        "errors": {
+          "left_position_error_mm": 9.343347393337576e-05,
+          "right_position_error_mm": 4.753585159873188e-05,
+          "left_orientation_error_rad": 1.5196262340524166e-07,
+          "right_orientation_error_rad": 6.664001874625058e-08
+        },
+        "tolerances": {
+          "position_tolerance_mm": 1.5,
+          "orientation_tolerance_rad": 0.05
+        }
+      },
+      "committed_at": "2026-07-08T10:46:01"
+    },
+    {
+      "id": "d35_7_1783483099774",
+      "name": "Test1",
+      "created_at": "2026-07-08T10:58:19",
+      "updated_at": "2026-07-08T10:58:19",
+      "status": "committed",
+      "source": "D35.7 large segmented execute",
+      "target_delta": [
+        0.0,
+        0.0,
+        0.0,
+        -0.2,
+        0.0,
+        0.0
+      ],
+      "previous_object_pose_world": [
+        -1102.38818359375,
+        -27.303255081176758,
+        166.94241333007812,
+        0.2000013654149059,
+        5.402181617023386e-07,
+        3.141592315953443
+      ],
+      "target_object_pose_world": [
+        -1102.38818359375,
+        -27.303255081176758,
+        166.94241333007812,
+        1.3654149059287577e-06,
+        5.402181617023386e-07,
+        3.141592315953443
+      ],
+      "expected_left_tcp_world": [
+        -1193.5169655504694,
+        -18.046592548283513,
+        126.42494318729828,
+        1.5548166953484084,
+        -1.5092271908314046,
+        -3.1338093964368676
+      ],
+      "expected_right_tcp_world": [
+        -1193.4316861809339,
+        199.4394792790315,
+        128.54828143386086,
+        1.5349820661921687,
+        -1.5125182428680408,
+        0.03188734001270134
+      ],
+      "left_target_joint": [
+        3.1648926734924316,
+        0.35699161887168884,
+        -0.909234881401062,
+        0.0009601687779650092,
+        0.5440661907196045,
+        1.5314222574234009
+      ],
+      "right_target_joint": [
+        -0.025256332010030746,
+        2.7880752086639404,
+        0.9013996720314026,
+        0.0033283524680882692,
+        2.5898942947387695,
+        1.4848496913909912
+      ],
+      "segment_count": 8,
+      "motion_results": [
+        {
+          "segment_index": 1,
+          "motion_result": {
+            "ok": true,
+            "accepted": true,
+            "message": "sync joint_move sent",
+            "side": "both",
+            "sync_enabled": true,
+            "target_duration": 0.3064979612827304,
+            "left_delta": 0.027271181344985962,
+            "right_delta": 0.030649796128273038,
+            "left_vel": 0.08897671368139883,
+            "right_vel": 0.1,
+            "left_acc": 0.05338602820883929,
+            "right_acc": 0.06,
+            "left_send": true,
+            "right_send": true
+          },
+          "wait_done": true,
+          "wait_message": "done"
+        },
+        {
+          "segment_index": 2,
+          "motion_result": {
+            "ok": true,
+            "accepted": true,
+            "message": "sync joint_move sent",
+            "side": "both",
+            "sync_enabled": true,
+            "target_duration": 0.3060325980186471,
+            "left_delta": 0.027528405189514132,
+            "right_delta": 0.030603259801864707,
+            "left_vel": 0.08995252586731554,
+            "right_vel": 0.1,
+            "left_acc": 0.05397151552038932,
+            "right_acc": 0.06,
+            "left_send": true,
+            "right_send": true
+          },
+          "wait_done": true,
+          "wait_message": "done"
+        },
+        {
+          "segment_index": 3,
+          "motion_result": {
+            "ok": true,
+            "accepted": true,
+            "message": "sync joint_move sent",
+            "side": "both",
+            "sync_enabled": true,
+            "target_duration": 0.30514210462570107,
+            "left_delta": 0.027787014842033386,
+            "right_delta": 0.030514210462570107,
+            "left_vel": 0.09106253912785323,
+            "right_vel": 0.1,
+            "left_acc": 0.054637523476711934,
+            "right_acc": 0.06,
+            "left_send": true,
+            "right_send": true
+          },
+          "wait_done": true,
+          "wait_message": "done"
+        },
+        {
+          "segment_index": 4,
+          "motion_result": {
+            "ok": true,
+            "accepted": true,
+            "message": "sync joint_move sent",
+            "side": "both",
+            "sync_enabled": true,
+            "target_duration": 0.30385546386241913,
+            "left_delta": 0.028046369552612305,
+            "right_delta": 0.030385546386241913,
+            "left_vel": 0.09230167921321715,
+            "right_vel": 0.1,
+            "left_acc": 0.055381007527930286,
+            "right_acc": 0.06,
+            "left_send": true,
+            "right_send": true
+          },
+          "wait_done": true,
+          "wait_message": "done"
+        },
+        {
+          "segment_index": 5,
+          "motion_result": {
+            "ok": true,
+            "accepted": true,
+            "message": "sync joint_move sent",
+            "side": "both",
+            "sync_enabled": true,
+            "target_duration": 0.3022006154060364,
+            "left_delta": 0.028304971754550934,
+            "right_delta": 0.030220061540603638,
+            "left_vel": 0.09366285279240881,
+            "right_vel": 0.1,
+            "left_acc": 0.05619771167544528,
+            "right_acc": 0.06,
+            "left_send": true,
+            "right_send": true
+          },
+          "wait_done": true,
+          "wait_message": "done"
+        },
+        {
+          "segment_index": 6,
+          "motion_result": {
+            "ok": true,
+            "accepted": true,
+            "message": "sync joint_move sent",
+            "side": "both",
+            "sync_enabled": true,
+            "target_duration": 0.3002092242240906,
+            "left_delta": 0.028561860322952284,
+            "right_delta": 0.030020922422409058,
+            "left_vel": 0.0951398492060735,
+            "right_vel": 0.1,
+            "left_acc": 0.057083909523644095,
+            "right_acc": 0.06,
+            "left_send": true,
+            "right_send": true
+          },
+          "wait_done": true,
+          "wait_message": "done"
+        },
+        {
+          "segment_index": 7,
+          "motion_result": {
+            "ok": true,
+            "accepted": true,
+            "message": "sync joint_move sent",
+            "side": "both",
+            "sync_enabled": true,
+            "target_duration": 0.2979152277112007,
+            "left_delta": 0.02881530672311783,
+            "right_delta": 0.02979152277112007,
+            "left_vel": 0.09672317506056258,
+            "right_vel": 0.1,
+            "left_acc": 0.05803390503633754,
+            "right_acc": 0.06,
+            "left_send": true,
+            "right_send": true
+          },
+          "wait_done": true,
+          "wait_message": "done"
+        },
+        {
+          "segment_index": 8,
+          "motion_result": {
+            "ok": true,
+            "accepted": true,
+            "message": "sync joint_move sent",
+            "side": "both",
+            "sync_enabled": true,
+            "target_duration": 0.29535089386627084,
+            "left_delta": 0.029063987196423117,
+            "right_delta": 0.029535089386627085,
+            "left_vel": 0.09840494069939307,
+            "right_vel": 0.1,
+            "left_acc": 0.059042964419635836,
+            "right_acc": 0.06,
+            "left_send": true,
+            "right_send": true
+          },
+          "wait_done": true,
+          "wait_message": "done"
+        }
+      ],
+      "last_verified_at": "2026-07-08T10:58:19",
+      "last_verification": {
+        "ready_to_commit": true,
+        "live": {
+          "left_tcp_world": [
+            -1193.5169677734375,
+            -18.046592712402344,
+            126.42485046386719,
+            1.554816722869873,
+            -1.5092270374298096,
+            -3.1338093280792236
+          ],
+          "right_tcp_world": [
+            -1193.4317334094796,
+            199.43942270504726,
+            128.5482844703157,
+            1.5349820592843681,
+            -1.5125181875008746,
+            0.031887243819447075
+          ]
+        },
+        "expected": {
+          "left_tcp_world": [
+            -1193.5169655504694,
+            -18.046592548283513,
+            126.42494318729828,
+            1.5548166953484084,
+            -1.5092271908314046,
+            -3.1338093964368676
+          ],
+          "right_tcp_world": [
+            -1193.4316861809339,
+            199.4394792790315,
+            128.54828143386086,
+            1.5349820661921687,
+            -1.5125182428680408,
+            0.03188734001270134
+          ]
+        },
+        "errors": {
+          "left_position_error_mm": 9.275021938571159e-05,
+          "right_position_error_mm": 7.375887260054094e-05,
+          "left_orientation_error_rad": 1.8128044993574107e-07,
+          "right_orientation_error_rad": 1.1733186057227575e-07
+        },
+        "tolerances": {
+          "position_tolerance_mm": 1.5,
+          "orientation_tolerance_rad": 0.05
+        }
+      },
+      "committed_at": "2026-07-08T10:58:19"
+    },
+    {
+      "id": "d35_7_1783483267823",
+      "name": "Test1",
+      "created_at": "2026-07-08T11:01:07",
+      "updated_at": "2026-07-08T11:01:07",
+      "status": "committed",
+      "source": "D35.7 large segmented execute",
+      "target_delta": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.2,
+        0.0
+      ],
+      "previous_object_pose_world": [
+        -1102.38818359375,
+        -27.303255081176758,
+        166.94241333007812,
+        1.3654149059287577e-06,
+        5.402181617023386e-07,
+        3.141592315953443
+      ],
+      "target_object_pose_world": [
+        -1102.38818359375,
+        -27.303255081176758,
+        166.94241333007812,
+        1.365414905928756e-06,
+        0.20000054021816172,
+        3.141592315953443
+      ],
+      "expected_left_tcp_world": [
+        -1183.6508620851935,
+        -18.04659604355826,
+        109.12800895926007,
+        1.560796600192299,
+        -1.309228469401641,
+        -3.139740957776414
+      ],
+      "expected_right_tcp_world": [
+        -1183.9891864831084,
+        199.43941951690016,
+        111.22603452475582,
+        -1.5617654330810609,
+        -1.4290328250482447,
+        3.1284488016587457
+      ],
+      "left_target_joint": [
+        3.1798923015594482,
+        0.3729647696018219,
+        -0.9502254724502563,
+        -0.0008041292894631624,
+        0.5693786144256592,
+        1.3473384380340576
+      ],
+      "right_target_joint": [
+        -0.04001406952738762,
+        2.7726387977600098,
+        0.9404474496841431,
+        0.0025131485890597105,
+        2.5659420490264893,
+        1.6704720258712769
+      ],
+      "segment_count": 8,
+      "motion_results": [
+        {
+          "segment_index": 1,
+          "motion_result": {
+            "ok": true,
+            "accepted": true,
+            "message": "sync joint_move sent",
+            "side": "both",
+            "sync_enabled": true,
+            "target_duration": 0.2313399314880371,
+            "left_delta": 0.02294635772705078,
+            "right_delta": 0.02313399314880371,
+            "left_vel": 0.09918891900526636,
+            "right_vel": 0.1,
+            "left_acc": 0.05951335140315981,
+            "right_acc": 0.06,
+            "left_send": true,
+            "right_send": true
+          },
+          "wait_done": true,
+          "wait_message": "done"
+        },
+        {
+          "segment_index": 2,
+          "motion_result": {
+            "ok": true,
+            "accepted": true,
+            "message": "sync joint_move sent",
+            "side": "both",
+            "sync_enabled": true,
+            "target_duration": 0.23151755332946777,
+            "left_delta": 0.022962570190429688,
+            "right_delta": 0.023151755332946777,
+            "left_vel": 0.0991828475215101,
+            "right_vel": 0.1,
+            "left_acc": 0.05950970851290606,
+            "right_acc": 0.06,
+            "left_send": true,
+            "right_send": true
+          },
+          "wait_done": true,
+          "wait_message": "done"
+        },
+        {
+          "segment_index": 3,
+          "motion_result": {
+            "ok": true,
+            "accepted": true,
+            "message": "sync joint_move sent",
+            "side": "both",
+            "sync_enabled": true,
+            "target_duration": 0.23170232772827148,
+            "left_delta": 0.022980093955993652,
+            "right_delta": 0.02317023277282715,
+            "left_vel": 0.09917938322546124,
+            "right_vel": 0.1,
+            "left_acc": 0.05950762993527674,
+            "right_acc": 0.06,
+            "left_send": true,
+            "right_send": true
+          },
+          "wait_done": true,
+          "wait_message": "done"
+        },
+        {
+          "segment_index": 4,
+          "motion_result": {
+            "ok": true,
+            "accepted": true,
+            "message": "sync joint_move sent",
+            "side": "both",
+            "sync_enabled": true,
+            "target_duration": 0.23190021514892578,
+            "left_delta": 0.022998332977294922,
+            "right_delta": 0.023190021514892578,
+            "left_vel": 0.09917340077725001,
+            "right_vel": 0.1,
+            "left_acc": 0.05950404046635,
+            "right_acc": 0.06,
+            "left_send": true,
+            "right_send": true
+          },
+          "wait_done": true,
+          "wait_message": "done"
+        },
+        {
+          "segment_index": 5,
+          "motion_result": {
+            "ok": true,
+            "accepted": true,
+            "message": "sync joint_move sent",
+            "side": "both",
+            "sync_enabled": true,
+            "target_duration": 0.23210644721984863,
+            "left_delta": 0.02301764488220215,
+            "right_delta": 0.023210644721984863,
+            "left_vel": 0.09916848565778999,
+            "right_vel": 0.1,
+            "left_acc": 0.05950109139467399,
+            "right_acc": 0.06,
+            "left_send": true,
+            "right_send": true
+          },
+          "wait_done": true,
+          "wait_message": "done"
+        },
+        {
+          "segment_index": 6,
+          "motion_result": {
+            "ok": true,
+            "accepted": true,
+            "message": "sync joint_move sent",
+            "side": "both",
+            "sync_enabled": true,
+            "target_duration": 0.23232340812683105,
+            "left_delta": 0.02303791046142578,
+            "right_delta": 0.023232340812683105,
+            "left_vel": 0.09916310477353543,
+            "right_vel": 0.1,
+            "left_acc": 0.05949786286412125,
+            "right_acc": 0.06,
+            "left_send": true,
+            "right_send": true
+          },
+          "wait_done": true,
+          "wait_message": "done"
+        },
+        {
+          "segment_index": 7,
+          "motion_result": {
+            "ok": true,
+            "accepted": true,
+            "message": "sync joint_move sent",
+            "side": "both",
+            "sync_enabled": true,
+            "target_duration": 0.23254871368408203,
+            "left_delta": 0.0230593681335447,
+            "right_delta": 0.023254871368408203,
+            "left_vel": 0.09915930201562373,
+            "right_vel": 0.1,
+            "left_acc": 0.05949558120937423,
+            "right_acc": 0.06,
+            "left_send": true,
+            "right_send": true
+          },
+          "wait_done": true,
+          "wait_message": "done"
+        },
+        {
+          "segment_index": 8,
+          "motion_result": {
+            "ok": true,
+            "accepted": true,
+            "message": "sync joint_move sent",
+            "side": "both",
+            "sync_enabled": true,
+            "target_duration": 0.23278474807739258,
+            "left_delta": 0.023081541061401367,
+            "right_delta": 0.023278474807739258,
+            "left_vel": 0.09915400923830106,
+            "right_vel": 0.1,
+            "left_acc": 0.05949240554298063,
+            "right_acc": 0.06,
+            "left_send": true,
+            "right_send": true
+          },
+          "wait_done": true,
+          "wait_message": "done"
+        }
+      ],
+      "last_verified_at": "2026-07-08T11:01:08",
+      "last_verification": {
+        "ready_to_commit": true,
+        "live": {
+          "left_tcp_world": [
+            -1183.65087890625,
+            -18.046602249145508,
+            109.12812805175781,
+            1.5607966184616089,
+            -1.309228539466858,
+            -3.1397409439086914
+          ],
+          "right_tcp_world": [
+            -1183.989127327567,
+            199.43936831519466,
+            111.22603798562069,
+            -1.5617654277391402,
+            -1.429032828529059,
+            3.1284488793931047
+          ]
+        },
+        "expected": {
+          "left_tcp_world": [
+            -1183.6508620851935,
+            -18.04659604355826,
+            109.12800895926007,
+            1.560796600192299,
+            -1.309228469401641,
+            -3.139740957776414
+          ],
+          "right_tcp_world": [
+            -1183.9891864831084,
+            199.43941951690016,
+            111.22603452475582,
+            -1.5617654330810609,
+            -1.4290328250482447,
+            3.1284488016587457
+          ]
+        },
+        "errors": {
+          "left_position_error_mm": 0.0001204345476768479,
+          "right_position_error_mm": 7.83132830231705e-05,
+          "left_orientation_error_rad": 7.598131170262078e-08,
+          "right_orientation_error_rad": 8.429369702178808e-08
+        },
+        "tolerances": {
+          "position_tolerance_mm": 1.5,
+          "orientation_tolerance_rad": 0.05
+        }
+      },
+      "committed_at": "2026-07-08T11:01:08"
+    },
+    {
+      "id": "d35_7_1783484237314",
+      "name": "Test1",
+      "created_at": "2026-07-08T11:17:17",
+      "updated_at": "2026-07-08T11:17:17",
+      "status": "committed",
+      "source": "D35.7 large segmented execute",
+      "target_delta": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        -0.2,
+        0.0
+      ],
+      "previous_object_pose_world": [
+        -1102.38818359375,
+        -27.303255081176758,
+        166.94241333007812,
+        1.365414905928756e-06,
+        0.20000054021816172,
+        3.141592315953443
+      ],
+      "target_object_pose_world": [
+        -1102.38818359375,
+        -27.303255081176758,
+        166.94241333007812,
+        1.3654149059287543e-06,
+        5.402181617424062e-07,
+        3.141592315953443
+      ],
+      "expected_left_tcp_world": [
+        -1193.5169605991662,
+        -18.046598917997695,
+        126.42497052427152,
+        1.5548166895679851,
+        -1.5092271074723282,
+        -3.1338092629886707
+      ],
+      "expected_right_tcp_world": [
+        -1193.4316747455434,
+        199.43937150334196,
+        128.54827610979845,
+        1.5349823323114122,
+        -1.5125181845159277,
+        0.031887052764528655
+      ],
+      "left_target_joint": [
+        3.1648926734924316,
+        0.35699161887168884,
+        -0.9092348217964172,
+        0.0009601684869267046,
+        0.5440661311149597,
+        1.5314222574234009
+      ],
+      "right_target_joint": [
+        -0.025256335735321045,
+        2.7880752086639404,
+        0.9013996720314026,
+        0.003328336402773857,
+        2.5898942947387695,
+        1.4848496913909912
+      ],
+      "segment_count": 8,
+      "motion_results": [
+        {
+          "segment_index": 1,
+          "motion_result": {
+            "ok": true,
+            "accepted": true,
+            "message": "sync joint_move sent",
+            "side": "both",
+            "sync_enabled": true,
+            "target_duration": 0.23278474807739258,
+            "left_delta": 0.023081541061401145,
+            "right_delta": 0.023278474807739258,
+            "left_vel": 0.0991540092383001,
+            "right_vel": 0.1,
+            "left_acc": 0.059492405542980055,
+            "right_acc": 0.06,
+            "left_send": true,
+            "right_send": true
+          },
+          "wait_done": true,
+          "wait_message": "done"
+        },
+        {
+          "segment_index": 2,
+          "motion_result": {
+            "ok": true,
+            "accepted": true,
+            "message": "sync joint_move sent",
+            "side": "both",
+            "sync_enabled": true,
+            "target_duration": 0.23254990577697754,
+            "left_delta": 0.023059368133544922,
+            "right_delta": 0.023254990577697754,
+            "left_vel": 0.09915879370710028,
+            "right_vel": 0.1,
+            "left_acc": 0.05949527622426016,
+            "right_acc": 0.06,
+            "left_send": true,
+            "right_send": true
+          },
+          "wait_done": true,
+          "wait_message": "done"
+        },
+        {
+          "segment_index": 3,
+          "motion_result": {
+            "ok": true,
+            "accepted": true,
+            "message": "sync joint_move sent",
+            "side": "both",
+            "sync_enabled": true,
+            "target_duration": 0.23232340812683105,
+            "left_delta": 0.023037910461426003,
+            "right_delta": 0.023232340812683105,
+            "left_vel": 0.09916310477353639,
+            "right_vel": 0.1,
+            "left_acc": 0.05949786286412183,
+            "right_acc": 0.06,
+            "left_send": true,
+            "right_send": true
+          },
+          "wait_done": true,
+          "wait_message": "done"
+        },
+        {
+          "segment_index": 4,
+          "motion_result": {
+            "ok": true,
+            "accepted": true,
+            "message": "sync joint_move sent",
+            "side": "both",
+            "sync_enabled": true,
+            "target_duration": 0.23210525512695312,
+            "left_delta": 0.023017525672912598,
+            "right_delta": 0.023210525512695312,
+            "left_vel": 0.09916848138713123,
+            "right_vel": 0.1,
+            "left_acc": 0.05950108883227873,
+            "right_acc": 0.06,
+            "left_send": true,
+            "right_send": true
+          },
+          "wait_done": true,
+          "wait_message": "done"
+        },
+        {
+          "segment_index": 5,
+          "motion_result": {
+            "ok": true,
+            "accepted": true,
+            "message": "sync joint_move sent",
+            "side": "both",
+            "sync_enabled": true,
+            "target_duration": 0.23189902305603027,
+            "left_delta": 0.022998452186584473,
+            "right_delta": 0.023189902305603027,
+            "left_vel": 0.09917442464183086,
+            "right_vel": 0.1,
+            "left_acc": 0.05950465478509851,
+            "right_acc": 0.06,
+            "left_send": true,
+            "right_send": true
+          },
+          "wait_done": true,
+          "wait_message": "done"
+        },
+        {
+          "segment_index": 6,
+          "motion_result": {
+            "ok": true,
+            "accepted": true,
+            "message": "sync joint_move sent",
+            "side": "both",
+            "sync_enabled": true,
+            "target_duration": 0.23170232772827148,
+            "left_delta": 0.0229799747467041,
+            "right_delta": 0.02317023277282715,
+            "left_vel": 0.09917886873218568,
+            "right_vel": 0.1,
+            "left_acc": 0.059507321239311406,
+            "right_acc": 0.06,
+            "left_send": true,
+            "right_send": true
+          },
+          "wait_done": true,
+          "wait_message": "done"
+        },
+        {
+          "segment_index": 7,
+          "motion_result": {
+            "ok": true,
+            "accepted": true,
+            "message": "sync joint_move sent",
+            "side": "both",
+            "sync_enabled": true,
+            "target_duration": 0.23151874542236328,
+            "left_delta": 0.02296268939971924,
+            "right_delta": 0.023151874542236328,
+            "left_vel": 0.09918285172903837,
+            "right_vel": 0.1,
+            "left_acc": 0.059509711037423016,
+            "right_acc": 0.06,
+            "left_send": true,
+            "right_send": true
+          },
+          "wait_done": true,
+          "wait_message": "done"
+        },
+        {
+          "segment_index": 8,
+          "motion_result": {
+            "ok": true,
+            "accepted": true,
+            "message": "sync joint_move sent",
+            "side": "both",
+            "sync_enabled": true,
+            "target_duration": 0.2313399314880371,
+            "left_delta": 0.02294635772705078,
+            "right_delta": 0.02313399314880371,
+            "left_vel": 0.09918891900526636,
+            "right_vel": 0.1,
+            "left_acc": 0.05951335140315981,
+            "right_acc": 0.06,
+            "left_send": true,
+            "right_send": true
+          },
+          "wait_done": true,
+          "wait_message": "done"
+        }
+      ],
+      "last_verified_at": "2026-07-08T11:17:17",
+      "last_verification": {
+        "ready_to_commit": true,
+        "live": {
+          "left_tcp_world": [
+            -1193.5169677734375,
+            -18.046621322631836,
+            126.42485046386719,
+            1.554816722869873,
+            -1.5092270374298096,
+            -3.1338093280792236
+          ],
+          "right_tcp_world": [
+            -1193.431733409489,
+            199.43942079770633,
+            128.54827684091924,
+            1.5349822976981495,
+            -1.5125181875006248,
+            0.03188700540565764
+          ]
+        },
+        "expected": {
+          "left_tcp_world": [
+            -1193.5169605991662,
+            -18.046598917997695,
+            126.42497052427152,
+            1.5548166895679851,
+            -1.5092271074723282,
+            -3.1338092629886707
+          ],
+          "right_tcp_world": [
+            -1193.4316747455434,
+            199.43937150334196,
+            128.54827610979845,
+            1.5349823323114122,
+            -1.5125181845159277,
+            0.031887052764528655
+          ]
+        },
+        "errors": {
+          "left_position_error_mm": 0.0001223435265449137,
+          "right_position_error_mm": 7.662850254742116e-05,
+          "left_orientation_error_rad": 7.598131170262078e-08,
+          "right_orientation_error_rad": 8.161702118890975e-08
+        },
+        "tolerances": {
+          "position_tolerance_mm": 1.5,
+          "orientation_tolerance_rad": 0.05
+        }
+      },
+      "committed_at": "2026-07-08T11:17:17"
     }
   ]
 }

@@ -476,20 +476,6 @@
       <div id="sequenceList" class="sequence-box"></div>
 
       <div class="row">
-        <label for="programLoopMode">Loop mode</label>
-        <select id="programLoopMode" onchange="updateProgramLoopControls()">
-          <option value="once" selected>Run once</option>
-          <option value="count">Fixed count</option>
-          <option value="forever">Forever</option>
-        </select>
-        <span id="programLoopCountGroup" class="row" style="display: none; margin: 0;">
-          <label for="programLoopCount">Loop count</label>
-          <input id="programLoopCount" class="num" type="number" value="1" min="1" step="1" />
-        </span>
-        <span id="programCycleProgress" class="small">Cycle: -</span>
-      </div>
-
-      <div class="row">
         <button class="green" onclick="runSequence()">Run Program</button>
         <button onclick="saveProgramFile()">Save Program</button>
         <button onclick="loadSelectedProgram()">Load Program</button>
@@ -769,10 +755,6 @@ Capture source:</label>
             Select a preset or enter target delta, then press Dry Run.
           </span>
         </div>
-        <div class="row" style="margin-top: 8px;">
-          <label><input id="d357OperatorOnlyMode" type="checkbox" checked onchange="toggleD357OperatorOnlyMode()"> Operator-only mode</label>
-          <span class="small">Hide advanced safety fields and developer debug panels for cleaner operation.</span>
-        </div>
       </div>
 
       <div id="d357ResultCard" style="margin-top: 10px; padding: 10px; border: 1px solid #334155; border-radius: 8px; background: #020617;">
@@ -783,37 +765,7 @@ Capture source:</label>
             <button onclick="clearD357ResultSummary()">Clear</button>
           </div>
         </div>
-        <pre id="d357ResultSummary" class="statusbox" style="margin-top: 8px; min-height: 80px; white-space: pre-wrap; overflow-wrap: anywhere; word-break: break-word; max-width: 100%; box-sizing: border-box; overflow-x: hidden;">No D35.7 result yet.</pre>
-      </div>
-
-      <div id="d357ActionLogCard" style="margin-top: 10px; padding: 10px; border: 1px solid #334155; border-radius: 8px; background: #020617;">
-        <div style="display:flex; align-items:center; justify-content:space-between; gap:10px;">
-          <div style="font-weight: 700;">D35.7 Action Log</div>
-          <div>
-            <button onclick="clearD357ActionLog()">Clear Log</button>
-          </div>
-        </div>
-        <pre id="d357ActionLog" class="statusbox" style="margin-top: 8px; min-height: 70px; max-height: 180px; white-space: pre-wrap; overflow-wrap: anywhere; word-break: break-word; max-width: 100%; box-sizing: border-box; overflow-y: auto; overflow-x: hidden;">No action yet.</pre>
-      </div>
-
-      <div id="d357SafeReturnCard" style="margin-top: 10px; padding: 10px; border: 1px solid #334155; border-radius: 8px; background: #020617;">
-        <div style="font-weight: 700;">Safe Return / Inverse Presets</div>
-        <div class="small" style="margin-top: 4px; color: #f59e0b;">
-          These are relative inverse moves, not absolute auto-home. Select one, run Dry Run, then Execute only if the plan is safe.
-        </div>
-        <div class="row" style="margin-top: 8px;">
-          <button onclick="setD357Preset('zero')">Zero Delta</button>
-          <button class="orange" onclick="setD357Preset('z-50')">Return from +Z50 → -Z50</button>
-          <button class="orange" onclick="setD357Preset('z50')">Return from -Z50 → +Z50</button>
-          <button class="orange" onclick="setD357Preset('rx-0.2')">Return from Rx +0.2 → Rx -0.2</button>
-          <button class="orange" onclick="setD357Preset('rx+0.2')">Return from Rx -0.2 → Rx +0.2</button>
-        </div>
-        <div class="row">
-          <button class="orange" onclick="setD357Preset('ry-0.2')">Return from Ry +0.2 → Ry -0.2</button>
-          <button class="orange" onclick="setD357Preset('ry+0.2')">Return from Ry -0.2 → Ry +0.2</button>
-          <button class="orange" onclick="setD357Preset('rz-0.3')">Return from Rz +0.3 → Rz -0.3</button>
-          <button class="orange" onclick="setD357Preset('rz+0.3')">Return from Rz -0.3 → Rz +0.3</button>
-        </div>
+        <pre id="d357ResultSummary" class="statusbox" style="margin-top: 8px; min-height: 80px;">No D35.7 result yet.</pre>
       </div>
 
       <div class="row" style="margin-top: 10px;">
@@ -848,7 +800,7 @@ Capture source:</label>
         </div>
       </details>
 
-      <details id="d357AdvancedSafetyDetails" style="margin-top: 10px;">
+      <details style="margin-top: 10px;">
         <summary style="font-weight: 700;">Advanced Safety Limits</summary>
         <div class="row" style="margin-top: 10px;">
           <label><input id="d357DryRun" type="checkbox" checked> dry_run</label>
@@ -892,13 +844,13 @@ Capture source:</label>
       </details>
 
 
-      <details id="d357ObjectDebugDetails" style="margin-top: 10px;">
+      <details style="margin-top: 10px;">
         <summary style="font-weight: 700;">Object Frame Debug</summary>
         <pre id="objectFrameView" class="statusbox" style="margin-top: 8px;">Object frame not loaded yet.</pre>
       </details>
     </div>
 
-<details id="d357RawJsonDetails" style="margin-top: 14px;">
+<details style="margin-top: 14px;">
         <summary style="font-weight: 700; font-size: 20px;">Developer Raw JSON / Debug Status</summary>
         <pre id="status" style="margin-top: 8px;">loading...</pre>
       </details>
@@ -1016,7 +968,6 @@ function attachD357DirtyWatchers() {
     el.dataset.d357DirtyWatcher = "1";
     el.addEventListener("input", () => {
       d357ResetDryRunGate("Input changed: " + id + ". Press Dry Run before Execute.");
-      addD357ActionLog("Input changed: " + id + ". Execute locked until a new Dry Run passes.", "warn");
     });
   });
 
@@ -1067,67 +1018,6 @@ function clearD357ResultSummary() {
     lastD357DryRunKey ? "ok" : "warn"
   );
 }
-
-function d357NowText() {
-  return new Date().toLocaleTimeString();
-}
-
-function addD357ActionLog(message, level = "info") {
-  const el = $("d357ActionLog");
-  if (!el) return;
-
-  const icons = {
-    info: "ℹ️",
-    ok: "✅",
-    warn: "⚠️",
-    danger: "🛑"
-  };
-
-  const oldText = el.textContent && el.textContent !== "No action yet."
-    ? el.textContent.trim()
-    : "";
-
-  const line = d357NowText() + " " + (icons[level] || icons.info) + " " + message;
-  const lines = oldText ? oldText.split("\\n") : [];
-  lines.push(line);
-
-  el.textContent = lines.slice(-40).join("\\n");
-  el.scrollTop = el.scrollHeight;
-}
-
-function clearD357ActionLog() {
-  const el = $("d357ActionLog");
-  if (el) el.textContent = "No action yet.";
-}
-
-function toggleD357OperatorOnlyMode() {
-  const enabled = $("d357OperatorOnlyMode")?.checked ?? true;
-
-  const advanced = $("d357AdvancedSafetyDetails");
-  const objectDebug = $("d357ObjectDebugDetails");
-  const rawJson = $("d357RawJsonDetails");
-
-  [
-    advanced,
-    objectDebug,
-    rawJson
-  ].forEach(el => {
-    if (!el) return;
-    el.style.display = enabled ? "none" : "block";
-    if (enabled) el.open = false;
-  });
-
-  addD357ActionLog(
-    enabled
-      ? "Operator-only mode enabled. Advanced/debug panels hidden."
-      : "Operator-only mode disabled. Advanced/debug panels visible.",
-    "info"
-  );
-}
-
-setTimeout(toggleD357OperatorOnlyMode, 0);
-
-
 
 function d357ExtractErrors(data) {
   return data?.verify?.errors ||
@@ -1549,7 +1439,6 @@ async function refreshPoseMonitor() {
   try {
     const data = await api("/api/status");
     lastStatus = data;
-    updateProgramLoopProgress(data.active_sequence);
 
     const a = extractStatusArrays(data);
     setTableRow("leftJointRow", a.leftJoint, true);
@@ -1565,7 +1454,6 @@ async function refreshStatus() {
   const data = await api("/api/status");
   setStatus(data);
   lastStatus = data;
-  updateProgramLoopProgress(data.active_sequence);
 
   const a = extractStatusArrays(data);
   setTableRow("leftJointRow", a.leftJoint, true);
@@ -2996,11 +2884,6 @@ async function d356arRecoverPendingCommit() {
 
 function setD357Preset(kind) {
   const presets = {
-    "zero": {
-      delta: [0, 0, 0, 0, 0, 0],
-      segmentRotation: 0.026,
-      note: "Zero target delta preset. No motion should be needed unless values are changed later."
-    },
     "z50": {
       delta: [0, 0, 50, 0, 0, 0],
       segmentRotation: 0.026,
@@ -3087,7 +2970,6 @@ function setD357Preset(kind) {
   lastD357DryRunSummary = null;
   setD357ExecuteEnabled(false);
   setD357WorkflowState("DRY RUN REQUIRED", "Preset selected: " + kind + ". No motion was sent. Press Dry Run before Execute.", "warn");
-  addD357ActionLog("Preset selected: " + kind + ". No motion was sent.", "warn");
 
   setStatus({
     ok: true,
@@ -3198,12 +3080,6 @@ async function d357VerifyPendingCommit() {
 
   showCalibrationResult(data);
   updateD357ResultSummary(data);
-  addD357ActionLog(
-    data.ok && data.ready_to_commit
-      ? "Verify pending passed. Commit is allowed."
-      : "Verify pending failed: " + (data.reason || data.error || "unknown"),
-    data.ok && data.ready_to_commit ? "ok" : "danger"
-  );
   return data;
 }
 
@@ -3226,12 +3102,6 @@ async function d357CommitPendingPose() {
 
   showCalibrationResult(data);
   updateD357ResultSummary(data);
-  addD357ActionLog(
-    data.ok && data.committed
-      ? "Commit completed. Object pose state was updated."
-      : "Commit failed: " + (data.reason || data.error || "unknown"),
-    data.ok && data.committed ? "ok" : "danger"
-  );
 
   if (data.ok && data.committed) {
     lastD357DryRunKey = null;
@@ -3247,7 +3117,6 @@ async function d357AutoVerifyCommitAfterExecute() {
   const verify = await d357VerifyPendingCommit();
 
   if (!verify || !verify.ok || !verify.ready_to_commit) {
-    addD357ActionLog("Auto verify failed: " + ((verify && (verify.reason || verify.error)) || "unknown"), "danger");
     alert("Execute สำเร็จแล้ว แต่ Auto Verify ยังไม่พร้อม Commit: " + ((verify && (verify.reason || verify.error)) || "unknown"));
     return {ok: false, stage: "verify", verify};
   }
@@ -3255,7 +3124,6 @@ async function d357AutoVerifyCommitAfterExecute() {
   const commit = await d357CommitPendingPose();
 
   if (!commit || !commit.ok || !commit.committed) {
-    addD357ActionLog("Auto commit failed: " + ((commit && (commit.reason || commit.error)) || "unknown"), "danger");
     alert("Verify ผ่านแล้ว แต่ Auto Commit ไม่สำเร็จ: " + ((commit && (commit.reason || commit.error)) || "unknown"));
     return {ok: false, stage: "commit", verify, commit};
   }
@@ -3267,7 +3135,6 @@ async function d357AutoVerifyCommitAfterExecute() {
     commit,
     warning: "No extra robot motion was sent after execute. Object pose state was verified and committed."
   });
-  addD357ActionLog("Auto verify + commit complete.", "ok");
 
   return {ok: true, verify, commit};
 }
@@ -3299,13 +3166,6 @@ async function runD357CalibratedWorldRigidLarge(forceDryRun) {
   };
 
   const requestKey = buildD357DryRunKeyFromPayload(payload);
-
-  addD357ActionLog(
-    (dryRun ? "Dry Run requested" : "Execute requested") +
-      " for " + payload.name +
-      " target_delta=" + JSON.stringify(payload.target_delta),
-    dryRun ? "info" : "danger"
-  );
 
   if (!dryRun) {
     if (!lastD357DryRunKey) {
@@ -3355,7 +3215,6 @@ async function runD357CalibratedWorldRigidLarge(forceDryRun) {
       lastD357DryRunSummary = describeD357Payload(payload);
       setD357ExecuteEnabled(true);
       setD357WorkflowState("DRY RUN PASSED", "Execute is unlocked while current values remain unchanged.", "ok");
-      addD357ActionLog("Dry Run passed. Execute unlocked.", "ok");
       if ($("d357Confirm")) {
         $("d357Confirm").value = "EXECUTE_LARGE_CALIBRATED_WORLD_RIGID";
       }
@@ -3375,7 +3234,6 @@ async function runD357CalibratedWorldRigidLarge(forceDryRun) {
   }
 
   if (!data.ok) {
-    addD357ActionLog("D35.7 request rejected: " + (data.reason || data.error || "unknown"), "danger");
     alert("D35.7 request was rejected: " + (data.reason || data.error || "unknown"));
     return;
   }
@@ -3518,25 +3376,9 @@ async function runSequence() {
     return `${i + 1}. ${s.name} [${s.side}] v=${s.vel} a=${s.acc} delay=${s.delay}s`;
   }).join("\n");
 
-  const loopMode = $("programLoopMode")?.value || "once";
-  let loopCount = 1;
-  let loopSummary = "Loop: Run once";
-
-  if (loopMode === "count") {
-    loopCount = Number($("programLoopCount")?.value || 1);
-    if (!Number.isInteger(loopCount) || loopCount < 1) {
-      alert("Loop count ต้องเป็นจำนวนเต็มอย่างน้อย 1");
-      return;
-    }
-    loopSummary = `Loop: ${loopCount} cycles`;
-  } else if (loopMode === "forever") {
-    loopSummary = "Loop: Forever";
-  }
-
   const ok = confirm(
     "Run program?\n\n" +
     summary + "\n\n" +
-    loopSummary + "\n\n" +
     "ตรวจสอบพื้นที่หุ่น และเตรียม E-stop ก่อนกด OK"
   );
 
@@ -3549,56 +3391,11 @@ async function runSequence() {
       side: "both",
       vel: parseFloat($("moveVel").value),
       acc: parseFloat($("moveAcc").value),
-      steps: sequence,
-      loop_mode: loopMode,
-      loop_count: loopCount
+      steps: sequence
     })
   });
 
   setStatus(data);
-  if (data.ok) {
-    updateProgramLoopProgress({
-      type: "program",
-      status: "running",
-      loop_mode: data.loop_mode,
-      loop_count: data.loop_count,
-      current_cycle: 1
-    });
-  }
-}
-
-
-function updateProgramLoopControls() {
-  const mode = $("programLoopMode")?.value || "once";
-  const group = $("programLoopCountGroup");
-  const input = $("programLoopCount");
-  const countEnabled = mode === "count";
-
-  if (group) group.style.display = countEnabled ? "flex" : "none";
-  if (input) input.disabled = !countEnabled;
-}
-
-
-function updateProgramLoopProgress(activeSequence) {
-  const el = $("programCycleProgress");
-  if (!el) return;
-
-  if (!activeSequence || activeSequence.type !== "program") {
-    el.textContent = "Cycle: -";
-    return;
-  }
-
-  const currentCycle = Number(activeSequence.current_cycle);
-  const currentText = Number.isFinite(currentCycle) ? currentCycle : "-";
-  const totalText = activeSequence.loop_mode === "forever"
-    ? "Forever"
-    : (activeSequence.loop_count ?? 1);
-  const terminalStatuses = ["done", "cancelled", "error", "exception"];
-  const statusSuffix = terminalStatuses.includes(activeSequence.status)
-    ? ` (${activeSequence.status})`
-    : "";
-
-  el.textContent = `Cycle: ${currentText} / ${totalText}${statusSuffix}`;
 }
 
 
@@ -3612,11 +3409,8 @@ function init() {
   setCoord("base");
   buildButtons();
   renderSequence();
-  updateProgramLoopControls();
-  updateProgramLoopProgress(null);
 
   loadWaypoints(true);
-  refreshProgramList();
   refreshStatus();
 
   setInterval(refreshPoseMonitor, 500);

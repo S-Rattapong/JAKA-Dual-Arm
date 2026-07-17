@@ -1,7 +1,7 @@
 {
-  "name": "demo_pick_place",
-  "file": "demo_pick_place.json",
-  "saved_at": "2026-07-13 16:58:05",
+  "name": "Pick_Place_Left2Right",
+  "file": "Pick_Place_Left2Right.json",
+  "saved_at": "2026-07-14 10:11:46",
   "steps": [
     {
       "name": "Pre_Grap",

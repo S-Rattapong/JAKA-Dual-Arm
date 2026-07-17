@@ -1,0 +1,168 @@
+{
+  "name": "Pick_Place_Left_Right",
+  "file": "Pick_Place_Left_Right.json",
+  "saved_at": "2026-07-14 11:21:29",
+  "steps": [
+    {
+      "name": "Pre_Grap1",
+      "side": "both",
+      "vel": 1.52,
+      "acc": 1.2,
+      "delay": 0.0
+    },
+    {
+      "name": "Pre_Grap2",
+      "side": "both",
+      "vel": 1.52,
+      "acc": 1.2,
+      "delay": 0.0
+    },
+    {
+      "name": "Pre_Grap3",
+      "side": "both",
+      "vel": 1.52,
+      "acc": 1.2,
+      "delay": 0.0
+    },
+    {
+      "name": "Pre_Grap4",
+      "side": "both",
+      "vel": 1.52,
+      "acc": 1.2,
+      "delay": 0.0
+    },
+    {
+      "name": "Pre_Lift",
+      "side": "both",
+      "vel": 1.52,
+      "acc": 1.2,
+      "delay": 0.5
+    },
+    {
+      "name": "Lift",
+      "side": "both",
+      "vel": 1.52,
+      "acc": 1.2,
+      "delay": 0.5
+    },
+    {
+      "name": "Move",
+      "side": "both",
+      "vel": 1.52,
+      "acc": 1.2,
+      "delay": 0.5
+    },
+    {
+      "name": "Pre_Place",
+      "side": "both",
+      "vel": 1.52,
+      "acc": 1.2,
+      "delay": 0.5
+    },
+    {
+      "name": "Place",
+      "side": "both",
+      "vel": 1.52,
+      "acc": 1.2,
+      "delay": 0.5
+    },
+    {
+      "name": "Leave1",
+      "side": "both",
+      "vel": 1.52,
+      "acc": 1.2,
+      "delay": 0.0
+    },
+    {
+      "name": "Leave2",
+      "side": "both",
+      "vel": 1.52,
+      "acc": 1.2,
+      "delay": 0.0
+    },
+    {
+      "name": "Leave3",
+      "side": "both",
+      "vel": 1.52,
+      "acc": 1.2,
+      "delay": 1.0
+    },
+    {
+      "name": "Leave2",
+      "side": "both",
+      "vel": 1.52,
+      "acc": 1.2,
+      "delay": 0.0
+    },
+    {
+      "name": "Leave1",
+      "side": "both",
+      "vel": 1.52,
+      "acc": 1.2,
+      "delay": 0.0
+    },
+    {
+      "name": "Place",
+      "side": "both",
+      "vel": 1.52,
+      "acc": 1.2,
+      "delay": 0.5
+    },
+    {
+      "name": "Pre_Place",
+      "side": "both",
+      "vel": 1.52,
+      "acc": 1.2,
+      "delay": 0.5
+    },
+    {
+      "name": "Move",
+      "side": "both",
+      "vel": 1.52,
+      "acc": 1.2,
+      "delay": 0.5
+    },
+    {
+      "name": "Lift",
+      "side": "both",
+      "vel": 1.52,
+      "acc": 1.2,
+      "delay": 0.5
+    },
+    {
+      "name": "Pre_Lift",
+      "side": "both",
+      "vel": 1.52,
+      "acc": 1.2,
+      "delay": 0.5
+    },
+    {
+      "name": "Pre_Grap4",
+      "side": "both",
+      "vel": 1.52,
+      "acc": 1.2,
+      "delay": 0.5
+    },
+    {
+      "name": "Pre_Grap3",
+      "side": "both",
+      "vel": 1.52,
+      "acc": 1.2,
+      "delay": 0.0
+    },
+    {
+      "name": "Pre_Grap2",
+      "side": "both",
+      "vel": 1.52,
+      "acc": 1.2,
+      "delay": 0.0
+    },
+    {
+      "name": "Pre_Grap1",
+      "side": "both",
+      "vel": 1.52,
+      "acc": 1.2,
+      "delay": 1.0
+    }
+  ]
+}
