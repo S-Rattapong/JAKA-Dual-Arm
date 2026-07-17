@@ -1,18 +1,39 @@
 #!/usr/bin/env bash
-set -e
-source /opt/ros/humble/setup.bash
-source ~/jaka_ws/install/setup.bash
+set -euo pipefail
 
-echo "Setting eno2 = 192.168.0.10/24"
-sudo ip addr flush dev eno2
-sudo ip addr add 192.168.0.10/24 dev eno2
-sudo ip link set eno2 up
+PROFILE="Profile 2"
+IFACE="eno2"
 
-echo "----- eno2 -----"
-ip addr show eno2 | grep "inet "
+HOST_IP="192.168.0.10"
+LEFT_IP="192.168.0.1"
+RIGHT_IP="192.168.0.2"
 
-echo "----- ping LEFT 192.168.0.1 -----"
-ping -I 192.168.0.10 -c 10 192.168.0.1
+echo "Activating NetworkManager profile: ${PROFILE}"
+sudo nmcli connection up "${PROFILE}"
 
-echo "----- ping RIGHT 192.168.0.2 -----"
-ping -I 192.168.0.10 -c 10 192.168.0.2
+echo
+echo "----- ${IFACE} IPv4 address -----"
+ip -4 addr show dev "${IFACE}" | grep "inet " || true
+
+if ! ip -4 addr show dev "${IFACE}" | grep -q "inet ${HOST_IP}/24"; then
+    echo "ERROR: ${IFACE} does not have ${HOST_IP}/24"
+    exit 1
+fi
+
+echo
+echo "----- route on ${IFACE} -----"
+ip route show dev "${IFACE}"
+
+echo
+echo "----- ping LEFT ${LEFT_IP} -----"
+ping -I "${HOST_IP}" -c 5 "${LEFT_IP}"
+
+echo
+echo "----- ping RIGHT ${RIGHT_IP} -----"
+ping -I "${HOST_IP}" -c 5 "${RIGHT_IP}"
+
+echo
+echo "Robot LAN is ready."
+echo "Host  : ${HOST_IP}"
+echo "Left  : ${LEFT_IP}"
+echo "Right : ${RIGHT_IP}"

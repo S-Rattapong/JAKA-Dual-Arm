@@ -1,0 +1,23 @@
+{
+  "status": "completed",
+  "experiment_directory": "/home/newtonrattapong/jaka_ws/dual_arm_app/experiment_logs/20260717_095943_pick_place_single_cycle_15hz",
+  "started_at": "2026-07-17T09:59:43+07:00",
+  "updated_at": "2026-07-17T10:00:47+07:00",
+  "duration_sec": 64.347802705,
+  "joint_sample_count": 1891,
+  "robot_state_sample_count": 1890,
+  "api_status_poll_error_count": 0,
+  "api_url": "http://127.0.0.1:8000",
+  "topics": {
+    "left_joint": "/left_jaka_driver/joint_position",
+    "right_joint": "/right_jaka_driver/joint_position",
+    "left_state": "/left_jaka_driver/robot_states",
+    "right_state": "/right_jaka_driver/robot_states"
+  },
+  "signal_limitations": {
+    "joint_velocity_available": false,
+    "joint_effort_available": false,
+    "force_torque_available": false,
+    "nominal_feedback_rate_hz": "approximately 8.5–8.8"
+  }
+}

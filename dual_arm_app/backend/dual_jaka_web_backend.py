@@ -1,4 +1,4 @@
-from typing import List, Optional
+from typing import List, Literal, Optional
 #!/usr/bin/env python3
 import json
 import math
@@ -15,7 +15,7 @@ from rclpy.node import Node
 from fastapi import FastAPI
 from fastapi.responses import FileResponse
 from fastapi.middleware.cors import CORSMiddleware
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 from std_srvs.srv import Empty
 from sensor_msgs.msg import JointState
@@ -87,6 +87,8 @@ class ProgramRunRequest(BaseModel):
     side: str = "both"
     vel: Optional[float] = None
     acc: Optional[float] = None
+    loop_mode: Literal["once", "count", "forever"] = "once"
+    loop_count: int = Field(default=1, ge=1)
 
 
 class ProgramSaveRequest(BaseModel):
@@ -6170,9 +6172,19 @@ class DualJakaWebNode(Node):
 
 
 
-    def run_program(self, steps, side="both", vel=None, acc=None):
+    def run_program(self, steps, side="both", vel=None, acc=None, loop_mode="once", loop_count=1):
         if not steps:
             return {"ok": False, "error": "program is empty"}
+
+        loop_mode = str(loop_mode or "once").lower().strip()
+        if loop_mode not in ("once", "count", "forever"):
+            return {"ok": False, "error": f"invalid loop mode: {loop_mode}"}
+
+        loop_count = int(loop_count if loop_count is not None else 1)
+        if loop_mode == "count" and loop_count < 1:
+            return {"ok": False, "error": "loop_count must be at least 1 for count mode"}
+        if loop_mode == "once":
+            loop_count = 1
 
         if self.active_sequence is not None and self.active_sequence.get("status") == "running":
             return {
@@ -6215,6 +6227,7 @@ class DualJakaWebNode(Node):
         self.sequence_cancel_requested = False
         self.motion_cancel_requested = False
         stop_generation_at_start = getattr(self, "stop_generation", 0)
+        status_loop_count = None if loop_mode == "forever" else loop_count
 
         self.active_sequence = {
             "type": "program",
@@ -6227,11 +6240,16 @@ class DualJakaWebNode(Node):
             "default_vel": vel,
             "default_acc": acc,
             "stop_generation": stop_generation_at_start,
+            "loop_mode": loop_mode,
+            "loop_count": status_loop_count,
+            "current_cycle": 1,
+            "completed_cycles": 0,
+            "total_steps": len(normalized_steps),
         }
 
         th = threading.Thread(
             target=self._program_thread,
-            args=(normalized_steps, stop_generation_at_start),
+            args=(normalized_steps, stop_generation_at_start, loop_mode, loop_count),
             daemon=True,
         )
         th.start()
@@ -6242,10 +6260,12 @@ class DualJakaWebNode(Node):
             "message": "program started",
             "steps": normalized_steps,
             "stop_generation": stop_generation_at_start,
+            "loop_mode": loop_mode,
+            "loop_count": status_loop_count,
         }
 
 
-    def _program_thread(self, steps, stop_generation_at_start=0):
+    def _program_thread(self, steps, stop_generation_at_start=0, loop_mode="once", loop_count=1):
         def should_cancel():
             if self.sequence_cancel_requested:
                 return True
@@ -6255,100 +6275,123 @@ class DualJakaWebNode(Node):
                 return True
             return False
 
+        def update_state(status, **fields):
+            if self.active_sequence is None:
+                self.active_sequence = {}
+            self.active_sequence["type"] = "program"
+            self.active_sequence["status"] = status
+            self.active_sequence.update(fields)
+
         try:
-            for i, step in enumerate(steps):
+            requested_cycles = None if loop_mode == "forever" else loop_count
+            completed_cycles = 0
+
+            while requested_cycles is None or completed_cycles < requested_cycles:
+                current_cycle = completed_cycles + 1
+                update_state("running", current_cycle=current_cycle)
+
+                for i, step in enumerate(steps):
+                    if should_cancel():
+                        update_state(
+                            "cancelled",
+                            cancelled_at_index=i,
+                            reason="cancel requested before step",
+                        )
+                        return
+
+                    name = step["name"]
+                    step_side = step.get("side", "both")
+                    step_vel = step.get("vel", None)
+                    step_acc = step.get("acc", None)
+                    step_delay = float(step.get("delay", 0.0) or 0.0)
+
+                    update_state(
+                        "running",
+                        current_index=i,
+                        current_name=name,
+                        current_step=step,
+                        progress=f"{i + 1}/{len(steps)}",
+                    )
+
+                    result = self.run_waypoint(
+                        name,
+                        side=step_side,
+                        vel=step_vel,
+                        acc=step_acc,
+                    )
+
+                    if should_cancel():
+                        update_state(
+                            "cancelled",
+                            cancelled_at_index=i,
+                            reason="cancel requested after waypoint command",
+                        )
+                        return
+
+                    if not result.get("ok", False):
+                        update_state(
+                            "error",
+                            failed_index=i,
+                            failed_name=name,
+                            result=result,
+                        )
+                        return
+
+                    done, msg = self.wait_motion_done(
+                        side=step_side,
+                        timeout=120.0,
+                        stop_generation_at_start=stop_generation_at_start,
+                    )
+
+                    if not done:
+                        update_state(
+                            "cancelled" if msg == "cancelled" else "error",
+                            failed_index=i,
+                            failed_name=name,
+                            reason=msg,
+                        )
+                        return
+
+                    if should_cancel():
+                        update_state(
+                            "cancelled",
+                            cancelled_at_index=i,
+                            reason="cancel requested after current motion",
+                        )
+                        return
+
+                    if step_delay > 0:
+                        update_state("delay", delay_sec=step_delay)
+
+                        delay_start = time.time()
+                        while time.time() - delay_start < step_delay:
+                            if should_cancel():
+                                update_state(
+                                    "cancelled",
+                                    cancelled_at_index=i,
+                                    reason="cancel requested during delay",
+                                )
+                                return
+                            time.sleep(0.05)
+
+                completed_cycles += 1
+                update_state("running", completed_cycles=completed_cycles)
+
+                if requested_cycles is not None and completed_cycles >= requested_cycles:
+                    break
+
                 if should_cancel():
-                    self.active_sequence = {
-                        "type": "program",
-                        "status": "cancelled",
-                        "cancelled_at_index": i,
-                        "steps": steps,
-                        "reason": "cancel requested before step",
-                    }
+                    update_state("cancelled", reason="cancel requested between cycles")
                     return
 
-                name = step["name"]
-                step_side = step.get("side", "both")
-                step_vel = step.get("vel", None)
-                step_acc = step.get("acc", None)
-                step_delay = float(step.get("delay", 0.0) or 0.0)
-
-                if self.active_sequence is not None:
-                    self.active_sequence["type"] = "program"
-                    self.active_sequence["status"] = "running"
-                    self.active_sequence["current_index"] = i
-                    self.active_sequence["current_name"] = name
-                    self.active_sequence["current_step"] = step
-                    self.active_sequence["progress"] = f"{i + 1}/{len(steps)}"
-
-                result = self.run_waypoint(
-                    name,
-                    side=step_side,
-                    vel=step_vel,
-                    acc=step_acc,
-                )
-
-                if not result.get("ok", False):
-                    self.active_sequence = {
-                        "type": "program",
-                        "status": "error",
-                        "failed_index": i,
-                        "failed_name": name,
-                        "steps": steps,
-                        "result": result,
-                    }
-                    return
-
-                done, msg = self.wait_motion_done(
-                    side=step_side,
-                    timeout=120.0,
-                    stop_generation_at_start=stop_generation_at_start,
-                )
-
-                if not done:
-                    self.active_sequence = {
-                        "type": "program",
-                        "status": "cancelled" if msg == "cancelled" else "error",
-                        "failed_index": i,
-                        "failed_name": name,
-                        "steps": steps,
-                        "reason": msg,
-                    }
-                    return
-
-                if step_delay > 0:
-                    if self.active_sequence is not None:
-                        self.active_sequence["status"] = "delay"
-                        self.active_sequence["delay_sec"] = step_delay
-
-                    delay_start = time.time()
-                    while time.time() - delay_start < step_delay:
-                        if should_cancel():
-                            self.active_sequence = {
-                                "type": "program",
-                                "status": "cancelled",
-                                "cancelled_at_index": i,
-                                "steps": steps,
-                                "reason": "cancel requested during delay",
-                            }
-                            return
-                        time.sleep(0.05)
-
-            self.active_sequence = {
-                "type": "program",
-                "status": "done",
-                "finished_at": time.strftime("%Y-%m-%d %H:%M:%S"),
-                "steps": steps,
-                "count": len(steps),
-            }
+            update_state(
+                "done",
+                finished_at=time.strftime("%Y-%m-%d %H:%M:%S"),
+                count=len(steps),
+            )
 
         except Exception as e:
-            self.active_sequence = {
-                "type": "program",
-                "status": "exception",
-                "error": str(e),
-                "steps": steps,
-            }
+            update_state("exception", error=str(e))
 
 
     def run_sequence(self, names, side="both", vel=None, acc=None):
@@ -7063,7 +7106,14 @@ def api_program_delete(req: ProgramNameRequest):
 
 @app.post("/api/program/run")
 def api_program_run(req: ProgramRunRequest):
-    return node.run_program(req.steps, req.side, req.vel, req.acc)
+    return node.run_program(
+        req.steps,
+        req.side,
+        req.vel,
+        req.acc,
+        req.loop_mode,
+        req.loop_count,
+    )
 
 @app.post("/api/sequence/stop")
 def api_sequence_stop(req: StopRequest):
