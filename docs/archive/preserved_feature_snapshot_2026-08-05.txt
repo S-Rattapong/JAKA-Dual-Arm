@@ -1,0 +1,190 @@
+JAKA Dual Arm selective-reset baseline snapshot
+Date: 2026-08-05
+Branch: rewrite/selective-scope-reset-v2
+Base commit: 303fd6c backup: legacy dual-arm implementation before scope reset
+Base tag: backup-v1-before-rewrite-2026-08-05
+Working tree before inventory: clean
+
+FASTAPI ROUTES (static source inspection)
+GET  /api/robot/activity
+GET  /
+GET  /api/status
+POST /api/jog/start
+POST /api/jog/heartbeat
+POST /api/jog/stop
+POST /api/stop
+POST /api/home
+GET  /api/waypoints
+POST /api/waypoint/save
+POST /api/waypoint/run
+POST /api/sequence/run
+POST /api/servo/enable
+POST /api/servo/tiny_test
+POST /api/object/servo_stream
+POST /api/object/sync_current_from_live
+POST /api/object/set_current_pose
+POST /api/object/execute_interpolated
+POST /api/object/execute_move
+POST /api/object/validate_motion
+POST /api/object/validate_ik_jump
+POST /api/object/preview_targets
+POST /api/object/preview_targets_rigid_compare
+POST /api/object/calibration/capture_point
+POST /api/object/calibration/compute_frame
+POST /api/object/calibration/status
+POST /api/object/preview_calibrated_axes
+POST /api/object/preview_calibrated_rigid_compare
+POST /api/world_calibration/capture_point
+POST /api/world_calibration/compute_transform
+POST /api/world_calibration/status
+POST /api/world_calibration/preview_live
+POST /api/object/preview_calibrated_rigid_compare_world
+POST /api/object/validate_calibrated_world_ik
+POST /api/object/execute_calibrated_world_rigid
+POST /api/object/execute_calibrated_world_rigid_large
+POST /api/object/pending_calibrated_execute_commit_status
+POST /api/object/verify_pending_calibrated_execute_commit
+POST /api/object/commit_pending_calibrated_execute_pose
+POST /api/object/recover_pending_calibrated_execute_commit
+GET  /api/object/list
+POST /api/object/capture_current
+POST /api/object/load
+POST /api/object/delete
+GET  /api/program/list
+POST /api/program/save
+POST /api/program/load
+POST /api/program/delete
+POST /api/program/run
+POST /api/sequence/stop
+POST /api/direct/joint_move
+POST /api/waypoint/delete
+POST /api/direct/tcp_move
+
+VISIBLE BUTTON LABELS (static HTML plus dynamic builders)
+Fill Current
+Confirm Joint Move
+STOP BOTH
+Fill Current TCP
+Confirm Safe TCP Move
+Left
+Right
+Both
+Joint
+Base TCP
+Tool TCP
+Home Both
+Refresh Status
+Save Current
+Reload List
+Save File
+Refresh List
+Load File
+Delete File
+Run Program
+Save Program
+Load Program
+Clear Sequence
+Run
+Add
+Delete
+Remove
+Enable Servo
+Disable Servo
+Tiny Servo Test
+Fill Object From TCP Midpoint
+Capture & Save Object Frame
+Validate Target
+Validate IK Jump
+Preview Cooperative Targets
+Execute Cooperative Move
+Reset Target To Captured Pose
+Reset Target To Stored Current Pose
+Sync Current From Live TCP
+Set Current Object Pose = Inputs
+Refresh Objects
+Execute Interpolated Move
+Execute Servo Smooth Move
+Load Object
+Delete Object
+Capture Origin
+Capture X Axis Point
+Capture Y Helper Point
+Compute Calibrated Object Frame
+Show Calibration Status
+Preview Calibrated Axes
+Capture Origin Left
+Capture Origin Right
+Capture X Axis Left
+Capture X Axis Right
+Capture Y Helper Left
+Capture Y Helper Right
+Compute World Transform
+Show World Calibration Status
+Preview Live World Transform
+Preview Calibrated Rigid With World Transform
+Validate Calibrated World IK
+Dry Run D35.6
+Execute D35.6
+Pending Commit Status
+Verify Pending Execute
+Commit Verified Object Pose
+Recover Pending Commit
+Copy Summary
+Clear
+Clear Log
+Zero Delta
+Return from +Z50 -> -Z50
+Return from -Z50 -> +Z50
+Return from Rx +0.2 -> Rx -0.2
+Return from Rx -0.2 -> Rx +0.2
+Return from Ry +0.2 -> Ry -0.2
+Return from Ry -0.2 -> Ry +0.2
+Return from Rz +0.3 -> Rz -0.3
+Return from Rz -0.3 -> Rz +0.3
++Z50
+-Z50
+Rx +0.2
+Rx -0.2
+Ry +0.2
+Ry -0.2
+Rz +0.3
+Rz -0.3
++Z20 +Rz0.1
+-Z20 -Rz0.1
++Z40 +Rz0.2
+-Z40 -Rz0.2
+1) Dry Run
+2) Execute Real Robots
+Pending Status
+Verify Pending
+Commit Pending
+
+PRESERVED BACKEND FUNCTIONS
+DualJakaWebNode.__init__
+status, robot_state_dict, get_fk_pose, safe_state_ok
+direct_joint_move, direct_tcp_move, move_both_joint, make_joint_move_request
+start_jog, heartbeat_jog, stop_jog, jog_loop, send_jog_once, make_jog_request
+stop_motion, request_stop_all, home
+load_waypoints, save_waypoints, save_waypoint, run_waypoint, delete_waypoint
+save_program_file, list_program_files, load_program_file, delete_program_file
+run_program, _program_thread, run_sequence, _sequence_thread
+load_config and basic request models used by preserved routes
+
+PERSISTENCE DIRECTORIES AND COUNTS
+dual_arm_app/tasks: 1 file (waypoints.json)
+dual_arm_app/programs: 3 program/sequence files
+dual_arm_app/objects: 2 files (preserved as user data, inactive after removal)
+
+DATA INTEGRITY BASELINE
+dual_arm_app/programs files=3 sha256=b72b8c3257e9e063a625391a9bd8dc499e9b94b2b3a16e81162f2e2fb9c89f6b
+dual_arm_app/tasks files=1 sha256=ba3f7d2d067c8acb17896eba590f81caf75e0e6a079be9ab5c232ee9aac1dee0
+dual_arm_app/objects files=2 sha256=78bd25bb7e4a663a8221c7bc38ebf7f56d6f2d32d7ebf360dbb79bc5e1d17a4e
+dual_arm_app/experiment_logs files=25 sha256=a052b6f890dc7960012c43384a9e60f9189aefc461961344a878a54c8309d6ef
+dual_arm_app/exports files=9 sha256=3e393e63c4df72888eb876b532919054a55d09443a2376da3c4a5ff9e3f501d9
+g4e_results files=1 sha256=0c4852580a9bd13959ac8005a37be1a74ab0bf87361b71232c3e50d5d43c1fde
+real_robot_configs files=5 sha256=409b2c123cbe0813667457560691f6098ef4e414b83acbb50150b3aa6ef55d3c
+src/jaka_ros2 files=1106 sha256=17e3d6bfd2c52353761ac77085d55962b98bf5774f58ee0db4bf36c2ad5619e9
+root TF Graph files=6 sha256=be2f2538cb3ba894b957c31e50c930344386f23d41fc951458695447647430d6
+Graph directory: absent
+Result directory: absent
+dual_arm_desktop_app directory: absent
