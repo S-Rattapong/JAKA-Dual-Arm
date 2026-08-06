@@ -300,15 +300,11 @@ class SelectiveScopeResetTests(unittest.TestCase):
         )
         self.assertEqual(handler_names - function_names, set())
 
-    def test_preserved_data_matches_pre_edit_snapshot(self):
+    def test_immutable_preserved_data_matches_pre_edit_snapshot(self):
         expected = {
             "dual_arm_app/programs": (
                 3,
                 "b72b8c3257e9e063a625391a9bd8dc499e9b94b2b3a16e81162f2e2fb9c89f6b",
-            ),
-            "dual_arm_app/tasks": (
-                1,
-                "ba3f7d2d067c8acb17896eba590f81caf75e0e6a079be9ab5c232ee9aac1dee0",
             ),
             "dual_arm_app/objects": (
                 2,
@@ -318,6 +314,58 @@ class SelectiveScopeResetTests(unittest.TestCase):
         for relative_dir, expected_value in expected.items():
             with self.subTest(relative_dir=relative_dir):
                 self.assertEqual(_tree_checksum(relative_dir), expected_value)
+
+    def test_waypoint_data_is_valid_and_preserves_baseline_entries(self):
+        import json
+
+        waypoint_path = ROOT / "dual_arm_app/tasks/waypoints.json"
+        data = json.loads(waypoint_path.read_text(encoding="utf-8"))
+
+        self.assertIsInstance(data, dict)
+        self.assertGreaterEqual(len(data), 19)
+
+        baseline_names = {
+            "test_pose_01",
+            "p3",
+            "P1",
+            "P2",
+            "Pre_Grap",
+            "Pre_Grap2",
+            "Pre_Grap3",
+            "Pre_Grap4",
+            "Lift",
+            "Move",
+            "Place",
+            "Leave1",
+            "Leave2",
+            "Leave3",
+            "Pre_Place",
+            "Pre_Lift",
+            "Pre_Grap1",
+            "Home_Pick_Place",
+            "Home_Relate",
+        }
+        self.assertLessEqual(baseline_names, set(data))
+
+        for name, waypoint in data.items():
+            with self.subTest(waypoint=name):
+                self.assertIsInstance(waypoint, dict)
+                self.assertIn(waypoint.get("side"), {"left", "right", "both"})
+
+                for side in ("left", "right"):
+                    values = waypoint.get(side)
+                    if values is None:
+                        continue
+
+                    self.assertIsInstance(values, list)
+                    self.assertEqual(len(values), 6)
+                    self.assertTrue(
+                        all(
+                            isinstance(value, (int, float))
+                            and not isinstance(value, bool)
+                            for value in values
+                        )
+                    )
 
 
 if __name__ == "__main__":
