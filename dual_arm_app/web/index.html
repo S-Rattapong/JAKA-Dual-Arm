@@ -328,6 +328,34 @@
       font-weight: 700;
     }
 
+    .digital-twin-mirror-panel {
+      margin-top: 12px;
+      padding: 12px;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      background: var(--panel2);
+    }
+
+    .digital-twin-readout {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(170px, 1fr));
+      gap: 8px;
+    }
+
+    .digital-twin-readout span {
+      color: var(--muted);
+      font-size: 13px;
+      overflow-wrap: anywhere;
+    }
+
+    .digital-twin-readout strong {
+      color: var(--text);
+    }
+
+    #digitalTwinMirrorError:not(:empty) {
+      color: #fca5a5;
+    }
+
     @media (max-width: 1200px) {
       .top-grid,
       .two-grid,
@@ -351,6 +379,10 @@
 
       .digital-twin-meta {
         grid-template-columns: 1fr 1fr;
+      }
+
+      .digital-twin-readout {
+        grid-template-columns: 1fr;
       }
     }
   </style>
@@ -541,6 +573,29 @@
       <span>Model: Dual JAKA A12</span>
       <span>Feedback: NOT CONNECTED</span>
       <span>Commands: DISABLED</span>
+    </div>
+
+    <div class="digital-twin-mirror-panel" aria-label="Offline mirror controls">
+      <h3>Offline Live Mirror</h3>
+      <div class="digital-twin-readout" aria-label="Mirror read-only state">
+        <span>Mirror Mode: <strong id="digitalTwinMirrorMode">STATIC</strong></span>
+        <span>Mirror Enabled: <strong id="digitalTwinMirrorEnabled">false</strong></span>
+        <span>Joint Unit: <strong id="digitalTwinJointUnit">radians</strong></span>
+        <span>Update Source: <strong id="digitalTwinUpdateSource">NONE</strong></span>
+        <span>Last Snapshot: <strong id="digitalTwinLastSnapshot">NEVER</strong></span>
+        <span>Last Applied: <strong id="digitalTwinLastApplied">NEVER</strong></span>
+        <span>Validation Error: <strong id="digitalTwinMirrorError">NONE</strong></span>
+      </div>
+      <div class="row" aria-label="Offline mirror development controls">
+        <button id="digitalTwinEnableMirror" type="button">Enable Mirror</button>
+        <button id="digitalTwinDisableMirror" type="button">Disable Mirror</button>
+        <button id="digitalTwinResetStaticPose" type="button">Reset Static Pose</button>
+        <button id="digitalTwinMockPoseA" type="button">Load Mock Pose A — OFFLINE MOCK</button>
+        <button id="digitalTwinMockPoseB" type="button">Load Mock Pose B — OFFLINE MOCK</button>
+      </div>
+      <div class="small">
+        Development-only local snapshots. No backend polling or robot command is used.
+      </div>
     </div>
     <div class="digital-twin-warning">
       Static preview only — no robot feedback and no execution commands.

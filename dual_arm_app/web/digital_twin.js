@@ -1,12 +1,17 @@
-// Phase 1B pinned browser dependencies:
+// Phase 1B/1C.1 pinned browser dependencies:
 // Three.js 0.160.0 and urdf-loader 0.12.5 (resolved by index.html import map).
 import * as THREE from "three";
 import { OrbitControls } from "three/addons/controls/OrbitControls.js";
 import URDFLoader from "urdf-loader";
+import {
+  DEFAULT_STALE_TIMEOUT_MS,
+  isNormalizedSnapshotStale,
+  normalizeDualArmStatusSnapshot,
+} from "./digital_twin_status_adapter.js";
 
 const MODEL_URL = "/digital-twin/assets/dual_jaka_a12_web.urdf";
 const LOAD_TIMEOUT_MS = 20000;
-const INITIALIZATION_FLAG = "__dualArmDigitalTwinPhase1BInitialized";
+const INITIALIZATION_FLAG = "__dualArmDigitalTwinInitialized";
 const EXPECTED_JOINTS = [
   "left_joint_1",
   "left_joint_2",
@@ -27,6 +32,40 @@ const loadState = {
   loadedMovableJoints: 0,
   loadedVisuals: 0,
   error: null,
+};
+
+const MIRROR_MODES = Object.freeze({
+  STATIC: "STATIC",
+  MIRROR_READY: "MIRROR_READY",
+  LIVE_MIRROR: "LIVE_MIRROR",
+  STALE: "STALE",
+  INVALID: "INVALID",
+});
+
+const ZERO_JOINT_VALUES = Object.freeze({
+  left: Object.freeze([0, 0, 0, 0, 0, 0]),
+  right: Object.freeze([0, 0, 0, 0, 0, 0]),
+});
+
+const MOCK_POSE_A = Object.freeze({
+  left: Object.freeze({ joint: Object.freeze([0, 0, 0, 0, 0, 0]) }),
+  right: Object.freeze({ joint: Object.freeze([0, 0, 0, 0, 0, 0]) }),
+});
+
+const MOCK_POSE_B = Object.freeze({
+  left: Object.freeze({ joint: Object.freeze([0.20, -0.35, 0.25, 0.15, -0.20, 0.10]) }),
+  right: Object.freeze({ joint: Object.freeze([-0.20, 0.35, -0.25, -0.15, 0.20, -0.10]) }),
+});
+
+const mirrorState = {
+  mode: MIRROR_MODES.STATIC,
+  enabled: false,
+  staleTimeoutMs: DEFAULT_STALE_TIMEOUT_MS,
+  latestValidSnapshot: null,
+  lastAcceptedSnapshotMs: null,
+  lastAppliedSnapshotMs: null,
+  validationError: null,
+  updateSource: "NONE",
 };
 
 let container = null;
@@ -162,6 +201,172 @@ function getLoadState() {
   return { ...loadState };
 }
 
+function formatMirrorTimestamp(timestampMs) {
+  if (typeof timestampMs !== "number" || !Number.isFinite(timestampMs)) {
+    return "NEVER";
+  }
+  const date = new Date(timestampMs);
+  return Number.isFinite(date.getTime()) ? date.toISOString() : "INVALID TIMESTAMP";
+}
+
+function updateMirrorUi() {
+  const values = {
+    digitalTwinMirrorMode: mirrorState.mode,
+    digitalTwinLastSnapshot: formatMirrorTimestamp(
+      mirrorState.lastAcceptedSnapshotMs,
+    ),
+    digitalTwinLastApplied: formatMirrorTimestamp(
+      mirrorState.lastAppliedSnapshotMs,
+    ),
+    digitalTwinMirrorEnabled: String(mirrorState.enabled),
+    digitalTwinUpdateSource: mirrorState.updateSource,
+    digitalTwinMirrorError: mirrorState.validationError || "NONE",
+  };
+  Object.entries(values).forEach(([id, value]) => {
+    const element = document.getElementById(id);
+    if (element) element.textContent = value;
+  });
+}
+
+function mirrorStateSnapshot() {
+  return {
+    mode: mirrorState.mode,
+    enabled: mirrorState.enabled,
+    staleTimeoutMs: mirrorState.staleTimeoutMs,
+    hasValidSnapshot: mirrorState.latestValidSnapshot !== null,
+    lastAcceptedSnapshotMs: mirrorState.lastAcceptedSnapshotMs,
+    lastAppliedSnapshotMs: mirrorState.lastAppliedSnapshotMs,
+    validationError: mirrorState.validationError,
+    updateSource: mirrorState.updateSource,
+  };
+}
+
+function updateMirrorStaleness(
+  nowMs = Date.now(),
+  staleTimeoutMs = mirrorState.staleTimeoutMs,
+) {
+  if (
+    !mirrorState.enabled ||
+    !mirrorState.latestValidSnapshot ||
+    mirrorState.mode === MIRROR_MODES.INVALID
+  ) {
+    return false;
+  }
+
+  const stale = isNormalizedSnapshotStale(
+    mirrorState.latestValidSnapshot,
+    nowMs,
+    staleTimeoutMs,
+  );
+  if (stale) {
+    mirrorState.mode = MIRROR_MODES.STALE;
+    updateMirrorUi();
+  }
+  return stale;
+}
+
+function applyLatestMirrorSnapshotIfPossible(nowMs = Date.now()) {
+  if (!mirrorState.enabled) return false;
+  if (!mirrorState.latestValidSnapshot) {
+    mirrorState.mode = MIRROR_MODES.MIRROR_READY;
+    updateMirrorUi();
+    return false;
+  }
+  if (updateMirrorStaleness(nowMs)) return false;
+  if (loadState.status !== "READY" || !robot) {
+    mirrorState.mode = MIRROR_MODES.MIRROR_READY;
+    updateMirrorUi();
+    return false;
+  }
+
+  setJointValues({
+    left: mirrorState.latestValidSnapshot.left,
+    right: mirrorState.latestValidSnapshot.right,
+  });
+  mirrorState.mode = MIRROR_MODES.LIVE_MIRROR;
+  mirrorState.lastAppliedSnapshotMs = nowMs;
+  mirrorState.validationError = null;
+  updateMirrorUi();
+  return true;
+}
+
+function ingestStatusSnapshot(snapshot, receivedAtMs = Date.now()) {
+  let normalized;
+  try {
+    normalized = normalizeDualArmStatusSnapshot(snapshot, receivedAtMs);
+  } catch (error) {
+    mirrorState.mode = MIRROR_MODES.INVALID;
+    mirrorState.validationError = error && error.message
+      ? error.message
+      : "Invalid status snapshot";
+    updateMirrorUi();
+    return mirrorStateSnapshot();
+  }
+
+  mirrorState.latestValidSnapshot = normalized;
+  mirrorState.lastAcceptedSnapshotMs = normalized.receivedAtMs;
+  mirrorState.validationError = null;
+  mirrorState.updateSource = "LOCAL STATUS SNAPSHOT";
+
+  if (!mirrorState.enabled) {
+    mirrorState.mode = MIRROR_MODES.STATIC;
+    updateMirrorUi();
+    return mirrorStateSnapshot();
+  }
+
+  applyLatestMirrorSnapshotIfPossible(Date.now());
+  return mirrorStateSnapshot();
+}
+
+function setMirrorEnabled(enabled) {
+  if (typeof enabled !== "boolean") {
+    mirrorState.mode = MIRROR_MODES.INVALID;
+    mirrorState.validationError = "Mirror enabled state must be boolean";
+    updateMirrorUi();
+    return mirrorStateSnapshot();
+  }
+
+  mirrorState.enabled = enabled;
+  if (!enabled) {
+    mirrorState.mode = MIRROR_MODES.STATIC;
+    updateMirrorUi();
+    return mirrorStateSnapshot();
+  }
+
+  mirrorState.validationError = null;
+  if (!mirrorState.latestValidSnapshot) {
+    mirrorState.mode = MIRROR_MODES.MIRROR_READY;
+    updateMirrorUi();
+  } else {
+    applyLatestMirrorSnapshotIfPossible(Date.now());
+  }
+  return mirrorStateSnapshot();
+}
+
+function getMirrorState(
+  nowMs = Date.now(),
+  staleTimeoutMs = mirrorState.staleTimeoutMs,
+) {
+  updateMirrorStaleness(nowMs, staleTimeoutMs);
+  return mirrorStateSnapshot();
+}
+
+function resetToStaticPose() {
+  if (loadState.status === "READY" && robot) {
+    setJointValues({
+      left: [...ZERO_JOINT_VALUES.left],
+      right: [...ZERO_JOINT_VALUES.right],
+    });
+  }
+  mirrorState.enabled = false;
+  mirrorState.mode = MIRROR_MODES.STATIC;
+  mirrorState.lastAppliedSnapshotMs = null;
+  mirrorState.validationError = null;
+  mirrorState.updateSource = "STATIC RESET";
+  updateMirrorUi();
+  return mirrorStateSnapshot();
+}
+
 const publicApi = {
   resetCamera,
   fitModel: () => fitModel(false),
@@ -169,6 +374,10 @@ const publicApi = {
   toggleAxes,
   setJointValues,
   getLoadState,
+  ingestStatusSnapshot,
+  setMirrorEnabled,
+  getMirrorState,
+  resetToStaticPose,
 };
 
 function handleResize() {
@@ -188,6 +397,34 @@ function bindControls() {
     digitalTwinFitModel: () => fitModel(false),
     digitalTwinToggleGrid: toggleGrid,
     digitalTwinToggleAxes: toggleAxes,
+  };
+  Object.entries(bindings).forEach(([id, handler]) => {
+    const element = document.getElementById(id);
+    if (element) element.addEventListener("click", handler);
+  });
+}
+
+function ingestOfflineMockPose(snapshot, label) {
+  const state = ingestStatusSnapshot(snapshot, Date.now());
+  if (state.mode !== MIRROR_MODES.INVALID) {
+    mirrorState.updateSource = label;
+    updateMirrorUi();
+  }
+}
+
+function bindMirrorControls() {
+  const bindings = {
+    digitalTwinEnableMirror: () => setMirrorEnabled(true),
+    digitalTwinDisableMirror: () => setMirrorEnabled(false),
+    digitalTwinResetStaticPose: resetToStaticPose,
+    digitalTwinMockPoseA: () => ingestOfflineMockPose(
+      MOCK_POSE_A,
+      "OFFLINE MOCK A",
+    ),
+    digitalTwinMockPoseB: () => ingestOfflineMockPose(
+      MOCK_POSE_B,
+      "OFFLINE MOCK B",
+    ),
   };
   Object.entries(bindings).forEach(([id, handler]) => {
     const element = document.getElementById(id);
@@ -260,6 +497,7 @@ function loadRobot() {
       ` — ${visualCount} VISUALS`,
       "ready",
     );
+    applyLatestMirrorSnapshotIfPossible(Date.now());
   }
 
   manager.onProgress = (_url, loaded = 0, total = 0) => {
@@ -362,6 +600,11 @@ function initialize() {
   scene.add(axes);
 
   bindControls();
+  bindMirrorControls();
+  updateMirrorUi();
+  window.setInterval(() => {
+    updateMirrorStaleness(Date.now());
+  }, 250);
   window.addEventListener("resize", handleResize);
   if (typeof ResizeObserver !== "undefined") {
     new ResizeObserver(handleResize).observe(container);
