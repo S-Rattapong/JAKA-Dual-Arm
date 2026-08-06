@@ -352,8 +352,15 @@
       color: var(--text);
     }
 
-    #digitalTwinMirrorError:not(:empty) {
+    #digitalTwinMirrorError:not(:empty),
+    #digitalTwinLastFetchError:not(:empty) {
       color: #fca5a5;
+    }
+
+    .digital-twin-live-source {
+      margin-top: 12px;
+      padding-top: 12px;
+      border-top: 1px solid var(--line);
     }
 
     @media (max-width: 1200px) {
@@ -575,8 +582,8 @@
       <span>Commands: DISABLED</span>
     </div>
 
-    <div class="digital-twin-mirror-panel" aria-label="Offline mirror controls">
-      <h3>Offline Live Mirror</h3>
+    <div class="digital-twin-mirror-panel" aria-label="Digital Twin mirror controls">
+      <h3>Digital Twin Live Mirror</h3>
       <div class="digital-twin-readout" aria-label="Mirror read-only state">
         <span>Mirror Mode: <strong id="digitalTwinMirrorMode">STATIC</strong></span>
         <span>Mirror Enabled: <strong id="digitalTwinMirrorEnabled">false</strong></span>
@@ -596,9 +603,25 @@
       <div class="small">
         Development-only local snapshots. No backend polling or robot command is used.
       </div>
+      <div class="digital-twin-live-source" aria-label="Read-only live feedback source">
+        <h3>Joint Feedback Source — READ ONLY</h3>
+        <div class="digital-twin-readout" aria-label="Live source read-only state">
+          <span>Live Source State: <strong id="digitalTwinLiveSourceState">STOPPED</strong></span>
+          <span>Poll Interval: <strong id="digitalTwinPollInterval">500 ms</strong></span>
+          <span>Last Fetch: <strong id="digitalTwinLastFetch">NEVER</strong></span>
+          <span>Last Fetch Error: <strong id="digitalTwinLastFetchError">NONE</strong></span>
+        </div>
+        <div class="row" aria-label="Read-only live feedback controls">
+          <button id="digitalTwinStartLiveFeedback" type="button">Start Live Feedback — READ ONLY</button>
+          <button id="digitalTwinStopLiveFeedback" type="button">Stop Live Feedback</button>
+        </div>
+        <div class="small">
+          Reads cached joint feedback only. Stopping preserves the current model pose.
+        </div>
+      </div>
     </div>
     <div class="digital-twin-warning">
-      Static preview only — no robot feedback and no execution commands.
+      Visualization only — live feedback is read-only and sends no execution commands.
     </div>
   </section>
 
@@ -1847,6 +1870,7 @@ init();
 
 
 <script type="module" src="/web-assets/digital_twin.js"></script>
+<script type="module" src="/web-assets/digital_twin_live_source.js"></script>
 
 </body>
 </html>

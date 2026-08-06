@@ -22,6 +22,29 @@ from sensor_msgs.msg import JointState
 from jaka_msgs.msg import RobotMsg
 from jaka_msgs.srv import Move, GetFK, GetIK
 
+try:
+    from dual_arm_app.backend.joint_feedback import (
+        build_digital_twin_joint_status,
+        expected_joint_name_aliases,
+        normalize_joint_state_message,
+        wall_clock_ms,
+    )
+except ImportError:
+    try:
+        from .joint_feedback import (
+            build_digital_twin_joint_status,
+            expected_joint_name_aliases,
+            normalize_joint_state_message,
+            wall_clock_ms,
+        )
+    except ImportError:
+        from joint_feedback import (
+            build_digital_twin_joint_status,
+            expected_joint_name_aliases,
+            normalize_joint_state_message,
+            wall_clock_ms,
+        )
+
 
 COORD_MODE = {
     "joint": 0,
@@ -122,6 +145,24 @@ class DualJakaWebNode(Node):
         self.left_state = None
         self.right_state = None
 
+        # Read-only Digital Twin feedback is kept separate from other robot
+        # state so the endpoint never needs FK, services, or publishers.
+        self.digital_twin_joint_cache_lock = threading.Lock()
+        self.digital_twin_expected_joint_names = {
+            side: expected_joint_name_aliases(side)
+            for side in ("left", "right")
+        }
+        self.digital_twin_joint_cache = {
+            side: {
+                "joint": None,
+                "received_at_ms": None,
+                "mapping": None,
+                "error": "No valid JointState received",
+                "names": [],
+            }
+            for side in ("left", "right")
+        }
+
         self.active_jog: Optional[Dict[str, Any]] = None
         self.active_sequence: Optional[Dict[str, Any]] = None
         self.sequence_cancel_requested = False
@@ -158,10 +199,31 @@ class DualJakaWebNode(Node):
         self.jog_thread.start()
 
     def left_joint_cb(self, msg):
-        self.left_joint = list(msg.position)[:6]
+        self._update_digital_twin_joint_cache("left", msg)
 
     def right_joint_cb(self, msg):
-        self.right_joint = list(msg.position)[:6]
+        self._update_digital_twin_joint_cache("right", msg)
+
+    def _update_digital_twin_joint_cache(self, side, msg):
+        received_at_ms = wall_clock_ms()
+        result = normalize_joint_state_message(
+            getattr(msg, "name", []),
+            getattr(msg, "position", None),
+            self.digital_twin_expected_joint_names[side],
+        )
+        with self.digital_twin_joint_cache_lock:
+            cache = self.digital_twin_joint_cache[side]
+            cache["names"] = list(result["names"])
+            cache["error"] = result["error"]
+            if result["valid"]:
+                normalized_joint = list(result["joint"])
+                cache["joint"] = normalized_joint
+                cache["received_at_ms"] = received_at_ms
+                cache["mapping"] = result["mapping"]
+                if side == "left":
+                    self.left_joint = list(normalized_joint)
+                else:
+                    self.right_joint = list(normalized_joint)
 
     def left_state_cb(self, msg):
         self.left_state = msg
@@ -240,6 +302,25 @@ class DualJakaWebNode(Node):
             "active_sequence": to_builtin(self.active_sequence),
             "waypoints": to_builtin(self.load_waypoints()),
         }
+
+    def digital_twin_joint_status(self):
+        """Return only cached joint feedback; never invoke robot operations."""
+        with self.digital_twin_joint_cache_lock:
+            cache_snapshot = {
+                side: {
+                    "joint": (
+                        list(values["joint"])
+                        if values["joint"] is not None
+                        else None
+                    ),
+                    "received_at_ms": values["received_at_ms"],
+                    "mapping": values["mapping"],
+                    "error": values["error"],
+                    "names": list(values["names"]),
+                }
+                for side, values in self.digital_twin_joint_cache.items()
+            }
+        return build_digital_twin_joint_status(cache_snapshot)
 
     def safe_state_ok(self, side):
         selected = []
@@ -1926,6 +2007,11 @@ def index():
 @app.get("/api/status")
 def api_status():
     return node.status()
+
+
+@app.get("/api/digital-twin/joints")
+def api_digital_twin_joints():
+    return node.digital_twin_joint_status()
 
 
 @app.post("/api/jog/start")
