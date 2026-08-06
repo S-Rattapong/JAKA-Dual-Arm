@@ -212,6 +212,9 @@ class FrontendLiveSourceTests(unittest.TestCase):
             "Last Fetch Error",
             "Load Mock Pose A — OFFLINE MOCK",
             "Load Mock Pose B — OFFLINE MOCK",
+            'id="digitalTwinOperatingMode"',
+            'id="digitalTwinFeedbackState"',
+            "Offline Mock buttons inject local test snapshots only",
         ):
             with self.subTest(label=label):
                 self.assertIn(label, self.html)
@@ -230,6 +233,8 @@ let fetchCalls = [];
 let fetchImplementation;
 let mirrorEnableCalls = [];
 let ingested = [];
+let resetCalls = 0;
+const uiText = {};
 
 globalThis.AbortController = class AbortController {
   constructor() {
@@ -247,7 +252,15 @@ globalThis.AbortController = class AbortController {
     };
   }
 };
-globalThis.document = { getElementById() { return null; } };
+globalThis.document = {
+  getElementById(id) {
+    return {
+      addEventListener() {},
+      set textContent(value) { uiText[id] = value; },
+      get textContent() { return uiText[id]; },
+    };
+  },
+};
 globalThis.window = {
   setTimeout(callback, delay) {
     const id = nextTimerId++;
@@ -260,7 +273,10 @@ globalThis.window = {
   },
   dualArmDigitalTwin: {
     setMirrorEnabled(value) { mirrorEnableCalls.push(value); },
-    ingestStatusSnapshot(snapshot, timestamp) { ingested.push({ snapshot, timestamp }); },
+    ingestStatusSnapshot(snapshot, timestamp, sourceLabel) {
+      ingested.push({ snapshot, timestamp, sourceLabel });
+    },
+    resetToStaticPose() { resetCalls += 1; },
   },
 };
 globalThis.fetch = (url, options) => {
@@ -271,6 +287,10 @@ globalThis.fetch = (url, options) => {
 const live = await import("./live_source.mjs");
 const initial = live.getLiveFeedbackState();
 const initialFetchCount = fetchCalls.length;
+const initialHeader = {
+  mode: uiText.digitalTwinOperatingMode,
+  feedback: uiText.digitalTwinFeedbackState,
+};
 const validPayload = {
   ok: true,
   left: { valid: true, joint: [1,2,3,4,5,6], received_at_ms: 900 },
@@ -293,13 +313,31 @@ fetchImplementation = (_url, _options) => new Promise((resolve) => { resolveStar
 const fetchCountBeforeStart = fetchCalls.length;
 live.startLiveFeedback();
 live.startLiveFeedback();
+const runningHeader = {
+  mode: uiText.digitalTwinOperatingMode,
+  feedback: uiText.digitalTwinFeedbackState,
+};
 const fetchesFromDoubleStart = fetchCalls.length - fetchCountBeforeStart;
 resolveStartFetch({ ok: true, status: 200, json: async () => validPayload });
 await live.pollLiveFeedbackOnce();
 await Promise.resolve();
 const pollTimersAfterStart = [...timers.values()].filter(timer => timer.delay === 500).length;
+fetchImplementation = async () => ({
+  ok: true,
+  status: 200,
+  json: async () => ({ ...validPayload, left: { valid: false } }),
+});
+await live.pollLiveFeedbackOnce();
+const errorHeader = {
+  mode: uiText.digitalTwinOperatingMode,
+  feedback: uiText.digitalTwinFeedbackState,
+};
 live.stopLiveFeedback();
 const timersAfterStop = timers.size;
+const stoppedHeader = {
+  mode: uiText.digitalTwinOperatingMode,
+  feedback: uiText.digitalTwinFeedbackState,
+};
 
 let abortObserved = false;
 fetchImplementation = (_url, options) => new Promise((_resolve, reject) => {
@@ -318,14 +356,19 @@ await inFlight;
 console.log(JSON.stringify({
   initial,
   initialFetchCount,
+  initialHeader,
   firstFetch: fetchCalls[0],
   validIngest,
   ingestedAfterInvalid,
   fetchesFromDoubleStart,
   mirrorEnableCalls,
+  runningHeader,
+  errorHeader,
+  stoppedHeader,
   pollTimersAfterStart,
   timersAfterStop,
   abortObserved,
+  resetCalls,
   finalState: live.getLiveFeedbackState(),
 }));
 })().catch((error) => {
@@ -351,19 +394,37 @@ console.log(JSON.stringify({
         self.assertEqual(output["initial"]["status"], "STOPPED")
         self.assertEqual(output["initial"]["pollIntervalMs"], 500)
         self.assertEqual(output["initialFetchCount"], 0)
+        self.assertEqual(output["initialHeader"], {
+            "mode": "STATIC / LAST POSE",
+            "feedback": "NOT CONNECTED",
+        })
         self.assertEqual(output["firstFetch"], {
             "url": "/api/digital-twin/joints",
             "method": "GET",
             "cache": "no-store",
         })
         self.assertEqual(output["validIngest"]["timestamp"], 900)
+        self.assertEqual(output["validIngest"]["sourceLabel"], "LIVE JOINT FEEDBACK")
         self.assertEqual(len(output["validIngest"]["snapshot"]["left"]["joint"]), 6)
         self.assertEqual(output["ingestedAfterInvalid"], 1)
         self.assertEqual(output["fetchesFromDoubleStart"], 1)
         self.assertEqual(output["mirrorEnableCalls"], [True, True])
+        self.assertEqual(output["runningHeader"], {
+            "mode": "LIVE MIRROR",
+            "feedback": "CONNECTED — READ ONLY",
+        })
+        self.assertEqual(output["errorHeader"], {
+            "mode": "LIVE MIRROR ERROR",
+            "feedback": "ERROR — READ ONLY",
+        })
+        self.assertEqual(output["stoppedHeader"], {
+            "mode": "STATIC / LAST POSE",
+            "feedback": "NOT CONNECTED",
+        })
         self.assertEqual(output["pollTimersAfterStart"], 1)
         self.assertEqual(output["timersAfterStop"], 0)
         self.assertTrue(output["abortObserved"])
+        self.assertEqual(output["resetCalls"], 0)
         self.assertFalse(output["finalState"]["running"])
         self.assertEqual(output["finalState"]["status"], "STOPPED")
 

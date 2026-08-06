@@ -290,7 +290,11 @@ function applyLatestMirrorSnapshotIfPossible(nowMs = Date.now()) {
   return true;
 }
 
-function ingestStatusSnapshot(snapshot, receivedAtMs = Date.now()) {
+function ingestStatusSnapshot(
+  snapshot,
+  receivedAtMs = Date.now(),
+  sourceLabel = "LOCAL STATUS SNAPSHOT",
+) {
   let normalized;
   try {
     normalized = normalizeDualArmStatusSnapshot(snapshot, receivedAtMs);
@@ -306,7 +310,11 @@ function ingestStatusSnapshot(snapshot, receivedAtMs = Date.now()) {
   mirrorState.latestValidSnapshot = normalized;
   mirrorState.lastAcceptedSnapshotMs = normalized.receivedAtMs;
   mirrorState.validationError = null;
-  mirrorState.updateSource = "LOCAL STATUS SNAPSHOT";
+  mirrorState.updateSource = (
+    typeof sourceLabel === "string" && sourceLabel.trim().length > 0
+  )
+    ? sourceLabel.trim()
+    : "LOCAL STATUS SNAPSHOT";
 
   if (!mirrorState.enabled) {
     mirrorState.mode = MIRROR_MODES.STATIC;
@@ -405,11 +413,7 @@ function bindControls() {
 }
 
 function ingestOfflineMockPose(snapshot, label) {
-  const state = ingestStatusSnapshot(snapshot, Date.now());
-  if (state.mode !== MIRROR_MODES.INVALID) {
-    mirrorState.updateSource = label;
-    updateMirrorUi();
-  }
+  ingestStatusSnapshot(snapshot, Date.now(), label);
 }
 
 function bindMirrorControls() {

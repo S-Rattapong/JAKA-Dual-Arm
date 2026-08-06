@@ -128,7 +128,7 @@ const initial = getMirrorState(1000);
 const enabledWithoutSnapshot = setMirrorEnabled(true);
 const now = Date.now();
 const pose = MOCK_POSE_B;
-const live = ingestStatusSnapshot(pose, now);
+const live = ingestStatusSnapshot(pose, now, "CUSTOM SOURCE");
 const appliedAfterValid = applied.length;
 const appliedValues = applied.slice();
 const stale = getMirrorState(now + 1501);
@@ -136,6 +136,8 @@ const invalid = ingestStatusSnapshot({{ left: {{ joint: [0] }}, right: {{ joint:
 const appliedAfterInvalid = applied.length;
 const reset = resetToStaticPose();
 const resetValues = applied.slice(-12).map(entry => entry[1]);
+const defaultSource = ingestStatusSnapshot(pose, now + 3);
+const fallbackSource = ingestStatusSnapshot(pose, now + 4, "   ");
 
 console.log(JSON.stringify({{
   initial,
@@ -144,6 +146,8 @@ console.log(JSON.stringify({{
   stale,
   invalid,
   reset,
+  defaultSource,
+  fallbackSource,
   appliedAfterValid,
   appliedAfterInvalid,
   appliedValues,
@@ -157,17 +161,27 @@ console.log(JSON.stringify({{
         self.assertFalse(result["initial"]["enabled"])
         self.assertEqual(result["enabledWithoutSnapshot"]["mode"], "MIRROR_READY")
         self.assertEqual(result["live"]["mode"], "LIVE_MIRROR")
+        self.assertEqual(result["live"]["updateSource"], "CUSTOM SOURCE")
         self.assertEqual(result["appliedAfterValid"], 12)
         self.assertEqual(result["stale"]["mode"], "STALE")
         self.assertEqual(result["invalid"]["mode"], "INVALID")
         self.assertEqual(result["appliedAfterInvalid"], 12)
         self.assertTrue(result["invalid"]["hasValidSnapshot"])
+        self.assertEqual(result["invalid"]["updateSource"], "CUSTOM SOURCE")
         self.assertEqual(
             result["invalid"]["lastAcceptedSnapshotMs"],
             result["live"]["lastAcceptedSnapshotMs"],
         )
         self.assertEqual(result["reset"]["mode"], "STATIC")
         self.assertFalse(result["reset"]["enabled"])
+        self.assertEqual(
+            result["defaultSource"]["updateSource"],
+            "LOCAL STATUS SNAPSHOT",
+        )
+        self.assertEqual(
+            result["fallbackSource"]["updateSource"],
+            "LOCAL STATUS SNAPSHOT",
+        )
         self.assertEqual(result["resetValues"], [0] * 12)
         self.assertEqual(len(result["mockA"]), 12)
         self.assertEqual(len(result["mockB"]), 12)
@@ -225,6 +239,9 @@ console.log(JSON.stringify({{
                 self.assertIn(label, self.html)
         self.assertIn("MOCK_POSE_A", self.digital_twin)
         self.assertIn("MOCK_POSE_B", self.digital_twin)
+        self.assertIn("ingestStatusSnapshot(snapshot, Date.now(), label)", self.digital_twin)
+        self.assertIn('"OFFLINE MOCK A"', self.digital_twin)
+        self.assertIn('"OFFLINE MOCK B"', self.digital_twin)
         self.assertIn("[0.20, -0.35, 0.25, 0.15, -0.20, 0.10]", self.digital_twin)
         self.assertIn("[-0.20, 0.35, -0.25, -0.15, 0.20, -0.10]", self.digital_twin)
 

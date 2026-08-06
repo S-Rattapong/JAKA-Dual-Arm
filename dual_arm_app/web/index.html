@@ -576,10 +576,10 @@
     </div>
 
     <div class="digital-twin-meta" aria-label="Digital Twin read-only state">
-      <span>Mode: STATIC MODEL</span>
-      <span>Model: Dual JAKA A12</span>
-      <span>Feedback: NOT CONNECTED</span>
-      <span>Commands: DISABLED</span>
+      <span>Mode: <strong id="digitalTwinOperatingMode">STATIC MODEL</strong></span>
+      <span>Model: <strong>Dual JAKA A12</strong></span>
+      <span>Feedback: <strong id="digitalTwinFeedbackState">NOT CONNECTED</strong></span>
+      <span>Commands: <strong>DISABLED</strong></span>
     </div>
 
     <div class="digital-twin-mirror-panel" aria-label="Digital Twin mirror controls">
@@ -601,7 +601,7 @@
         <button id="digitalTwinMockPoseB" type="button">Load Mock Pose B — OFFLINE MOCK</button>
       </div>
       <div class="small">
-        Development-only local snapshots. No backend polling or robot command is used.
+        Offline Mock buttons inject local test snapshots only and send no robot command.
       </div>
       <div class="digital-twin-live-source" aria-label="Read-only live feedback source">
         <h3>Joint Feedback Source — READ ONLY</h3>

@@ -26,16 +26,32 @@ function formatTimestamp(timestampMs) {
   return Number.isFinite(date.getTime()) ? date.toISOString() : "INVALID";
 }
 
+function setTextById(id, value) {
+  const element = document.getElementById(id);
+  if (element) element.textContent = value;
+}
+
 function updateLiveSourceUi() {
+  let operatingMode = "STATIC / LAST POSE";
+  let feedbackState = "NOT CONNECTED";
+  if (liveState.running && liveState.lastFetchError) {
+    operatingMode = "LIVE MIRROR ERROR";
+    feedbackState = "ERROR — READ ONLY";
+  } else if (liveState.running) {
+    operatingMode = "LIVE MIRROR";
+    feedbackState = "CONNECTED — READ ONLY";
+  }
+
   const values = {
     digitalTwinLiveSourceState: liveState.status,
     digitalTwinPollInterval: `${liveState.pollIntervalMs} ms`,
     digitalTwinLastFetch: formatTimestamp(liveState.lastFetchMs),
     digitalTwinLastFetchError: liveState.lastFetchError || "NONE",
+    digitalTwinOperatingMode: operatingMode,
+    digitalTwinFeedbackState: feedbackState,
   };
   Object.entries(values).forEach(([id, value]) => {
-    const element = document.getElementById(id);
-    if (element) element.textContent = value;
+    setTextById(id, value);
   });
 }
 
@@ -108,6 +124,7 @@ async function executePoll() {
     digitalTwin.ingestStatusSnapshot(
       normalized.snapshot,
       normalized.receivedAtMs,
+      "LIVE JOINT FEEDBACK",
     );
     liveState.lastFeedbackTimestampMs = normalized.receivedAtMs;
     liveState.lastFetchError = null;
