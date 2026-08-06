@@ -276,6 +276,58 @@
       border: 1px solid var(--line);
     }
 
+    .digital-twin-viewer {
+      width: 100%;
+      height: 600px;
+      min-height: 380px;
+      overflow: hidden;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      background: #0b1120;
+    }
+
+    .digital-twin-viewer canvas {
+      display: block;
+      width: 100%;
+      height: 100%;
+    }
+
+    .digital-twin-status {
+      margin-top: 8px;
+      color: #cbd5e1;
+      font: 600 13px/1.4 monospace;
+    }
+
+    .digital-twin-status[data-state="ready"] {
+      color: #6ee7b7;
+    }
+
+    .digital-twin-status[data-state="error"] {
+      color: #fca5a5;
+    }
+
+    .digital-twin-meta {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(150px, 1fr));
+      gap: 8px;
+      margin: 10px 0;
+    }
+
+    .digital-twin-meta span {
+      padding: 8px 10px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--panel2);
+      color: #cbd5e1;
+      font-size: 13px;
+    }
+
+    .digital-twin-warning {
+      margin-top: 10px;
+      color: #fbbf24;
+      font-weight: 700;
+    }
+
     @media (max-width: 1200px) {
       .top-grid,
       .two-grid,
@@ -292,8 +344,27 @@
       .wp-row {
         grid-template-columns: 1fr;
       }
+
+      .digital-twin-viewer {
+        height: 380px;
+      }
+
+      .digital-twin-meta {
+        grid-template-columns: 1fr 1fr;
+      }
     }
   </style>
+
+  <script type="importmap">
+    {
+      "imports": {
+        "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+        "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/",
+        "three/examples/jsm/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/",
+        "urdf-loader": "https://cdn.jsdelivr.net/npm/urdf-loader@0.12.5/src/URDFLoader.js"
+      }
+    }
+  </script>
 </head>
 
 <body>
@@ -445,6 +516,36 @@
       </div>
     </div>
   </div>
+
+  <section class="panel" aria-labelledby="digitalTwinTitle">
+    <h2 id="digitalTwinTitle">Dual-Arm Digital Twin</h2>
+
+    <div
+      id="digitalTwinViewer"
+      class="digital-twin-viewer"
+      aria-label="Static Dual JAKA A12 model viewer"
+    ></div>
+    <div id="digitalTwinStatus" class="digital-twin-status" role="status">
+      INITIALIZING STATIC MODEL
+    </div>
+
+    <div class="row" aria-label="Digital Twin viewer controls">
+      <button id="digitalTwinResetCamera" type="button">Reset Camera</button>
+      <button id="digitalTwinFitModel" type="button">Fit Model</button>
+      <button id="digitalTwinToggleGrid" type="button">Toggle Grid</button>
+      <button id="digitalTwinToggleAxes" type="button">Toggle Axes</button>
+    </div>
+
+    <div class="digital-twin-meta" aria-label="Digital Twin read-only state">
+      <span>Mode: STATIC MODEL</span>
+      <span>Model: Dual JAKA A12</span>
+      <span>Feedback: NOT CONNECTED</span>
+      <span>Commands: DISABLED</span>
+    </div>
+    <div class="digital-twin-warning">
+      Static preview only — no robot feedback and no execution commands.
+    </div>
+  </section>
 
   <div class="panel">
     <h2>Waypoint Manager</h2>
@@ -1689,6 +1790,8 @@ init();
 })();
 </script>
 
+
+<script type="module" src="/web-assets/digital_twin.js"></script>
 
 </body>
 </html>

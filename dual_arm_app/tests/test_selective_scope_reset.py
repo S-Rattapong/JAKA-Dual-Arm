@@ -179,7 +179,7 @@ def _registered_routes(app):
     return {
         (method, route.path)
         for route in app.routes
-        for method in (route.methods or set())
+        for method in (getattr(route, "methods", None) or set())
         if method in {"GET", "POST", "PUT", "DELETE"}
     }
 

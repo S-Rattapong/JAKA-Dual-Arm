@@ -13,6 +13,7 @@ from rclpy.node import Node
 
 from fastapi import FastAPI
 from fastapi.responses import FileResponse
+from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
 
@@ -1709,6 +1710,34 @@ spin_thread = threading.Thread(target=lambda: rclpy.spin(node), daemon=True)
 spin_thread.start()
 
 app = FastAPI(title="Dual JAKA A12 Web Backend")
+
+_BACKEND_DIR = Path(__file__).resolve().parent
+_DUAL_ARM_APP_DIR = _BACKEND_DIR.parent
+_REPOSITORY_ROOT = _DUAL_ARM_APP_DIR.parent
+_WEB_DIR = _DUAL_ARM_APP_DIR / "web"
+_DIGITAL_TWIN_ASSETS_DIR = _WEB_DIR / "assets"
+_A12_MESH_DIR = (
+    _REPOSITORY_ROOT
+    / "src/jaka_ros2/src/jaka_description/meshes/jaka_a12_meshes"
+)
+
+# Static-only Digital Twin resources. These mounts do not initialize clients or
+# add any robot command surface.
+app.mount(
+    "/digital-twin/assets",
+    StaticFiles(directory=str(_DIGITAL_TWIN_ASSETS_DIR), check_dir=True),
+    name="digital-twin-assets",
+)
+app.mount(
+    "/digital-twin/meshes",
+    StaticFiles(directory=str(_A12_MESH_DIR), check_dir=True),
+    name="digital-twin-meshes",
+)
+app.mount(
+    "/web-assets",
+    StaticFiles(directory=str(_WEB_DIR), check_dir=True),
+    name="web-assets",
+)
 
 
 # D33.3B Backend Robot Activity State
