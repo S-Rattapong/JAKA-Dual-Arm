@@ -160,11 +160,11 @@ class StaticDigitalTwinTests(unittest.TestCase):
         self.assertNotIn("/api/", self.javascript)
         self.assertNotIn("fetch(", self.javascript)
 
-    def test_javascript_uses_one_builtin_mesh_loading_flow(self) -> None:
-        self.assertEqual(self.javascript.count("loader.load("), 1)
-        self.assertIn("loader.parseCollision = false", self.javascript)
-        self.assertIn("manager.onLoad", self.javascript)
-        self.assertIn("Timed out waiting for Digital Twin visual meshes", self.javascript)
+    def test_javascript_uses_two_independent_builtin_urdf_loading_flows(self) -> None:
+        self.assertEqual(self.javascript.count("loader.load("), 2)
+        self.assertEqual(self.javascript.count("loader.parseCollision = false"), 2)
+        self.assertIn("state.manager.onLoad", self.javascript)
+        self.assertIn("Timed out waiting for ${role} model readiness", self.javascript)
         self.assertNotIn("loadMeshCb", self.javascript)
         self.assertNotIn("STLLoader", self.javascript)
         self.assertNotIn("MAX_FINALIZE_ATTEMPTS", self.javascript)

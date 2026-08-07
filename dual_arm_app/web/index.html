@@ -353,7 +353,8 @@
     }
 
     #digitalTwinMirrorError:not(:empty),
-    #digitalTwinLastFetchError:not(:empty) {
+    #digitalTwinLastFetchError:not(:empty),
+    #digitalTwinPlannedError:not(:empty) {
       color: #fca5a5;
     }
 
@@ -361,6 +362,20 @@
       margin-top: 12px;
       padding-top: 12px;
       border-top: 1px solid var(--line);
+    }
+
+    .digital-twin-planned-panel {
+      margin-top: 12px;
+      padding: 12px;
+      border: 1px solid #38bdf8;
+      border-radius: 10px;
+      background: rgba(14, 116, 144, 0.10);
+    }
+
+    .digital-twin-planned-notice {
+      margin-top: 10px;
+      color: #7dd3fc;
+      font-weight: 800;
     }
 
     @media (max-width: 1200px) {
@@ -618,6 +633,28 @@
         <div class="small">
           Reads cached joint feedback only. Stopping preserves the current model pose.
         </div>
+      </div>
+    </div>
+    <div class="digital-twin-planned-panel" aria-label="Offline planned pose preview">
+      <h3>Planned Pose Preview — OFFLINE ONLY</h3>
+      <div class="digital-twin-readout" aria-label="Planned preview read-only state">
+        <span>Planned State: <strong id="digitalTwinPlannedState">UNAVAILABLE</strong></span>
+        <span>Planned Visible: <strong id="digitalTwinPlannedVisible">false</strong></span>
+        <span>Planned Source: <strong id="digitalTwinPlannedSource">NONE</strong></span>
+        <span>Max Joint Delta: <strong id="digitalTwinPlannedMaxDelta">UNAVAILABLE</strong></span>
+        <span>Unit: <strong>radians</strong></span>
+        <span>Planned Error: <strong id="digitalTwinPlannedError">NONE</strong></span>
+      </div>
+      <div class="row" aria-label="Offline planned pose controls">
+        <button id="digitalTwinCaptureActualAsPlanned" type="button">Capture Actual as Planned</button>
+        <button id="digitalTwinPlannedMockA" type="button">Load Planned Mock A</button>
+        <button id="digitalTwinPlannedMockB" type="button">Load Planned Mock B</button>
+        <button id="digitalTwinShowPlanned" type="button">Show Planned Ghost</button>
+        <button id="digitalTwinHidePlanned" type="button">Hide Planned Ghost</button>
+        <button id="digitalTwinClearPlanned" type="button">Clear Planned Preview</button>
+      </div>
+      <div class="digital-twin-planned-notice">
+        OFFLINE ONLY — PREVIEW DOES NOT EXECUTE ROBOT MOTION
       </div>
     </div>
     <div class="digital-twin-warning">

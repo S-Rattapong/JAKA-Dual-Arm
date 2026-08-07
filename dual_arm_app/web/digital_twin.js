@@ -8,9 +8,16 @@ import {
   isNormalizedSnapshotStale,
   normalizeDualArmStatusSnapshot,
 } from "./digital_twin_status_adapter.js";
+import {
+  maxAbsoluteJointDelta,
+  normalizePlannedDualArmPose,
+} from "./digital_twin_planned_preview.js";
 
 const MODEL_URL = "/digital-twin/assets/dual_jaka_a12_web.urdf";
 const LOAD_TIMEOUT_MS = 20000;
+const MODEL_READINESS_RETRY_MS = 40;
+const EXPECTED_VISUAL_COUNT = 14;
+const PLANNED_GHOST_OPACITY = 0.38;
 const INITIALIZATION_FLAG = "__dualArmDigitalTwinInitialized";
 const EXPECTED_JOINTS = [
   "left_joint_1",
@@ -57,6 +64,16 @@ const MOCK_POSE_B = Object.freeze({
   right: Object.freeze({ joint: Object.freeze([-0.20, 0.35, -0.25, -0.15, 0.20, -0.10]) }),
 });
 
+const PLANNED_MOCK_POSE_A = Object.freeze({
+  left: Object.freeze([0, 0, 0, 0, 0, 0]),
+  right: Object.freeze([0, 0, 0, 0, 0, 0]),
+});
+
+const PLANNED_MOCK_POSE_B = Object.freeze({
+  left: Object.freeze([0.30, -0.40, 0.20, 0.25, -0.15, 0.12]),
+  right: Object.freeze([-0.30, 0.40, -0.20, -0.25, 0.15, -0.12]),
+});
+
 const mirrorState = {
   mode: MIRROR_MODES.STATIC,
   enabled: false,
@@ -68,6 +85,22 @@ const mirrorState = {
   updateSource: "NONE",
 };
 
+const plannedPreviewState = {
+  status: "UNAVAILABLE",
+  visible: false,
+  latestPose: null,
+  source: "NONE",
+  validationError: null,
+  maxJointDeltaRad: null,
+};
+
+const plannedLoadState = {
+  status: "UNAVAILABLE",
+  loadedMovableJoints: 0,
+  loadedVisuals: 0,
+  error: null,
+};
+
 let container = null;
 let statusElement = null;
 let scene = null;
@@ -77,6 +110,9 @@ let controls = null;
 let grid = null;
 let axes = null;
 let robot = null;
+let plannedRobot = null;
+let latestActualPose = null;
+let plannedLoadStarted = false;
 let homeCameraPosition = null;
 let homeCameraTarget = null;
 
@@ -172,6 +208,29 @@ function validateJointArray(side, values) {
   }
 }
 
+function applyJointValuesToModel(targetModel, values) {
+  for (const side of ["left", "right"]) {
+    values[side].forEach((value, index) => {
+      const jointName = `${side}_joint_${index + 1}`;
+      const joint = targetModel.joints[jointName];
+      if (!joint) {
+        throw new Error(`Model joint is unavailable: ${jointName}`);
+      }
+      joint.setJointValue(value);
+    });
+  }
+  targetModel.updateMatrixWorld(true);
+  render();
+}
+
+function updatePlannedDelta() {
+  plannedPreviewState.maxJointDeltaRad = (
+    plannedPreviewState.latestPose && latestActualPose
+  )
+    ? maxAbsoluteJointDelta(plannedPreviewState.latestPose, latestActualPose)
+    : null;
+}
+
 function setJointValues(values) {
   if (!robot) {
     throw new Error("Digital Twin model is not ready");
@@ -182,23 +241,169 @@ function setJointValues(values) {
 
   validateJointArray("left", values.left);
   validateJointArray("right", values.right);
-  for (const side of ["left", "right"]) {
-    values[side].forEach((value, index) => {
-      const jointName = `${side}_joint_${index + 1}`;
-      const joint = robot.joints[jointName];
-      if (!joint) {
-        throw new Error(`Model joint is unavailable: ${jointName}`);
-      }
-      joint.setJointValue(value);
-    });
-  }
-  robot.updateMatrixWorld(true);
-  render();
+  applyJointValuesToModel(robot, values);
+  latestActualPose = {
+    left: [...values.left],
+    right: [...values.right],
+  };
+  updatePlannedDelta();
+  updatePlannedPreviewUi();
   return true;
 }
 
 function getLoadState() {
   return { ...loadState };
+}
+
+function formatPlannedDelta(value) {
+  return typeof value === "number" && Number.isFinite(value)
+    ? `${value.toFixed(6)} rad`
+    : "UNAVAILABLE";
+}
+
+function updatePlannedPreviewUi() {
+  const values = {
+    digitalTwinPlannedState: plannedPreviewState.status,
+    digitalTwinPlannedVisible: String(plannedPreviewState.visible),
+    digitalTwinPlannedSource: plannedPreviewState.source,
+    digitalTwinPlannedMaxDelta: formatPlannedDelta(
+      plannedPreviewState.maxJointDeltaRad,
+    ),
+    digitalTwinPlannedError: plannedPreviewState.validationError || "NONE",
+  };
+  Object.entries(values).forEach(([id, value]) => {
+    const element = document.getElementById(id);
+    if (element) element.textContent = value;
+  });
+}
+
+function plannedPreviewStateSnapshot() {
+  return {
+    status: plannedPreviewState.status,
+    visible: plannedPreviewState.visible,
+    latestPose: plannedPreviewState.latestPose
+      ? {
+        left: [...plannedPreviewState.latestPose.left],
+        right: [...plannedPreviewState.latestPose.right],
+      }
+      : null,
+    source: plannedPreviewState.source,
+    validationError: plannedPreviewState.validationError,
+    maxJointDeltaRad: plannedPreviewState.maxJointDeltaRad,
+    loadState: { ...plannedLoadState },
+  };
+}
+
+function acceptedPlannedSourceLabel(sourceLabel) {
+  return typeof sourceLabel === "string" && sourceLabel.trim().length > 0
+    ? sourceLabel.trim()
+    : "LOCAL PLANNED POSE";
+}
+
+function applyLatestPlannedPose() {
+  if (!plannedRobot || plannedLoadState.status !== "READY") return false;
+  if (!plannedPreviewState.latestPose) return false;
+  applyJointValuesToModel(plannedRobot, plannedPreviewState.latestPose);
+  plannedRobot.visible = true;
+  plannedPreviewState.visible = true;
+  plannedPreviewState.status = "VISIBLE";
+  plannedPreviewState.validationError = null;
+  updatePlannedPreviewUi();
+  return true;
+}
+
+function setPlannedJointValues(
+  values,
+  sourceLabel = "LOCAL PLANNED POSE",
+) {
+  let normalized;
+  try {
+    normalized = normalizePlannedDualArmPose(values);
+  } catch (error) {
+    plannedPreviewState.status = "INVALID";
+    plannedPreviewState.validationError = error && error.message
+      ? error.message
+      : "Invalid planned pose";
+    updatePlannedPreviewUi();
+    return plannedPreviewStateSnapshot();
+  }
+
+  plannedPreviewState.latestPose = normalized;
+  plannedPreviewState.source = acceptedPlannedSourceLabel(sourceLabel);
+  plannedPreviewState.validationError = null;
+  updatePlannedDelta();
+
+  if (!applyLatestPlannedPose()) {
+    plannedPreviewState.status = "UNAVAILABLE";
+    plannedPreviewState.visible = false;
+    plannedPreviewState.validationError = plannedLoadState.error
+      || "Planned Ghost Model is not ready";
+    updatePlannedPreviewUi();
+  }
+  return plannedPreviewStateSnapshot();
+}
+
+function showPlannedModel() {
+  if (!plannedPreviewState.latestPose) {
+    plannedPreviewState.status = "INVALID";
+    plannedPreviewState.validationError = "No planned pose is available";
+    updatePlannedPreviewUi();
+    return plannedPreviewStateSnapshot();
+  }
+  if (!applyLatestPlannedPose()) {
+    plannedPreviewState.status = "UNAVAILABLE";
+    plannedPreviewState.validationError = plannedLoadState.error
+      || "Planned Ghost Model is not ready";
+    updatePlannedPreviewUi();
+  }
+  return plannedPreviewStateSnapshot();
+}
+
+function hidePlannedModel() {
+  if (plannedRobot) plannedRobot.visible = false;
+  plannedPreviewState.visible = false;
+  plannedPreviewState.status = plannedLoadState.status === "READY"
+    ? "HIDDEN"
+    : "UNAVAILABLE";
+  plannedPreviewState.validationError = plannedLoadState.error;
+  updatePlannedPreviewUi();
+  render();
+  return plannedPreviewStateSnapshot();
+}
+
+function clearPlannedPreview() {
+  if (plannedRobot) plannedRobot.visible = false;
+  plannedPreviewState.visible = false;
+  plannedPreviewState.latestPose = null;
+  plannedPreviewState.source = "NONE";
+  plannedPreviewState.validationError = plannedLoadState.error;
+  plannedPreviewState.maxJointDeltaRad = null;
+  plannedPreviewState.status = plannedLoadState.status === "READY"
+    ? "READY"
+    : "UNAVAILABLE";
+  updatePlannedPreviewUi();
+  render();
+  return plannedPreviewStateSnapshot();
+}
+
+function getPlannedPreviewState() {
+  return plannedPreviewStateSnapshot();
+}
+
+function captureActualAsPlanned() {
+  if (!latestActualPose) {
+    plannedPreviewState.status = "INVALID";
+    plannedPreviewState.validationError = "Actual joint pose is unavailable";
+    updatePlannedPreviewUi();
+    return plannedPreviewStateSnapshot();
+  }
+  return setPlannedJointValues(
+    {
+      left: [...latestActualPose.left],
+      right: [...latestActualPose.right],
+    },
+    "ACTUAL POSE SNAPSHOT",
+  );
 }
 
 function formatMirrorTimestamp(timestampMs) {
@@ -386,6 +591,12 @@ const publicApi = {
   setMirrorEnabled,
   getMirrorState,
   resetToStaticPose,
+  setPlannedJointValues,
+  showPlannedModel,
+  hidePlannedModel,
+  clearPlannedPreview,
+  getPlannedPreviewState,
+  captureActualAsPlanned,
 };
 
 function handleResize() {
@@ -436,90 +647,309 @@ function bindMirrorControls() {
   });
 }
 
-function loadRobot() {
-  const manager = new THREE.LoadingManager();
-  const failedAssets = new Set();
-  let urdfParsed = false;
-  let allAssetsLoaded = false;
-  let finalized = false;
+function bindPlannedPreviewControls() {
+  const bindings = {
+    digitalTwinCaptureActualAsPlanned: captureActualAsPlanned,
+    digitalTwinPlannedMockA: () => setPlannedJointValues(
+      PLANNED_MOCK_POSE_A,
+      "PLANNED MOCK A",
+    ),
+    digitalTwinPlannedMockB: () => setPlannedJointValues(
+      PLANNED_MOCK_POSE_B,
+      "PLANNED MOCK B",
+    ),
+    digitalTwinShowPlanned: showPlannedModel,
+    digitalTwinHidePlanned: hidePlannedModel,
+    digitalTwinClearPlanned: clearPlannedPreview,
+  };
+  Object.entries(bindings).forEach(([id, handler]) => {
+    const element = document.getElementById(id);
+    if (element) element.addEventListener("click", handler);
+  });
+}
 
-  const loadTimeout = window.setTimeout(() => {
-    if (!finalized && loadState.status !== "ERROR") {
-      finalized = true;
-      fail("Timed out waiting for Digital Twin visual meshes");
+function countVisualMeshes(model) {
+  let count = 0;
+  const countedMeshes = new Set();
+  model.traverse((object) => {
+    const geometry = object.geometry;
+    const positions = geometry && geometry.attributes
+      ? geometry.attributes.position
+      : null;
+    if (
+      object.isMesh &&
+      positions &&
+      positions.count > 0 &&
+      !countedMeshes.has(object)
+    ) {
+      countedMeshes.add(object);
+      count += 1;
     }
-  }, LOAD_TIMEOUT_MS);
+  });
+  return count;
+}
 
-  function countVisualMeshes(model) {
-    let count = 0;
-    model.traverse((object) => {
-      const geometry = object.geometry;
-      const positions = geometry && geometry.attributes
-        ? geometry.attributes.position
-        : null;
-      if (object.isMesh && positions && positions.count > 0) count += 1;
-    });
-    return count;
+function inspectUrdfModelReadiness(model, role) {
+  const missingJoints = EXPECTED_JOINTS.filter(
+    (jointName) => !model.joints[jointName],
+  );
+  model.updateMatrixWorld(true);
+  const diagnostic = {
+    ready: false,
+    role,
+    expectedJointCount: EXPECTED_JOINTS.length,
+    foundJointCount: EXPECTED_JOINTS.length - missingJoints.length,
+    missingJoints,
+    expectedVisualCount: EXPECTED_VISUAL_COUNT,
+    foundVisualCount: countVisualMeshes(model),
+    boundsEmpty: new THREE.Box3().setFromObject(model).isEmpty(),
+  };
+  diagnostic.ready = (
+    diagnostic.missingJoints.length === 0 &&
+    diagnostic.foundVisualCount === diagnostic.expectedVisualCount &&
+    !diagnostic.boundsEmpty
+  );
+  return diagnostic;
+}
+
+function formatUrdfValidationError(diagnostic) {
+  const missing = diagnostic.missingJoints.length > 0
+    ? diagnostic.missingJoints.join(", ")
+    : "none";
+  return `${diagnostic.role} URDF validation failed: expected `
+    + `${diagnostic.expectedJointCount} joints and `
+    + `${diagnostic.expectedVisualCount} visual meshes, found `
+    + `${diagnostic.foundJointCount} joints and `
+    + `${diagnostic.foundVisualCount} visual meshes; `
+    + `missing joints: ${missing}; bounds empty: ${diagnostic.boundsEmpty}`;
+}
+
+function makePlannedMaterialsTransparent(model) {
+  const cloneMaterial = (material) => {
+    const ghostMaterial = material.clone();
+    ghostMaterial.transparent = true;
+    ghostMaterial.opacity = PLANNED_GHOST_OPACITY;
+    ghostMaterial.depthWrite = false;
+    ghostMaterial.needsUpdate = true;
+    return ghostMaterial;
+  };
+
+  model.traverse((object) => {
+    if (!object.isMesh || !object.material) return;
+    object.material = Array.isArray(object.material)
+      ? object.material.map(cloneMaterial)
+      : cloneMaterial(object.material);
+  });
+}
+
+function failPlannedPreview(message, error = null) {
+  const detail = error && error.message ? `${message}: ${error.message}` : message;
+  plannedLoadState.status = "ERROR";
+  plannedLoadState.error = detail;
+  plannedPreviewState.status = "UNAVAILABLE";
+  plannedPreviewState.visible = false;
+  plannedPreviewState.validationError = detail;
+  if (plannedRobot) plannedRobot.visible = false;
+  updatePlannedPreviewUi();
+  console.error(`[DualArmDigitalTwin:Planned] ${detail}`, error || "");
+}
+
+function createUrdfLoadLifecycle({
+  role,
+  onValidated,
+  onFailure,
+  onProgress = null,
+}) {
+  const state = {
+    role,
+    urdfParsed: false,
+    assetsLoaded: false,
+    finalized: false,
+    failedAssets: new Set(),
+    loadTimeout: null,
+    completionTimer: null,
+    readinessTimer: null,
+    activityGeneration: 0,
+    manager: new THREE.LoadingManager(),
+    model: null,
+    lastDiagnostic: null,
+    readinessLogSignature: null,
+  };
+
+  function clearLifecycleTimers() {
+    if (state.loadTimeout !== null) {
+      window.clearTimeout(state.loadTimeout);
+      state.loadTimeout = null;
+    }
+    if (state.completionTimer !== null) {
+      window.clearTimeout(state.completionTimer);
+      state.completionTimer = null;
+    }
+    if (state.readinessTimer !== null) {
+      window.clearTimeout(state.readinessTimer);
+      state.readinessTimer = null;
+    }
   }
 
-  function finalizeWhenComplete() {
-    if (finalized || !urdfParsed || !allAssetsLoaded || !robot) return;
+  function failLifecycle(message, error = null) {
+    if (state.finalized) return;
+    state.finalized = true;
+    clearLifecycleTimers();
+    onFailure(message, error);
+  }
 
-    if (failedAssets.size > 0) {
-      finalized = true;
-      window.clearTimeout(loadTimeout);
-      fail(`Failed to load asset(s): ${Array.from(failedAssets).join(", ")}`);
-      return;
-    }
+  function finalizeReadyModel(diagnostic) {
+    state.finalized = true;
+    clearLifecycleTimers();
+    console.info(
+      `[DualArmDigitalTwin][${role}] model ready: `
+      + `joints=${diagnostic.foundJointCount} `
+      + `visuals=${diagnostic.foundVisualCount}`,
+    );
+    onValidated(state.model, diagnostic);
+  }
 
-    robot.updateMatrixWorld(true);
-    const visualCount = countVisualMeshes(robot);
-    const bounds = new THREE.Box3().setFromObject(robot);
+  function waitForModelReadiness() {
+    if (
+      state.finalized ||
+      !state.urdfParsed ||
+      !state.assetsLoaded ||
+      !state.model
+    ) return;
 
-    if (visualCount === 0 || bounds.isEmpty()) {
-      finalized = true;
-      window.clearTimeout(loadTimeout);
-      fail(
-        "URDF loaded, but no renderable visual meshes produced non-empty bounds"
+    if (state.failedAssets.size > 0) {
+      failLifecycle(
+        `Failed to load ${role} asset(s): ${Array.from(state.failedAssets).join(", ")}`,
       );
       return;
     }
 
-    if (!fitModel(true)) {
-      window.clearTimeout(loadTimeout);
+    state.model.updateMatrixWorld(true);
+    const diagnostic = inspectUrdfModelReadiness(state.model, role);
+    state.lastDiagnostic = diagnostic;
+    if (diagnostic.ready) {
+      finalizeReadyModel(diagnostic);
       return;
     }
 
-    finalized = true;
-    window.clearTimeout(loadTimeout);
-    loadState.status = "READY";
-    loadState.loadedMovableJoints = EXPECTED_JOINTS.length;
-    loadState.loadedVisuals = visualCount;
-    loadState.error = null;
-    setStatus(
-      `READY — ${EXPECTED_JOINTS.length} MOVABLE JOINTS LOADED` +
-      ` — ${visualCount} VISUALS`,
-      "ready",
-    );
-    applyLatestMirrorSnapshotIfPossible(Date.now());
+    const signature = [
+      diagnostic.foundJointCount,
+      diagnostic.foundVisualCount,
+      diagnostic.boundsEmpty,
+    ].join(":");
+    if (signature !== state.readinessLogSignature) {
+      state.readinessLogSignature = signature;
+      console.info(
+        `[DualArmDigitalTwin][${role}] waiting for visual attachment: `
+        + `joints=${diagnostic.foundJointCount} `
+        + `visuals=${diagnostic.foundVisualCount} `
+        + `boundsEmpty=${diagnostic.boundsEmpty}`,
+      );
+    }
+    state.readinessTimer = window.setTimeout(() => {
+      state.readinessTimer = null;
+      waitForModelReadiness();
+    }, MODEL_READINESS_RETRY_MS);
   }
 
-  manager.onProgress = (_url, loaded = 0, total = 0) => {
-    const percent = total > 0 ? Math.round((loaded / total) * 100) : 0;
-    setStatus(`LOADING ASSETS ${loaded}/${total} (${percent}%)`);
+  state.manager.onStart = () => {
+    if (!state.urdfParsed || state.finalized) return;
+    state.assetsLoaded = false;
+    state.activityGeneration += 1;
+  };
+  state.manager.onProgress = (url, loaded = 0, total = 0) => {
+    if (state.urdfParsed && !state.finalized) {
+      state.activityGeneration += 1;
+    }
+    if (onProgress) onProgress(url, loaded, total);
+  };
+  state.manager.onError = (url) => {
+    state.failedAssets.add(String(url || `unknown ${role} asset`));
+  };
+  state.manager.onLoad = () => {
+    if (!state.urdfParsed || state.finalized) {
+      console.debug(
+        `[DualArmDigitalTwin][${role}] ignoring pre-parse manager completion`,
+      );
+      return;
+    }
+
+    // Defer one task so any mesh items registered immediately after parsing
+    // can invalidate this completion through activityGeneration.
+    const completionGeneration = state.activityGeneration;
+    if (state.completionTimer !== null) {
+      window.clearTimeout(state.completionTimer);
+    }
+    state.completionTimer = window.setTimeout(() => {
+      state.completionTimer = null;
+      if (
+        state.finalized ||
+        !state.urdfParsed ||
+        completionGeneration !== state.activityGeneration
+      ) return;
+      state.assetsLoaded = true;
+      console.info(`[DualArmDigitalTwin][${role}] resource activity complete`);
+      waitForModelReadiness();
+    }, 0);
   };
 
-  manager.onError = (url) => {
-    failedAssets.add(String(url || "unknown asset"));
-    console.error(`[DualArmDigitalTwin] Asset loading error: ${url}`);
-  };
+  state.loadTimeout = window.setTimeout(() => {
+    if (state.finalized) return;
+    const failedAssets = Array.from(state.failedAssets);
+    const diagnostic = state.lastDiagnostic;
+    const readinessDetail = diagnostic
+      ? formatUrdfValidationError(diagnostic)
+      : "model readiness was never inspectable";
+    failLifecycle(
+      `Timed out waiting for ${role} model readiness: `
+      + `parsed=${state.urdfParsed}, assetsLoaded=${state.assetsLoaded}, `
+      + `failed assets=${failedAssets.length > 0 ? failedAssets.join(", ") : "none"}; `
+      + readinessDetail,
+    );
+  }, LOAD_TIMEOUT_MS);
 
-  manager.onLoad = () => {
-    allAssetsLoaded = true;
-    finalizeWhenComplete();
-  };
+  function markParsed(model) {
+    if (state.finalized) return;
+    state.model = model;
+    state.urdfParsed = true;
+    state.assetsLoaded = false;
+    state.activityGeneration += 1;
+    console.info(`[DualArmDigitalTwin][${role}] URDF parsed; waiting for visuals`);
+    waitForModelReadiness();
+  }
 
-  const loader = new URDFLoader(manager);
+  return {
+    state,
+    manager: state.manager,
+    markParsed,
+    fail: failLifecycle,
+  };
+}
+
+function loadRobot() {
+  const lifecycle = createUrdfLoadLifecycle({
+    role: "Actual",
+    onValidated: (_model, validation) => {
+      if (!fitModel(true)) return;
+      loadState.status = "READY";
+      loadState.loadedMovableJoints = validation.foundJointCount;
+      loadState.loadedVisuals = validation.foundVisualCount;
+      loadState.error = null;
+      setStatus(
+        `READY — ${validation.foundJointCount} MOVABLE JOINTS LOADED`
+        + ` — ${validation.foundVisualCount} VISUALS`,
+        "ready",
+      );
+      applyLatestMirrorSnapshotIfPossible(Date.now());
+    },
+    onFailure: (message, error) => fail(message, error),
+    onProgress: (_url, loaded, total) => {
+      const percent = total > 0 ? Math.round((loaded / total) * 100) : 0;
+      setStatus(`LOADING ASSETS ${loaded}/${total} (${percent}%)`);
+    },
+  });
+
+  const loader = new URDFLoader(lifecycle.manager);
   loader.parseCollision = false;
 
   loadState.status = "LOADING";
@@ -533,9 +963,9 @@ function loadRobot() {
       );
 
       if (missingJoints.length > 0) {
-        finalized = true;
-        window.clearTimeout(loadTimeout);
-        fail(`URDF is missing expected joints: ${missingJoints.join(", ")}`);
+        lifecycle.fail(
+          `Actual URDF is missing expected joints: ${missingJoints.join(", ")}`,
+        );
         return;
       }
 
@@ -544,12 +974,17 @@ function loadRobot() {
       EXPECTED_JOINTS.forEach((jointName) => {
         robot.joints[jointName].setJointValue(0);
       });
+      latestActualPose = {
+        left: [...ZERO_JOINT_VALUES.left],
+        right: [...ZERO_JOINT_VALUES.right],
+      };
+      updatePlannedDelta();
+      updatePlannedPreviewUi();
 
       scene.add(robot);
       robot.updateMatrixWorld(true);
-      urdfParsed = true;
       setStatus("URDF PARSED — WAITING FOR VISUAL MESHES");
-      finalizeWhenComplete();
+      lifecycle.markParsed(robot);
     },
     (event) => {
       if (event && event.lengthComputable && event.total > 0) {
@@ -558,8 +993,66 @@ function loadRobot() {
       }
     },
     (error) => {
-      window.clearTimeout(loadTimeout);
-      fail("Failed to load Digital Twin URDF", error);
+      lifecycle.fail("Failed to load Actual URDF", error);
+    },
+  );
+}
+
+function loadPlannedRobot() {
+  if (plannedLoadStarted) return;
+  plannedLoadStarted = true;
+  plannedLoadState.status = "LOADING";
+
+  const lifecycle = createUrdfLoadLifecycle({
+    role: "Planned",
+    onValidated: (_model, validation) => {
+      makePlannedMaterialsTransparent(plannedRobot);
+      plannedRobot.visible = false;
+      plannedLoadState.status = "READY";
+      plannedLoadState.loadedMovableJoints = validation.foundJointCount;
+      plannedLoadState.loadedVisuals = validation.foundVisualCount;
+      plannedLoadState.error = null;
+      plannedPreviewState.status = "READY";
+      plannedPreviewState.visible = false;
+      plannedPreviewState.validationError = null;
+
+      if (plannedPreviewState.latestPose) {
+        applyLatestPlannedPose();
+      } else {
+        updatePlannedPreviewUi();
+        render();
+      }
+    },
+    onFailure: (message, error) => failPlannedPreview(message, error),
+  });
+
+  const loader = new URDFLoader(lifecycle.manager);
+  loader.parseCollision = false;
+  loader.load(
+    MODEL_URL,
+    (loadedRobot) => {
+      const missingJoints = EXPECTED_JOINTS.filter(
+        (jointName) => !loadedRobot.joints[jointName],
+      );
+      if (missingJoints.length > 0) {
+        lifecycle.fail(
+          `Planned URDF is missing expected joints: ${missingJoints.join(", ")}`,
+        );
+        return;
+      }
+
+      plannedRobot = loadedRobot;
+      EXPECTED_JOINTS.forEach((jointName) => {
+        plannedRobot.joints[jointName].setJointValue(0);
+      });
+      plannedRobot.visible = false;
+      scene.add(plannedRobot);
+      plannedRobot.updateMatrixWorld(true);
+      lifecycle.markParsed(plannedRobot);
+    },
+    undefined,
+    (error) => {
+      lifecycle.fail("Failed to load Planned URDF", error);
     },
   );
 }
@@ -605,7 +1098,9 @@ function initialize() {
 
   bindControls();
   bindMirrorControls();
+  bindPlannedPreviewControls();
   updateMirrorUi();
+  updatePlannedPreviewUi();
   window.setInterval(() => {
     updateMirrorStaleness(Date.now());
   }, 250);
@@ -622,6 +1117,7 @@ function initialize() {
   };
   animate();
   loadRobot();
+  loadPlannedRobot();
 }
 
 if (window[INITIALIZATION_FLAG]) {
