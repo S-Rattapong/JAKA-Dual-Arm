@@ -276,10 +276,20 @@
       border: 1px solid var(--line);
     }
 
+    .digital-twin-sticky-viewer {
+      position: sticky;
+      top: 6px;
+      z-index: 20;
+      padding: 8px;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      background: var(--panel);
+    }
+
     .digital-twin-viewer {
       width: 100%;
-      height: 600px;
-      min-height: 380px;
+      height: clamp(340px, 50vh, 620px);
+      min-height: 320px;
       overflow: hidden;
       border: 1px solid var(--line);
       border-radius: 10px;
@@ -354,7 +364,8 @@
 
     #digitalTwinMirrorError:not(:empty),
     #digitalTwinLastFetchError:not(:empty),
-    #digitalTwinPlannedError:not(:empty) {
+    #digitalTwinPlannedError:not(:empty),
+    #digitalTwinTrajectoryError:not(:empty) {
       color: #fca5a5;
     }
 
@@ -378,6 +389,55 @@
       font-weight: 800;
     }
 
+    .digital-twin-trajectory-panel {
+      margin-top: 12px;
+      padding: 12px;
+      border: 1px solid #a78bfa;
+      border-radius: 10px;
+      background: rgba(109, 40, 217, 0.10);
+    }
+
+    .digital-twin-trajectory-scrubber {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      width: 100%;
+    }
+
+    .digital-twin-trajectory-time-controls {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: center;
+      margin: 8px 0;
+    }
+
+    .digital-twin-trajectory-time-input {
+      width: 100px;
+      text-align: right;
+    }
+
+    .digital-twin-trajectory-scrubber-time {
+      align-self: center;
+      min-width: 64px;
+      padding: 3px 8px;
+      border-radius: 6px;
+      background: #312e81;
+      color: #ede9fe;
+      font: 700 13px/1.4 monospace;
+      text-align: center;
+    }
+
+    .digital-twin-trajectory-scrubber input[type="range"] {
+      width: 100%;
+    }
+
+    .digital-twin-trajectory-notice {
+      margin-top: 10px;
+      color: #c4b5fd;
+      font-weight: 800;
+    }
+
     @media (max-width: 1200px) {
       .top-grid,
       .two-grid,
@@ -396,7 +456,8 @@
       }
 
       .digital-twin-viewer {
-        height: 380px;
+        height: clamp(280px, 42vh, 420px);
+        min-height: 260px;
       }
 
       .digital-twin-meta {
@@ -405,6 +466,11 @@
 
       .digital-twin-readout {
         grid-template-columns: 1fr;
+      }
+
+      .digital-twin-sticky-viewer {
+        top: 2px;
+        padding: 5px;
       }
     }
   </style>
@@ -574,13 +640,15 @@
   <section class="panel" aria-labelledby="digitalTwinTitle">
     <h2 id="digitalTwinTitle">Dual-Arm Digital Twin</h2>
 
-    <div
-      id="digitalTwinViewer"
-      class="digital-twin-viewer"
-      aria-label="Static Dual JAKA A12 model viewer"
-    ></div>
-    <div id="digitalTwinStatus" class="digital-twin-status" role="status">
-      INITIALIZING STATIC MODEL
+    <div class="digital-twin-sticky-viewer" aria-label="Sticky Digital Twin viewer">
+      <div
+        id="digitalTwinViewer"
+        class="digital-twin-viewer"
+        aria-label="Static Dual JAKA A12 model viewer"
+      ></div>
+      <div id="digitalTwinStatus" class="digital-twin-status" role="status">
+        INITIALIZING STATIC MODEL
+      </div>
     </div>
 
     <div class="row" aria-label="Digital Twin viewer controls">
@@ -655,6 +723,79 @@
       </div>
       <div class="digital-twin-planned-notice">
         OFFLINE ONLY — PREVIEW DOES NOT EXECUTE ROBOT MOTION
+      </div>
+    </div>
+    <div class="digital-twin-trajectory-panel" aria-label="Offline planned joint trajectory preview">
+      <h3>Planned Joint Trajectory — OFFLINE ONLY</h3>
+      <div class="digital-twin-readout" aria-label="Trajectory preview read-only state">
+        <span>Trajectory State: <strong id="digitalTwinTrajectoryState">EMPTY</strong></span>
+        <span>Trajectory Name: <strong id="digitalTwinTrajectoryName">NONE</strong></span>
+        <span>Point Count: <strong id="digitalTwinTrajectoryPointCount">0</strong></span>
+        <span>Current Segment / Point: <strong id="digitalTwinTrajectoryPosition">NONE</strong></span>
+        <span>Current Time: <strong id="digitalTwinTrajectoryTime">0.00 s</strong></span>
+        <span>Duration: <strong id="digitalTwinTrajectoryDuration">0.00 s</strong></span>
+        <span>Progress: <strong id="digitalTwinTrajectoryProgress">0.0%</strong></span>
+        <span>Playback Rate: <strong id="digitalTwinTrajectoryRate">1.00x</strong></span>
+        <span>Trajectory Source: <strong id="digitalTwinTrajectorySource">NONE</strong></span>
+        <span>Validation Error: <strong id="digitalTwinTrajectoryError">NONE</strong></span>
+        <span>Joint Unit: <strong>radians</strong></span>
+        <span>Time Unit: <strong>seconds</strong></span>
+      </div>
+      <div class="row" aria-label="Offline trajectory loaders">
+        <button id="digitalTwinTrajectoryMockA" type="button">Load Mock Trajectory A</button>
+        <button id="digitalTwinTrajectoryMockB" type="button">Load Mock Trajectory B</button>
+        <button id="digitalTwinTrajectoryClear" type="button">Clear Trajectory</button>
+      </div>
+      <div class="digital-twin-trajectory-time-controls" aria-label="Trajectory time and playback controls">
+        <label for="digitalTwinTrajectoryTimeInput">Current Time (s)</label>
+        <input
+          id="digitalTwinTrajectoryTimeInput"
+          class="digital-twin-trajectory-time-input"
+          type="number"
+          min="0"
+          max="0"
+          step="0.1"
+          value="0.0"
+          inputmode="decimal"
+          disabled
+        />
+        <button id="digitalTwinTrajectoryPrevious" type="button">Previous Point</button>
+        <button id="digitalTwinTrajectoryNext" type="button">Next Point</button>
+        <button id="digitalTwinTrajectoryPlay" type="button">Play</button>
+        <button id="digitalTwinTrajectoryPause" type="button">Pause</button>
+        <button id="digitalTwinTrajectoryStop" type="button">Stop</button>
+        <label for="digitalTwinTrajectoryPlaybackRate">Playback rate:</label>
+        <select id="digitalTwinTrajectoryPlaybackRate">
+          <option value="0.25">0.25x</option>
+          <option value="0.5">0.5x</option>
+          <option value="1" selected>1.0x</option>
+          <option value="2">2.0x</option>
+        </select>
+      </div>
+      <div class="digital-twin-trajectory-scrubber">
+        <label for="digitalTwinTrajectoryScrubber">Trajectory time (seconds)</label>
+        <output
+          id="digitalTwinTrajectoryScrubberTime"
+          class="digital-twin-trajectory-scrubber-time"
+          for="digitalTwinTrajectoryScrubber"
+        >0.0 s</output>
+        <input
+          id="digitalTwinTrajectoryScrubber"
+          type="range"
+          min="0"
+          max="0"
+          step="0.01"
+          value="0"
+          disabled
+        />
+      </div>
+      <div class="small">
+        Scrubbing updates the current playback position and Planned Ghost immediately;
+        playback continues from that time if already playing.
+      </div>
+      <div class="digital-twin-trajectory-notice">
+        OFFLINE ONLY — PREVIEW DOES NOT EXECUTE ROBOT MOTION —
+        INTERPOLATION IS FOR VISUALIZATION ONLY
       </div>
     </div>
     <div class="digital-twin-warning">
