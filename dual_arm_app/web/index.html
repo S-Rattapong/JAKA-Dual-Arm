@@ -365,7 +365,8 @@
     #digitalTwinMirrorError:not(:empty),
     #digitalTwinLastFetchError:not(:empty),
     #digitalTwinPlannedError:not(:empty),
-    #digitalTwinTrajectoryError:not(:empty) {
+    #digitalTwinTrajectoryError:not(:empty),
+    #digitalTwinValidationError:not(:empty) {
       color: #fca5a5;
     }
 
@@ -435,6 +436,20 @@
     .digital-twin-trajectory-notice {
       margin-top: 10px;
       color: #c4b5fd;
+      font-weight: 800;
+    }
+
+    .digital-twin-validation-panel {
+      margin-top: 14px;
+      padding: 12px;
+      border: 1px solid #f59e0b;
+      border-radius: 10px;
+      background: rgba(146, 64, 14, 0.12);
+    }
+
+    .digital-twin-validation-notice {
+      margin-top: 10px;
+      color: #fcd34d;
       font-weight: 800;
     }
 
@@ -796,6 +811,35 @@
       <div class="digital-twin-trajectory-notice">
         OFFLINE ONLY — PREVIEW DOES NOT EXECUTE ROBOT MOTION —
         INTERPOLATION IS FOR VISUALIZATION ONLY
+      </div>
+      <div class="digital-twin-validation-panel" aria-label="Plan-only trajectory validation">
+        <h3>Trajectory Validation — PLAN ONLY</h3>
+        <div class="digital-twin-readout" aria-label="Trajectory validation state">
+          <span>Overall Validation: <strong id="digitalTwinValidationOverall">NOT VALIDATED</strong></span>
+          <span>Joint Position Limits: <strong id="digitalTwinValidationJointLimits">NOT VALIDATED</strong></span>
+          <span>MoveIt State Validity: <strong id="digitalTwinValidationMoveIt">NOT RUN</strong></span>
+          <span>Collision Check: <strong id="digitalTwinValidationCollision">NOT RUN</strong></span>
+          <span>Checked Points: <strong id="digitalTwinValidationCheckedPoints">0</strong></span>
+          <span>Violation Count: <strong id="digitalTwinValidationViolationCount">0</strong></span>
+          <span>First Failed Point: <strong id="digitalTwinValidationFirstPoint">NONE</strong></span>
+          <span>Failed Joint: <strong id="digitalTwinValidationFailedJoint">NONE</strong></span>
+          <span>Joint Value: <strong id="digitalTwinValidationJointValue">N/A</strong></span>
+          <span>Allowed Range: <strong id="digitalTwinValidationAllowedRange">N/A</strong></span>
+          <span>Validation Source: <strong id="digitalTwinValidationSource">NONE</strong></span>
+          <span>Model Source: <strong id="digitalTwinValidationModelSource">UNAVAILABLE</strong></span>
+          <span>Validation Error: <strong id="digitalTwinValidationError">NONE</strong></span>
+        </div>
+        <div class="row" aria-label="Offline trajectory validation controls">
+          <button id="digitalTwinValidateJointLimits" type="button">Validate Joint Limits</button>
+          <button id="digitalTwinClearValidation" type="button">Clear Validation</button>
+          <button id="digitalTwinInvalidLimitTest" type="button">
+            Load Invalid Limit Test — OFFLINE VALIDATION TEST
+          </button>
+        </div>
+        <div class="digital-twin-validation-notice">
+          POSITION LIMIT CHECK ONLY — MOVEIT / COLLISION NOT RUN YET —
+          NO ROBOT EXECUTION
+        </div>
       </div>
     </div>
     <div class="digital-twin-warning">

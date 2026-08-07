@@ -18,6 +18,8 @@ import {
   trajectoryDurationSeconds,
   trajectoryPointAtIndex,
 } from "./digital_twin_trajectory_preview.js";
+import { DUAL_JAKA_A12_JOINT_LIMIT_METADATA } from "./digital_twin_joint_limit_metadata.js";
+import { validateTrajectoryJointLimits } from "./digital_twin_trajectory_validation.js";
 
 const MODEL_URL = "/digital-twin/assets/dual_jaka_a12_web.urdf";
 const LOAD_TIMEOUT_MS = 20000;
@@ -132,6 +134,27 @@ const MOCK_TRAJECTORY_B = {
   ],
 };
 
+const MOCK_INVALID_LIMIT_TRAJECTORY = {
+  name: "Invalid Joint Limit Test",
+  points: [
+    {
+      time_from_start_s: 0,
+      left: [0, 0, 0, 0, 0, 0],
+      right: [0, 0, 0, 0, 0, 0],
+    },
+    {
+      time_from_start_s: 1.5,
+      left: [0.15, -0.20, 6.50, 0.10, -0.10, 0.05],
+      right: [-0.15, 0.20, -0.15, -0.10, 0.10, -0.05],
+    },
+    {
+      time_from_start_s: 3,
+      left: [0.30, -0.40, 0.20, 0.25, -0.15, 0.12],
+      right: [-0.30, 0.40, -0.20, -0.25, 0.15, -0.12],
+    },
+  ],
+};
+
 const mirrorState = {
   mode: MIRROR_MODES.STATIC,
   enabled: false,
@@ -172,6 +195,21 @@ const trajectoryPreviewState = {
   validationError: null,
   previousFrameTimeMs: null,
   animationFrameId: null,
+};
+
+const trajectoryValidationState = {
+  status: "NOT_VALIDATED",
+  jointLimits: "NOT_VALIDATED",
+  moveitStateValidity: "NOT_RUN",
+  collision: "NOT_RUN",
+  valid: null,
+  checkedPointCount: 0,
+  checkedJointCount: 0,
+  violationCount: 0,
+  violations: [],
+  firstViolation: null,
+  source: "NONE",
+  error: null,
 };
 
 let container = null;
@@ -631,6 +669,7 @@ function loadPlannedTrajectory(
   trajectoryPreviewState.playing = false;
   trajectoryPreviewState.source = acceptedTrajectorySourceLabel(sourceLabel);
   trajectoryPreviewState.validationError = null;
+  clearTrajectoryValidation();
   applyTrajectoryTime(0, "READY", true);
   return trajectoryStateSnapshot();
 }
@@ -759,6 +798,7 @@ function clearPlannedTrajectory() {
   trajectoryPreviewState.playing = false;
   trajectoryPreviewState.source = "NONE";
   trajectoryPreviewState.validationError = null;
+  clearTrajectoryValidation();
   clearPlannedPreview();
   updateTrajectoryPreviewUi();
   return trajectoryStateSnapshot();
@@ -788,6 +828,179 @@ function setTrajectoryPlaybackRate(rate) {
 
 function getTrajectoryPreviewState() {
   return trajectoryStateSnapshot();
+}
+
+function trajectoryValidationStateSnapshot() {
+  return {
+    status: trajectoryValidationState.status,
+    jointLimits: trajectoryValidationState.jointLimits,
+    moveitStateValidity: trajectoryValidationState.moveitStateValidity,
+    collision: trajectoryValidationState.collision,
+    valid: trajectoryValidationState.valid,
+    checkedPointCount: trajectoryValidationState.checkedPointCount,
+    checkedJointCount: trajectoryValidationState.checkedJointCount,
+    violationCount: trajectoryValidationState.violationCount,
+    violations: trajectoryValidationState.violations.map(
+      (violation) => ({ ...violation }),
+    ),
+    firstViolation: trajectoryValidationState.firstViolation
+      ? { ...trajectoryValidationState.firstViolation }
+      : null,
+    source: trajectoryValidationState.source,
+    error: trajectoryValidationState.error,
+  };
+}
+
+function overallTrajectoryValidationLabel() {
+  if (trajectoryValidationState.status === "VALID") {
+    return "PARTIAL PASS — JOINT LIMITS PASS — MOVEIT PENDING";
+  }
+  if (trajectoryValidationState.status === "INVALID") return "INVALID";
+  if (trajectoryValidationState.status === "VALIDATING") return "VALIDATING";
+  if (trajectoryValidationState.status === "ERROR") return "ERROR";
+  return "NOT VALIDATED";
+}
+
+function validationSourceLabel(source) {
+  if (typeof source !== "string" || source.trim().length === 0) return "NONE";
+  const [logicalSource] = source.trim().split(" — ", 1);
+  return logicalSource || "NONE";
+}
+
+function validationModelPath(source) {
+  if (typeof source !== "string") return null;
+  const separator = " — ";
+  const separatorIndex = source.indexOf(separator);
+  if (separatorIndex < 0) return null;
+  const modelPath = source.slice(separatorIndex + separator.length).trim();
+  return modelPath || null;
+}
+
+function validationPathBasename(path) {
+  if (typeof path !== "string" || path.trim().length === 0) return "UNAVAILABLE";
+  const segments = path.trim().replace(/\\/g, "/").split("/").filter(Boolean);
+  return segments.length > 0 ? segments[segments.length - 1] : "UNAVAILABLE";
+}
+
+function validationFailedPointLabel(firstViolation, checkedPointCount) {
+  if (!firstViolation) return "NONE";
+  const pointIndex = firstViolation.pointIndex;
+  if (
+    !Number.isInteger(pointIndex)
+    || pointIndex < 0
+    || !Number.isInteger(checkedPointCount)
+    || checkedPointCount <= pointIndex
+  ) return "UNAVAILABLE";
+  return `Point ${pointIndex + 1} of ${checkedPointCount}`;
+}
+
+function updateTrajectoryValidationUi() {
+  const first = trajectoryValidationState.firstViolation;
+  const values = {
+    digitalTwinValidationOverall: overallTrajectoryValidationLabel(),
+    digitalTwinValidationJointLimits: trajectoryValidationState.jointLimits.replace(
+      /_/g,
+      " ",
+    ),
+    digitalTwinValidationMoveIt: "NOT RUN",
+    digitalTwinValidationCollision: "NOT RUN",
+    digitalTwinValidationCheckedPoints: String(
+      trajectoryValidationState.checkedPointCount,
+    ),
+    digitalTwinValidationViolationCount: String(
+      trajectoryValidationState.violationCount,
+    ),
+    digitalTwinValidationFirstPoint: validationFailedPointLabel(
+      first,
+      trajectoryValidationState.checkedPointCount,
+    ),
+    digitalTwinValidationFailedJoint: first ? first.jointName : "NONE",
+    digitalTwinValidationJointValue: first
+      ? `${first.valueRad.toFixed(3)} rad`
+      : "N/A",
+    digitalTwinValidationAllowedRange: first
+      ? `[${first.minRad.toFixed(3)}, ${first.maxRad.toFixed(3)}] rad`
+      : "N/A",
+    digitalTwinValidationSource: validationSourceLabel(
+      trajectoryValidationState.source,
+    ),
+    digitalTwinValidationModelSource: validationPathBasename(
+      validationModelPath(trajectoryValidationState.source),
+    ),
+    digitalTwinValidationError: trajectoryValidationState.error || "NONE",
+  };
+  Object.entries(values).forEach(([id, value]) => {
+    const element = document.getElementById(id);
+    if (element) element.textContent = value;
+  });
+}
+
+function clearTrajectoryValidation() {
+  trajectoryValidationState.status = "NOT_VALIDATED";
+  trajectoryValidationState.jointLimits = "NOT_VALIDATED";
+  trajectoryValidationState.moveitStateValidity = "NOT_RUN";
+  trajectoryValidationState.collision = "NOT_RUN";
+  trajectoryValidationState.valid = null;
+  trajectoryValidationState.checkedPointCount = 0;
+  trajectoryValidationState.checkedJointCount = 0;
+  trajectoryValidationState.violationCount = 0;
+  trajectoryValidationState.violations = [];
+  trajectoryValidationState.firstViolation = null;
+  trajectoryValidationState.source = "NONE";
+  trajectoryValidationState.error = null;
+  updateTrajectoryValidationUi();
+  return trajectoryValidationStateSnapshot();
+}
+
+function validateLoadedTrajectoryJointLimits() {
+  if (!trajectoryPreviewState.trajectory) {
+    clearTrajectoryValidation();
+    trajectoryValidationState.status = "ERROR";
+    trajectoryValidationState.error = "No normalized planned trajectory is loaded";
+    updateTrajectoryValidationUi();
+    return trajectoryValidationStateSnapshot();
+  }
+
+  trajectoryValidationState.status = "VALIDATING";
+  trajectoryValidationState.error = null;
+  updateTrajectoryValidationUi();
+  try {
+    const result = validateTrajectoryJointLimits(
+      trajectoryPreviewState.trajectory,
+      DUAL_JAKA_A12_JOINT_LIMIT_METADATA,
+    );
+    trajectoryValidationState.status = result.valid ? "VALID" : "INVALID";
+    trajectoryValidationState.jointLimits = result.valid ? "PASS" : "FAIL";
+    trajectoryValidationState.moveitStateValidity = "NOT_RUN";
+    trajectoryValidationState.collision = "NOT_RUN";
+    trajectoryValidationState.valid = result.valid;
+    trajectoryValidationState.checkedPointCount = result.checkedPointCount;
+    trajectoryValidationState.checkedJointCount = result.checkedJointCount;
+    trajectoryValidationState.violationCount = result.violations.length;
+    trajectoryValidationState.violations = result.violations.map(
+      (violation) => ({ ...violation }),
+    );
+    trajectoryValidationState.firstViolation = result.firstViolation
+      ? { ...result.firstViolation }
+      : null;
+    trajectoryValidationState.source = (
+      `GENERATED URDF POSITION LIMITS — `
+      + DUAL_JAKA_A12_JOINT_LIMIT_METADATA.source_model
+    );
+    trajectoryValidationState.error = null;
+  } catch (error) {
+    clearTrajectoryValidation();
+    trajectoryValidationState.status = "ERROR";
+    trajectoryValidationState.error = error && error.message
+      ? error.message
+      : "Trajectory joint-limit validation failed";
+  }
+  updateTrajectoryValidationUi();
+  return trajectoryValidationStateSnapshot();
+}
+
+function getTrajectoryValidationState() {
+  return trajectoryValidationStateSnapshot();
 }
 
 function formatMirrorTimestamp(timestampMs) {
@@ -990,6 +1203,9 @@ const publicApi = {
   stopPlannedTrajectory,
   setTrajectoryPlaybackRate,
   getTrajectoryPreviewState,
+  validateLoadedTrajectoryJointLimits,
+  clearTrajectoryValidation,
+  getTrajectoryValidationState,
 };
 
 function handleResize() {
@@ -1124,6 +1340,21 @@ function bindTrajectoryPreviewControls() {
       setTrajectoryPlaybackRate(Number(event.target.value));
     });
   }
+}
+
+function bindTrajectoryValidationControls() {
+  const bindings = {
+    digitalTwinValidateJointLimits: validateLoadedTrajectoryJointLimits,
+    digitalTwinClearValidation: clearTrajectoryValidation,
+    digitalTwinInvalidLimitTest: () => loadPlannedTrajectory(
+      MOCK_INVALID_LIMIT_TRAJECTORY,
+      "OFFLINE VALIDATION TEST",
+    ),
+  };
+  Object.entries(bindings).forEach(([id, handler]) => {
+    const element = document.getElementById(id);
+    if (element) element.addEventListener("click", handler);
+  });
 }
 
 function countVisualMeshes(model) {
@@ -1558,9 +1789,11 @@ function initialize() {
   bindMirrorControls();
   bindPlannedPreviewControls();
   bindTrajectoryPreviewControls();
+  bindTrajectoryValidationControls();
   updateMirrorUi();
   updatePlannedPreviewUi();
   updateTrajectoryPreviewUi();
+  updateTrajectoryValidationUi();
   window.setInterval(() => {
     updateMirrorStaleness(Date.now());
   }, 250);
