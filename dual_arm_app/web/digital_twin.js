@@ -20,6 +20,7 @@ import {
 } from "./digital_twin_trajectory_preview.js";
 import { DUAL_JAKA_A12_JOINT_LIMIT_METADATA } from "./digital_twin_joint_limit_metadata.js";
 import { validateTrajectoryJointLimits } from "./digital_twin_trajectory_validation.js";
+import { requestMoveItTrajectoryValidation } from "./digital_twin_moveit_validation_source.js";
 
 const MODEL_URL = "/digital-twin/assets/dual_jaka_a12_web.urdf";
 const LOAD_TIMEOUT_MS = 20000;
@@ -155,6 +156,36 @@ const MOCK_INVALID_LIMIT_TRAJECTORY = {
   ],
 };
 
+const KNOWN_MOVEIT_VALID_POSE = Object.freeze({
+  left: Object.freeze([3.14, 0.52124, -0.800072, 0, 0.798816, 0]),
+  right: Object.freeze([0, 2.617504, 0.798816, 0, 2.339928, 0]),
+});
+
+const KNOWN_MOVEIT_COLLISION_POSE = Object.freeze({
+  left: Object.freeze([
+    2.713157, -0.969667, -2.416695, -2.393133, 2.062073, 0.615523,
+  ]),
+  right: Object.freeze([
+    1.822536, 1.363256, 0.214982, 2.807525, -0.720792, 0.308815,
+  ]),
+});
+
+const KNOWN_MOVEIT_COLLISION_TRAJECTORY = {
+  name: "Known MoveIt Collision Test",
+  points: [
+    {
+      time_from_start_s: 0,
+      left: [...KNOWN_MOVEIT_VALID_POSE.left],
+      right: [...KNOWN_MOVEIT_VALID_POSE.right],
+    },
+    {
+      time_from_start_s: 1,
+      left: [...KNOWN_MOVEIT_COLLISION_POSE.left],
+      right: [...KNOWN_MOVEIT_COLLISION_POSE.right],
+    },
+  ],
+};
+
 const mirrorState = {
   mode: MIRROR_MODES.STATIC,
   enabled: false,
@@ -208,6 +239,12 @@ const trajectoryValidationState = {
   violationCount: 0,
   violations: [],
   firstViolation: null,
+  moveitCheckedPointCount: 0,
+  moveitFailedPointCount: 0,
+  firstMoveItFailedPoint: null,
+  firstCollisionPair: null,
+  collisionPairCount: 0,
+  maxPenetrationDepthM: null,
   source: "NONE",
   error: null,
 };
@@ -224,6 +261,8 @@ let robot = null;
 let plannedRobot = null;
 let latestActualPose = null;
 let plannedLoadStarted = false;
+let moveitValidationInFlight = false;
+let trajectoryValidationGeneration = 0;
 let homeCameraPosition = null;
 let homeCameraTarget = null;
 
@@ -831,6 +870,14 @@ function getTrajectoryPreviewState() {
 }
 
 function trajectoryValidationStateSnapshot() {
+  const copyMoveItPoint = (point) => point
+    ? {
+      ...point,
+      contacts: Array.isArray(point.contacts)
+        ? point.contacts.map((contact) => ({ ...contact }))
+        : [],
+    }
+    : null;
   return {
     status: trajectoryValidationState.status,
     jointLimits: trajectoryValidationState.jointLimits,
@@ -846,13 +893,50 @@ function trajectoryValidationStateSnapshot() {
     firstViolation: trajectoryValidationState.firstViolation
       ? { ...trajectoryValidationState.firstViolation }
       : null,
+    moveitCheckedPointCount: trajectoryValidationState.moveitCheckedPointCount,
+    moveitFailedPointCount: trajectoryValidationState.moveitFailedPointCount,
+    firstMoveItFailedPoint: copyMoveItPoint(
+      trajectoryValidationState.firstMoveItFailedPoint,
+    ),
+    firstCollisionPair: trajectoryValidationState.firstCollisionPair
+      ? { ...trajectoryValidationState.firstCollisionPair }
+      : null,
+    collisionPairCount: trajectoryValidationState.collisionPairCount,
+    maxPenetrationDepthM: trajectoryValidationState.maxPenetrationDepthM,
     source: trajectoryValidationState.source,
     error: trajectoryValidationState.error,
   };
 }
 
 function overallTrajectoryValidationLabel() {
-  if (trajectoryValidationState.status === "VALID") {
+  if (trajectoryValidationState.jointLimits === "FAIL") return "INVALID";
+  if (trajectoryValidationState.moveitStateValidity === "CHECKING") {
+    return "CHECKING — MOVEIT STORED POINTS";
+  }
+  if (trajectoryValidationState.moveitStateValidity === "UNAVAILABLE") {
+    return "INCOMPLETE — MOVEIT UNAVAILABLE";
+  }
+  if (trajectoryValidationState.moveitStateValidity === "TIMEOUT") {
+    return "INCOMPLETE — MOVEIT TIMEOUT";
+  }
+  if (trajectoryValidationState.moveitStateValidity === "ERROR") {
+    return "INCOMPLETE — MOVEIT ERROR";
+  }
+  if (
+    trajectoryValidationState.moveitStateValidity === "FAIL"
+    && trajectoryValidationState.collision === "FAIL"
+  ) return "INVALID — COLLISION DETECTED";
+  if (trajectoryValidationState.moveitStateValidity === "FAIL") {
+    return "INVALID — STATE INVALID (NO COLLISION CONTACT RETURNED)";
+  }
+  if (
+    trajectoryValidationState.jointLimits === "PASS"
+    && trajectoryValidationState.moveitStateValidity === "PASS"
+  ) return "VALIDATED STORED POINTS — JOINT LIMITS + MOVEIT COLLISION";
+  if (
+    trajectoryValidationState.status === "VALID"
+    && trajectoryValidationState.jointLimits === "PASS"
+  ) {
     return "PARTIAL PASS — JOINT LIMITS PASS — MOVEIT PENDING";
   }
   if (trajectoryValidationState.status === "INVALID") return "INVALID";
@@ -894,6 +978,30 @@ function validationFailedPointLabel(firstViolation, checkedPointCount) {
   return `Point ${pointIndex + 1} of ${checkedPointCount}`;
 }
 
+function moveitFailedPointLabel(firstFailedPoint, checkedPointCount) {
+  if (!firstFailedPoint) return "NONE";
+  const pointIndex = firstFailedPoint.point_index;
+  if (
+    !Number.isInteger(pointIndex)
+    || pointIndex < 0
+    || !Number.isInteger(checkedPointCount)
+    || checkedPointCount <= pointIndex
+  ) return "UNAVAILABLE";
+  return `Point ${pointIndex + 1} of ${checkedPointCount}`;
+}
+
+function collisionPairLabel(pair) {
+  return pair && typeof pair.body_1 === "string" && typeof pair.body_2 === "string"
+    ? `${pair.body_1} ↔ ${pair.body_2}`
+    : "NONE";
+}
+
+function penetrationDepthLabel(depthM) {
+  return typeof depthM === "number" && Number.isFinite(depthM)
+    ? `${(depthM * 1000).toFixed(3)} mm (${depthM.toFixed(6)} m)`
+    : "NONE";
+}
+
 function updateTrajectoryValidationUi() {
   const first = trajectoryValidationState.firstViolation;
   const values = {
@@ -902,8 +1010,14 @@ function updateTrajectoryValidationUi() {
       /_/g,
       " ",
     ),
-    digitalTwinValidationMoveIt: "NOT RUN",
-    digitalTwinValidationCollision: "NOT RUN",
+    digitalTwinValidationMoveIt: trajectoryValidationState.moveitStateValidity.replace(
+      /_/g,
+      " ",
+    ),
+    digitalTwinValidationCollision: trajectoryValidationState.collision.replace(
+      /_/g,
+      " ",
+    ),
     digitalTwinValidationCheckedPoints: String(
       trajectoryValidationState.checkedPointCount,
     ),
@@ -921,6 +1035,25 @@ function updateTrajectoryValidationUi() {
     digitalTwinValidationAllowedRange: first
       ? `[${first.minRad.toFixed(3)}, ${first.maxRad.toFixed(3)}] rad`
       : "N/A",
+    digitalTwinValidationMoveItCheckedPoints: String(
+      trajectoryValidationState.moveitCheckedPointCount,
+    ),
+    digitalTwinValidationMoveItFailedPoints: String(
+      trajectoryValidationState.moveitFailedPointCount,
+    ),
+    digitalTwinValidationFirstMoveItPoint: moveitFailedPointLabel(
+      trajectoryValidationState.firstMoveItFailedPoint,
+      trajectoryValidationState.moveitCheckedPointCount,
+    ),
+    digitalTwinValidationFirstCollisionPair: collisionPairLabel(
+      trajectoryValidationState.firstCollisionPair,
+    ),
+    digitalTwinValidationCollisionPairCount: String(
+      trajectoryValidationState.collisionPairCount,
+    ),
+    digitalTwinValidationMaxPenetration: penetrationDepthLabel(
+      trajectoryValidationState.maxPenetrationDepthM,
+    ),
     digitalTwinValidationSource: validationSourceLabel(
       trajectoryValidationState.source,
     ),
@@ -935,11 +1068,22 @@ function updateTrajectoryValidationUi() {
   });
 }
 
-function clearTrajectoryValidation() {
-  trajectoryValidationState.status = "NOT_VALIDATED";
-  trajectoryValidationState.jointLimits = "NOT_VALIDATED";
+function resetMoveItValidationFields() {
   trajectoryValidationState.moveitStateValidity = "NOT_RUN";
   trajectoryValidationState.collision = "NOT_RUN";
+  trajectoryValidationState.moveitCheckedPointCount = 0;
+  trajectoryValidationState.moveitFailedPointCount = 0;
+  trajectoryValidationState.firstMoveItFailedPoint = null;
+  trajectoryValidationState.firstCollisionPair = null;
+  trajectoryValidationState.collisionPairCount = 0;
+  trajectoryValidationState.maxPenetrationDepthM = null;
+}
+
+function clearTrajectoryValidation() {
+  trajectoryValidationGeneration += 1;
+  trajectoryValidationState.status = "NOT_VALIDATED";
+  trajectoryValidationState.jointLimits = "NOT_VALIDATED";
+  resetMoveItValidationFields();
   trajectoryValidationState.valid = null;
   trajectoryValidationState.checkedPointCount = 0;
   trajectoryValidationState.checkedJointCount = 0;
@@ -953,6 +1097,7 @@ function clearTrajectoryValidation() {
 }
 
 function validateLoadedTrajectoryJointLimits() {
+  if (moveitValidationInFlight) trajectoryValidationGeneration += 1;
   if (!trajectoryPreviewState.trajectory) {
     clearTrajectoryValidation();
     trajectoryValidationState.status = "ERROR";
@@ -961,6 +1106,7 @@ function validateLoadedTrajectoryJointLimits() {
     return trajectoryValidationStateSnapshot();
   }
 
+  resetMoveItValidationFields();
   trajectoryValidationState.status = "VALIDATING";
   trajectoryValidationState.error = null;
   updateTrajectoryValidationUi();
@@ -1000,6 +1146,101 @@ function validateLoadedTrajectoryJointLimits() {
 }
 
 function getTrajectoryValidationState() {
+  return trajectoryValidationStateSnapshot();
+}
+
+async function validateLoadedTrajectory() {
+  if (moveitValidationInFlight) return trajectoryValidationStateSnapshot();
+  const jointLimitResult = validateLoadedTrajectoryJointLimits();
+  if (jointLimitResult.jointLimits !== "PASS" || !jointLimitResult.valid) {
+    return jointLimitResult;
+  }
+
+  moveitValidationInFlight = true;
+  const validationGeneration = trajectoryValidationGeneration;
+  trajectoryValidationState.status = "VALIDATING";
+  trajectoryValidationState.moveitStateValidity = "CHECKING";
+  trajectoryValidationState.collision = "NOT_RUN";
+  trajectoryValidationState.error = null;
+  updateTrajectoryValidationUi();
+  try {
+    const payload = await requestMoveItTrajectoryValidation(
+      trajectoryPreviewState.trajectory,
+    );
+    if (validationGeneration !== trajectoryValidationGeneration) {
+      return trajectoryValidationStateSnapshot();
+    }
+    const validation = payload.validation;
+    const status = validation.status;
+    trajectoryValidationState.moveitCheckedPointCount = Number.isInteger(
+      validation.checked_point_count,
+    ) ? validation.checked_point_count : 0;
+    trajectoryValidationState.moveitFailedPointCount = Number.isInteger(
+      validation.failed_point_count,
+    ) ? validation.failed_point_count : 0;
+    trajectoryValidationState.firstMoveItFailedPoint = validation.first_failed_point
+      ? {
+        ...validation.first_failed_point,
+        contacts: Array.isArray(validation.first_failed_point.contacts)
+          ? validation.first_failed_point.contacts.map((contact) => ({ ...contact }))
+          : [],
+      }
+      : null;
+    trajectoryValidationState.firstCollisionPair = validation.first_collision_pair
+      ? { ...validation.first_collision_pair }
+      : null;
+    trajectoryValidationState.collisionPairCount = Number.isInteger(
+      validation.collision_pair_count,
+    ) ? validation.collision_pair_count : 0;
+    trajectoryValidationState.maxPenetrationDepthM = (
+      typeof validation.max_penetration_depth_m === "number"
+      && Number.isFinite(validation.max_penetration_depth_m)
+    ) ? validation.max_penetration_depth_m : null;
+    trajectoryValidationState.source = (
+      `JOINT LIMITS + MOVEIT CHECK STATE VALIDITY — `
+      + DUAL_JAKA_A12_JOINT_LIMIT_METADATA.source_model
+    );
+    trajectoryValidationState.error = validation.error || null;
+
+    if (status === "PASS") {
+      trajectoryValidationState.status = "VALID";
+      trajectoryValidationState.moveitStateValidity = "PASS";
+      trajectoryValidationState.collision = "PASS";
+      trajectoryValidationState.valid = true;
+    } else if (status === "FAIL") {
+      trajectoryValidationState.status = "INVALID";
+      trajectoryValidationState.moveitStateValidity = "FAIL";
+      trajectoryValidationState.collision = (
+        trajectoryValidationState.collisionPairCount > 0
+      ) ? "FAIL" : "NOT_DETECTED";
+      trajectoryValidationState.valid = false;
+    } else {
+      trajectoryValidationState.status = "ERROR";
+      trajectoryValidationState.moveitStateValidity = (
+        ["UNAVAILABLE", "TIMEOUT", "ERROR"].includes(status)
+      ) ? status : "ERROR";
+      trajectoryValidationState.collision = "NOT_RUN";
+      trajectoryValidationState.valid = null;
+    }
+  } catch (error) {
+    if (validationGeneration !== trajectoryValidationGeneration) {
+      return trajectoryValidationStateSnapshot();
+    }
+    trajectoryValidationState.status = "ERROR";
+    trajectoryValidationState.moveitStateValidity = error && error.code === "TIMEOUT"
+      ? "TIMEOUT"
+      : "ERROR";
+    trajectoryValidationState.collision = "NOT_RUN";
+    trajectoryValidationState.valid = null;
+    trajectoryValidationState.error = error && error.message
+      ? error.message
+      : "MoveIt validation request failed";
+  } finally {
+    moveitValidationInFlight = false;
+    if (validationGeneration === trajectoryValidationGeneration) {
+      updateTrajectoryValidationUi();
+    }
+  }
   return trajectoryValidationStateSnapshot();
 }
 
@@ -1203,6 +1444,7 @@ const publicApi = {
   stopPlannedTrajectory,
   setTrajectoryPlaybackRate,
   getTrajectoryPreviewState,
+  validateLoadedTrajectory,
   validateLoadedTrajectoryJointLimits,
   clearTrajectoryValidation,
   getTrajectoryValidationState,
@@ -1344,11 +1586,16 @@ function bindTrajectoryPreviewControls() {
 
 function bindTrajectoryValidationControls() {
   const bindings = {
+    digitalTwinValidateStoredPoints: validateLoadedTrajectory,
     digitalTwinValidateJointLimits: validateLoadedTrajectoryJointLimits,
     digitalTwinClearValidation: clearTrajectoryValidation,
     digitalTwinInvalidLimitTest: () => loadPlannedTrajectory(
       MOCK_INVALID_LIMIT_TRAJECTORY,
       "OFFLINE VALIDATION TEST",
+    ),
+    digitalTwinKnownCollisionTest: () => loadPlannedTrajectory(
+      KNOWN_MOVEIT_COLLISION_TRAJECTORY,
+      "OFFLINE MOVEIT TEST — NOT FOR ROBOT EXECUTION",
     ),
   };
   Object.entries(bindings).forEach(([id, handler]) => {

@@ -11,7 +11,7 @@ import yaml
 import rclpy
 from rclpy.node import Node
 
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
 from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
@@ -43,6 +43,26 @@ except ImportError:
             expected_joint_name_aliases,
             normalize_joint_state_message,
             wall_clock_ms,
+        )
+
+try:
+    from dual_arm_app.backend.moveit_state_validation import (
+        MoveItStateValidationBridge,
+        TrajectoryValidationInputError,
+        empty_validation_result,
+    )
+except ImportError:
+    try:
+        from .moveit_state_validation import (
+            MoveItStateValidationBridge,
+            TrajectoryValidationInputError,
+            empty_validation_result,
+        )
+    except ImportError:
+        from moveit_state_validation import (
+            MoveItStateValidationBridge,
+            TrajectoryValidationInputError,
+            empty_validation_result,
         )
 
 
@@ -104,6 +124,10 @@ class ProgramNameRequest(BaseModel):
     name: str
 
 
+class DigitalTwinTrajectoryValidationRequest(BaseModel):
+    trajectory: Dict[str, Any]
+
+
 class StopRequest(BaseModel):
     side: str = "both"
 
@@ -162,6 +186,17 @@ class DualJakaWebNode(Node):
             }
             for side in ("left", "right")
         }
+        self.moveit_state_validation_bridge = None
+        self.moveit_state_validation_error = None
+        try:
+            self.moveit_state_validation_bridge = MoveItStateValidationBridge.from_node(
+                self,
+                service_name="/check_state_validity",
+                group_name="dual_arm",
+                timeout_s=2.0,
+            )
+        except Exception as error:
+            self.moveit_state_validation_error = str(error)
 
         self.active_jog: Optional[Dict[str, Any]] = None
         self.active_sequence: Optional[Dict[str, Any]] = None
@@ -321,6 +356,16 @@ class DualJakaWebNode(Node):
                 for side, values in self.digital_twin_joint_cache.items()
             }
         return build_digital_twin_joint_status(cache_snapshot)
+
+    def validate_digital_twin_trajectory(self, trajectory):
+        """Check stored points with MoveIt only; never invoke robot motion APIs."""
+        if self.moveit_state_validation_bridge is None:
+            return empty_validation_result(
+                "UNAVAILABLE",
+                self.moveit_state_validation_error
+                or "MoveIt state-validity client is unavailable",
+            )
+        return self.moveit_state_validation_bridge.validate_trajectory(trajectory)
 
     def safe_state_ok(self, side):
         selected = []
@@ -1864,6 +1909,7 @@ _D33_NO_MOTION_PATHS = (
     "/api/waypoints",
     "/api/program/list",
     "/api/program/load",
+    "/api/digital-twin/validate-trajectory",
 )
 
 def _d33_is_motion_command(path: str, method: str) -> bool:
@@ -2012,6 +2058,18 @@ def api_status():
 @app.get("/api/digital-twin/joints")
 def api_digital_twin_joints():
     return node.digital_twin_joint_status()
+
+
+@app.post("/api/digital-twin/validate-trajectory")
+def api_digital_twin_validate_trajectory(req: DigitalTwinTrajectoryValidationRequest):
+    try:
+        validation = node.validate_digital_twin_trajectory(req.trajectory)
+    except TrajectoryValidationInputError as error:
+        raise HTTPException(status_code=422, detail=str(error)) from error
+    return {
+        "ok": validation["status"] in {"PASS", "FAIL"},
+        "validation": validation,
+    }
 
 
 @app.post("/api/jog/start")

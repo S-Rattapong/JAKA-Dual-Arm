@@ -825,20 +825,32 @@
           <span>Failed Joint: <strong id="digitalTwinValidationFailedJoint">NONE</strong></span>
           <span>Joint Value: <strong id="digitalTwinValidationJointValue">N/A</strong></span>
           <span>Allowed Range: <strong id="digitalTwinValidationAllowedRange">N/A</strong></span>
+          <span>MoveIt Checked Points: <strong id="digitalTwinValidationMoveItCheckedPoints">0</strong></span>
+          <span>MoveIt Failed Points: <strong id="digitalTwinValidationMoveItFailedPoints">0</strong></span>
+          <span>First MoveIt Failed Point: <strong id="digitalTwinValidationFirstMoveItPoint">NONE</strong></span>
+          <span>First Collision Pair: <strong id="digitalTwinValidationFirstCollisionPair">NONE</strong></span>
+          <span>Collision Pair Count: <strong id="digitalTwinValidationCollisionPairCount">0</strong></span>
+          <span>Maximum Penetration: <strong id="digitalTwinValidationMaxPenetration">N/A</strong></span>
           <span>Validation Source: <strong id="digitalTwinValidationSource">NONE</strong></span>
           <span>Model Source: <strong id="digitalTwinValidationModelSource">UNAVAILABLE</strong></span>
           <span>Validation Error: <strong id="digitalTwinValidationError">NONE</strong></span>
         </div>
         <div class="row" aria-label="Offline trajectory validation controls">
+          <button id="digitalTwinValidateStoredPoints" type="button">
+            Validate Joint Limits + MoveIt
+          </button>
           <button id="digitalTwinValidateJointLimits" type="button">Validate Joint Limits</button>
           <button id="digitalTwinClearValidation" type="button">Clear Validation</button>
           <button id="digitalTwinInvalidLimitTest" type="button">
             Load Invalid Limit Test — OFFLINE VALIDATION TEST
           </button>
+          <button id="digitalTwinKnownCollisionTest" type="button">
+            Load Known Collision Test — OFFLINE MOVEIT TEST
+          </button>
         </div>
         <div class="digital-twin-validation-notice">
-          POSITION LIMIT CHECK ONLY — MOVEIT / COLLISION NOT RUN YET —
-          NO ROBOT EXECUTION
+          NOT FOR ROBOT EXECUTION — STORED POINTS ONLY — BETWEEN-POINT COLLISION
+          NOT YET CHECKED — INTERPOLATION / DYNAMICS NOT VALIDATED
         </div>
       </div>
     </div>

@@ -223,6 +223,7 @@ class SelectiveScopeResetTests(unittest.TestCase):
                 "/right_jaka_driver/get_ik",
                 "/left_jaka_driver/stop_move",
                 "/right_jaka_driver/stop_move",
+                "/check_state_validity",
             },
         )
 

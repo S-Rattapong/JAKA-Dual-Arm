@@ -334,6 +334,7 @@ console.log(JSON.stringify({{
     def test_public_api_ui_partial_semantics_scope_and_protected_file(self) -> None:
         api = self.digital_twin.split("const publicApi = {", 1)[1].split("};", 1)[0]
         for method in (
+            "validateLoadedTrajectory",
             "validateLoadedTrajectoryJointLimits",
             "clearTrajectoryValidation",
             "getTrajectoryValidationState",
@@ -365,15 +366,23 @@ console.log(JSON.stringify({{
             "Failed Joint",
             "Joint Value",
             "Allowed Range",
+            "MoveIt Checked Points",
+            "MoveIt Failed Points",
+            "First MoveIt Failed Point",
+            "First Collision Pair",
+            "Collision Pair Count",
+            "Maximum Penetration",
             "Validation Source",
             "Model Source",
             "Validation Error",
             "Validate Joint Limits",
             "Clear Validation",
             "Load Invalid Limit Test — OFFLINE VALIDATION TEST",
-            "POSITION LIMIT CHECK ONLY",
-            "MOVEIT / COLLISION NOT RUN YET",
-            "NO ROBOT EXECUTION",
+            "Load Known Collision Test — OFFLINE MOVEIT TEST",
+            "NOT FOR ROBOT EXECUTION",
+            "STORED POINTS ONLY",
+            "BETWEEN-POINT COLLISION",
+            "INTERPOLATION / DYNAMICS NOT VALIDATED",
         ):
             with self.subTest(label=label):
                 self.assertIn(label, panel)
