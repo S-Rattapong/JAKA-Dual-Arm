@@ -46,6 +46,23 @@ except ImportError:
         )
 
 try:
+    from dual_arm_app.backend.sampled_path_validation import (
+        SampledPathValidationInputError,
+        normalize_sampled_path_options,
+    )
+except ImportError:
+    try:
+        from .sampled_path_validation import (
+            SampledPathValidationInputError,
+            normalize_sampled_path_options,
+        )
+    except ImportError:
+        from sampled_path_validation import (
+            SampledPathValidationInputError,
+            normalize_sampled_path_options,
+        )
+
+try:
     from dual_arm_app.backend.moveit_state_validation import (
         MoveItStateValidationBridge,
         TrajectoryValidationInputError,
@@ -126,6 +143,7 @@ class ProgramNameRequest(BaseModel):
 
 class DigitalTwinTrajectoryValidationRequest(BaseModel):
     trajectory: Dict[str, Any]
+    sampled_path: Optional[Dict[str, Any]] = None
 
 
 class StopRequest(BaseModel):
@@ -357,15 +375,18 @@ class DualJakaWebNode(Node):
             }
         return build_digital_twin_joint_status(cache_snapshot)
 
-    def validate_digital_twin_trajectory(self, trajectory):
-        """Check stored points with MoveIt only; never invoke robot motion APIs."""
+    def validate_digital_twin_trajectory(self, trajectory, sampled_path=None):
+        """Check stored and optional sampled states without invoking motion APIs."""
+        normalize_sampled_path_options(sampled_path)
         if self.moveit_state_validation_bridge is None:
             return empty_validation_result(
                 "UNAVAILABLE",
                 self.moveit_state_validation_error
                 or "MoveIt state-validity client is unavailable",
             )
-        return self.moveit_state_validation_bridge.validate_trajectory(trajectory)
+        return self.moveit_state_validation_bridge.validate_trajectory(
+            trajectory, sampled_path
+        )
 
     def safe_state_ok(self, side):
         selected = []
@@ -2063,11 +2084,17 @@ def api_digital_twin_joints():
 @app.post("/api/digital-twin/validate-trajectory")
 def api_digital_twin_validate_trajectory(req: DigitalTwinTrajectoryValidationRequest):
     try:
-        validation = node.validate_digital_twin_trajectory(req.trajectory)
-    except TrajectoryValidationInputError as error:
+        validation = node.validate_digital_twin_trajectory(
+            req.trajectory, req.sampled_path
+        )
+    except (TrajectoryValidationInputError, SampledPathValidationInputError) as error:
         raise HTTPException(status_code=422, detail=str(error)) from error
+    sampled_status = (validation.get("sampled_path") or {}).get("status")
     return {
-        "ok": validation["status"] in {"PASS", "FAIL"},
+        "ok": (
+            validation["status"] in {"PASS", "FAIL"}
+            and sampled_status not in {"UNAVAILABLE", "TIMEOUT", "ERROR"}
+        ),
         "validation": validation,
     }
 

@@ -12,6 +12,23 @@ import time
 from collections.abc import Callable
 from typing import Any
 
+try:
+    from dual_arm_app.backend.sampled_path_validation import (
+        generate_trajectory_interior_samples,
+        normalize_sampled_path_options,
+    )
+except ImportError:
+    try:
+        from .sampled_path_validation import (
+            generate_trajectory_interior_samples,
+            normalize_sampled_path_options,
+        )
+    except ImportError:
+        from sampled_path_validation import (
+            generate_trajectory_interior_samples,
+            normalize_sampled_path_options,
+        )
+
 
 SERVICE_NAME = "/check_state_validity"
 PLANNING_GROUP = "dual_arm"
@@ -296,14 +313,146 @@ class MoveItStateValidationBridge:
             group_name=self.group_name,
         )
 
-    def validate_trajectory(self, trajectory: Any) -> dict[str, Any]:
+    @staticmethod
+    def _sampled_base_result(
+        plan: dict[str, Any],
+        status: str,
+        error: str | None = None,
+    ) -> dict[str, Any]:
+        segments = [
+            {
+                **segment,
+                "checked_interior_sample_count": 0,
+                "failed_interior_sample_count": 0,
+            }
+            for segment in plan["segments"]
+        ]
+        return {
+            "status": status,
+            "max_joint_step_rad": plan["max_joint_step_rad"],
+            "segment_count": plan["segment_count"],
+            "generated_interior_sample_count": plan[
+                "generated_interior_sample_count"
+            ],
+            "checked_interior_sample_count": 0,
+            "failed_interior_sample_count": 0,
+            "first_failed_sample": None,
+            "collision_pair_count": 0,
+            "collision_pairs": [],
+            "first_collision_pair": None,
+            "max_penetration_depth_m": None,
+            "segments": segments,
+            "samples": [],
+            "error": error,
+        }
+
+    def _validate_sampled_path(self, plan: dict[str, Any]) -> dict[str, Any]:
+        result = self._sampled_base_result(plan, "CHECKING")
+        sample_results: list[dict[str, Any]] = []
+        for sample in plan["samples"]:
+            try:
+                request = self._request_for_point(sample)
+                wait_status, response = self._wait_for_future(
+                    self.client.call_async(request)
+                )
+            except Exception as error:
+                result["status"] = "ERROR"
+                result["error"] = str(error)
+                break
+            if wait_status != "OK":
+                if wait_status == "ERROR":
+                    error = str(response)
+                else:
+                    error = (
+                        "MoveIt sampled-path request timed out at segment "
+                        f"{sample['segment_index']}, sample {sample['sample_index']} "
+                        f"after {self.timeout_s:.3f} seconds"
+                    )
+                result["status"] = wait_status
+                result["error"] = error
+                break
+
+            try:
+                parsed = parse_point_response(
+                    response,
+                    sample["sample_index"],
+                    sample["time_from_start_s"],
+                )
+            except Exception as error:
+                result["status"] = "ERROR"
+                result["error"] = str(error)
+                break
+            parsed.pop("point_index", None)
+            sample_result = {
+                key: sample[key]
+                for key in (
+                    "segment_index",
+                    "start_point_index",
+                    "end_point_index",
+                    "sample_index",
+                    "subdivision_count",
+                    "alpha",
+                    "time_from_start_s",
+                    "sample_time_from_start_s",
+                )
+            }
+            sample_result.update(parsed)
+            sample_results.append(sample_result)
+            segment = result["segments"][sample["segment_index"]]
+            segment["checked_interior_sample_count"] += 1
+            if not sample_result["valid"]:
+                segment["failed_interior_sample_count"] += 1
+
+        failed = [sample for sample in sample_results if not sample["valid"]]
+        contacts = [
+            contact
+            for sample in sample_results
+            for contact in sample["contacts"]
+        ]
+        result.update(summarize_contacts(contacts))
+        result["samples"] = sample_results
+        result["checked_interior_sample_count"] = len(sample_results)
+        result["failed_interior_sample_count"] = len(failed)
+        result["first_failed_sample"] = dict(failed[0]) if failed else None
+        if result["status"] == "CHECKING":
+            result["status"] = "PASS" if not failed else "FAIL"
+            result["error"] = None
+        return result
+
+    def validate_trajectory(
+        self,
+        trajectory: Any,
+        sampled_path: Any = None,
+    ) -> dict[str, Any]:
         normalized = normalize_trajectory(trajectory)
+        sampled_options = normalize_sampled_path_options(sampled_path)
+        sampled_plan = None
+        if sampled_options["enabled"]:
+            sampled_plan = generate_trajectory_interior_samples(
+                normalized,
+                sampled_options["max_joint_step_rad"],
+            )
+
+        def with_sampled_skip(result: dict[str, Any], reason: str) -> dict[str, Any]:
+            if sampled_plan is not None:
+                result["sampled_path"] = self._sampled_base_result(
+                    sampled_plan, "SKIPPED", reason
+                )
+            return result
+
         if not self._validation_lock.acquire(blocking=False):
-            return self._base_result("ERROR", "MoveIt validation is already running")
+            return with_sampled_skip(
+                self._base_result("ERROR", "MoveIt validation is already running"),
+                "Stored-point validation did not pass",
+            )
         try:
             if not self.client.wait_for_service(timeout_sec=min(self.timeout_s, 0.25)):
-                return self._base_result(
-                    "UNAVAILABLE", f"MoveIt service unavailable: {self.service_name}"
+                return with_sampled_skip(
+                    self._base_result(
+                        "UNAVAILABLE",
+                        f"MoveIt service unavailable: {self.service_name}",
+                    ),
+                    "Stored-point MoveIt service is unavailable",
                 )
 
             point_results: list[dict[str, Any]] = []
@@ -320,7 +469,10 @@ class MoveItStateValidationBridge:
                     result = self._base_result(wait_status, error)
                     result["checked_point_count"] = len(point_results)
                     result["points"] = [dict(item) for item in point_results]
-                    return result
+                    return with_sampled_skip(
+                        result,
+                        f"Stored-point validation ended with {wait_status}",
+                    )
                 point_results.append(
                     parse_point_response(
                         response,
@@ -334,8 +486,20 @@ class MoveItStateValidationBridge:
             result.update(summary)
             result["points"] = point_results
             result["error"] = None
+            if sampled_plan is not None:
+                if summary["all_states_valid"]:
+                    result["sampled_path"] = self._validate_sampled_path(sampled_plan)
+                else:
+                    result["sampled_path"] = self._sampled_base_result(
+                        sampled_plan,
+                        "SKIPPED",
+                        "Stored-point MoveIt validation failed",
+                    )
             return result
         except Exception as error:
-            return self._base_result("ERROR", str(error))
+            return with_sampled_skip(
+                self._base_result("ERROR", str(error)),
+                "Stored-point validation did not pass",
+            )
         finally:
             self._validation_lock.release()

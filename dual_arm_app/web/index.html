@@ -817,29 +817,56 @@
         <div class="digital-twin-readout" aria-label="Trajectory validation state">
           <span>Overall Validation: <strong id="digitalTwinValidationOverall">NOT VALIDATED</strong></span>
           <span>Joint Position Limits: <strong id="digitalTwinValidationJointLimits">NOT VALIDATED</strong></span>
-          <span>MoveIt State Validity: <strong id="digitalTwinValidationMoveIt">NOT RUN</strong></span>
-          <span>Collision Check: <strong id="digitalTwinValidationCollision">NOT RUN</strong></span>
+          <span>Stored-Point MoveIt Validity: <strong id="digitalTwinValidationMoveIt">NOT RUN</strong></span>
+          <span>Stored-Point Collision Check: <strong id="digitalTwinValidationCollision">NOT RUN</strong></span>
           <span>Checked Points: <strong id="digitalTwinValidationCheckedPoints">0</strong></span>
           <span>Violation Count: <strong id="digitalTwinValidationViolationCount">0</strong></span>
           <span>First Failed Point: <strong id="digitalTwinValidationFirstPoint">NONE</strong></span>
           <span>Failed Joint: <strong id="digitalTwinValidationFailedJoint">NONE</strong></span>
           <span>Joint Value: <strong id="digitalTwinValidationJointValue">N/A</strong></span>
           <span>Allowed Range: <strong id="digitalTwinValidationAllowedRange">N/A</strong></span>
-          <span>MoveIt Checked Points: <strong id="digitalTwinValidationMoveItCheckedPoints">0</strong></span>
-          <span>MoveIt Failed Points: <strong id="digitalTwinValidationMoveItFailedPoints">0</strong></span>
-          <span>First MoveIt Failed Point: <strong id="digitalTwinValidationFirstMoveItPoint">NONE</strong></span>
-          <span>First Collision Pair: <strong id="digitalTwinValidationFirstCollisionPair">NONE</strong></span>
-          <span>Collision Pair Count: <strong id="digitalTwinValidationCollisionPairCount">0</strong></span>
-          <span>Maximum Penetration: <strong id="digitalTwinValidationMaxPenetration">N/A</strong></span>
+          <span>Stored Points Checked by MoveIt: <strong id="digitalTwinValidationMoveItCheckedPoints">0</strong></span>
+          <span>Stored Points Failed by MoveIt: <strong id="digitalTwinValidationMoveItFailedPoints">0</strong></span>
+          <span>First Failed Stored Point: <strong id="digitalTwinValidationFirstMoveItPoint">NONE</strong></span>
+          <span>First Stored-Point Collision Pair: <strong id="digitalTwinValidationFirstCollisionPair">NONE</strong></span>
+          <span>Stored-Point Collision Pair Count: <strong id="digitalTwinValidationCollisionPairCount">0</strong></span>
+          <span>Maximum Stored-Point Penetration: <strong id="digitalTwinValidationMaxPenetration">N/A</strong></span>
+        </div>
+        <h3>Between-Point Sampled Validation</h3>
+        <div class="digital-twin-readout" aria-label="Between-point sampled validation state">
+          <span>Sampled Path Status: <strong id="digitalTwinValidationSampledStatus">NOT RUN</strong></span>
+          <span>Max Joint Step: <strong id="digitalTwinValidationSampledMaxStep">0.050 rad (2.865°)</strong></span>
+          <span>Segment Count: <strong id="digitalTwinValidationSampledSegmentCount">0</strong></span>
+          <span>Generated Interior Samples: <strong id="digitalTwinValidationSampledGeneratedCount">0</strong></span>
+          <span>Checked Interior Samples: <strong id="digitalTwinValidationSampledCheckedCount">0</strong></span>
+          <span>Failed Interior Samples: <strong id="digitalTwinValidationSampledFailedCount">0</strong></span>
+          <span>First Failed Segment: <strong id="digitalTwinValidationSampledFirstSegment">NONE</strong></span>
+          <span>First Failed Sample: <strong id="digitalTwinValidationSampledFirstSample">NONE</strong></span>
+          <span>Failure Alpha: <strong id="digitalTwinValidationSampledFailureAlpha">N/A</strong></span>
+          <span>Failure Trajectory Time: <strong id="digitalTwinValidationSampledFailureTime">N/A</strong></span>
+          <span>First Sampled Collision Pair: <strong id="digitalTwinValidationSampledFirstCollisionPair">NONE</strong></span>
+          <span>Sampled Collision Pair Count: <strong id="digitalTwinValidationSampledCollisionPairCount">0</strong></span>
+          <span>Maximum Sampled Penetration: <strong id="digitalTwinValidationSampledMaxPenetration">N/A</strong></span>
           <span>Validation Source: <strong id="digitalTwinValidationSource">NONE</strong></span>
           <span>Model Source: <strong id="digitalTwinValidationModelSource">UNAVAILABLE</strong></span>
           <span>Validation Error: <strong id="digitalTwinValidationError">NONE</strong></span>
         </div>
+        <div class="row" aria-label="Between-point sampled validation configuration">
+          <label for="digitalTwinSampledPathMaxJointStep">Max Joint Step (rad)</label>
+          <input
+            id="digitalTwinSampledPathMaxJointStep"
+            type="number"
+            value="0.05"
+            min="0.000001"
+            step="0.01"
+          />
+          <span class="small">0.05 rad ≈ 2.865°</span>
+        </div>
         <div class="row" aria-label="Offline trajectory validation controls">
-          <button id="digitalTwinValidateStoredPoints" type="button">
-            Validate Joint Limits + MoveIt
+          <button id="digitalTwinValidateStoredPoints" type="button" disabled>
+            Validate Full Sampled Path
           </button>
-          <button id="digitalTwinValidateJointLimits" type="button">Validate Joint Limits</button>
+          <button id="digitalTwinValidateJointLimits" type="button" disabled>Validate Joint Limits</button>
           <button id="digitalTwinClearValidation" type="button">Clear Validation</button>
           <button id="digitalTwinInvalidLimitTest" type="button">
             Load Invalid Limit Test — OFFLINE VALIDATION TEST
@@ -847,10 +874,21 @@
           <button id="digitalTwinKnownCollisionTest" type="button">
             Load Known Collision Test — OFFLINE MOVEIT TEST
           </button>
+          <button id="digitalTwinSampledPathMockTest" type="button">
+            Load SAMPLED-PATH MOCK TEST
+          </button>
+          <button id="digitalTwinConfirmedSampledCollisionTest" type="button">
+            Load Confirmed Sampled Collision Test — MOVEIT RUNTIME FIXTURE
+          </button>
+        </div>
+        <div class="small">
+          CONFIRMED MOVEIT RUNTIME FIXTURE — NOT FOR ROBOT EXECUTION —
+          LOAD ONLY; PRESS VALIDATE FULL SAMPLED PATH MANUALLY
         </div>
         <div class="digital-twin-validation-notice">
-          NOT FOR ROBOT EXECUTION — STORED POINTS ONLY — BETWEEN-POINT COLLISION
-          NOT YET CHECKED — INTERPOLATION / DYNAMICS NOT VALIDATED
+          DISCRETE SAMPLED CHECK — NOT A CONTINUOUS COLLISION GUARANTEE —
+          DYNAMICS NOT VALIDATED — PHYSICAL EXECUTION NOT VALIDATED —
+          NOT FOR ROBOT EXECUTION
         </div>
       </div>
     </div>
@@ -2103,7 +2141,7 @@ init();
 </script>
 
 
-<script type="module" src="/web-assets/digital_twin.js"></script>
+<script type="module" src="/web-assets/digital_twin.js?v=normalized-wheel-zoom-v1"></script>
 <script type="module" src="/web-assets/digital_twin_live_source.js"></script>
 
 </body>

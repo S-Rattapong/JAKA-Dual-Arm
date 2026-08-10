@@ -258,7 +258,9 @@ class FrontendValidationTests(unittest.TestCase):
     def test_transport_is_one_post_validation_request(self):
         source = TRANSPORT.read_text(encoding="utf-8")
         self.assertIn('method: "POST"', source)
-        self.assertIn('JSON.stringify({ trajectory })', source)
+        self.assertIn("const requestBody = { trajectory }", source)
+        self.assertIn("requestBody.sampled_path = sampledPath", source)
+        self.assertIn("JSON.stringify(requestBody)", source)
         self.assertIn('"/api/digital-twin/validate-trajectory"', source)
         for forbidden in ("/joint_move", "/jog", "/run", "/execute"):
             self.assertNotIn(forbidden, source)
@@ -271,7 +273,7 @@ import {{ normalizeDualArmTrajectory, sampleTrajectoryAtTime, trajectoryDuration
 import {{ validateTrajectoryJointLimits }} from "./validator.mjs";
 import {{ DUAL_JAKA_A12_JOINT_LIMIT_METADATA }} from "./metadata.mjs";
 const elements = new Map();
-globalThis.document = {{ getElementById(id) {{ if (!elements.has(id)) elements.set(id, {{ textContent: "", value: "", setAttribute() {{}} }}); return elements.get(id); }} }};
+globalThis.document = {{ getElementById(id) {{ if (!elements.has(id)) elements.set(id, {{ textContent: "", value: id === "digitalTwinSampledPathMaxJointStep" ? "0.05" : "", setAttribute() {{}} }}); return elements.get(id); }} }};
 globalThis.performance = {{ now() {{ return 0; }} }};
 globalThis.requestAnimationFrame = () => 1;
 globalThis.cancelAnimationFrame = () => {{}};
@@ -328,13 +330,13 @@ console.log(JSON.stringify({{ gated, callsAfterGate, checking, duplicate, passed
         api = self.source.split("const publicApi = {", 1)[1].split("};", 1)[0]
         self.assertIn("validateLoadedTrajectory,", api)
         for text in (
-            "Validate Joint Limits + MoveIt",
+            "Validate Full Sampled Path",
             "Load Known Collision Test — OFFLINE MOVEIT TEST",
-            "MoveIt Checked Points", "MoveIt Failed Points",
-            "First MoveIt Failed Point", "First Collision Pair",
-            "Collision Pair Count", "Maximum Penetration",
-            "NOT FOR ROBOT EXECUTION", "STORED POINTS ONLY",
-            "BETWEEN-POINT COLLISION", "INTERPOLATION / DYNAMICS NOT VALIDATED",
+            "Stored Points Checked by MoveIt", "Stored Points Failed by MoveIt",
+            "First Failed Stored Point", "First Stored-Point Collision Pair",
+            "Stored-Point Collision Pair Count", "Maximum Stored-Point Penetration",
+            "NOT FOR ROBOT EXECUTION", "DISCRETE SAMPLED CHECK",
+            "NOT A CONTINUOUS COLLISION GUARANTEE", "DYNAMICS NOT VALIDATED",
         ):
             self.assertIn(text, self.html)
         self.assertNotIn(">Execute<", self.html)

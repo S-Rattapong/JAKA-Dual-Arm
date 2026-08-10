@@ -27,6 +27,11 @@ const LOAD_TIMEOUT_MS = 20000;
 const MODEL_READINESS_RETRY_MS = 40;
 const EXPECTED_VISUAL_COUNT = 14;
 const PLANNED_GHOST_OPACITY = 0.38;
+const NORMALIZED_WHEEL_ZOOM_RATE = 0.035;
+const WHEEL_PIXEL_DELTA_PER_STEP = 100;
+const WHEEL_LINE_DELTA_PER_STEP = 3;
+const ORBIT_MIN_DISTANCE_RADIUS_MULTIPLIER = 1.1;
+const ORBIT_MAX_DISTANCE_RADIUS_MULTIPLIER = 8;
 const INITIALIZATION_FLAG = "__dualArmDigitalTwinInitialized";
 const EXPECTED_JOINTS = [
   "left_joint_1",
@@ -186,6 +191,39 @@ const KNOWN_MOVEIT_COLLISION_TRAJECTORY = {
   ],
 };
 
+const DEFAULT_SAMPLED_PATH_MAX_JOINT_STEP_RAD = 0.05;
+const SAMPLED_PATH_MOCK_TRAJECTORY = {
+  name: "SAMPLED-PATH MOCK TEST",
+  points: [
+    {
+      time_from_start_s: 0,
+      left: [0, 0, 0, 0, 0, 0],
+      right: [0, 0, 0, 0, 0, 0],
+    },
+    {
+      time_from_start_s: 1,
+      left: [0.12, 0, 0, 0, 0, 0],
+      right: [0, 0, 0, 0, 0, 0],
+    },
+  ],
+};
+
+const CONFIRMED_SAMPLED_COLLISION_TRAJECTORY = {
+  name: "Confirmed Sampled Collision — MoveIt Runtime Fixture",
+  points: [
+    {
+      time_from_start_s: 0,
+      left: [-1.757703, -0.355475, 0.115155, -1.264532, -2.483733, -2.463276],
+      right: [2.017201, -1.186278, -0.911243, 1.576992, 1.103272, -0.331881],
+    },
+    {
+      time_from_start_s: 2,
+      left: [0.278808, 1.515081, -0.391248, -1.921538, 2.082136, 1.900224],
+      right: [-0.736672, -2.398909, 0.073763, -0.023872, 1.615867, 0.576897],
+    },
+  ],
+};
+
 const mirrorState = {
   mode: MIRROR_MODES.STATIC,
   enabled: false,
@@ -245,6 +283,16 @@ const trajectoryValidationState = {
   firstCollisionPair: null,
   collisionPairCount: 0,
   maxPenetrationDepthM: null,
+  sampledPathStatus: "NOT_RUN",
+  sampledPathMaxJointStepRad: DEFAULT_SAMPLED_PATH_MAX_JOINT_STEP_RAD,
+  sampledPathSegmentCount: 0,
+  sampledPathGeneratedSampleCount: 0,
+  sampledPathCheckedSampleCount: 0,
+  sampledPathFailedSampleCount: 0,
+  firstSampledPathFailure: null,
+  sampledPathCollisionPairCount: 0,
+  sampledPathFirstCollisionPair: null,
+  sampledPathMaxPenetrationDepthM: null,
   source: "NONE",
   error: null,
 };
@@ -289,6 +337,36 @@ function render() {
   }
 }
 
+function normalizedWheelSteps(deltaY, deltaMode) {
+  if (typeof deltaY !== "number" || !Number.isFinite(deltaY)) return 0;
+  const divisor = deltaMode === 1
+    ? WHEEL_LINE_DELTA_PER_STEP
+    : (deltaMode === 2 ? 1 : WHEEL_PIXEL_DELTA_PER_STEP);
+  return Math.max(-1, Math.min(1, deltaY / divisor));
+}
+
+function handleViewerWheel(event) {
+  if (!camera || !controls) return;
+  const wheelSteps = normalizedWheelSteps(event.deltaY, event.deltaMode);
+  if (wheelSteps === 0) return;
+  event.preventDefault();
+
+  const offset = camera.position.clone().sub(controls.target);
+  const currentDistance = offset.length();
+  if (!Number.isFinite(currentDistance) || currentDistance <= 0) return;
+  const requestedDistance = currentDistance * Math.exp(
+    wheelSteps * NORMALIZED_WHEEL_ZOOM_RATE,
+  );
+  const nextDistance = Math.max(
+    controls.minDistance,
+    Math.min(controls.maxDistance, requestedDistance),
+  );
+  offset.multiplyScalar(nextDistance / currentDistance);
+  camera.position.copy(controls.target).add(offset);
+  controls.update();
+  render();
+}
+
 function fitModel(rememberAsHome = false) {
   if (!robot || !camera || !controls || !container) {
     return false;
@@ -304,10 +382,16 @@ function fitModel(rememberAsHome = false) {
   const size = bounds.getSize(new THREE.Vector3());
   const center = bounds.getCenter(new THREE.Vector3());
   const maxDimension = Math.max(size.x, size.y, size.z, 0.1);
+  const boundingSphere = bounds.getBoundingSphere(new THREE.Sphere());
+  const sceneRadius = (
+    Number.isFinite(boundingSphere.radius) && boundingSphere.radius > 0
+  ) ? boundingSphere.radius : maxDimension * 0.5;
   const halfFovRadians = THREE.MathUtils.degToRad(camera.fov * 0.5);
   const distance = (maxDimension * 0.65) / Math.tan(halfFovRadians);
   const viewDirection = new THREE.Vector3(1, -1, 0.7).normalize();
 
+  controls.minDistance = sceneRadius * ORBIT_MIN_DISTANCE_RADIUS_MULTIPLIER;
+  controls.maxDistance = sceneRadius * ORBIT_MAX_DISTANCE_RADIUS_MULTIPLIER;
   controls.target.copy(center);
   camera.position.copy(center).addScaledVector(viewDirection, distance);
   camera.near = Math.max(distance / 1000, 0.001);
@@ -640,6 +724,13 @@ function updateTrajectoryPreviewUi() {
   if (rateSelector && rateSelector.value !== String(state.playbackRate)) {
     rateSelector.value = String(state.playbackRate);
   }
+  for (const id of [
+    "digitalTwinValidateStoredPoints",
+    "digitalTwinValidateJointLimits",
+  ]) {
+    const validationButton = document.getElementById(id);
+    if (validationButton) validationButton.disabled = !state.trajectory;
+  }
 }
 
 function acceptedTrajectorySourceLabel(sourceLabel) {
@@ -903,6 +994,24 @@ function trajectoryValidationStateSnapshot() {
       : null,
     collisionPairCount: trajectoryValidationState.collisionPairCount,
     maxPenetrationDepthM: trajectoryValidationState.maxPenetrationDepthM,
+    sampledPathStatus: trajectoryValidationState.sampledPathStatus,
+    sampledPathMaxJointStepRad: trajectoryValidationState.sampledPathMaxJointStepRad,
+    sampledPathSegmentCount: trajectoryValidationState.sampledPathSegmentCount,
+    sampledPathGeneratedSampleCount: (
+      trajectoryValidationState.sampledPathGeneratedSampleCount
+    ),
+    sampledPathCheckedSampleCount: trajectoryValidationState.sampledPathCheckedSampleCount,
+    sampledPathFailedSampleCount: trajectoryValidationState.sampledPathFailedSampleCount,
+    firstSampledPathFailure: copyMoveItPoint(
+      trajectoryValidationState.firstSampledPathFailure,
+    ),
+    sampledPathCollisionPairCount: trajectoryValidationState.sampledPathCollisionPairCount,
+    sampledPathFirstCollisionPair: trajectoryValidationState.sampledPathFirstCollisionPair
+      ? { ...trajectoryValidationState.sampledPathFirstCollisionPair }
+      : null,
+    sampledPathMaxPenetrationDepthM: (
+      trajectoryValidationState.sampledPathMaxPenetrationDepthM
+    ),
     source: trajectoryValidationState.source,
     error: trajectoryValidationState.error,
   };
@@ -929,6 +1038,30 @@ function overallTrajectoryValidationLabel() {
   if (trajectoryValidationState.moveitStateValidity === "FAIL") {
     return "INVALID — STATE INVALID (NO COLLISION CONTACT RETURNED)";
   }
+  if (trajectoryValidationState.sampledPathStatus === "CHECKING") {
+    return "CHECKING — BETWEEN-POINT SAMPLED PATH";
+  }
+  if (trajectoryValidationState.sampledPathStatus === "TIMEOUT") {
+    return "INCOMPLETE — SAMPLED PATH TIMEOUT";
+  }
+  if (trajectoryValidationState.sampledPathStatus === "UNAVAILABLE") {
+    return "INCOMPLETE — SAMPLED PATH UNAVAILABLE";
+  }
+  if (
+    trajectoryValidationState.sampledPathStatus === "ERROR"
+    || trajectoryValidationState.sampledPathStatus === "SKIPPED"
+  ) return "INCOMPLETE — SAMPLED PATH NOT COMPLETED";
+  if (
+    trajectoryValidationState.sampledPathStatus === "FAIL"
+    && trajectoryValidationState.sampledPathCollisionPairCount > 0
+  ) return "INVALID — SAMPLED PATH COLLISION DETECTED";
+  if (trajectoryValidationState.sampledPathStatus === "FAIL") {
+    return "INVALID — SAMPLED STATE INVALID (NO COLLISION CONTACT RETURNED)";
+  }
+  if (
+    trajectoryValidationState.moveitStateValidity === "PASS"
+    && trajectoryValidationState.sampledPathStatus === "PASS"
+  ) return "VALIDATED SAMPLED PATH — DISCRETE CHECK";
   if (
     trajectoryValidationState.jointLimits === "PASS"
     && trajectoryValidationState.moveitStateValidity === "PASS"
@@ -1002,8 +1135,51 @@ function penetrationDepthLabel(depthM) {
     : "NONE";
 }
 
+function sampledPathSegmentLabel(failure, segmentCount) {
+  if (!failure || !Number.isInteger(failure.segment_index)) return "NONE";
+  if (failure.segment_index < 0 || failure.segment_index >= segmentCount) {
+    return "UNAVAILABLE";
+  }
+  return `Segment ${failure.segment_index + 1} of ${segmentCount}`;
+}
+
+function sampledPathSampleLabel(failure) {
+  if (
+    !failure
+    || !Number.isInteger(failure.sample_index)
+    || !Number.isInteger(failure.subdivision_count)
+    || failure.sample_index < 1
+    || failure.sample_index >= failure.subdivision_count
+  ) return failure ? "UNAVAILABLE" : "NONE";
+  return (
+    `Interior Sample ${failure.sample_index} of `
+    + `${failure.subdivision_count - 1} (subdivision k=${failure.sample_index})`
+  );
+}
+
+function sampledPathAlphaLabel(failure) {
+  return failure && typeof failure.alpha === "number" && Number.isFinite(failure.alpha)
+    ? failure.alpha.toFixed(3)
+    : "N/A";
+}
+
+function sampledPathTimeLabel(failure) {
+  return failure
+    && typeof failure.time_from_start_s === "number"
+    && Number.isFinite(failure.time_from_start_s)
+    ? `${failure.time_from_start_s.toFixed(3)} s`
+    : "N/A";
+}
+
+function sampledPathStepLabel(stepRad) {
+  return typeof stepRad === "number" && Number.isFinite(stepRad) && stepRad > 0
+    ? `${stepRad.toFixed(3)} rad (${(stepRad * 180 / Math.PI).toFixed(3)}°)`
+    : "N/A";
+}
+
 function updateTrajectoryValidationUi() {
   const first = trajectoryValidationState.firstViolation;
+  const firstSampled = trajectoryValidationState.firstSampledPathFailure;
   const values = {
     digitalTwinValidationOverall: overallTrajectoryValidationLabel(),
     digitalTwinValidationJointLimits: trajectoryValidationState.jointLimits.replace(
@@ -1054,6 +1230,41 @@ function updateTrajectoryValidationUi() {
     digitalTwinValidationMaxPenetration: penetrationDepthLabel(
       trajectoryValidationState.maxPenetrationDepthM,
     ),
+    digitalTwinValidationSampledStatus: trajectoryValidationState.sampledPathStatus.replace(
+      /_/g,
+      " ",
+    ),
+    digitalTwinValidationSampledMaxStep: sampledPathStepLabel(
+      trajectoryValidationState.sampledPathMaxJointStepRad,
+    ),
+    digitalTwinValidationSampledSegmentCount: String(
+      trajectoryValidationState.sampledPathSegmentCount,
+    ),
+    digitalTwinValidationSampledGeneratedCount: String(
+      trajectoryValidationState.sampledPathGeneratedSampleCount,
+    ),
+    digitalTwinValidationSampledCheckedCount: String(
+      trajectoryValidationState.sampledPathCheckedSampleCount,
+    ),
+    digitalTwinValidationSampledFailedCount: String(
+      trajectoryValidationState.sampledPathFailedSampleCount,
+    ),
+    digitalTwinValidationSampledFirstSegment: sampledPathSegmentLabel(
+      firstSampled,
+      trajectoryValidationState.sampledPathSegmentCount,
+    ),
+    digitalTwinValidationSampledFirstSample: sampledPathSampleLabel(firstSampled),
+    digitalTwinValidationSampledFailureAlpha: sampledPathAlphaLabel(firstSampled),
+    digitalTwinValidationSampledFailureTime: sampledPathTimeLabel(firstSampled),
+    digitalTwinValidationSampledFirstCollisionPair: collisionPairLabel(
+      trajectoryValidationState.sampledPathFirstCollisionPair,
+    ),
+    digitalTwinValidationSampledCollisionPairCount: String(
+      trajectoryValidationState.sampledPathCollisionPairCount,
+    ),
+    digitalTwinValidationSampledMaxPenetration: penetrationDepthLabel(
+      trajectoryValidationState.sampledPathMaxPenetrationDepthM,
+    ),
     digitalTwinValidationSource: validationSourceLabel(
       trajectoryValidationState.source,
     ),
@@ -1077,6 +1288,39 @@ function resetMoveItValidationFields() {
   trajectoryValidationState.firstCollisionPair = null;
   trajectoryValidationState.collisionPairCount = 0;
   trajectoryValidationState.maxPenetrationDepthM = null;
+  trajectoryValidationState.sampledPathStatus = "NOT_RUN";
+  trajectoryValidationState.sampledPathMaxJointStepRad = (
+    DEFAULT_SAMPLED_PATH_MAX_JOINT_STEP_RAD
+  );
+  trajectoryValidationState.sampledPathSegmentCount = 0;
+  trajectoryValidationState.sampledPathGeneratedSampleCount = 0;
+  trajectoryValidationState.sampledPathCheckedSampleCount = 0;
+  trajectoryValidationState.sampledPathFailedSampleCount = 0;
+  trajectoryValidationState.firstSampledPathFailure = null;
+  trajectoryValidationState.sampledPathCollisionPairCount = 0;
+  trajectoryValidationState.sampledPathFirstCollisionPair = null;
+  trajectoryValidationState.sampledPathMaxPenetrationDepthM = null;
+}
+
+function sampledPathMaxJointStep(maxJointStepRad = null) {
+  let candidate = maxJointStepRad;
+  if (candidate === null) {
+    const input = document.getElementById("digitalTwinSampledPathMaxJointStep");
+    const inputValue = input && typeof input.value === "string"
+      ? input.value.trim()
+      : "";
+    candidate = input
+      ? (inputValue === "" ? Number.NaN : Number(inputValue))
+      : DEFAULT_SAMPLED_PATH_MAX_JOINT_STEP_RAD;
+  }
+  if (
+    typeof candidate !== "number"
+    || !Number.isFinite(candidate)
+    || candidate <= 0
+  ) {
+    throw new TypeError("Max Joint Step must be a finite number greater than 0 rad");
+  }
+  return candidate;
 }
 
 function clearTrajectoryValidation() {
@@ -1149,11 +1393,72 @@ function getTrajectoryValidationState() {
   return trajectoryValidationStateSnapshot();
 }
 
-async function validateLoadedTrajectory() {
+function applySampledPathValidation(sampledPath) {
+  if (!sampledPath || typeof sampledPath !== "object") {
+    trajectoryValidationState.sampledPathStatus = "ERROR";
+    trajectoryValidationState.error = "Sampled-path validation response is missing";
+    return;
+  }
+  const sampledStatus = sampledPath.status;
+  trajectoryValidationState.sampledPathStatus = (
+    ["PASS", "FAIL", "SKIPPED", "UNAVAILABLE", "TIMEOUT", "ERROR"].includes(
+      sampledStatus,
+    )
+  ) ? sampledStatus : "ERROR";
+  trajectoryValidationState.sampledPathMaxJointStepRad = (
+    typeof sampledPath.max_joint_step_rad === "number"
+    && Number.isFinite(sampledPath.max_joint_step_rad)
+  ) ? sampledPath.max_joint_step_rad : DEFAULT_SAMPLED_PATH_MAX_JOINT_STEP_RAD;
+  trajectoryValidationState.sampledPathSegmentCount = Number.isInteger(
+    sampledPath.segment_count,
+  ) ? sampledPath.segment_count : 0;
+  trajectoryValidationState.sampledPathGeneratedSampleCount = Number.isInteger(
+    sampledPath.generated_interior_sample_count,
+  ) ? sampledPath.generated_interior_sample_count : 0;
+  trajectoryValidationState.sampledPathCheckedSampleCount = Number.isInteger(
+    sampledPath.checked_interior_sample_count,
+  ) ? sampledPath.checked_interior_sample_count : 0;
+  trajectoryValidationState.sampledPathFailedSampleCount = Number.isInteger(
+    sampledPath.failed_interior_sample_count,
+  ) ? sampledPath.failed_interior_sample_count : 0;
+  trajectoryValidationState.firstSampledPathFailure = sampledPath.first_failed_sample
+    ? {
+      ...sampledPath.first_failed_sample,
+      contacts: Array.isArray(sampledPath.first_failed_sample.contacts)
+        ? sampledPath.first_failed_sample.contacts.map((contact) => ({ ...contact }))
+        : [],
+    }
+    : null;
+  trajectoryValidationState.sampledPathCollisionPairCount = Number.isInteger(
+    sampledPath.collision_pair_count,
+  ) ? sampledPath.collision_pair_count : 0;
+  trajectoryValidationState.sampledPathFirstCollisionPair = (
+    sampledPath.first_collision_pair
+  ) ? { ...sampledPath.first_collision_pair } : null;
+  trajectoryValidationState.sampledPathMaxPenetrationDepthM = (
+    typeof sampledPath.max_penetration_depth_m === "number"
+    && Number.isFinite(sampledPath.max_penetration_depth_m)
+  ) ? sampledPath.max_penetration_depth_m : null;
+  if (sampledPath.error) trajectoryValidationState.error = sampledPath.error;
+}
+
+async function validateLoadedTrajectory(maxJointStepRad = null) {
   if (moveitValidationInFlight) return trajectoryValidationStateSnapshot();
   const jointLimitResult = validateLoadedTrajectoryJointLimits();
   if (jointLimitResult.jointLimits !== "PASS" || !jointLimitResult.valid) {
     return jointLimitResult;
+  }
+
+  let sampledStep;
+  try {
+    sampledStep = sampledPathMaxJointStep(maxJointStepRad);
+  } catch (error) {
+    trajectoryValidationState.status = "ERROR";
+    trajectoryValidationState.sampledPathStatus = "ERROR";
+    trajectoryValidationState.valid = null;
+    trajectoryValidationState.error = error.message;
+    updateTrajectoryValidationUi();
+    return trajectoryValidationStateSnapshot();
   }
 
   moveitValidationInFlight = true;
@@ -1161,11 +1466,19 @@ async function validateLoadedTrajectory() {
   trajectoryValidationState.status = "VALIDATING";
   trajectoryValidationState.moveitStateValidity = "CHECKING";
   trajectoryValidationState.collision = "NOT_RUN";
+  trajectoryValidationState.sampledPathStatus = "CHECKING";
+  trajectoryValidationState.sampledPathMaxJointStepRad = sampledStep;
   trajectoryValidationState.error = null;
   updateTrajectoryValidationUi();
   try {
     const payload = await requestMoveItTrajectoryValidation(
       trajectoryPreviewState.trajectory,
+      {
+        sampledPath: {
+          enabled: true,
+          max_joint_step_rad: sampledStep,
+        },
+      },
     );
     if (validationGeneration !== trajectoryValidationGeneration) {
       return trajectoryValidationStateSnapshot();
@@ -1197,22 +1510,32 @@ async function validateLoadedTrajectory() {
       && Number.isFinite(validation.max_penetration_depth_m)
     ) ? validation.max_penetration_depth_m : null;
     trajectoryValidationState.source = (
-      `JOINT LIMITS + MOVEIT CHECK STATE VALIDITY — `
+      `JOINT LIMITS + MOVEIT STORED + SAMPLED PATH — `
       + DUAL_JAKA_A12_JOINT_LIMIT_METADATA.source_model
     );
     trajectoryValidationState.error = validation.error || null;
 
     if (status === "PASS") {
-      trajectoryValidationState.status = "VALID";
       trajectoryValidationState.moveitStateValidity = "PASS";
       trajectoryValidationState.collision = "PASS";
-      trajectoryValidationState.valid = true;
+      applySampledPathValidation(validation.sampled_path);
+      if (trajectoryValidationState.sampledPathStatus === "PASS") {
+        trajectoryValidationState.status = "VALID";
+        trajectoryValidationState.valid = true;
+      } else if (trajectoryValidationState.sampledPathStatus === "FAIL") {
+        trajectoryValidationState.status = "INVALID";
+        trajectoryValidationState.valid = false;
+      } else {
+        trajectoryValidationState.status = "ERROR";
+        trajectoryValidationState.valid = null;
+      }
     } else if (status === "FAIL") {
       trajectoryValidationState.status = "INVALID";
       trajectoryValidationState.moveitStateValidity = "FAIL";
       trajectoryValidationState.collision = (
         trajectoryValidationState.collisionPairCount > 0
       ) ? "FAIL" : "NOT_DETECTED";
+      applySampledPathValidation(validation.sampled_path || { status: "SKIPPED" });
       trajectoryValidationState.valid = false;
     } else {
       trajectoryValidationState.status = "ERROR";
@@ -1220,6 +1543,7 @@ async function validateLoadedTrajectory() {
         ["UNAVAILABLE", "TIMEOUT", "ERROR"].includes(status)
       ) ? status : "ERROR";
       trajectoryValidationState.collision = "NOT_RUN";
+      applySampledPathValidation(validation.sampled_path || { status: "SKIPPED" });
       trajectoryValidationState.valid = null;
     }
   } catch (error) {
@@ -1231,6 +1555,7 @@ async function validateLoadedTrajectory() {
       ? "TIMEOUT"
       : "ERROR";
     trajectoryValidationState.collision = "NOT_RUN";
+    trajectoryValidationState.sampledPathStatus = "SKIPPED";
     trajectoryValidationState.valid = null;
     trajectoryValidationState.error = error && error.message
       ? error.message
@@ -1586,7 +1911,7 @@ function bindTrajectoryPreviewControls() {
 
 function bindTrajectoryValidationControls() {
   const bindings = {
-    digitalTwinValidateStoredPoints: validateLoadedTrajectory,
+    digitalTwinValidateStoredPoints: () => validateLoadedTrajectory(),
     digitalTwinValidateJointLimits: validateLoadedTrajectoryJointLimits,
     digitalTwinClearValidation: clearTrajectoryValidation,
     digitalTwinInvalidLimitTest: () => loadPlannedTrajectory(
@@ -1596,6 +1921,14 @@ function bindTrajectoryValidationControls() {
     digitalTwinKnownCollisionTest: () => loadPlannedTrajectory(
       KNOWN_MOVEIT_COLLISION_TRAJECTORY,
       "OFFLINE MOVEIT TEST — NOT FOR ROBOT EXECUTION",
+    ),
+    digitalTwinSampledPathMockTest: () => loadPlannedTrajectory(
+      SAMPLED_PATH_MOCK_TRAJECTORY,
+      "SAMPLED-PATH MOCK TEST — NOT PHYSICALLY CONFIRMED",
+    ),
+    digitalTwinConfirmedSampledCollisionTest: () => loadPlannedTrajectory(
+      CONFIRMED_SAMPLED_COLLISION_TRAJECTORY,
+      "CONFIRMED MOVEIT RUNTIME FIXTURE — NOT FOR ROBOT EXECUTION",
     ),
   };
   Object.entries(bindings).forEach(([id, handler]) => {
@@ -2018,6 +2351,8 @@ function initialize() {
   controls = new OrbitControls(camera, renderer.domElement);
   controls.enableDamping = true;
   controls.dampingFactor = 0.08;
+  controls.enableZoom = false;
+  renderer.domElement.addEventListener("wheel", handleViewerWheel, { passive: false });
   controls.addEventListener("change", render);
 
   scene.add(new THREE.AmbientLight(0xffffff, 1.6));

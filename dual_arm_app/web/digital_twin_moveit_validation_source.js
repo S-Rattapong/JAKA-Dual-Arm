@@ -1,4 +1,4 @@
-// Phase 1D.3B validation-only HTTP source. This module never sends robot commands.
+// Phase 1D.3B/1D.3C validation-only HTTP source; it never sends robot commands.
 
 export const MOVEIT_VALIDATION_ENDPOINT = "/api/digital-twin/validate-trajectory";
 export const DEFAULT_MOVEIT_VALIDATION_TIMEOUT_MS = 30000;
@@ -6,6 +6,7 @@ export const DEFAULT_MOVEIT_VALIDATION_TIMEOUT_MS = 30000;
 export async function requestMoveItTrajectoryValidation(
   trajectory,
   {
+    sampledPath = null,
     fetchImpl = globalThis.fetch,
     timeoutMs = DEFAULT_MOVEIT_VALIDATION_TIMEOUT_MS,
   } = {},
@@ -16,10 +17,12 @@ export async function requestMoveItTrajectoryValidation(
   const controller = new AbortController();
   const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
   try {
+    const requestBody = { trajectory };
+    if (sampledPath !== null) requestBody.sampled_path = sampledPath;
     const response = await fetchImpl(MOVEIT_VALIDATION_ENDPOINT, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ trajectory }),
+      body: JSON.stringify(requestBody),
       signal: controller.signal,
     });
     let payload;
