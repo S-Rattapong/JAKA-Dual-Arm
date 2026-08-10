@@ -376,6 +376,53 @@
       border-top: 1px solid var(--line);
     }
 
+    .digital-twin-object-preview-panel {
+      margin-top: 12px;
+      padding: 12px;
+      border: 1px solid #f59e0b;
+      border-radius: 10px;
+      background: rgba(146, 64, 14, 0.10);
+    }
+
+    .digital-twin-object-pose-grid {
+      display: grid;
+      grid-template-columns: repeat(6, minmax(105px, 1fr));
+      gap: 8px;
+      margin: 10px 0;
+    }
+
+    .digital-twin-object-pose-grid label {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .digital-twin-object-pose-grid input {
+      width: 100%;
+      box-sizing: border-box;
+    }
+
+    .digital-twin-object-visibility {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 14px;
+      align-items: center;
+      margin-top: 10px;
+    }
+
+    .digital-twin-object-preview-notice {
+      margin-top: 10px;
+      color: #fcd34d;
+      font-weight: 800;
+      line-height: 1.5;
+    }
+
+    #digitalTwinObjectPreviewError:not(:empty) {
+      color: #fca5a5;
+    }
+
     .digital-twin-planned-panel {
       margin-top: 12px;
       padding: 12px;
@@ -481,6 +528,10 @@
 
       .digital-twin-readout {
         grid-template-columns: 1fr;
+      }
+
+      .digital-twin-object-pose-grid {
+        grid-template-columns: repeat(2, minmax(105px, 1fr));
       }
 
       .digital-twin-sticky-viewer {
@@ -716,6 +767,53 @@
         <div class="small">
           Reads cached joint feedback only. Stopping preserves the current model pose.
         </div>
+      </div>
+    </div>
+    <div
+      class="digital-twin-object-preview-panel"
+      aria-label="Offline synthetic object and grasp frame preview"
+    >
+      <h3>Object / Grasp Frame Preview</h3>
+      <div class="digital-twin-readout" aria-label="Object preview read-only metadata">
+        <span>Preview: <strong>OFFLINE SYNTHETIC OBJECT POSE</strong></span>
+        <span>Fixture: <strong>O_T_L [0, +0.25, 0] m</strong></span>
+        <span>Fixture: <strong>O_T_R [0, -0.25, 0] m</strong></span>
+        <span>Error: <strong id="digitalTwinObjectPreviewError">NONE</strong></span>
+      </div>
+      <div class="digital-twin-object-pose-grid" aria-label="Synthetic object pose controls">
+        <label for="digitalTwinObjectX">Object X [m]
+          <input id="digitalTwinObjectX" type="number" min="-3" max="3" step="0.01" value="-1.32" />
+        </label>
+        <label for="digitalTwinObjectY">Object Y [m]
+          <input id="digitalTwinObjectY" type="number" min="-3" max="3" step="0.01" value="0" />
+        </label>
+        <label for="digitalTwinObjectZ">Object Z [m]
+          <input id="digitalTwinObjectZ" type="number" min="-3" max="3" step="0.01" value="1.2" />
+        </label>
+        <label for="digitalTwinObjectRoll">Roll [rad]
+          <input id="digitalTwinObjectRoll" type="number" min="-6.283185" max="6.283185" step="0.01" value="0" />
+        </label>
+        <label for="digitalTwinObjectPitch">Pitch [rad]
+          <input id="digitalTwinObjectPitch" type="number" min="-6.283185" max="6.283185" step="0.01" value="0" />
+        </label>
+        <label for="digitalTwinObjectYaw">Yaw [rad]
+          <input id="digitalTwinObjectYaw" type="number" min="-6.283185" max="6.283185" step="0.01" value="0" />
+        </label>
+      </div>
+      <div class="row" aria-label="Object preview pose actions">
+        <button id="digitalTwinApplyObjectPose" type="button">Apply Object Pose</button>
+        <button id="digitalTwinResetObjectPreview" type="button">Reset Object Preview</button>
+      </div>
+      <div class="digital-twin-object-visibility" aria-label="Object preview visibility">
+        <label><input id="digitalTwinShowObject" type="checkbox" checked /> Show Object</label>
+        <label><input id="digitalTwinShowObjectFrame" type="checkbox" checked /> Show Object Frame</label>
+        <label><input id="digitalTwinShowGraspFrames" type="checkbox" checked /> Show Grasp Frames</label>
+      </div>
+      <div class="digital-twin-object-preview-notice">
+        OFFLINE SYNTHETIC OBJECT/GRASP PREVIEW<br />
+        NOT CALIBRATED FROM PHYSICAL ROBOT<br />
+        GRASP FRAMES ARE TARGET/PLANNING FRAMES<br />
+        ROBOT IK NOT APPLIED — NO PHYSICAL EXECUTION
       </div>
     </div>
     <div class="digital-twin-planned-panel" aria-label="Offline planned pose preview">
@@ -2141,7 +2239,7 @@ init();
 </script>
 
 
-<script type="module" src="/web-assets/digital_twin.js?v=normalized-wheel-zoom-v1"></script>
+<script type="module" src="/web-assets/digital_twin.js?v=object-grasp-preview-v1"></script>
 <script type="module" src="/web-assets/digital_twin_live_source.js"></script>
 
 </body>

@@ -21,6 +21,12 @@ import {
 import { DUAL_JAKA_A12_JOINT_LIMIT_METADATA } from "./digital_twin_joint_limit_metadata.js";
 import { validateTrajectoryJointLimits } from "./digital_twin_trajectory_validation.js";
 import { requestMoveItTrajectoryValidation } from "./digital_twin_moveit_validation_source.js";
+import {
+  INITIAL_SYNTHETIC_OBJECT_POSE,
+  SYNTHETIC_OBJECT_DIMENSIONS_M,
+  computeWorldGraspFrameMatrices,
+  normalizeObjectPreviewPose,
+} from "./digital_twin_object_grasp_preview.js";
 
 const MODEL_URL = "/digital-twin/assets/dual_jaka_a12_web.urdf";
 const LOAD_TIMEOUT_MS = 20000;
@@ -313,6 +319,19 @@ let moveitValidationInFlight = false;
 let trajectoryValidationGeneration = 0;
 let homeCameraPosition = null;
 let homeCameraTarget = null;
+let objectFrame = null;
+let objectFrameAxes = null;
+let syntheticWorkpiece = null;
+let leftGraspFrame = null;
+let rightGraspFrame = null;
+
+const objectPreviewState = {
+  pose: null,
+  objectVisible: true,
+  objectFrameVisible: true,
+  graspFramesVisible: true,
+  error: null,
+};
 
 function setStatus(message, kind = "info") {
   if (loadState.status === "ERROR" && kind !== "error") return;
@@ -1743,6 +1762,213 @@ function resetToStaticPose() {
   return mirrorStateSnapshot();
 }
 
+function copyObjectPose(pose) {
+  return {
+    translationM: [...pose.translationM],
+    rpyRad: [...pose.rpyRad],
+  };
+}
+
+function getObjectPreviewState() {
+  return {
+    pose: objectPreviewState.pose ? copyObjectPose(objectPreviewState.pose) : null,
+    objectVisible: objectPreviewState.objectVisible,
+    objectFrameVisible: objectPreviewState.objectFrameVisible,
+    graspFramesVisible: objectPreviewState.graspFramesVisible,
+    error: objectPreviewState.error,
+  };
+}
+
+function setObjectPreviewUiError(message = null) {
+  objectPreviewState.error = message;
+  const errorElement = document.getElementById("digitalTwinObjectPreviewError");
+  if (errorElement) errorElement.textContent = message || "NONE";
+}
+
+function applyMatrixToFrame(frame, matrixRows) {
+  if (!frame) return;
+  const matrix = new THREE.Matrix4();
+  matrix.set(...matrixRows.flat());
+  frame.matrixAutoUpdate = false;
+  frame.matrix.copy(matrix);
+  frame.matrixWorldNeedsUpdate = true;
+  frame.updateMatrixWorld(true);
+}
+
+function createGraspFrame(name, markerColor) {
+  const frame = new THREE.Group();
+  frame.name = name;
+  frame.add(new THREE.AxesHelper(0.18));
+  const marker = new THREE.Mesh(
+    new THREE.SphereGeometry(0.025, 16, 12),
+    new THREE.MeshBasicMaterial({ color: markerColor }),
+  );
+  marker.name = `${name} origin marker`;
+  frame.add(marker);
+  return frame;
+}
+
+function createObjectGraspPreview() {
+  objectFrame = new THREE.Group();
+  objectFrame.name = "Object Frame O";
+
+  // Box axes are X=width, Y=length, Z=height; dimensions are synthetic only.
+  syntheticWorkpiece = new THREE.Mesh(
+    new THREE.BoxGeometry(
+      SYNTHETIC_OBJECT_DIMENSIONS_M.width,
+      SYNTHETIC_OBJECT_DIMENSIONS_M.length,
+      SYNTHETIC_OBJECT_DIMENSIONS_M.height,
+    ),
+    new THREE.MeshStandardMaterial({
+      color: 0xf59e0b,
+      transparent: true,
+      opacity: 0.58,
+      roughness: 0.55,
+      metalness: 0.08,
+      depthWrite: false,
+    }),
+  );
+  syntheticWorkpiece.name = "Synthetic Workpiece — Not Calibrated";
+  objectFrame.add(syntheticWorkpiece);
+
+  objectFrameAxes = new THREE.AxesHelper(0.24);
+  objectFrameAxes.name = "Object Frame O axes";
+  objectFrame.add(objectFrameAxes);
+
+  leftGraspFrame = createGraspFrame("Left Grasp Frame L", 0x22d3ee);
+  rightGraspFrame = createGraspFrame("Right Grasp Frame R", 0xf472b6);
+  scene.add(objectFrame);
+  scene.add(leftGraspFrame);
+  scene.add(rightGraspFrame);
+}
+
+function applyObjectPreviewPose(pose) {
+  if (!objectFrame || !leftGraspFrame || !rightGraspFrame) {
+    throw new Error("Object/grasp preview scene is not initialized");
+  }
+  const normalizedPose = normalizeObjectPreviewPose(pose);
+  const transforms = computeWorldGraspFrameMatrices(normalizedPose);
+  applyMatrixToFrame(objectFrame, transforms.worldTObject);
+  applyMatrixToFrame(leftGraspFrame, transforms.worldTLeft);
+  applyMatrixToFrame(rightGraspFrame, transforms.worldTRight);
+  objectPreviewState.pose = copyObjectPose(normalizedPose);
+  setObjectPreviewUiError(null);
+  render();
+  return getObjectPreviewState();
+}
+
+function objectPoseFromControls() {
+  const value = (id) => {
+    const element = document.getElementById(id);
+    if (!element) throw new Error(`Missing object pose control: ${id}`);
+    return element.valueAsNumber;
+  };
+  return normalizeObjectPreviewPose({
+    translationM: [
+      value("digitalTwinObjectX"),
+      value("digitalTwinObjectY"),
+      value("digitalTwinObjectZ"),
+    ],
+    rpyRad: [
+      value("digitalTwinObjectRoll"),
+      value("digitalTwinObjectPitch"),
+      value("digitalTwinObjectYaw"),
+    ],
+  });
+}
+
+function applyObjectPoseFromControls() {
+  try {
+    return applyObjectPreviewPose(objectPoseFromControls());
+  } catch (error) {
+    const message = error && error.message ? error.message : "Invalid object pose";
+    setObjectPreviewUiError(message);
+    return getObjectPreviewState();
+  }
+}
+
+function writeObjectPoseControls(pose) {
+  const values = [
+    ["digitalTwinObjectX", pose.translationM[0]],
+    ["digitalTwinObjectY", pose.translationM[1]],
+    ["digitalTwinObjectZ", pose.translationM[2]],
+    ["digitalTwinObjectRoll", pose.rpyRad[0]],
+    ["digitalTwinObjectPitch", pose.rpyRad[1]],
+    ["digitalTwinObjectYaw", pose.rpyRad[2]],
+  ];
+  values.forEach(([id, value]) => {
+    const element = document.getElementById(id);
+    if (element) element.value = String(value);
+  });
+}
+
+function resetObjectPreview() {
+  const initialPose = copyObjectPose(INITIAL_SYNTHETIC_OBJECT_POSE);
+  writeObjectPoseControls(initialPose);
+  for (const id of [
+    "digitalTwinShowObject",
+    "digitalTwinShowObjectFrame",
+    "digitalTwinShowGraspFrames",
+  ]) {
+    const element = document.getElementById(id);
+    if (element) element.checked = true;
+  }
+  setObjectPreviewVisibility({
+    objectVisible: true,
+    objectFrameVisible: true,
+    graspFramesVisible: true,
+  });
+  return applyObjectPreviewPose(initialPose);
+}
+
+function setObjectPreviewVisibility({
+  objectVisible = objectPreviewState.objectVisible,
+  objectFrameVisible = objectPreviewState.objectFrameVisible,
+  graspFramesVisible = objectPreviewState.graspFramesVisible,
+} = {}) {
+  if (![objectVisible, objectFrameVisible, graspFramesVisible].every(
+    (value) => typeof value === "boolean",
+  )) {
+    throw new TypeError("Object preview visibility values must be boolean");
+  }
+  objectPreviewState.objectVisible = objectVisible;
+  objectPreviewState.objectFrameVisible = objectFrameVisible;
+  objectPreviewState.graspFramesVisible = graspFramesVisible;
+  if (syntheticWorkpiece) syntheticWorkpiece.visible = objectVisible;
+  if (objectFrameAxes) objectFrameAxes.visible = objectFrameVisible;
+  if (leftGraspFrame) leftGraspFrame.visible = graspFramesVisible;
+  if (rightGraspFrame) rightGraspFrame.visible = graspFramesVisible;
+  render();
+  return getObjectPreviewState();
+}
+
+function syncObjectPreviewVisibilityFromControls() {
+  const checked = (id) => {
+    const element = document.getElementById(id);
+    return element ? element.checked : true;
+  };
+  return setObjectPreviewVisibility({
+    objectVisible: checked("digitalTwinShowObject"),
+    objectFrameVisible: checked("digitalTwinShowObjectFrame"),
+    graspFramesVisible: checked("digitalTwinShowGraspFrames"),
+  });
+}
+
+function bindObjectPreviewControls() {
+  const applyButton = document.getElementById("digitalTwinApplyObjectPose");
+  const resetButton = document.getElementById("digitalTwinResetObjectPreview");
+  if (applyButton) applyButton.addEventListener("click", applyObjectPoseFromControls);
+  if (resetButton) resetButton.addEventListener("click", resetObjectPreview);
+  for (const id of [
+    "digitalTwinShowObject",
+    "digitalTwinShowObjectFrame",
+    "digitalTwinShowGraspFrames",
+  ]) {
+    const element = document.getElementById(id);
+    if (element) element.addEventListener("change", syncObjectPreviewVisibilityFromControls);
+  }
+}
+
 const publicApi = {
   resetCamera,
   fitModel: () => fitModel(false),
@@ -1773,6 +1999,10 @@ const publicApi = {
   validateLoadedTrajectoryJointLimits,
   clearTrajectoryValidation,
   getTrajectoryValidationState,
+  applyObjectPreviewPose,
+  resetObjectPreview,
+  setObjectPreviewVisibility,
+  getObjectPreviewState,
 };
 
 function handleResize() {
@@ -2365,9 +2595,14 @@ function initialize() {
   scene.add(grid);
 
   axes = new THREE.AxesHelper(0.75);
+  axes.name = "World Frame W axes";
   scene.add(axes);
 
+  createObjectGraspPreview();
+  resetObjectPreview();
+
   bindControls();
+  bindObjectPreviewControls();
   bindMirrorControls();
   bindPlannedPreviewControls();
   bindTrajectoryPreviewControls();
