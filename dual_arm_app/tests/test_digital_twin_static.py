@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import math
 import re
 import subprocess
 import unittest
@@ -181,6 +182,75 @@ class StaticDigitalTwinTests(unittest.TestCase):
         ):
             with self.subTest(function=function_name):
                 self.assertIn(function_name, self.javascript)
+
+    def test_viewer_zoom_is_normalized_bounded_and_has_no_duplicate_wheel_handler(self) -> None:
+        initialize = self.javascript.split("function initialize()", 1)[1]
+        self.assertIn("new THREE.PerspectiveCamera(45, 1, 0.001, 1000)", initialize)
+        self.assertIn("new OrbitControls(camera, renderer.domElement)", initialize)
+        self.assertIn("controls.enableZoom = false", initialize)
+        self.assertIn(
+            'renderer.domElement.addEventListener("wheel", handleViewerWheel, '
+            "{ passive: false })",
+            initialize,
+        )
+
+        zoom_rate = re.search(
+            r"const NORMALIZED_WHEEL_ZOOM_RATE = ([0-9.]+);",
+            self.javascript,
+        )
+        minimum_ratio = re.search(
+            r"const ORBIT_MIN_DISTANCE_RADIUS_MULTIPLIER = ([0-9.]+);",
+            self.javascript,
+        )
+        maximum_ratio = re.search(
+            r"const ORBIT_MAX_DISTANCE_RADIUS_MULTIPLIER = ([0-9.]+);",
+            self.javascript,
+        )
+        self.assertIsNotNone(zoom_rate)
+        self.assertIsNotNone(minimum_ratio)
+        self.assertIsNotNone(maximum_ratio)
+        self.assertGreater(float(zoom_rate.group(1)), 0)
+        self.assertLessEqual(float(zoom_rate.group(1)), 0.05)
+        self.assertGreater(float(minimum_ratio.group(1)), 0)
+        self.assertLess(float(minimum_ratio.group(1)), float(maximum_ratio.group(1)))
+        fit_distance_per_max_dimension = 0.65 / math.tan(math.radians(45 * 0.5))
+        largest_possible_radius_per_max_dimension = math.sqrt(3) * 0.5
+        smallest_possible_radius_per_max_dimension = 0.5
+        self.assertLess(
+            float(minimum_ratio.group(1)) * largest_possible_radius_per_max_dimension,
+            fit_distance_per_max_dimension,
+        )
+        self.assertLess(
+            fit_distance_per_max_dimension,
+            float(maximum_ratio.group(1)) * smallest_possible_radius_per_max_dimension,
+        )
+
+        fit_model = self.javascript.split("function fitModel", 1)[1].split(
+            "function resetCamera", 1
+        )[0]
+        self.assertIn("bounds.getBoundingSphere(new THREE.Sphere())", fit_model)
+        self.assertIn(
+            "controls.minDistance = sceneRadius * ORBIT_MIN_DISTANCE_RADIUS_MULTIPLIER",
+            fit_model,
+        )
+        self.assertIn(
+            "controls.maxDistance = sceneRadius * ORBIT_MAX_DISTANCE_RADIUS_MULTIPLIER",
+            fit_model,
+        )
+        self.assertEqual(
+            len(re.findall(r"addEventListener\(\s*[\"']wheel[\"']", self.javascript)),
+            1,
+        )
+        self.assertIn("function normalizedWheelSteps", self.javascript)
+        self.assertIn("Math.max(-1, Math.min(1, deltaY / divisor))", self.javascript)
+        self.assertNotIn("onwheel", self.javascript)
+
+        reset_camera = self.javascript.split("function resetCamera", 1)[1].split(
+            "function toggleGrid", 1
+        )[0]
+        self.assertIn("camera.position.copy(homeCameraPosition)", reset_camera)
+        self.assertIn("controls.target.copy(homeCameraTarget)", reset_camera)
+        self.assertIn("controls.update()", reset_camera)
 
     def test_static_routes_and_existing_index_route_are_present(self) -> None:
         for route in (
