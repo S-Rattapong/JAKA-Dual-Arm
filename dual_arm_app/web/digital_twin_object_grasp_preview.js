@@ -118,8 +118,7 @@ const SYNTHETIC_OBJECT_T_RIGHT = matrix4FromTranslationRpy(
   SYNTHETIC_OBJECT_T_RIGHT_POSE,
 );
 
-export function computeWorldGraspFrameMatrices(objectPose) {
-  const worldTObject = matrix4FromTranslationRpy(objectPose);
+export function computeWorldGraspFrameMatricesFromWorldTObject(worldTObject) {
   return {
     worldTObject,
     // ^W T_L = ^W T_O * ^O T_L; ^O T_L remains fixed.
@@ -127,4 +126,10 @@ export function computeWorldGraspFrameMatrices(objectPose) {
     // ^W T_R = ^W T_O * ^O T_R; ^O T_R remains fixed.
     worldTRight: multiplyMatrix4(worldTObject, SYNTHETIC_OBJECT_T_RIGHT),
   };
+}
+
+export function computeWorldGraspFrameMatrices(objectPose) {
+  return computeWorldGraspFrameMatricesFromWorldTObject(
+    matrix4FromTranslationRpy(objectPose),
+  );
 }

@@ -423,6 +423,44 @@
       color: #fca5a5;
     }
 
+    .digital-twin-object-trajectory-panel {
+      margin-top: 12px;
+      padding: 12px;
+      border: 1px solid #34d399;
+      border-radius: 10px;
+      background: rgba(6, 95, 70, 0.12);
+    }
+
+    .digital-twin-object-trajectory-controls {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: center;
+      margin: 10px 0;
+    }
+
+    .digital-twin-object-trajectory-scrubber {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      width: 100%;
+    }
+
+    .digital-twin-object-trajectory-scrubber input[type="range"] {
+      width: 100%;
+    }
+
+    .digital-twin-object-trajectory-notice {
+      margin-top: 10px;
+      color: #6ee7b7;
+      font-weight: 800;
+      line-height: 1.5;
+    }
+
+    #digitalTwinObjectTrajectoryError:not(:empty) {
+      color: #fca5a5;
+    }
+
     .digital-twin-planned-panel {
       margin-top: 12px;
       padding: 12px;
@@ -814,6 +852,82 @@
         NOT CALIBRATED FROM PHYSICAL ROBOT<br />
         GRASP FRAMES ARE TARGET/PLANNING FRAMES<br />
         ROBOT IK NOT APPLIED — NO PHYSICAL EXECUTION
+      </div>
+    </div>
+    <div
+      class="digital-twin-object-trajectory-panel"
+      aria-label="Offline object Cartesian trajectory preview"
+    >
+      <h3>Object Trajectory Preview — OFFLINE ONLY</h3>
+      <div class="digital-twin-readout" aria-label="Object trajectory preview state">
+        <span>Object Trajectory State: <strong id="digitalTwinObjectTrajectoryState">EMPTY</strong></span>
+        <span>Trajectory Name: <strong id="digitalTwinObjectTrajectoryName">NONE</strong></span>
+        <span>Sample Count: <strong id="digitalTwinObjectTrajectorySampleCount">0</strong></span>
+        <span>Current Sample: <strong id="digitalTwinObjectTrajectoryCurrentSample">NONE</strong></span>
+        <span>Current Time: <strong id="digitalTwinObjectTrajectoryTime">0.00 s</strong></span>
+        <span>Duration: <strong id="digitalTwinObjectTrajectoryDuration">0.00 s</strong></span>
+        <span>Alpha: <strong id="digitalTwinObjectTrajectoryAlpha">0.00</strong></span>
+        <span>Playback Rate: <strong id="digitalTwinObjectTrajectoryRate">1.00x</strong></span>
+        <span>Translation Unit: <strong>meters</strong></span>
+        <span>Orientation Unit: <strong>radians</strong></span>
+        <span>Error: <strong id="digitalTwinObjectTrajectoryError">NONE</strong></span>
+      </div>
+      <div class="row" aria-label="Object trajectory loading controls">
+        <button id="digitalTwinLoadSyntheticObjectTrajectory" type="button">
+          Load Synthetic Object Trajectory
+        </button>
+        <button id="digitalTwinObjectTrajectoryClear" type="button">
+          Clear Object Trajectory
+        </button>
+      </div>
+      <div
+        class="digital-twin-object-trajectory-controls"
+        aria-label="Object trajectory sample and playback controls"
+      >
+        <button id="digitalTwinObjectTrajectoryPrevious" type="button">Previous Sample</button>
+        <button id="digitalTwinObjectTrajectoryNext" type="button">Next Sample</button>
+        <button id="digitalTwinObjectTrajectoryPlay" type="button">Play</button>
+        <button id="digitalTwinObjectTrajectoryPause" type="button">Pause</button>
+        <button id="digitalTwinObjectTrajectoryStop" type="button">Stop</button>
+        <label for="digitalTwinObjectTrajectoryPlaybackRate">Playback rate:</label>
+        <select id="digitalTwinObjectTrajectoryPlaybackRate">
+          <option value="0.25">0.25x</option>
+          <option value="0.5">0.5x</option>
+          <option value="1" selected>1.0x</option>
+          <option value="2">2.0x</option>
+        </select>
+      </div>
+      <div class="digital-twin-object-trajectory-scrubber">
+        <label for="digitalTwinObjectTrajectoryScrubber">
+          Object trajectory time [seconds] — snaps to nearest sample
+        </label>
+        <output
+          id="digitalTwinObjectTrajectoryScrubberTime"
+          class="digital-twin-trajectory-scrubber-time"
+          for="digitalTwinObjectTrajectoryScrubber"
+        >0.00 s</output>
+        <input
+          id="digitalTwinObjectTrajectoryScrubber"
+          type="range"
+          min="0"
+          max="0"
+          step="0.01"
+          value="0"
+          disabled
+        />
+      </div>
+      <div class="small">
+        Current Time and the scrubber preserve the requested continuous time;
+        Current Sample and Alpha report the nearest discrete sample. No Cartesian
+        pose interpolation is applied. Nearest-sample ties choose the earlier sample.
+        Manual Apply Object Pose or Reset Object Preview pauses trajectory playback
+        and takes frame ownership. Clear preserves the last visible object/grasp pose.
+      </div>
+      <div class="digital-twin-object-trajectory-notice">
+        OFFLINE SYNTHETIC OBJECT TRAJECTORY<br />
+        TRANSLATION-ONLY OBJECT MOTION<br />
+        OBJECT ORIENTATION HELD CONSTANT<br />
+        NO IK APPLIED — NOT A ROBOT JOINT TRAJECTORY — NO PHYSICAL EXECUTION
       </div>
     </div>
     <div class="digital-twin-planned-panel" aria-label="Offline planned pose preview">
@@ -2239,7 +2353,7 @@ init();
 </script>
 
 
-<script type="module" src="/web-assets/digital_twin.js?v=object-grasp-preview-v1"></script>
+<script type="module" src="/web-assets/digital_twin.js?v=object-trajectory-preview-v1"></script>
 <script type="module" src="/web-assets/digital_twin_live_source.js"></script>
 
 </body>

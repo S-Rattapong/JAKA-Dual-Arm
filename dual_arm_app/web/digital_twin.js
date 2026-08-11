@@ -27,6 +27,11 @@ import {
   computeWorldGraspFrameMatrices,
   normalizeObjectPreviewPose,
 } from "./digital_twin_object_grasp_preview.js";
+import {
+  SYNTHETIC_TRANSLATION_ONLY_OBJECT_TRAJECTORY,
+  nearestObjectTrajectorySample,
+  objectTrajectorySampleAtIndex,
+} from "./digital_twin_object_trajectory_preview.js";
 
 const MODEL_URL = "/digital-twin/assets/dual_jaka_a12_web.urdf";
 const LOAD_TIMEOUT_MS = 20000;
@@ -268,6 +273,19 @@ const trajectoryPreviewState = {
   playbackRate: 1.0,
   source: "NONE",
   validationError: null,
+  previousFrameTimeMs: null,
+  animationFrameId: null,
+};
+
+// Independent from planned joint trajectory, planned ghost, and mirror state.
+const objectTrajectoryPreviewState = {
+  status: "EMPTY",
+  trajectory: null,
+  currentTimeS: 0,
+  currentSampleIndex: 0,
+  playing: false,
+  playbackRate: 1.0,
+  error: null,
   previousFrameTimeMs: null,
   animationFrameId: null,
 };
@@ -1878,6 +1896,7 @@ function objectPoseFromControls() {
 }
 
 function applyObjectPoseFromControls() {
+  pauseObjectTrajectoryForManualPreview();
   try {
     return applyObjectPreviewPose(objectPoseFromControls());
   } catch (error) {
@@ -1903,6 +1922,7 @@ function writeObjectPoseControls(pose) {
 }
 
 function resetObjectPreview() {
+  pauseObjectTrajectoryForManualPreview();
   const initialPose = copyObjectPose(INITIAL_SYNTHETIC_OBJECT_POSE);
   writeObjectPoseControls(initialPose);
   for (const id of [
@@ -1969,6 +1989,329 @@ function bindObjectPreviewControls() {
   }
 }
 
+function objectTrajectoryStateSnapshot() {
+  const trajectory = objectTrajectoryPreviewState.trajectory;
+  return {
+    status: objectTrajectoryPreviewState.status,
+    trajectoryName: trajectory ? trajectory.name : "NONE",
+    sampleCount: trajectory ? trajectory.sampleCount : 0,
+    currentSampleIndex: objectTrajectoryPreviewState.currentSampleIndex,
+    currentTimeS: objectTrajectoryPreviewState.currentTimeS,
+    durationS: trajectory ? trajectory.durationS : 0,
+    alpha: trajectory
+      ? trajectory.samples[objectTrajectoryPreviewState.currentSampleIndex].alpha
+      : 0,
+    playing: objectTrajectoryPreviewState.playing,
+    playbackRate: objectTrajectoryPreviewState.playbackRate,
+    error: objectTrajectoryPreviewState.error,
+  };
+}
+
+function getObjectTrajectoryPreviewState() {
+  return objectTrajectoryStateSnapshot();
+}
+
+function updateObjectTrajectoryPreviewUi() {
+  const state = objectTrajectoryStateSnapshot();
+  const sampleLabel = state.sampleCount > 0
+    ? `${state.currentSampleIndex + 1}/${state.sampleCount}`
+    : "NONE";
+  const values = {
+    digitalTwinObjectTrajectoryState: state.status,
+    digitalTwinObjectTrajectoryName: state.trajectoryName,
+    digitalTwinObjectTrajectorySampleCount: String(state.sampleCount),
+    digitalTwinObjectTrajectoryCurrentSample: sampleLabel,
+    digitalTwinObjectTrajectoryTime: `${state.currentTimeS.toFixed(2)} s`,
+    digitalTwinObjectTrajectoryDuration: `${state.durationS.toFixed(2)} s`,
+    digitalTwinObjectTrajectoryAlpha: state.alpha.toFixed(2),
+    digitalTwinObjectTrajectoryRate: `${state.playbackRate.toFixed(2)}x`,
+    digitalTwinObjectTrajectoryError: state.error || "NONE",
+  };
+  Object.entries(values).forEach(([id, value]) => {
+    const element = document.getElementById(id);
+    if (element) element.textContent = value;
+  });
+
+  const scrubber = document.getElementById("digitalTwinObjectTrajectoryScrubber");
+  if (scrubber) {
+    scrubber.max = String(state.durationS);
+    scrubber.value = String(state.currentTimeS);
+    scrubber.disabled = state.sampleCount === 0;
+    scrubber.setAttribute("aria-valuenow", state.currentTimeS.toFixed(2));
+  }
+  const scrubberTime = document.getElementById(
+    "digitalTwinObjectTrajectoryScrubberTime",
+  );
+  if (scrubberTime) scrubberTime.textContent = `${state.currentTimeS.toFixed(2)} s`;
+  const rateSelector = document.getElementById(
+    "digitalTwinObjectTrajectoryPlaybackRate",
+  );
+  if (rateSelector && rateSelector.value !== String(state.playbackRate)) {
+    rateSelector.value = String(state.playbackRate);
+  }
+}
+
+function cancelObjectTrajectoryAnimation() {
+  if (objectTrajectoryPreviewState.animationFrameId !== null) {
+    cancelAnimationFrame(objectTrajectoryPreviewState.animationFrameId);
+    objectTrajectoryPreviewState.animationFrameId = null;
+  }
+  objectTrajectoryPreviewState.previousFrameTimeMs = null;
+}
+
+function applyObjectTrajectorySample(
+  sampleIndex,
+  nextStatus = null,
+  currentTimeS = null,
+) {
+  const trajectory = objectTrajectoryPreviewState.trajectory;
+  if (!trajectory) return false;
+  const sample = objectTrajectorySampleAtIndex(trajectory, sampleIndex);
+  applyObjectPreviewPose(sample.objectPose);
+  objectTrajectoryPreviewState.currentSampleIndex = sample.index;
+  objectTrajectoryPreviewState.currentTimeS = currentTimeS === null
+    ? sample.timeFromStartS
+    : currentTimeS;
+  objectTrajectoryPreviewState.error = null;
+  if (nextStatus) objectTrajectoryPreviewState.status = nextStatus;
+  updateObjectTrajectoryPreviewUi();
+  return true;
+}
+
+function loadSyntheticObjectTrajectory() {
+  cancelObjectTrajectoryAnimation();
+  objectTrajectoryPreviewState.trajectory = (
+    SYNTHETIC_TRANSLATION_ONLY_OBJECT_TRAJECTORY
+  );
+  objectTrajectoryPreviewState.currentTimeS = 0;
+  objectTrajectoryPreviewState.currentSampleIndex = 0;
+  objectTrajectoryPreviewState.playing = false;
+  objectTrajectoryPreviewState.error = null;
+  applyObjectTrajectorySample(0, "READY");
+  return objectTrajectoryStateSnapshot();
+}
+
+function setObjectTrajectorySampleIndex(index) {
+  if (!objectTrajectoryPreviewState.trajectory) {
+    objectTrajectoryPreviewState.status = "EMPTY";
+    objectTrajectoryPreviewState.error = "No object trajectory is loaded";
+    updateObjectTrajectoryPreviewUi();
+    return objectTrajectoryStateSnapshot();
+  }
+  try {
+    const sample = objectTrajectorySampleAtIndex(
+      objectTrajectoryPreviewState.trajectory,
+      index,
+    );
+    cancelObjectTrajectoryAnimation();
+    objectTrajectoryPreviewState.playing = false;
+    applyObjectTrajectorySample(sample.index, "PAUSED");
+  } catch (error) {
+    objectTrajectoryPreviewState.status = "INVALID";
+    objectTrajectoryPreviewState.error = error && error.message
+      ? error.message
+      : "Invalid object trajectory sample";
+    updateObjectTrajectoryPreviewUi();
+  }
+  return objectTrajectoryStateSnapshot();
+}
+
+function setObjectTrajectoryTime(timeSeconds) {
+  const trajectory = objectTrajectoryPreviewState.trajectory;
+  if (!trajectory) {
+    objectTrajectoryPreviewState.status = "EMPTY";
+    objectTrajectoryPreviewState.error = "No object trajectory is loaded";
+    updateObjectTrajectoryPreviewUi();
+    return objectTrajectoryStateSnapshot();
+  }
+  try {
+    if (typeof timeSeconds !== "number" || !Number.isFinite(timeSeconds)) {
+      throw new TypeError("Object trajectory time must be a finite number");
+    }
+    const clampedRequestedTimeS = Math.max(
+      0,
+      Math.min(trajectory.durationS, timeSeconds),
+    );
+    const sample = nearestObjectTrajectorySample(
+      trajectory,
+      clampedRequestedTimeS,
+    );
+    cancelObjectTrajectoryAnimation();
+    objectTrajectoryPreviewState.playing = false;
+    // Preserve continuous requested time while applying only the nearest
+    // discrete sample pose. No Cartesian interpolation occurs here.
+    applyObjectTrajectorySample(
+      sample.index,
+      "PAUSED",
+      clampedRequestedTimeS,
+    );
+  } catch (error) {
+    objectTrajectoryPreviewState.status = "INVALID";
+    objectTrajectoryPreviewState.error = error && error.message
+      ? error.message
+      : "Invalid object trajectory time";
+    updateObjectTrajectoryPreviewUi();
+  }
+  return objectTrajectoryStateSnapshot();
+}
+
+function scheduleObjectTrajectoryFrame() {
+  if (
+    !objectTrajectoryPreviewState.playing
+    || objectTrajectoryPreviewState.animationFrameId !== null
+  ) return;
+  objectTrajectoryPreviewState.animationFrameId = requestAnimationFrame(
+    advanceObjectTrajectoryPlayback,
+  );
+}
+
+function advanceObjectTrajectoryPlayback(frameTimeMs) {
+  objectTrajectoryPreviewState.animationFrameId = null;
+  const trajectory = objectTrajectoryPreviewState.trajectory;
+  if (!objectTrajectoryPreviewState.playing || !trajectory) return;
+  const previousTimeMs = objectTrajectoryPreviewState.previousFrameTimeMs;
+  objectTrajectoryPreviewState.previousFrameTimeMs = frameTimeMs;
+  const elapsedSeconds = previousTimeMs === null
+    ? 0
+    : Math.max(0, (frameTimeMs - previousTimeMs) / 1000);
+  const nextTimeS = objectTrajectoryPreviewState.currentTimeS
+    + elapsedSeconds * objectTrajectoryPreviewState.playbackRate;
+  const clampedTimeS = Math.min(nextTimeS, trajectory.durationS);
+  const sample = nearestObjectTrajectorySample(trajectory, clampedTimeS);
+
+  if (nextTimeS >= trajectory.durationS) {
+    applyObjectTrajectorySample(sample.index, "FINISHED", trajectory.durationS);
+    objectTrajectoryPreviewState.playing = false;
+    objectTrajectoryPreviewState.previousFrameTimeMs = null;
+    updateObjectTrajectoryPreviewUi();
+    return;
+  }
+
+  applyObjectTrajectorySample(sample.index, "PLAYING", clampedTimeS);
+  scheduleObjectTrajectoryFrame();
+}
+
+function playObjectTrajectory() {
+  const trajectory = objectTrajectoryPreviewState.trajectory;
+  if (!trajectory) {
+    objectTrajectoryPreviewState.status = "EMPTY";
+    objectTrajectoryPreviewState.error = "No object trajectory is loaded";
+    updateObjectTrajectoryPreviewUi();
+    return objectTrajectoryStateSnapshot();
+  }
+  if (objectTrajectoryPreviewState.playing) return objectTrajectoryStateSnapshot();
+  if (objectTrajectoryPreviewState.currentTimeS >= trajectory.durationS) {
+    applyObjectTrajectorySample(0, "READY");
+  }
+  objectTrajectoryPreviewState.playing = true;
+  objectTrajectoryPreviewState.status = "PLAYING";
+  objectTrajectoryPreviewState.error = null;
+  objectTrajectoryPreviewState.previousFrameTimeMs = performance.now();
+  updateObjectTrajectoryPreviewUi();
+  scheduleObjectTrajectoryFrame();
+  return objectTrajectoryStateSnapshot();
+}
+
+function pauseObjectTrajectory() {
+  if (!objectTrajectoryPreviewState.trajectory) {
+    return objectTrajectoryStateSnapshot();
+  }
+  cancelObjectTrajectoryAnimation();
+  objectTrajectoryPreviewState.playing = false;
+  objectTrajectoryPreviewState.status = "PAUSED";
+  updateObjectTrajectoryPreviewUi();
+  return objectTrajectoryStateSnapshot();
+}
+
+function pauseObjectTrajectoryForManualPreview() {
+  if (!objectTrajectoryPreviewState.trajectory) return;
+  cancelObjectTrajectoryAnimation();
+  objectTrajectoryPreviewState.playing = false;
+  objectTrajectoryPreviewState.status = "MANUAL_OVERRIDE";
+  objectTrajectoryPreviewState.error = null;
+  updateObjectTrajectoryPreviewUi();
+}
+
+function stopObjectTrajectory() {
+  if (!objectTrajectoryPreviewState.trajectory) {
+    return objectTrajectoryStateSnapshot();
+  }
+  cancelObjectTrajectoryAnimation();
+  objectTrajectoryPreviewState.playing = false;
+  applyObjectTrajectorySample(0, "READY");
+  return objectTrajectoryStateSnapshot();
+}
+
+function clearObjectTrajectory() {
+  cancelObjectTrajectoryAnimation();
+  objectTrajectoryPreviewState.status = "EMPTY";
+  objectTrajectoryPreviewState.trajectory = null;
+  objectTrajectoryPreviewState.currentTimeS = 0;
+  objectTrajectoryPreviewState.currentSampleIndex = 0;
+  objectTrajectoryPreviewState.playing = false;
+  objectTrajectoryPreviewState.error = null;
+  // Preserve the last visible Object/Grasp pose; only trajectory ownership ends.
+  updateObjectTrajectoryPreviewUi();
+  return objectTrajectoryStateSnapshot();
+}
+
+function setObjectTrajectoryPlaybackRate(rate) {
+  if (![0.25, 0.5, 1.0, 2.0].includes(rate)) {
+    objectTrajectoryPreviewState.error = (
+      "Object trajectory playback rate must be 0.25x, 0.5x, 1.0x, or 2.0x"
+    );
+    updateObjectTrajectoryPreviewUi();
+    return objectTrajectoryStateSnapshot();
+  }
+  objectTrajectoryPreviewState.playbackRate = rate;
+  objectTrajectoryPreviewState.error = null;
+  if (objectTrajectoryPreviewState.playing) {
+    objectTrajectoryPreviewState.previousFrameTimeMs = performance.now();
+  }
+  updateObjectTrajectoryPreviewUi();
+  return objectTrajectoryStateSnapshot();
+}
+
+function bindObjectTrajectoryPreviewControls() {
+  const bindings = {
+    digitalTwinLoadSyntheticObjectTrajectory: loadSyntheticObjectTrajectory,
+    digitalTwinObjectTrajectoryPrevious: () => setObjectTrajectorySampleIndex(
+      Math.max(objectTrajectoryPreviewState.currentSampleIndex - 1, 0),
+    ),
+    digitalTwinObjectTrajectoryNext: () => setObjectTrajectorySampleIndex(
+      Math.min(
+        objectTrajectoryPreviewState.currentSampleIndex + 1,
+        objectTrajectoryPreviewState.trajectory
+          ? objectTrajectoryPreviewState.trajectory.sampleCount - 1
+          : 0,
+      ),
+    ),
+    digitalTwinObjectTrajectoryPlay: playObjectTrajectory,
+    digitalTwinObjectTrajectoryPause: pauseObjectTrajectory,
+    digitalTwinObjectTrajectoryStop: stopObjectTrajectory,
+    digitalTwinObjectTrajectoryClear: clearObjectTrajectory,
+  };
+  Object.entries(bindings).forEach(([id, handler]) => {
+    const element = document.getElementById(id);
+    if (element) element.addEventListener("click", handler);
+  });
+
+  const scrubber = document.getElementById("digitalTwinObjectTrajectoryScrubber");
+  if (scrubber) {
+    scrubber.addEventListener("input", (event) => {
+      setObjectTrajectoryTime(Number(event.target.value));
+    });
+  }
+  const rateSelector = document.getElementById(
+    "digitalTwinObjectTrajectoryPlaybackRate",
+  );
+  if (rateSelector) {
+    rateSelector.addEventListener("change", (event) => {
+      setObjectTrajectoryPlaybackRate(Number(event.target.value));
+    });
+  }
+}
+
 const publicApi = {
   resetCamera,
   fitModel: () => fitModel(false),
@@ -2003,6 +2346,15 @@ const publicApi = {
   resetObjectPreview,
   setObjectPreviewVisibility,
   getObjectPreviewState,
+  loadSyntheticObjectTrajectory,
+  setObjectTrajectorySampleIndex,
+  setObjectTrajectoryTime,
+  playObjectTrajectory,
+  pauseObjectTrajectory,
+  stopObjectTrajectory,
+  clearObjectTrajectory,
+  setObjectTrajectoryPlaybackRate,
+  getObjectTrajectoryPreviewState,
 };
 
 function handleResize() {
@@ -2603,6 +2955,7 @@ function initialize() {
 
   bindControls();
   bindObjectPreviewControls();
+  bindObjectTrajectoryPreviewControls();
   bindMirrorControls();
   bindPlannedPreviewControls();
   bindTrajectoryPreviewControls();
@@ -2611,6 +2964,7 @@ function initialize() {
   updatePlannedPreviewUi();
   updateTrajectoryPreviewUi();
   updateTrajectoryValidationUi();
+  updateObjectTrajectoryPreviewUi();
   window.setInterval(() => {
     updateMirrorStaleness(Date.now());
   }, 250);
