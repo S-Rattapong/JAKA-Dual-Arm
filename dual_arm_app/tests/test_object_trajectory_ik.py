@@ -13,17 +13,22 @@ from dual_arm_app.backend.object_trajectory import (
     SYNTHETIC_TRANSLATION_ONLY_OBJECT_TRAJECTORY,
 )
 from dual_arm_app.backend.object_trajectory_ik import (
+    ANGULAR_ENDPOINT_TOLERANCE_RAD,
     DEFAULT_INITIAL_DUAL_ARM_SEED_RAD,
     DUAL_ARM_GROUP_NAME,
     DUAL_ARM_JOINT_ORDER,
     LEFT_GROUP_NAME,
     LEFT_IK_LINK_NAME,
     LEFT_JOINT_ORDER,
+    JOINT_POSITIONS_UNCHANGED_NOTICE,
     OFFLINE_MODEL_SEED_NOTICE,
     RAW_JOINT_DELTA_NOTICE,
+    RAW_JOINT_DELTA_PRESERVED_NOTICE,
     RIGHT_GROUP_NAME,
     RIGHT_IK_LINK_NAME,
     RIGHT_JOINT_ORDER,
+    SHORTEST_ANGULAR_ANALYSIS_NOTICE,
+    WRAPAROUND_ADJUSTMENT_TOLERANCE_RAD,
     ArmIkSolution,
     CombinedStateValidity,
     JointDeltaRecord,
@@ -33,6 +38,7 @@ from dual_arm_app.backend.object_trajectory_ik import (
     joint_delta_rad,
     max_abs_joint_step_rad,
     rotation_matrix_to_quaternion_xyzw,
+    shortest_angular_delta_rad,
     solve_sequential_object_trajectory_ik,
     summarize_trajectory_continuity,
 )
@@ -318,6 +324,140 @@ class SequentialObjectTrajectoryIkTests(unittest.TestCase):
 class ContinuityAnalysisTests(unittest.TestCase):
     trajectory = SYNTHETIC_TRANSLATION_ONLY_OBJECT_TRAJECTORY
 
+    def test_shortest_delta_zero_and_ordinary_signed_changes(self) -> None:
+        cases = (
+            (0.0, 0.0, 0.0),
+            (0.1, 0.2, 0.1),
+            (0.2, 0.1, -0.1),
+        )
+        for previous, current, expected in cases:
+            with self.subTest(previous=previous, current=current):
+                record = JointDeltaRecord(0, previous, current)
+                self.assertAlmostEqual(record.delta_rad, current - previous)
+                self.assertAlmostEqual(record.abs_delta_rad, abs(current - previous))
+                self.assertAlmostEqual(record.shortest_delta_rad, expected)
+                self.assertAlmostEqual(record.shortest_abs_delta_rad, abs(expected))
+                self.assertFalse(record.wraparound_adjusted)
+
+    def test_shortest_delta_handles_both_pi_boundary_crossing_directions(self) -> None:
+        positive_crossing = JointDeltaRecord(0, 3.13, -3.13)
+        self.assertAlmostEqual(positive_crossing.delta_rad, -6.26)
+        self.assertAlmostEqual(
+            positive_crossing.shortest_delta_rad,
+            math.atan2(math.sin(-6.26), math.cos(-6.26)),
+        )
+        self.assertGreater(positive_crossing.shortest_delta_rad, 0.0)
+        self.assertTrue(positive_crossing.wraparound_adjusted)
+
+        reverse_crossing = JointDeltaRecord(0, -3.13, 3.13)
+        self.assertAlmostEqual(reverse_crossing.delta_rad, 6.26)
+        self.assertAlmostEqual(
+            reverse_crossing.shortest_delta_rad,
+            math.atan2(math.sin(6.26), math.cos(6.26)),
+        )
+        self.assertLess(reverse_crossing.shortest_delta_rad, 0.0)
+        self.assertTrue(reverse_crossing.wraparound_adjusted)
+
+    def test_shortest_delta_handles_raw_change_greater_than_two_pi(self) -> None:
+        raw = 4.0 * math.pi + 0.25
+        record = JointDeltaRecord(0, 0.0, raw)
+        self.assertEqual(record.delta_rad, raw)
+        self.assertAlmostEqual(record.shortest_delta_rad, 0.25)
+        self.assertAlmostEqual(record.shortest_abs_delta_rad, 0.25)
+        self.assertTrue(record.wraparound_adjusted)
+
+    def test_shortest_delta_uses_deterministic_open_negative_pi_interval(self) -> None:
+        self.assertEqual(shortest_angular_delta_rad(math.pi), math.pi)
+        self.assertEqual(shortest_angular_delta_rad(-math.pi), math.pi)
+        near_excluded_endpoint = -math.pi + ANGULAR_ENDPOINT_TOLERANCE_RAD / 2.0
+        self.assertEqual(shortest_angular_delta_rad(near_excluded_endpoint), math.pi)
+        for raw in (-9.0 * math.pi, -math.pi, math.pi, 9.0 * math.pi):
+            with self.subTest(raw=raw):
+                shortest = shortest_angular_delta_rad(raw)
+                self.assertGreater(shortest, -math.pi)
+                self.assertLessEqual(shortest, math.pi)
+        boundary_record = JointDeltaRecord(0, 0.0, -math.pi)
+        self.assertEqual(boundary_record.delta_rad, -math.pi)
+        self.assertEqual(boundary_record.shortest_delta_rad, math.pi)
+        self.assertTrue(boundary_record.wraparound_adjusted)
+
+    def test_shortest_helper_rejects_nonfinite_and_boolean_values(self) -> None:
+        for value in (math.nan, math.inf, -math.inf, True, False):
+            with self.subTest(value=value):
+                with self.assertRaises((TypeError, ValueError)):
+                    shortest_angular_delta_rad(value)
+
+    def test_transition_preserves_raw_max_and_adds_distinct_shortest_max(self) -> None:
+        current = [0.0] * 12
+        current[0] = 2.0 * math.pi + 0.1
+        current[4] = -0.5
+        transition = analyze_joint_transition(
+            from_sample_index=0,
+            to_sample_index=1,
+            previous_joint_positions_rad=(0.0,) * 12,
+            current_joint_positions_rad=current,
+        )
+        self.assertEqual(transition.max_joint_index, 0)
+        self.assertEqual(transition.max_joint_name, "left_joint_1")
+        self.assertAlmostEqual(transition.max_joint_delta_rad, 2.0 * math.pi + 0.1)
+        self.assertAlmostEqual(
+            transition.max_abs_joint_step_rad,
+            2.0 * math.pi + 0.1,
+        )
+        self.assertEqual(transition.max_shortest_joint_index, 4)
+        self.assertEqual(transition.max_shortest_joint_name, "left_joint_5")
+        self.assertAlmostEqual(transition.max_shortest_joint_delta_rad, -0.5)
+        self.assertAlmostEqual(transition.max_shortest_abs_joint_step_rad, 0.5)
+        self.assertEqual(transition.wraparound_adjusted_record_count, 1)
+
+    def test_shortest_maximum_tie_uses_earliest_canonical_joint(self) -> None:
+        current = [0.0] * 12
+        current[2] = 2.0 * math.pi + 0.4
+        current[8] = -0.4
+        transition = analyze_joint_transition(
+            from_sample_index=0,
+            to_sample_index=1,
+            previous_joint_positions_rad=(0.0,) * 12,
+            current_joint_positions_rad=current,
+        )
+        self.assertEqual(transition.max_shortest_joint_index, 2)
+        self.assertEqual(transition.max_shortest_joint_name, "left_joint_3")
+        self.assertAlmostEqual(transition.max_shortest_abs_joint_step_rad, 0.4)
+
+    def test_trajectory_raw_and_shortest_maxima_and_wrap_counts_are_independent(self) -> None:
+        first_current = [0.0] * 12
+        first_current[0] = 2.0 * math.pi + 0.1
+        first = analyze_joint_transition(
+            from_sample_index=0,
+            to_sample_index=1,
+            previous_joint_positions_rad=(0.0,) * 12,
+            current_joint_positions_rad=first_current,
+        )
+        second_current = [0.0] * 12
+        second_current[5] = -0.7
+        second = analyze_joint_transition(
+            from_sample_index=1,
+            to_sample_index=2,
+            previous_joint_positions_rad=(0.0,) * 12,
+            current_joint_positions_rad=second_current,
+        )
+        summary = summarize_trajectory_continuity((first, second))
+        self.assertEqual(summary.from_sample_index, 0)
+        self.assertEqual(summary.to_sample_index, 1)
+        self.assertEqual(summary.maximum_joint_index, 0)
+        self.assertAlmostEqual(summary.signed_delta_rad or 0.0, 2.0 * math.pi + 0.1)
+        self.assertEqual(summary.shortest_from_sample_index, 1)
+        self.assertEqual(summary.shortest_to_sample_index, 2)
+        self.assertEqual(summary.maximum_shortest_joint_index, 5)
+        self.assertEqual(summary.maximum_shortest_joint_name, "left_joint_6")
+        self.assertAlmostEqual(summary.signed_shortest_delta_rad or 0.0, -0.7)
+        self.assertAlmostEqual(
+            summary.maximum_shortest_abs_joint_step_rad or 0.0,
+            0.7,
+        )
+        self.assertEqual(summary.wraparound_adjusted_transition_count, 1)
+        self.assertEqual(summary.wraparound_adjusted_record_count, 1)
+
     def test_transition_has_canonical_names_values_deltas_and_maximum(self) -> None:
         previous = tuple(index / 10.0 for index in range(12))
         expected_deltas = (
@@ -429,6 +569,17 @@ class ContinuityAnalysisTests(unittest.TestCase):
         self.assertEqual(summary.maximum_joint_name, "right_joint_4")
         self.assertAlmostEqual(summary.signed_delta_rad or 0.0, -0.8)
         self.assertAlmostEqual(summary.maximum_abs_joint_step_rad or 0.0, 0.8)
+        self.assertEqual(summary.shortest_from_sample_index, 1)
+        self.assertEqual(summary.shortest_to_sample_index, 2)
+        self.assertEqual(summary.maximum_shortest_joint_index, 9)
+        self.assertEqual(summary.maximum_shortest_joint_name, "right_joint_4")
+        self.assertAlmostEqual(summary.signed_shortest_delta_rad or 0.0, -0.8)
+        self.assertAlmostEqual(
+            summary.maximum_shortest_abs_joint_step_rad or 0.0,
+            0.8,
+        )
+        self.assertEqual(summary.wraparound_adjusted_transition_count, 0)
+        self.assertEqual(summary.wraparound_adjusted_record_count, 0)
 
     def test_one_accepted_sample_has_no_transition_or_fabricated_maximum(self) -> None:
         result = solve_sequential_object_trajectory_ik(
@@ -445,6 +596,14 @@ class ContinuityAnalysisTests(unittest.TestCase):
         self.assertIsNone(summary.from_sample_index)
         self.assertIsNone(summary.to_sample_index)
         self.assertIsNone(summary.signed_delta_rad)
+        self.assertIsNone(summary.maximum_shortest_abs_joint_step_rad)
+        self.assertIsNone(summary.maximum_shortest_joint_name)
+        self.assertIsNone(summary.maximum_shortest_joint_index)
+        self.assertIsNone(summary.shortest_from_sample_index)
+        self.assertIsNone(summary.shortest_to_sample_index)
+        self.assertIsNone(summary.signed_shortest_delta_rad)
+        self.assertEqual(summary.wraparound_adjusted_transition_count, 0)
+        self.assertEqual(summary.wraparound_adjusted_record_count, 0)
         self.assertIsNone(result.maximum_observed_joint_step_rad)
         self.assertIsNone(result.samples[-1].continuity_from_previous)
 
@@ -552,6 +711,24 @@ class ArchitectureAndSafetyTests(unittest.TestCase):
         )
         self.assertIn(RAW_JOINT_DELTA_NOTICE, core_source)
         self.assertIn("print(RAW_JOINT_DELTA_NOTICE)", adapter_source)
+        self.assertEqual(RAW_JOINT_DELTA_PRESERVED_NOTICE, "RAW JOINT DELTA IS PRESERVED")
+        self.assertEqual(
+            SHORTEST_ANGULAR_ANALYSIS_NOTICE,
+            "SHORTEST ANGULAR DELTA IS AN ANALYSIS METRIC ONLY",
+        )
+        self.assertEqual(
+            JOINT_POSITIONS_UNCHANGED_NOTICE,
+            "JOINT POSITIONS ARE NOT NORMALIZED OR MODIFIED",
+        )
+        for notice, symbol_name in (
+            (RAW_JOINT_DELTA_PRESERVED_NOTICE, "RAW_JOINT_DELTA_PRESERVED_NOTICE"),
+            (SHORTEST_ANGULAR_ANALYSIS_NOTICE, "SHORTEST_ANGULAR_ANALYSIS_NOTICE"),
+            (JOINT_POSITIONS_UNCHANGED_NOTICE, "JOINT_POSITIONS_UNCHANGED_NOTICE"),
+        ):
+            self.assertIn(notice, core_source)
+            self.assertIn(f"print({symbol_name})", adapter_source)
+        self.assertEqual(ANGULAR_ENDPOINT_TOLERANCE_RAD, 1e-12)
+        self.assertEqual(WRAPAROUND_ADJUSTMENT_TOLERANCE_RAD, 1e-9)
         for not_yet_allowed in (
             "shortest_angular_distance",
             "math.remainder",

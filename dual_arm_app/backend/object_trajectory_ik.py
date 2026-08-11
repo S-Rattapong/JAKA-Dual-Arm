@@ -8,9 +8,11 @@ pair is ordered as ``q(i) = [q_L1..q_L6, q_R1..q_R6]`` and accepted only after
 combined dual-arm state validation. Sample zero uses an explicit 12-joint seed;
 later samples use only the previous accepted pair. Phase 1G.3A records every
 joint change as the raw subtraction ``Delta q_j(i) = q_j(i) - q_j(i-1)`` in
-radians, associates it with the canonical joint name/index, and reports the
-per-transition and trajectory maxima. It does not normalize wraparound, reject
-jumps, optimize them, or produce an executable trajectory.
+radians and preserves it unchanged. Phase 1G.3B additionally computes the
+shortest angular analysis delta ``atan2(sin(Delta q), cos(Delta q))`` in the
+canonical interval ``(-pi, +pi]``. Only the analysis delta is wrapped: stored
+joint positions, IK results, and seeds are never normalized or modified. This
+phase does not reject jumps, optimize them, or produce an executable trajectory.
 """
 
 from __future__ import annotations
@@ -35,6 +37,15 @@ RIGHT_IK_LINK_NAME = "right_J6"
 
 DEFAULT_IK_TIMEOUT_S = 1.0
 RAW_JOINT_DELTA_NOTICE = "RAW JOINT DELTA — WRAPAROUND NOT YET NORMALIZED"
+RAW_JOINT_DELTA_PRESERVED_NOTICE = "RAW JOINT DELTA IS PRESERVED"
+SHORTEST_ANGULAR_ANALYSIS_NOTICE = (
+    "SHORTEST ANGULAR DELTA IS AN ANALYSIS METRIC ONLY"
+)
+JOINT_POSITIONS_UNCHANGED_NOTICE = (
+    "JOINT POSITIONS ARE NOT NORMALIZED OR MODIFIED"
+)
+ANGULAR_ENDPOINT_TOLERANCE_RAD = 1e-12
+WRAPAROUND_ADJUSTMENT_TOLERANCE_RAD = 1e-9
 OFFLINE_MODEL_SEED_NOTICE = (
     "OFFLINE SYNTHETIC / MODEL SEED — NOT PHYSICAL ROBOT CALIBRATION"
 )
@@ -116,9 +127,28 @@ def max_abs_joint_step_rad(delta_rad: Sequence[float]) -> float:
     return max(abs(value) for value in checked)
 
 
+def shortest_angular_delta_rad(raw_delta_rad: float) -> float:
+    """Return ``atan2(sin(dq), cos(dq))`` in canonical ``(-pi, +pi]``.
+
+    ``-pi`` is the excluded endpoint. Results numerically within
+    ``ANGULAR_ENDPOINT_TOLERANCE_RAD`` of it are represented as ``+pi``.
+    This is a continuity metric only and never normalizes a joint position.
+    """
+    raw = _finite_number(raw_delta_rad, "raw_delta_rad")
+    shortest = math.atan2(math.sin(raw), math.cos(raw))
+    if math.isclose(
+        shortest,
+        -math.pi,
+        rel_tol=0.0,
+        abs_tol=ANGULAR_ENDPOINT_TOLERANCE_RAD,
+    ):
+        return math.pi
+    return shortest
+
+
 @dataclass(frozen=True)
 class JointDeltaRecord:
-    """One canonical joint's raw, non-wrapped change between accepted samples."""
+    """One joint's preserved raw and analysis-only shortest angular changes."""
 
     joint_index: int
     previous_position_rad: float
@@ -126,6 +156,9 @@ class JointDeltaRecord:
     joint_name: str = field(init=False)
     delta_rad: float = field(init=False)
     abs_delta_rad: float = field(init=False)
+    shortest_delta_rad: float = field(init=False)
+    shortest_abs_delta_rad: float = field(init=False)
+    wraparound_adjusted: bool = field(init=False)
 
     def __post_init__(self) -> None:
         if (
@@ -140,16 +173,24 @@ class JointDeltaRecord:
         )
         current = _finite_number(self.current_position_rad, "current_position_rad")
         delta = current - previous
+        shortest = shortest_angular_delta_rad(delta)
         object.__setattr__(self, "previous_position_rad", previous)
         object.__setattr__(self, "current_position_rad", current)
         object.__setattr__(self, "joint_name", DUAL_ARM_JOINT_ORDER[self.joint_index])
         object.__setattr__(self, "delta_rad", delta)
         object.__setattr__(self, "abs_delta_rad", abs(delta))
+        object.__setattr__(self, "shortest_delta_rad", shortest)
+        object.__setattr__(self, "shortest_abs_delta_rad", abs(shortest))
+        object.__setattr__(
+            self,
+            "wraparound_adjusted",
+            abs(delta - shortest) > WRAPAROUND_ADJUSTMENT_TOLERANCE_RAD,
+        )
 
 
 @dataclass(frozen=True)
 class TransitionContinuity:
-    """Raw per-joint continuity for one accepted sample transition."""
+    """Raw and shortest-angular continuity for an accepted transition."""
 
     from_sample_index: int
     to_sample_index: int
@@ -158,6 +199,11 @@ class TransitionContinuity:
     max_joint_index: int = field(init=False)
     max_joint_name: str = field(init=False)
     max_joint_delta_rad: float = field(init=False)
+    max_shortest_abs_joint_step_rad: float = field(init=False)
+    max_shortest_joint_index: int = field(init=False)
+    max_shortest_joint_name: str = field(init=False)
+    max_shortest_joint_delta_rad: float = field(init=False)
+    wraparound_adjusted_record_count: int = field(init=False)
 
     def __post_init__(self) -> None:
         for label, value in (
@@ -182,6 +228,10 @@ class TransitionContinuity:
         # max() preserves the first record on an exact tie, so canonical order
         # deterministically selects the earliest joint index.
         maximum_record = max(records, key=lambda record: record.abs_delta_rad)
+        maximum_shortest_record = max(
+            records,
+            key=lambda record: record.shortest_abs_delta_rad,
+        )
         object.__setattr__(self, "joint_deltas", records)
         object.__setattr__(
             self,
@@ -191,11 +241,36 @@ class TransitionContinuity:
         object.__setattr__(self, "max_joint_index", maximum_record.joint_index)
         object.__setattr__(self, "max_joint_name", maximum_record.joint_name)
         object.__setattr__(self, "max_joint_delta_rad", maximum_record.delta_rad)
+        object.__setattr__(
+            self,
+            "max_shortest_abs_joint_step_rad",
+            maximum_shortest_record.shortest_abs_delta_rad,
+        )
+        object.__setattr__(
+            self,
+            "max_shortest_joint_index",
+            maximum_shortest_record.joint_index,
+        )
+        object.__setattr__(
+            self,
+            "max_shortest_joint_name",
+            maximum_shortest_record.joint_name,
+        )
+        object.__setattr__(
+            self,
+            "max_shortest_joint_delta_rad",
+            maximum_shortest_record.shortest_delta_rad,
+        )
+        object.__setattr__(
+            self,
+            "wraparound_adjusted_record_count",
+            sum(record.wraparound_adjusted for record in records),
+        )
 
 
 @dataclass(frozen=True)
 class TrajectoryContinuitySummary:
-    """Maximum raw joint change across all accepted sample transitions."""
+    """Raw and shortest-angular maxima across accepted transitions."""
 
     transition_count: int
     maximum_abs_joint_step_rad: float | None
@@ -204,6 +279,14 @@ class TrajectoryContinuitySummary:
     from_sample_index: int | None
     to_sample_index: int | None
     signed_delta_rad: float | None
+    maximum_shortest_abs_joint_step_rad: float | None = None
+    maximum_shortest_joint_name: str | None = None
+    maximum_shortest_joint_index: int | None = None
+    shortest_from_sample_index: int | None = None
+    shortest_to_sample_index: int | None = None
+    signed_shortest_delta_rad: float | None = None
+    wraparound_adjusted_transition_count: int = 0
+    wraparound_adjusted_record_count: int = 0
 
 
 def analyze_joint_transition(
@@ -213,7 +296,7 @@ def analyze_joint_transition(
     previous_joint_positions_rad: Sequence[float],
     current_joint_positions_rad: Sequence[float],
 ) -> TransitionContinuity:
-    """Build 12 canonical records using raw subtraction without wraparound."""
+    """Build 12 records preserving raw subtraction plus shortest analysis."""
     previous = _joint_vector(
         previous_joint_positions_rad,
         12,
@@ -260,11 +343,23 @@ def summarize_trajectory_continuity(
             from_sample_index=None,
             to_sample_index=None,
             signed_delta_rad=None,
+            maximum_shortest_abs_joint_step_rad=None,
+            maximum_shortest_joint_name=None,
+            maximum_shortest_joint_index=None,
+            shortest_from_sample_index=None,
+            shortest_to_sample_index=None,
+            signed_shortest_delta_rad=None,
+            wraparound_adjusted_transition_count=0,
+            wraparound_adjusted_record_count=0,
         )
 
     # Transition order and each transition's canonical joint order make exact
     # trajectory-level ties deterministic without inventing another ordering.
     maximum = max(checked, key=lambda item: item.max_abs_joint_step_rad)
+    maximum_shortest = max(
+        checked,
+        key=lambda item: item.max_shortest_abs_joint_step_rad,
+    )
     return TrajectoryContinuitySummary(
         transition_count=len(checked),
         maximum_abs_joint_step_rad=maximum.max_abs_joint_step_rad,
@@ -273,6 +368,22 @@ def summarize_trajectory_continuity(
         from_sample_index=maximum.from_sample_index,
         to_sample_index=maximum.to_sample_index,
         signed_delta_rad=maximum.max_joint_delta_rad,
+        maximum_shortest_abs_joint_step_rad=(
+            maximum_shortest.max_shortest_abs_joint_step_rad
+        ),
+        maximum_shortest_joint_name=maximum_shortest.max_shortest_joint_name,
+        maximum_shortest_joint_index=maximum_shortest.max_shortest_joint_index,
+        shortest_from_sample_index=maximum_shortest.from_sample_index,
+        shortest_to_sample_index=maximum_shortest.to_sample_index,
+        signed_shortest_delta_rad=maximum_shortest.max_shortest_joint_delta_rad,
+        wraparound_adjusted_transition_count=sum(
+            transition.wraparound_adjusted_record_count > 0
+            for transition in checked
+        ),
+        wraparound_adjusted_record_count=sum(
+            transition.wraparound_adjusted_record_count
+            for transition in checked
+        ),
     )
 
 
