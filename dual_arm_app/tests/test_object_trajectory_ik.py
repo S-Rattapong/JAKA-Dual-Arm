@@ -1,4 +1,4 @@
-"""Offline tests for Phase 1G.2A sequential dual-arm IK bookkeeping."""
+"""Offline tests for sequential IK and Phase 1G.3A raw continuity analysis."""
 
 from __future__ import annotations
 
@@ -20,16 +20,21 @@ from dual_arm_app.backend.object_trajectory_ik import (
     LEFT_IK_LINK_NAME,
     LEFT_JOINT_ORDER,
     OFFLINE_MODEL_SEED_NOTICE,
+    RAW_JOINT_DELTA_NOTICE,
     RIGHT_GROUP_NAME,
     RIGHT_IK_LINK_NAME,
     RIGHT_JOINT_ORDER,
     ArmIkSolution,
     CombinedStateValidity,
+    JointDeltaRecord,
+    TransitionContinuity,
+    analyze_joint_transition,
     combine_arm_joint_solutions,
     joint_delta_rad,
     max_abs_joint_step_rad,
     rotation_matrix_to_quaternion_xyzw,
     solve_sequential_object_trajectory_ik,
+    summarize_trajectory_continuity,
 )
 
 
@@ -47,10 +52,12 @@ class FakeMoveItAdapter:
         left_fail_at: int | None = None,
         right_fail_at: int | None = None,
         invalid_at: int | None = None,
+        joint_offsets_by_sample: tuple[tuple[float, ...], ...] | None = None,
     ) -> None:
         self.left_fail_at = left_fail_at
         self.right_fail_at = right_fail_at
         self.invalid_at = invalid_at
+        self.joint_offsets_by_sample = joint_offsets_by_sample
         self.ik_calls: list[dict[str, object]] = []
         self.validity_calls: list[dict[str, object]] = []
         self.current_sample_index = -1
@@ -77,15 +84,26 @@ class FakeMoveItAdapter:
             "timeout_s": timeout_s,
             "avoid_collisions": avoid_collisions,
         })
+        offsets = (
+            self.joint_offsets_by_sample[sample_index]
+            if self.joint_offsets_by_sample is not None
+            else (0.1,) * 6 + (0.2,) * 6
+        )
         if group_name == LEFT_GROUP_NAME:
             if sample_index == self.left_fail_at:
                 return ArmIkSolution(False, diagnostic="synthetic left failure")
-            positions = tuple(value + 0.1 for value in seed_joint_positions_rad[:6])
+            positions = tuple(
+                value + offset
+                for value, offset in zip(seed_joint_positions_rad[:6], offsets[:6])
+            )
             return ArmIkSolution(True, positions)
         if group_name == RIGHT_GROUP_NAME:
             if sample_index == self.right_fail_at:
                 return ArmIkSolution(False, diagnostic="synthetic right failure")
-            positions = tuple(value + 0.2 for value in seed_joint_positions_rad[6:])
+            positions = tuple(
+                value + offset
+                for value, offset in zip(seed_joint_positions_rad[6:], offsets[6:])
+            )
             return ArmIkSolution(True, positions)
         raise AssertionError(f"unexpected group: {group_name}")
 
@@ -297,6 +315,194 @@ class SequentialObjectTrajectoryIkTests(unittest.TestCase):
             result.samples[0].accepted = False  # type: ignore[misc]
 
 
+class ContinuityAnalysisTests(unittest.TestCase):
+    trajectory = SYNTHETIC_TRANSLATION_ONLY_OBJECT_TRAJECTORY
+
+    def test_transition_has_canonical_names_values_deltas_and_maximum(self) -> None:
+        previous = tuple(index / 10.0 for index in range(12))
+        expected_deltas = (
+            0.01,
+            -0.02,
+            0.03,
+            -0.04,
+            0.05,
+            -0.06,
+            0.07,
+            -0.08,
+            0.09,
+            -0.7,
+            0.11,
+            -0.12,
+        )
+        current = tuple(
+            position + delta
+            for position, delta in zip(previous, expected_deltas)
+        )
+        transition = analyze_joint_transition(
+            from_sample_index=2,
+            to_sample_index=3,
+            previous_joint_positions_rad=previous,
+            current_joint_positions_rad=current,
+        )
+
+        self.assertEqual(len(transition.joint_deltas), 12)
+        for index, record in enumerate(transition.joint_deltas):
+            with self.subTest(index=index):
+                self.assertEqual(record.joint_index, index)
+                self.assertEqual(record.joint_name, DUAL_ARM_JOINT_ORDER[index])
+                self.assertAlmostEqual(record.previous_position_rad, previous[index])
+                self.assertAlmostEqual(record.current_position_rad, current[index])
+                self.assertAlmostEqual(record.delta_rad, expected_deltas[index])
+                self.assertAlmostEqual(record.abs_delta_rad, abs(expected_deltas[index]))
+        self.assertEqual(transition.max_joint_index, 9)
+        self.assertEqual(transition.max_joint_name, "right_joint_4")
+        self.assertAlmostEqual(transition.max_joint_delta_rad, -0.7)
+        self.assertAlmostEqual(transition.max_abs_joint_step_rad, 0.7)
+
+    def test_exact_maximum_tie_uses_earliest_canonical_joint(self) -> None:
+        deltas = [0.0] * 12
+        deltas[2] = 0.5
+        deltas[8] = -0.5
+        transition = analyze_joint_transition(
+            from_sample_index=0,
+            to_sample_index=1,
+            previous_joint_positions_rad=(0.0,) * 12,
+            current_joint_positions_rad=deltas,
+        )
+        self.assertEqual(transition.max_joint_index, 2)
+        self.assertEqual(transition.max_joint_name, "left_joint_3")
+        self.assertEqual(transition.max_joint_delta_rad, 0.5)
+
+    def test_delta_is_raw_subtraction_without_wraparound_normalization(self) -> None:
+        previous = [0.0] * 12
+        current = [0.0] * 12
+        previous[0] = 3.1
+        current[0] = -3.1
+        transition = analyze_joint_transition(
+            from_sample_index=0,
+            to_sample_index=1,
+            previous_joint_positions_rad=previous,
+            current_joint_positions_rad=current,
+        )
+        self.assertAlmostEqual(transition.joint_deltas[0].delta_rad, -6.2)
+        self.assertAlmostEqual(transition.joint_deltas[0].abs_delta_rad, 6.2)
+
+    def test_richer_analysis_agrees_with_legacy_delta_and_maximum_views(self) -> None:
+        result = solve_sequential_object_trajectory_ik(
+            self.trajectory,
+            FakeMoveItAdapter(),
+        )
+        self.assertEqual(len(result.continuity_transitions), 4)
+        for sample in result.samples[1:]:
+            transition = sample.continuity_from_previous
+            self.assertIsNotNone(transition)
+            self.assertEqual(
+                sample.joint_delta_from_previous_rad,
+                tuple(record.delta_rad for record in transition.joint_deltas),
+            )
+            self.assertEqual(
+                sample.max_abs_joint_step_rad,
+                transition.max_abs_joint_step_rad,
+            )
+        self.assertEqual(
+            result.maximum_observed_joint_step_rad,
+            result.continuity_summary.maximum_abs_joint_step_rad,
+        )
+
+    def test_trajectory_summary_identifies_transition_joint_and_signed_delta(self) -> None:
+        offsets = (
+            (0.01,) * 12,
+            (0.02,) * 12,
+            (0.03,) * 9 + (-0.8,) + (0.03,) * 2,
+            (0.04,) * 12,
+            (0.05,) * 12,
+        )
+        result = solve_sequential_object_trajectory_ik(
+            self.trajectory,
+            FakeMoveItAdapter(joint_offsets_by_sample=offsets),
+        )
+        summary = result.continuity_summary
+        self.assertEqual(summary.transition_count, 4)
+        self.assertEqual(summary.from_sample_index, 1)
+        self.assertEqual(summary.to_sample_index, 2)
+        self.assertEqual(summary.maximum_joint_index, 9)
+        self.assertEqual(summary.maximum_joint_name, "right_joint_4")
+        self.assertAlmostEqual(summary.signed_delta_rad or 0.0, -0.8)
+        self.assertAlmostEqual(summary.maximum_abs_joint_step_rad or 0.0, 0.8)
+
+    def test_one_accepted_sample_has_no_transition_or_fabricated_maximum(self) -> None:
+        result = solve_sequential_object_trajectory_ik(
+            self.trajectory,
+            FakeMoveItAdapter(invalid_at=1),
+        )
+        summary = result.continuity_summary
+        self.assertEqual(result.accepted_sample_count, 1)
+        self.assertEqual(summary.transition_count, 0)
+        self.assertEqual(result.continuity_transitions, ())
+        self.assertIsNone(summary.maximum_abs_joint_step_rad)
+        self.assertIsNone(summary.maximum_joint_name)
+        self.assertIsNone(summary.maximum_joint_index)
+        self.assertIsNone(summary.from_sample_index)
+        self.assertIsNone(summary.to_sample_index)
+        self.assertIsNone(summary.signed_delta_rad)
+        self.assertIsNone(result.maximum_observed_joint_step_rad)
+        self.assertIsNone(result.samples[-1].continuity_from_previous)
+
+    def test_failed_or_rejected_sample_is_not_a_continuity_transition(self) -> None:
+        for adapter in (
+            FakeMoveItAdapter(left_fail_at=2),
+            FakeMoveItAdapter(right_fail_at=2),
+            FakeMoveItAdapter(invalid_at=2),
+        ):
+            with self.subTest(adapter=adapter):
+                result = solve_sequential_object_trajectory_ik(self.trajectory, adapter)
+                self.assertEqual(result.accepted_sample_count, 2)
+                self.assertEqual(result.continuity_summary.transition_count, 1)
+                self.assertEqual(len(result.continuity_transitions), 1)
+                self.assertFalse(result.samples[-1].accepted)
+                self.assertIsNone(result.samples[-1].continuity_from_previous)
+
+    def test_continuity_inputs_remain_finite_controlled_and_immutable(self) -> None:
+        for value in (math.nan, math.inf, -math.inf, True):
+            current = [0.0] * 12
+            current[5] = value
+            with self.subTest(value=value):
+                with self.assertRaises((TypeError, ValueError)):
+                    analyze_joint_transition(
+                        from_sample_index=0,
+                        to_sample_index=1,
+                        previous_joint_positions_rad=(0.0,) * 12,
+                        current_joint_positions_rad=current,
+                    )
+        record = JointDeltaRecord(0, 1.0, 1.5)
+        with self.assertRaises(FrozenInstanceError):
+            record.delta_rad = 99.0  # type: ignore[misc]
+
+    def test_summary_helper_uses_earliest_transition_on_exact_tie(self) -> None:
+        first = analyze_joint_transition(
+            from_sample_index=0,
+            to_sample_index=1,
+            previous_joint_positions_rad=(0.0,) * 12,
+            current_joint_positions_rad=(0.4,) + (0.0,) * 11,
+        )
+        second = analyze_joint_transition(
+            from_sample_index=1,
+            to_sample_index=2,
+            previous_joint_positions_rad=(0.0,) * 12,
+            current_joint_positions_rad=(0.0,) * 11 + (-0.4,),
+        )
+        summary = summarize_trajectory_continuity((first, second))
+        self.assertEqual(summary.from_sample_index, 0)
+        self.assertEqual(summary.to_sample_index, 1)
+        self.assertEqual(summary.maximum_joint_index, 0)
+        self.assertEqual(summary.signed_delta_rad, 0.4)
+
+    def test_transition_model_rejects_noncanonical_record_order(self) -> None:
+        records = tuple(JointDeltaRecord(index, 0.0, 0.0) for index in range(12))
+        with self.assertRaises(ValueError):
+            TransitionContinuity(0, 1, tuple(reversed(records)))
+
+
 class ArchitectureAndSafetyTests(unittest.TestCase):
     def test_core_has_no_ros_moveit_driver_or_numpy_dependency(self) -> None:
         source = CORE_PATH.read_text(encoding="utf-8")
@@ -337,6 +543,24 @@ class ArchitectureAndSafetyTests(unittest.TestCase):
             "OFFLINE SYNTHETIC / MODEL SEED — NOT PHYSICAL ROBOT CALIBRATION",
         )
 
+    def test_raw_delta_wraparound_limitation_is_in_core_and_runtime_report(self) -> None:
+        core_source = CORE_PATH.read_text(encoding="utf-8")
+        adapter_source = ADAPTER_PATH.read_text(encoding="utf-8")
+        self.assertEqual(
+            RAW_JOINT_DELTA_NOTICE,
+            "RAW JOINT DELTA — WRAPAROUND NOT YET NORMALIZED",
+        )
+        self.assertIn(RAW_JOINT_DELTA_NOTICE, core_source)
+        self.assertIn("print(RAW_JOINT_DELTA_NOTICE)", adapter_source)
+        for not_yet_allowed in (
+            "shortest_angular_distance",
+            "math.remainder",
+            "jump_threshold",
+            "velocity_rad",
+            "acceleration_rad",
+        ):
+            self.assertNotIn(not_yet_allowed, core_source)
+
     def test_runtime_adapter_contains_only_allowed_planning_interfaces(self) -> None:
         source = ADAPTER_PATH.read_text(encoding="utf-8")
         self.assertIn('COMPUTE_IK_SERVICE = "/compute_ik"', source)
@@ -351,6 +575,7 @@ class ArchitectureAndSafetyTests(unittest.TestCase):
             "JointTrajectory",
             "create_publisher",
             "create_subscription",
+            "create_action_client",
             "ActionClient",
         ):
             self.assertNotIn(forbidden, source)

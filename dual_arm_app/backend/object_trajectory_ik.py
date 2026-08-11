@@ -1,4 +1,4 @@
-"""ROS-independent sequential dual-arm IK bookkeeping for Phase 1G.2A.
+"""ROS-independent sequential dual-arm IK and continuity analysis.
 
 OFFLINE PLANNING ONLY — NO PHYSICAL ROBOT, NO JAKA DRIVER, NO MOTION.
 
@@ -6,15 +6,17 @@ For object-trajectory sample ``i``, independent left/right IK candidates are
 requested for the already-derived ``^W T_L(i)`` and ``^W T_R(i)`` targets. The
 pair is ordered as ``q(i) = [q_L1..q_L6, q_R1..q_R6]`` and accepted only after
 combined dual-arm state validation. Sample zero uses an explicit 12-joint seed;
-later samples use only the previous accepted pair. Joint changes are recorded
-as ``Delta q_j(i) = q_j(i) - q_j(i-1)`` in radians. This phase records jumps but
-does not reject them, optimize them, or produce an executable trajectory.
+later samples use only the previous accepted pair. Phase 1G.3A records every
+joint change as the raw subtraction ``Delta q_j(i) = q_j(i) - q_j(i-1)`` in
+radians, associates it with the canonical joint name/index, and reports the
+per-transition and trajectory maxima. It does not normalize wraparound, reject
+jumps, optimize them, or produce an executable trajectory.
 """
 
 from __future__ import annotations
 
 import math
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import Any, Protocol, Sequence
 
 from dual_arm_app.backend.object_grasp_model import RigidTransform
@@ -32,6 +34,7 @@ LEFT_IK_LINK_NAME = "left_J6"
 RIGHT_IK_LINK_NAME = "right_J6"
 
 DEFAULT_IK_TIMEOUT_S = 1.0
+RAW_JOINT_DELTA_NOTICE = "RAW JOINT DELTA — WRAPAROUND NOT YET NORMALIZED"
 OFFLINE_MODEL_SEED_NOTICE = (
     "OFFLINE SYNTHETIC / MODEL SEED — NOT PHYSICAL ROBOT CALIBRATION"
 )
@@ -111,6 +114,166 @@ def max_abs_joint_step_rad(delta_rad: Sequence[float]) -> float:
     """Return ``max_j |Delta q_j|`` in radians without applying a threshold."""
     checked = _joint_vector(delta_rad, 12, "joint_delta_rad")
     return max(abs(value) for value in checked)
+
+
+@dataclass(frozen=True)
+class JointDeltaRecord:
+    """One canonical joint's raw, non-wrapped change between accepted samples."""
+
+    joint_index: int
+    previous_position_rad: float
+    current_position_rad: float
+    joint_name: str = field(init=False)
+    delta_rad: float = field(init=False)
+    abs_delta_rad: float = field(init=False)
+
+    def __post_init__(self) -> None:
+        if (
+            isinstance(self.joint_index, bool)
+            or not isinstance(self.joint_index, int)
+            or not 0 <= self.joint_index < len(DUAL_ARM_JOINT_ORDER)
+        ):
+            raise ValueError("joint_index must identify a canonical dual-arm joint")
+        previous = _finite_number(
+            self.previous_position_rad,
+            "previous_position_rad",
+        )
+        current = _finite_number(self.current_position_rad, "current_position_rad")
+        delta = current - previous
+        object.__setattr__(self, "previous_position_rad", previous)
+        object.__setattr__(self, "current_position_rad", current)
+        object.__setattr__(self, "joint_name", DUAL_ARM_JOINT_ORDER[self.joint_index])
+        object.__setattr__(self, "delta_rad", delta)
+        object.__setattr__(self, "abs_delta_rad", abs(delta))
+
+
+@dataclass(frozen=True)
+class TransitionContinuity:
+    """Raw per-joint continuity for one accepted sample transition."""
+
+    from_sample_index: int
+    to_sample_index: int
+    joint_deltas: tuple[JointDeltaRecord, ...]
+    max_abs_joint_step_rad: float = field(init=False)
+    max_joint_index: int = field(init=False)
+    max_joint_name: str = field(init=False)
+    max_joint_delta_rad: float = field(init=False)
+
+    def __post_init__(self) -> None:
+        for label, value in (
+            ("from_sample_index", self.from_sample_index),
+            ("to_sample_index", self.to_sample_index),
+        ):
+            if isinstance(value, bool) or not isinstance(value, int) or value < 0:
+                raise ValueError(f"{label} must be a non-negative integer")
+        if self.to_sample_index <= self.from_sample_index:
+            raise ValueError("to_sample_index must follow from_sample_index")
+        try:
+            records = tuple(self.joint_deltas)
+        except TypeError as error:
+            raise TypeError("joint_deltas must be an iterable") from error
+        if len(records) != len(DUAL_ARM_JOINT_ORDER):
+            raise ValueError("joint_deltas must contain exactly 12 records")
+        if any(not isinstance(record, JointDeltaRecord) for record in records):
+            raise TypeError("joint_deltas must contain JointDeltaRecord values")
+        if tuple(record.joint_index for record in records) != tuple(range(12)):
+            raise ValueError("joint_deltas must use canonical joint index order")
+
+        # max() preserves the first record on an exact tie, so canonical order
+        # deterministically selects the earliest joint index.
+        maximum_record = max(records, key=lambda record: record.abs_delta_rad)
+        object.__setattr__(self, "joint_deltas", records)
+        object.__setattr__(
+            self,
+            "max_abs_joint_step_rad",
+            maximum_record.abs_delta_rad,
+        )
+        object.__setattr__(self, "max_joint_index", maximum_record.joint_index)
+        object.__setattr__(self, "max_joint_name", maximum_record.joint_name)
+        object.__setattr__(self, "max_joint_delta_rad", maximum_record.delta_rad)
+
+
+@dataclass(frozen=True)
+class TrajectoryContinuitySummary:
+    """Maximum raw joint change across all accepted sample transitions."""
+
+    transition_count: int
+    maximum_abs_joint_step_rad: float | None
+    maximum_joint_name: str | None
+    maximum_joint_index: int | None
+    from_sample_index: int | None
+    to_sample_index: int | None
+    signed_delta_rad: float | None
+
+
+def analyze_joint_transition(
+    *,
+    from_sample_index: int,
+    to_sample_index: int,
+    previous_joint_positions_rad: Sequence[float],
+    current_joint_positions_rad: Sequence[float],
+) -> TransitionContinuity:
+    """Build 12 canonical records using raw subtraction without wraparound."""
+    previous = _joint_vector(
+        previous_joint_positions_rad,
+        12,
+        "previous_joint_positions_rad",
+    )
+    current = _joint_vector(
+        current_joint_positions_rad,
+        12,
+        "current_joint_positions_rad",
+    )
+    records = tuple(
+        JointDeltaRecord(
+            joint_index=index,
+            previous_position_rad=previous[index],
+            current_position_rad=current[index],
+        )
+        for index in range(12)
+    )
+    return TransitionContinuity(
+        from_sample_index=from_sample_index,
+        to_sample_index=to_sample_index,
+        joint_deltas=records,
+    )
+
+
+def summarize_trajectory_continuity(
+    transitions: Sequence[TransitionContinuity],
+) -> TrajectoryContinuitySummary:
+    """Summarize accepted transitions, retaining earliest exact maximum tie."""
+    if isinstance(transitions, (str, bytes, bool)) or not isinstance(
+        transitions,
+        Sequence,
+    ):
+        raise TypeError("transitions must be a sequence")
+    checked = tuple(transitions)
+    if any(not isinstance(item, TransitionContinuity) for item in checked):
+        raise TypeError("transitions must contain TransitionContinuity values")
+    if not checked:
+        return TrajectoryContinuitySummary(
+            transition_count=0,
+            maximum_abs_joint_step_rad=None,
+            maximum_joint_name=None,
+            maximum_joint_index=None,
+            from_sample_index=None,
+            to_sample_index=None,
+            signed_delta_rad=None,
+        )
+
+    # Transition order and each transition's canonical joint order make exact
+    # trajectory-level ties deterministic without inventing another ordering.
+    maximum = max(checked, key=lambda item: item.max_abs_joint_step_rad)
+    return TrajectoryContinuitySummary(
+        transition_count=len(checked),
+        maximum_abs_joint_step_rad=maximum.max_abs_joint_step_rad,
+        maximum_joint_name=maximum.max_joint_name,
+        maximum_joint_index=maximum.max_joint_index,
+        from_sample_index=maximum.from_sample_index,
+        to_sample_index=maximum.to_sample_index,
+        signed_delta_rad=maximum.max_joint_delta_rad,
+    )
 
 
 def rotation_matrix_to_quaternion_xyzw(transform: RigidTransform) -> QuaternionXyzw:
@@ -244,10 +407,26 @@ class ObjectTrajectoryIkSampleResult:
     left_joint_positions_rad: JointVector6 | None
     right_joint_positions_rad: JointVector6 | None
     combined_joint_positions_rad: JointVector12 | None
-    joint_delta_from_previous_rad: JointVector12 | None
-    max_abs_joint_step_rad: float | None
+    continuity_from_previous: TransitionContinuity | None
     failure_reason: str | None
     diagnostic_message: str
+
+    @property
+    def joint_delta_from_previous_rad(self) -> JointVector12 | None:
+        """Compatibility view derived from richer canonical delta records."""
+        if self.continuity_from_previous is None:
+            return None
+        return tuple(
+            record.delta_rad
+            for record in self.continuity_from_previous.joint_deltas
+        )  # type: ignore[return-value]
+
+    @property
+    def max_abs_joint_step_rad(self) -> float | None:
+        """Compatibility maximum derived from the continuity transition."""
+        if self.continuity_from_previous is None:
+            return None
+        return self.continuity_from_previous.max_abs_joint_step_rad
 
 
 @dataclass(frozen=True)
@@ -259,15 +438,28 @@ class ObjectTrajectoryIkResult:
     completed: bool
     failed_sample_index: int | None
     samples: tuple[ObjectTrajectoryIkSampleResult, ...]
+    continuity_summary: TrajectoryContinuitySummary = field(init=False)
+
+    def __post_init__(self) -> None:
+        object.__setattr__(
+            self,
+            "continuity_summary",
+            summarize_trajectory_continuity(self.continuity_transitions),
+        )
+
+    @property
+    def continuity_transitions(self) -> tuple[TransitionContinuity, ...]:
+        """Return ordered continuity records for accepted transitions only."""
+        return tuple(
+            sample.continuity_from_previous
+            for sample in self.samples
+            if sample.accepted and sample.continuity_from_previous is not None
+        )
 
     @property
     def maximum_observed_joint_step_rad(self) -> float | None:
-        steps = tuple(
-            sample.max_abs_joint_step_rad
-            for sample in self.samples
-            if sample.max_abs_joint_step_rad is not None
-        )
-        return max(steps) if steps else None
+        """Compatibility view of the trajectory raw-continuity maximum."""
+        return self.continuity_summary.maximum_abs_joint_step_rad
 
 
 def _failure_sample(
@@ -295,8 +487,7 @@ def _failure_sample(
         left_joint_positions_rad=left_positions,
         right_joint_positions_rad=right_positions,
         combined_joint_positions_rad=combined_positions,
-        joint_delta_from_previous_rad=None,
-        max_abs_joint_step_rad=None,
+        continuity_from_previous=None,
         failure_reason=reason,
         diagnostic_message=diagnostic,
     )
@@ -337,6 +528,7 @@ def solve_sequential_object_trajectory_ik(
 
     results: list[ObjectTrajectoryIkSampleResult] = []
     previous_accepted: JointVector12 | None = None
+    previous_accepted_sample_index: int | None = None
     failed_sample_index: int | None = None
 
     for sample_index, sample in enumerate(trajectory.samples):
@@ -436,12 +628,16 @@ def solve_sequential_object_trajectory_ik(
             ))
             break
 
-        delta = (
-            joint_delta_rad(combined, previous_accepted)
-            if previous_accepted is not None
-            else None
-        )
-        maximum_step = max_abs_joint_step_rad(delta) if delta is not None else None
+        continuity = None
+        if previous_accepted is not None:
+            if previous_accepted_sample_index is None:
+                raise RuntimeError("accepted seed is missing its sample index")
+            continuity = analyze_joint_transition(
+                from_sample_index=previous_accepted_sample_index,
+                to_sample_index=sample_index,
+                previous_joint_positions_rad=previous_accepted,
+                current_joint_positions_rad=combined,
+            )
         results.append(ObjectTrajectoryIkSampleResult(
             sample_index=sample_index,
             time_from_start_s=sample.time_from_start_s,
@@ -453,12 +649,12 @@ def solve_sequential_object_trajectory_ik(
             left_joint_positions_rad=left.joint_positions_rad,
             right_joint_positions_rad=right.joint_positions_rad,
             combined_joint_positions_rad=combined,
-            joint_delta_from_previous_rad=delta,
-            max_abs_joint_step_rad=maximum_step,
+            continuity_from_previous=continuity,
             failure_reason=None,
             diagnostic_message="ACCEPTED — PLANNING MODEL STATE VALID",
         ))
         previous_accepted = combined
+        previous_accepted_sample_index = sample_index
         pair_seed = combined
 
     accepted_count = sum(1 for result in results if result.accepted)

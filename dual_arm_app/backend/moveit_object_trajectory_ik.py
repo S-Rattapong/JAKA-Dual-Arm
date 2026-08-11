@@ -1,4 +1,4 @@
-"""ROS2 MoveIt adapter for OFFLINE Phase 1G.2A sequential object IK.
+"""ROS2 MoveIt adapter and Phase 1G.3A raw-continuity report.
 
 MOVEIT PLANNING ONLY. NO JAKA DRIVER. NO ROBOT CONNECTION. NO MOTION EXECUTION.
 This module creates only ``/compute_ik`` and ``/check_state_validity`` service
@@ -26,6 +26,7 @@ from dual_arm_app.backend.object_trajectory_ik import (
     DUAL_ARM_JOINT_ORDER,
     LEFT_JOINT_ORDER,
     OFFLINE_MODEL_SEED_NOTICE,
+    RAW_JOINT_DELTA_NOTICE,
     RIGHT_JOINT_ORDER,
     ArmIkSolution,
     CombinedStateValidity,
@@ -202,6 +203,45 @@ def print_result_report(result: ObjectTrajectoryIkResult) -> None:
         "Maximum observed joint step: "
         + (f"{maximum:.6f} rad" if maximum is not None else "N/A")
     )
+    print_continuity_report(result)
+
+
+def print_continuity_report(result: ObjectTrajectoryIkResult) -> None:
+    """Print raw per-joint analysis; never apply wrapping or rejection."""
+    print()
+    print(RAW_JOINT_DELTA_NOTICE)
+    for transition in result.continuity_transitions:
+        print()
+        print(
+            f"Transition {transition.from_sample_index} -> "
+            f"{transition.to_sample_index}"
+        )
+        print("Joint                 q_prev(rad) q_curr(rad)    dq(rad)  |dq|(rad)")
+        for record in transition.joint_deltas:
+            print(
+                f"{record.joint_name:<22} "
+                f"{record.previous_position_rad:>11.6f} "
+                f"{record.current_position_rad:>11.6f} "
+                f"{record.delta_rad:>10.6f} "
+                f"{record.abs_delta_rad:>10.6f}"
+            )
+        print(
+            "Max joint step: "
+            f"{transition.max_joint_name} [{transition.max_joint_index}] = "
+            f"{transition.max_abs_joint_step_rad:.6f} rad "
+            f"(signed {transition.max_joint_delta_rad:.6f} rad)"
+        )
+
+    summary = result.continuity_summary
+    print()
+    print("Trajectory raw continuity maximum:")
+    if summary.transition_count == 0:
+        print("No accepted sample transitions; maximum: N/A")
+        return
+    print(f"sample {summary.from_sample_index} -> {summary.to_sample_index}")
+    print(f"joint: {summary.maximum_joint_name} [{summary.maximum_joint_index}]")
+    print(f"signed delta: {summary.signed_delta_rad:.6f} rad")
+    print(f"absolute delta: {summary.maximum_abs_joint_step_rad:.6f} rad")
 
 
 def main() -> int:
