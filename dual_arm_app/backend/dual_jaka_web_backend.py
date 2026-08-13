@@ -46,6 +46,26 @@ except ImportError:
         )
 
 try:
+    from dual_arm_app.backend.digital_twin_live_state import (
+        build_digital_twin_robot_status,
+        build_digital_twin_tcp_status,
+        normalize_robot_state_message,
+    )
+except ImportError:
+    try:
+        from .digital_twin_live_state import (
+            build_digital_twin_robot_status,
+            build_digital_twin_tcp_status,
+            normalize_robot_state_message,
+        )
+    except ImportError:
+        from digital_twin_live_state import (
+            build_digital_twin_robot_status,
+            build_digital_twin_tcp_status,
+            normalize_robot_state_message,
+        )
+
+try:
     from dual_arm_app.backend.sampled_path_validation import (
         SampledPathValidationInputError,
         normalize_sampled_path_options,
@@ -199,8 +219,20 @@ class DualJakaWebNode(Node):
                 "joint": None,
                 "received_at_ms": None,
                 "mapping": None,
+                "status": "MISSING",
                 "error": "No valid JointState received",
                 "names": [],
+            }
+            for side in ("left", "right")
+        }
+        self.digital_twin_robot_state_cache_lock = threading.Lock()
+        self.digital_twin_robot_state_cache = {
+            side: {
+                "state": None,
+                "received_at_ms": None,
+                "valid": False,
+                "status": "MISSING",
+                "error": "No RobotMsg received",
             }
             for side in ("left", "right")
         }
@@ -268,6 +300,7 @@ class DualJakaWebNode(Node):
             cache = self.digital_twin_joint_cache[side]
             cache["names"] = list(result["names"])
             cache["error"] = result["error"]
+            cache["status"] = "VALID" if result["valid"] else "INVALID"
             if result["valid"]:
                 normalized_joint = list(result["joint"])
                 cache["joint"] = normalized_joint
@@ -280,9 +313,23 @@ class DualJakaWebNode(Node):
 
     def left_state_cb(self, msg):
         self.left_state = msg
+        self._update_digital_twin_robot_state_cache("left", msg)
 
     def right_state_cb(self, msg):
         self.right_state = msg
+        self._update_digital_twin_robot_state_cache("right", msg)
+
+    def _update_digital_twin_robot_state_cache(self, side, msg):
+        normalized = normalize_robot_state_message(msg)
+        with self.digital_twin_robot_state_cache_lock:
+            cache = self.digital_twin_robot_state_cache[side]
+            cache["state"] = (
+                dict(normalized["state"]) if normalized["valid"] else None
+            )
+            cache["received_at_ms"] = wall_clock_ms() if normalized["valid"] else None
+            cache["valid"] = normalized["valid"]
+            cache["status"] = "VALID" if normalized["valid"] else "INVALID"
+            cache["error"] = normalized["error"]
 
     def robot_state_dict(self, state):
         if state is None:
@@ -374,6 +421,56 @@ class DualJakaWebNode(Node):
                 for side, values in self.digital_twin_joint_cache.items()
             }
         return build_digital_twin_joint_status(cache_snapshot)
+
+    def digital_twin_robot_status(self):
+        """Return RobotMsg and JointState freshness from caches only."""
+        with self.digital_twin_robot_state_cache_lock:
+            state_snapshot = {
+                side: {
+                    "state": dict(values["state"]) if values["state"] else None,
+                    "received_at_ms": values["received_at_ms"],
+                    "valid": values["valid"],
+                    "status": values["status"],
+                    "error": values["error"],
+                }
+                for side, values in self.digital_twin_robot_state_cache.items()
+            }
+        with self.digital_twin_joint_cache_lock:
+            joint_snapshot = {
+                side: {
+                    "joint": list(values["joint"]) if values["joint"] else None,
+                    "received_at_ms": values["received_at_ms"],
+                    "status": values["status"],
+                    "error": values["error"],
+                }
+                for side, values in self.digital_twin_joint_cache.items()
+            }
+        return build_digital_twin_robot_status(
+            state_snapshot,
+            joint_snapshot,
+            server_time_ms=wall_clock_ms(),
+        )
+
+    def digital_twin_tcp_status(self):
+        """Call only existing read-only FK, with failures isolated per arm."""
+        poses = {}
+        errors = {}
+        for side in ("left", "right"):
+            try:
+                poses[side] = self.get_fk_pose(side)
+                if poses[side] is None:
+                    errors[side] = (
+                        "FK unavailable: joint feedback missing, service unavailable, "
+                        "timeout, or invalid service response"
+                    )
+            except Exception as error:
+                poses[side] = None
+                errors[side] = f"FK failed: {error}"
+        return build_digital_twin_tcp_status(
+            poses,
+            errors=errors,
+            server_time_ms=wall_clock_ms(),
+        )
 
     def validate_digital_twin_trajectory(self, trajectory, sampled_path=None):
         """Check stored and optional sampled states without invoking motion APIs."""
@@ -2079,6 +2176,16 @@ def api_status():
 @app.get("/api/digital-twin/joints")
 def api_digital_twin_joints():
     return node.digital_twin_joint_status()
+
+
+@app.get("/api/digital-twin/robot-status")
+def api_digital_twin_robot_status():
+    return node.digital_twin_robot_status()
+
+
+@app.get("/api/digital-twin/tcp")
+def api_digital_twin_tcp():
+    return node.digital_twin_tcp_status()
 
 
 @app.post("/api/digital-twin/validate-trajectory")

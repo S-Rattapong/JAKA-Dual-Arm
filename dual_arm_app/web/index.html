@@ -765,7 +765,7 @@
     <div class="digital-twin-meta" aria-label="Digital Twin read-only state">
       <span>Mode: <strong id="digitalTwinOperatingMode">STATIC MODEL</strong></span>
       <span>Model: <strong>Dual JAKA A12</strong></span>
-      <span>Feedback: <strong id="digitalTwinFeedbackState">NOT CONNECTED</strong></span>
+      <span>Feedback: <strong id="digitalTwinFeedbackState">FEEDBACK STOPPED</strong></span>
       <span>Commands: <strong>DISABLED</strong></span>
     </div>
 
@@ -804,6 +804,41 @@
         </div>
         <div class="small">
           Reads cached joint feedback only. Stopping preserves the current model pose.
+        </div>
+      </div>
+      <div class="digital-twin-live-source" aria-label="Cache-only robot feedback status">
+        <h3>Robot Feedback Status — CACHE ONLY</h3>
+        <div class="digital-twin-readout">
+          <span>Status Source: <strong id="digitalTwinRobotStatusSourceState">STOPPED</strong></span>
+          <span>Status Error: <strong id="digitalTwinRobotStatusError">NONE</strong></span>
+          <span>Left Feedback: <strong id="digitalTwinLeftFeedbackStatus">MISSING</strong></span>
+          <span>Left power_state: <strong id="digitalTwinLeftPowerState">UNAVAILABLE</strong></span>
+          <span>Left servo_state: <strong id="digitalTwinLeftServoState">UNAVAILABLE</strong></span>
+          <span>Left motion_state: <strong id="digitalTwinLeftMotionState">UNAVAILABLE</strong></span>
+          <span>Left collision_state: <strong id="digitalTwinLeftCollisionState">UNAVAILABLE</strong></span>
+          <span>Right Feedback: <strong id="digitalTwinRightFeedbackStatus">MISSING</strong></span>
+          <span>Right power_state: <strong id="digitalTwinRightPowerState">UNAVAILABLE</strong></span>
+          <span>Right servo_state: <strong id="digitalTwinRightServoState">UNAVAILABLE</strong></span>
+          <span>Right motion_state: <strong id="digitalTwinRightMotionState">UNAVAILABLE</strong></span>
+          <span>Right collision_state: <strong id="digitalTwinRightCollisionState">UNAVAILABLE</strong></span>
+        </div>
+        <div class="small">
+          LIVE/STALE/MISSING/INVALID describes feedback freshness, not a guaranteed robot-network connection.
+        </div>
+      </div>
+      <div class="digital-twin-live-source" aria-label="Read-only TCP forward kinematics status">
+        <h3>Live TCP Status — READ ONLY FK</h3>
+        <div class="digital-twin-readout">
+          <span>TCP Source: <strong id="digitalTwinTcpSourceState">STOPPED</strong></span>
+          <span>Left TCP: <strong id="digitalTwinLeftTcpStatus">UNAVAILABLE</strong></span>
+          <span>Right TCP: <strong id="digitalTwinRightTcpStatus">UNAVAILABLE</strong></span>
+          <span>TCP Unit: <strong>translation mm / orientation rad</strong></span>
+          <span>TCP Frame: <strong>JAKA controller current user coordinate</strong></span>
+          <span>TCP Error: <strong id="digitalTwinTcpSourceError">NONE</strong></span>
+          <span>3D TCP Frames: <strong id="digitalTwinTcpPlacementState">TCP FRAME PLACEMENT BLOCKED PENDING VERIFIED BASE↔WORLD CONVERSION</strong></span>
+        </div>
+        <div class="small">
+          Source: JAKA GetFK from current joint feedback; this is forward kinematics, not external metrology.
         </div>
       </div>
     </div>
@@ -2355,6 +2390,8 @@ init();
 
 <script type="module" src="/web-assets/digital_twin.js?v=object-trajectory-preview-v1"></script>
 <script type="module" src="/web-assets/digital_twin_live_source.js"></script>
+<script type="module" src="/web-assets/digital_twin_robot_status_source.js"></script>
+<script type="module" src="/web-assets/digital_twin_tcp_source.js"></script>
 
 </body>
 </html>

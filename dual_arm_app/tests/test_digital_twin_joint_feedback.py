@@ -396,7 +396,7 @@ console.log(JSON.stringify({
         self.assertEqual(output["initialFetchCount"], 0)
         self.assertEqual(output["initialHeader"], {
             "mode": "STATIC / LAST POSE",
-            "feedback": "NOT CONNECTED",
+            "feedback": "FEEDBACK STOPPED",
         })
         self.assertEqual(output["firstFetch"], {
             "url": "/api/digital-twin/joints",
@@ -411,15 +411,15 @@ console.log(JSON.stringify({
         self.assertEqual(output["mirrorEnableCalls"], [True, True])
         self.assertEqual(output["runningHeader"], {
             "mode": "LIVE MIRROR",
-            "feedback": "CONNECTED — READ ONLY",
+            "feedback": "JOINT FEEDBACK ACTIVE — READ ONLY",
         })
         self.assertEqual(output["errorHeader"], {
             "mode": "LIVE MIRROR ERROR",
-            "feedback": "ERROR — READ ONLY",
+            "feedback": "JOINT FEEDBACK ERROR — READ ONLY",
         })
         self.assertEqual(output["stoppedHeader"], {
             "mode": "STATIC / LAST POSE",
-            "feedback": "NOT CONNECTED",
+            "feedback": "FEEDBACK STOPPED",
         })
         self.assertEqual(output["pollTimersAfterStart"], 1)
         self.assertEqual(output["timersAfterStop"], 0)

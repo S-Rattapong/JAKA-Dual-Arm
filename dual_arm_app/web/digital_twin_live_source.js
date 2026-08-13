@@ -33,13 +33,13 @@ function setTextById(id, value) {
 
 function updateLiveSourceUi() {
   let operatingMode = "STATIC / LAST POSE";
-  let feedbackState = "NOT CONNECTED";
+  let feedbackState = "FEEDBACK STOPPED";
   if (liveState.running && liveState.lastFetchError) {
     operatingMode = "LIVE MIRROR ERROR";
-    feedbackState = "ERROR — READ ONLY";
+    feedbackState = "JOINT FEEDBACK ERROR — READ ONLY";
   } else if (liveState.running) {
     operatingMode = "LIVE MIRROR";
-    feedbackState = "CONNECTED — READ ONLY";
+    feedbackState = "JOINT FEEDBACK ACTIVE — READ ONLY";
   }
 
   const values = {
