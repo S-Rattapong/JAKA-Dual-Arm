@@ -21,20 +21,26 @@ from dual_arm_app.backend.object_trajectory import (
     SYNTHETIC_TRANSLATION_ONLY_OBJECT_TRAJECTORY,
 )
 from dual_arm_app.backend.object_trajectory_ik import (
+    ABSOLUTE_STEP_REASON,
     DEFAULT_IK_TIMEOUT_S,
+    DEFAULT_OFFLINE_JUMP_DETECTION_CONFIG,
     DUAL_ARM_GROUP_NAME,
     DUAL_ARM_JOINT_ORDER,
     LEFT_JOINT_ORDER,
     JOINT_POSITIONS_UNCHANGED_NOTICE,
+    JUMP_HEURISTIC_WARNING,
     OFFLINE_MODEL_SEED_NOTICE,
     RAW_JOINT_DELTA_NOTICE,
     RAW_JOINT_DELTA_PRESERVED_NOTICE,
     RIGHT_JOINT_ORDER,
+    RELATIVE_GROWTH_REASON,
     SHORTEST_ANGULAR_ANALYSIS_NOTICE,
     ArmIkSolution,
     CombinedStateValidity,
+    JointJumpDetectionConfig,
     JointVector12,
     ObjectTrajectoryIkResult,
+    TrajectoryJumpAnalysis,
     rotation_matrix_to_quaternion_xyzw,
     solve_sequential_object_trajectory_ik,
 )
@@ -50,6 +56,11 @@ MOVEIT PLANNING ONLY
 NO JAKA DRIVER
 NO ROBOT CONNECTION
 NO MOTION EXECUTION
+=================================================="""
+
+JUMP_PROFILE_BANNER = f"""==================================================
+OFFLINE JUMP HEURISTIC PROFILE
+{JUMP_HEURISTIC_WARNING}
 =================================================="""
 
 
@@ -178,7 +189,29 @@ class MoveItObjectTrajectoryIkNode(Node):
         return CombinedStateValidity(bool(response.valid), diagnostic)
 
 
-def print_result_report(result: ObjectTrajectoryIkResult) -> None:
+def print_jump_profile(config: JointJumpDetectionConfig) -> None:
+    """Print explicit non-safety heuristic configuration before ROS startup."""
+    print(JUMP_PROFILE_BANNER)
+    absolute = (
+        f"{config.absolute_step_threshold_rad:.6f} rad"
+        if config.absolute_step_threshold_rad is not None
+        else "DISABLED"
+    )
+    relative = (
+        f"{config.relative_step_ratio_threshold:.6f}"
+        if config.relative_step_ratio_threshold is not None
+        else "DISABLED"
+    )
+    print(f"DETECTOR ENABLED = {'YES' if config.enabled else 'NO'}")
+    print(f"ABSOLUTE THRESHOLD = {absolute}")
+    print(f"RELATIVE RATIO THRESHOLD = {relative}")
+    print(f"REFERENCE FLOOR = {config.relative_reference_floor_rad:.6f} rad")
+
+
+def print_result_report(
+    result: ObjectTrajectoryIkResult,
+    jump_config: JointJumpDetectionConfig = DEFAULT_OFFLINE_JUMP_DETECTION_CONFIG,
+) -> None:
     print("Sample Time(s) Left IK Right IK Pair Valid Max |dq| (rad)")
     for sample in result.samples:
         maximum = (
@@ -206,17 +239,25 @@ def print_result_report(result: ObjectTrajectoryIkResult) -> None:
         "Maximum observed joint step: "
         + (f"{maximum:.6f} rad" if maximum is not None else "N/A")
     )
-    print_continuity_report(result)
+    print_continuity_report(result, result.analyze_suspicious_jumps(jump_config))
 
 
-def print_continuity_report(result: ObjectTrajectoryIkResult) -> None:
+def print_continuity_report(
+    result: ObjectTrajectoryIkResult,
+    jump_analysis: TrajectoryJumpAnalysis | None = None,
+) -> None:
     """Print raw and shortest-angular metrics without modifying positions."""
+    if jump_analysis is None:
+        jump_analysis = result.analyze_suspicious_jumps()
     print()
     print(RAW_JOINT_DELTA_NOTICE)
     print(RAW_JOINT_DELTA_PRESERVED_NOTICE)
     print(SHORTEST_ANGULAR_ANALYSIS_NOTICE)
     print(JOINT_POSITIONS_UNCHANGED_NOTICE)
-    for transition in result.continuity_transitions:
+    for transition, jump_transition in zip(
+        result.continuity_transitions,
+        jump_analysis.transitions,
+    ):
         print()
         print(
             f"Transition {transition.from_sample_index} -> "
@@ -250,6 +291,35 @@ def print_continuity_report(result: ObjectTrajectoryIkResult) -> None:
             f"{transition.max_shortest_abs_joint_step_rad:.6f} rad "
             f"(signed {transition.max_shortest_joint_delta_rad:.6f} rad)"
         )
+        print("Jump assessment:")
+        if not jump_transition.has_suspicious_jump:
+            print("Suspicious joints: NONE")
+        else:
+            for assessment in jump_transition.assessments:
+                if not assessment.suspicious:
+                    continue
+                print(f"{assessment.joint_name}:")
+                for reason in assessment.reasons:
+                    print(f"  {reason}")
+                print(
+                    "  shortest |dq| = "
+                    f"{assessment.shortest_abs_delta_rad:.6f} rad"
+                )
+                if ABSOLUTE_STEP_REASON in assessment.reasons:
+                    print(
+                        "  absolute threshold = "
+                        f"{jump_analysis.config.absolute_step_threshold_rad:.6f} rad"
+                    )
+                if RELATIVE_GROWTH_REASON in assessment.reasons:
+                    print(
+                        "  previous |dq| = "
+                        f"{assessment.previous_shortest_abs_delta_rad:.6f} rad"
+                    )
+                    print(f"  ratio = {assessment.relative_step_ratio:.6f}")
+                    print(
+                        "  ratio threshold = "
+                        f"{jump_analysis.config.relative_step_ratio_threshold:.6f}"
+                    )
 
     summary = result.continuity_summary
     print()
@@ -289,6 +359,19 @@ def print_continuity_report(result: ObjectTrajectoryIkResult) -> None:
         "Wraparound-adjusted records: "
         f"{summary.wraparound_adjusted_record_count}"
     )
+    print(
+        "Suspicious jump transitions: "
+        f"{jump_analysis.suspicious_transition_count}"
+    )
+    print(
+        "Suspicious joint records: "
+        f"{jump_analysis.suspicious_joint_record_count}"
+    )
+    print("Jump heuristic result:")
+    if jump_analysis.suspicious_transition_count == 0:
+        print("NO SUSPICIOUS IK JUMPS FLAGGED")
+    else:
+        print("SUSPICIOUS IK JUMPS FLAGGED FOR OFFLINE INVESTIGATION")
 
 
 def main() -> int:
@@ -301,6 +384,7 @@ def main() -> int:
 
     print(SAFETY_BANNER)
     print(OFFLINE_MODEL_SEED_NOTICE)
+    print_jump_profile(DEFAULT_OFFLINE_JUMP_DETECTION_CONFIG)
     rclpy.init()
     node: MoveItObjectTrajectoryIkNode | None = None
     try:

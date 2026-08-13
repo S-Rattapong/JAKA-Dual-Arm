@@ -13,6 +13,11 @@ shortest angular analysis delta ``atan2(sin(Delta q), cos(Delta q))`` in the
 canonical interval ``(-pi, +pi]``. Only the analysis delta is wrapped: stored
 joint positions, IK results, and seeds are never normalized or modified. This
 phase does not reject jumps, optimize them, or produce an executable trajectory.
+
+Phase 1G.3C may flag suspicious changes using configurable absolute and relative
+heuristics over shortest-angular deltas. These are offline analysis heuristics,
+not manufacturer, controller, velocity, or physical robot safety limits. Flags
+never change IK acceptance, trajectory completion, joint values, or seeds.
 """
 
 from __future__ import annotations
@@ -46,6 +51,9 @@ JOINT_POSITIONS_UNCHANGED_NOTICE = (
 )
 ANGULAR_ENDPOINT_TOLERANCE_RAD = 1e-12
 WRAPAROUND_ADJUSTMENT_TOLERANCE_RAD = 1e-9
+ABSOLUTE_STEP_REASON = "ABSOLUTE_STEP"
+RELATIVE_GROWTH_REASON = "RELATIVE_GROWTH"
+JUMP_HEURISTIC_WARNING = "ANALYSIS HEURISTIC ONLY — NOT A ROBOT SAFETY LIMIT"
 OFFLINE_MODEL_SEED_NOTICE = (
     "OFFLINE SYNTHETIC / MODEL SEED — NOT PHYSICAL ROBOT CALIBRATION"
 )
@@ -289,6 +297,137 @@ class TrajectoryContinuitySummary:
     wraparound_adjusted_record_count: int = 0
 
 
+@dataclass(frozen=True)
+class JointJumpDetectionConfig:
+    """Configurable offline heuristic thresholds, never physical safety limits."""
+
+    absolute_step_threshold_rad: float | None = None
+    relative_step_ratio_threshold: float | None = None
+    relative_reference_floor_rad: float = 0.0
+    enabled: bool = True
+
+    def __post_init__(self) -> None:
+        if not isinstance(self.enabled, bool):
+            raise TypeError("enabled must be boolean")
+        for label in (
+            "absolute_step_threshold_rad",
+            "relative_step_ratio_threshold",
+        ):
+            value = getattr(self, label)
+            if value is None:
+                continue
+            checked = _finite_number(value, label)
+            if checked <= 0.0:
+                raise ValueError(f"{label} must be greater than zero")
+            object.__setattr__(self, label, checked)
+        floor = _finite_number(
+            self.relative_reference_floor_rad,
+            "relative_reference_floor_rad",
+        )
+        if floor < 0.0:
+            raise ValueError("relative_reference_floor_rad must be non-negative")
+        object.__setattr__(self, "relative_reference_floor_rad", floor)
+
+
+DEFAULT_OFFLINE_JUMP_DETECTION_CONFIG = JointJumpDetectionConfig(
+    absolute_step_threshold_rad=1.0,
+    relative_step_ratio_threshold=3.0,
+    relative_reference_floor_rad=0.05,
+)
+
+
+@dataclass(frozen=True)
+class JointJumpAssessment:
+    """One joint's config-dependent, analysis-only suspicious-jump result."""
+
+    joint_index: int
+    joint_name: str
+    from_sample_index: int
+    to_sample_index: int
+    shortest_delta_rad: float
+    shortest_abs_delta_rad: float
+    previous_shortest_abs_delta_rad: float | None
+    relative_step_ratio: float | None
+    absolute_flag: bool
+    relative_flag: bool
+    suspicious: bool
+    reasons: tuple[str, ...]
+
+
+@dataclass(frozen=True)
+class TransitionJumpAssessment:
+    """All 12 joint assessments for one accepted continuity transition."""
+
+    from_sample_index: int
+    to_sample_index: int
+    assessments: tuple[JointJumpAssessment, ...]
+    suspicious_joint_count: int = field(init=False)
+    suspicious_joint_names: tuple[str, ...] = field(init=False)
+    has_suspicious_jump: bool = field(init=False)
+
+    def __post_init__(self) -> None:
+        try:
+            assessments = tuple(self.assessments)
+        except TypeError as error:
+            raise TypeError("assessments must be an iterable") from error
+        if len(assessments) != len(DUAL_ARM_JOINT_ORDER):
+            raise ValueError("assessments must contain exactly 12 joint records")
+        if any(not isinstance(item, JointJumpAssessment) for item in assessments):
+            raise TypeError("assessments must contain JointJumpAssessment values")
+        if tuple(item.joint_index for item in assessments) != tuple(range(12)):
+            raise ValueError("assessments must use canonical joint index order")
+        if any(
+            item.from_sample_index != self.from_sample_index
+            or item.to_sample_index != self.to_sample_index
+            for item in assessments
+        ):
+            raise ValueError("assessment sample indices must match the transition")
+        suspicious_names = tuple(
+            item.joint_name for item in assessments if item.suspicious
+        )
+        object.__setattr__(self, "assessments", assessments)
+        object.__setattr__(self, "suspicious_joint_count", len(suspicious_names))
+        object.__setattr__(self, "suspicious_joint_names", suspicious_names)
+        object.__setattr__(self, "has_suspicious_jump", bool(suspicious_names))
+
+
+@dataclass(frozen=True)
+class TrajectoryJumpAnalysis:
+    """Separate diagnostic result that never changes IK completion semantics."""
+
+    config: JointJumpDetectionConfig
+    transitions: tuple[TransitionJumpAssessment, ...]
+    analysis_completed: bool = field(default=True, init=False)
+    suspicious_transition_count: int = field(init=False)
+    suspicious_joint_record_count: int = field(init=False)
+
+    def __post_init__(self) -> None:
+        if not isinstance(self.config, JointJumpDetectionConfig):
+            raise TypeError("config must be a JointJumpDetectionConfig")
+        try:
+            transitions = tuple(self.transitions)
+        except TypeError as error:
+            raise TypeError("transitions must be an iterable") from error
+        if any(not isinstance(item, TransitionJumpAssessment) for item in transitions):
+            raise TypeError("transitions must contain TransitionJumpAssessment values")
+        object.__setattr__(self, "transitions", transitions)
+        object.__setattr__(
+            self,
+            "suspicious_transition_count",
+            sum(item.has_suspicious_jump for item in transitions),
+        )
+        object.__setattr__(
+            self,
+            "suspicious_joint_record_count",
+            sum(item.suspicious_joint_count for item in transitions),
+        )
+
+    @property
+    def suspicious_transitions(self) -> tuple[TransitionJumpAssessment, ...]:
+        """Return suspicious transitions in their original chronological order."""
+        return tuple(item for item in self.transitions if item.has_suspicious_jump)
+
+
 def analyze_joint_transition(
     *,
     from_sample_index: int,
@@ -385,6 +524,93 @@ def summarize_trajectory_continuity(
             for transition in checked
         ),
     )
+
+
+def analyze_suspicious_joint_jumps(
+    transitions: Sequence[TransitionContinuity],
+    config: JointJumpDetectionConfig = DEFAULT_OFFLINE_JUMP_DETECTION_CONFIG,
+) -> TrajectoryJumpAnalysis:
+    """Flag suspicious shortest-angular steps without rejecting any sample.
+
+    For each joint, the absolute criterion is strictly
+    ``current_shortest_abs > absolute_threshold``. Starting with the second
+    transition, the relative ratio is available only when the preceding
+    accepted transition's same-joint step is positive and at least the
+    configured reference floor. Its criterion is also strict ``>``.
+    """
+    if isinstance(transitions, (str, bytes, bool)) or not isinstance(
+        transitions,
+        Sequence,
+    ):
+        raise TypeError("transitions must be a sequence")
+    if not isinstance(config, JointJumpDetectionConfig):
+        raise TypeError("config must be a JointJumpDetectionConfig")
+    checked = tuple(transitions)
+    if any(not isinstance(item, TransitionContinuity) for item in checked):
+        raise TypeError("transitions must contain TransitionContinuity values")
+    for previous, current in zip(checked, checked[1:]):
+        if current.from_sample_index != previous.to_sample_index:
+            raise ValueError("transitions must form a chronological accepted sequence")
+
+    transition_results: list[TransitionJumpAssessment] = []
+    for transition_index, transition in enumerate(checked):
+        previous_transition = (
+            checked[transition_index - 1] if transition_index > 0 else None
+        )
+        assessments: list[JointJumpAssessment] = []
+        for record in transition.joint_deltas:
+            previous_step = None
+            ratio = None
+            if previous_transition is not None:
+                previous_step = previous_transition.joint_deltas[
+                    record.joint_index
+                ].shortest_abs_delta_rad
+                if (
+                    previous_step > 0.0
+                    and previous_step >= config.relative_reference_floor_rad
+                ):
+                    ratio = record.shortest_abs_delta_rad / previous_step
+
+            absolute_flag = bool(
+                config.enabled
+                and config.absolute_step_threshold_rad is not None
+                and record.shortest_abs_delta_rad
+                > config.absolute_step_threshold_rad
+            )
+            relative_flag = bool(
+                config.enabled
+                and config.relative_step_ratio_threshold is not None
+                and ratio is not None
+                and ratio > config.relative_step_ratio_threshold
+            )
+            reasons = tuple(
+                reason
+                for reason, flagged in (
+                    (ABSOLUTE_STEP_REASON, absolute_flag),
+                    (RELATIVE_GROWTH_REASON, relative_flag),
+                )
+                if flagged
+            )
+            assessments.append(JointJumpAssessment(
+                joint_index=record.joint_index,
+                joint_name=record.joint_name,
+                from_sample_index=transition.from_sample_index,
+                to_sample_index=transition.to_sample_index,
+                shortest_delta_rad=record.shortest_delta_rad,
+                shortest_abs_delta_rad=record.shortest_abs_delta_rad,
+                previous_shortest_abs_delta_rad=previous_step,
+                relative_step_ratio=ratio,
+                absolute_flag=absolute_flag,
+                relative_flag=relative_flag,
+                suspicious=absolute_flag or relative_flag,
+                reasons=reasons,
+            ))
+        transition_results.append(TransitionJumpAssessment(
+            from_sample_index=transition.from_sample_index,
+            to_sample_index=transition.to_sample_index,
+            assessments=tuple(assessments),
+        ))
+    return TrajectoryJumpAnalysis(config=config, transitions=tuple(transition_results))
 
 
 def rotation_matrix_to_quaternion_xyzw(transform: RigidTransform) -> QuaternionXyzw:
@@ -571,6 +797,13 @@ class ObjectTrajectoryIkResult:
     def maximum_observed_joint_step_rad(self) -> float | None:
         """Compatibility view of the trajectory raw-continuity maximum."""
         return self.continuity_summary.maximum_abs_joint_step_rad
+
+    def analyze_suspicious_jumps(
+        self,
+        config: JointJumpDetectionConfig = DEFAULT_OFFLINE_JUMP_DETECTION_CONFIG,
+    ) -> TrajectoryJumpAnalysis:
+        """Return separate flags without changing acceptance or completion."""
+        return analyze_suspicious_joint_jumps(self.continuity_transitions, config)
 
 
 def _failure_sample(

@@ -13,27 +13,33 @@ from dual_arm_app.backend.object_trajectory import (
     SYNTHETIC_TRANSLATION_ONLY_OBJECT_TRAJECTORY,
 )
 from dual_arm_app.backend.object_trajectory_ik import (
+    ABSOLUTE_STEP_REASON,
     ANGULAR_ENDPOINT_TOLERANCE_RAD,
     DEFAULT_INITIAL_DUAL_ARM_SEED_RAD,
+    DEFAULT_OFFLINE_JUMP_DETECTION_CONFIG,
     DUAL_ARM_GROUP_NAME,
     DUAL_ARM_JOINT_ORDER,
     LEFT_GROUP_NAME,
     LEFT_IK_LINK_NAME,
     LEFT_JOINT_ORDER,
     JOINT_POSITIONS_UNCHANGED_NOTICE,
+    JUMP_HEURISTIC_WARNING,
     OFFLINE_MODEL_SEED_NOTICE,
     RAW_JOINT_DELTA_NOTICE,
     RAW_JOINT_DELTA_PRESERVED_NOTICE,
     RIGHT_GROUP_NAME,
     RIGHT_IK_LINK_NAME,
     RIGHT_JOINT_ORDER,
+    RELATIVE_GROWTH_REASON,
     SHORTEST_ANGULAR_ANALYSIS_NOTICE,
     WRAPAROUND_ADJUSTMENT_TOLERANCE_RAD,
     ArmIkSolution,
     CombinedStateValidity,
     JointDeltaRecord,
+    JointJumpDetectionConfig,
     TransitionContinuity,
     analyze_joint_transition,
+    analyze_suspicious_joint_jumps,
     combine_arm_joint_solutions,
     joint_delta_rad,
     max_abs_joint_step_rad,
@@ -662,6 +668,286 @@ class ContinuityAnalysisTests(unittest.TestCase):
             TransitionContinuity(0, 1, tuple(reversed(records)))
 
 
+class SuspiciousJointJumpAnalysisTests(unittest.TestCase):
+    trajectory = SYNTHETIC_TRANSLATION_ONLY_OBJECT_TRAJECTORY
+
+    @staticmethod
+    def transitions_from_steps(*steps: tuple[float, ...]) -> tuple[TransitionContinuity, ...]:
+        position = (0.0,) * 12
+        transitions = []
+        for index, step in enumerate(steps):
+            if len(step) != 12:
+                raise ValueError("synthetic step must contain 12 joints")
+            current = tuple(left + right for left, right in zip(position, step))
+            transitions.append(analyze_joint_transition(
+                from_sample_index=index,
+                to_sample_index=index + 1,
+                previous_joint_positions_rad=position,
+                current_joint_positions_rad=current,
+            ))
+            position = current
+        return tuple(transitions)
+
+    @staticmethod
+    def config(
+        *,
+        absolute=1.0,
+        relative=3.0,
+        floor=0.05,
+        enabled=True,
+    ) -> JointJumpDetectionConfig:
+        return JointJumpDetectionConfig(
+            absolute_step_threshold_rad=absolute,
+            relative_step_ratio_threshold=relative,
+            relative_reference_floor_rad=floor,
+            enabled=enabled,
+        )
+
+    def test_config_accepts_valid_thresholds_and_is_immutable(self) -> None:
+        config = self.config(absolute=1.25, relative=2.5, floor=0.1)
+        self.assertEqual(config.absolute_step_threshold_rad, 1.25)
+        self.assertEqual(config.relative_step_ratio_threshold, 2.5)
+        self.assertEqual(config.relative_reference_floor_rad, 0.1)
+        self.assertTrue(config.enabled)
+        disabled_criteria = self.config(absolute=None, relative=None, floor=0.0)
+        self.assertIsNone(disabled_criteria.absolute_step_threshold_rad)
+        self.assertIsNone(disabled_criteria.relative_step_ratio_threshold)
+        with self.assertRaises(FrozenInstanceError):
+            config.absolute_step_threshold_rad = 99.0  # type: ignore[misc]
+
+    def test_config_rejects_nonfinite_zero_negative_and_boolean_numbers(self) -> None:
+        for value in (math.nan, math.inf, -math.inf, 0.0, -0.1, True, False):
+            with self.subTest(field="absolute", value=value):
+                with self.assertRaises((TypeError, ValueError)):
+                    self.config(absolute=value)
+            with self.subTest(field="relative", value=value):
+                with self.assertRaises((TypeError, ValueError)):
+                    self.config(relative=value)
+        for value in (math.nan, math.inf, -math.inf, -0.1, True, False):
+            with self.subTest(field="floor", value=value):
+                with self.assertRaises((TypeError, ValueError)):
+                    self.config(floor=value)
+        for enabled in (0, 1, "yes", None):
+            with self.subTest(enabled=enabled):
+                with self.assertRaises(TypeError):
+                    self.config(enabled=enabled)
+
+    def test_absolute_criterion_uses_strict_greater_than_boundary(self) -> None:
+        for step, expected in ((0.25, False), (0.5, False), (0.500001, True)):
+            values = (step,) + (0.0,) * 11
+            analysis = analyze_suspicious_joint_jumps(
+                self.transitions_from_steps(values),
+                self.config(absolute=0.5, relative=None),
+            )
+            assessment = analysis.transitions[0].assessments[0]
+            with self.subTest(step=step):
+                self.assertEqual(assessment.absolute_flag, expected)
+                self.assertFalse(assessment.relative_flag)
+                self.assertEqual(assessment.suspicious, expected)
+
+    def test_first_transition_has_no_relative_reference_or_ratio(self) -> None:
+        analysis = analyze_suspicious_joint_jumps(
+            self.transitions_from_steps((0.8,) + (0.0,) * 11),
+            self.config(absolute=None, relative=2.0, floor=0.05),
+        )
+        assessment = analysis.transitions[0].assessments[0]
+        self.assertIsNone(assessment.previous_shortest_abs_delta_rad)
+        self.assertIsNone(assessment.relative_step_ratio)
+        self.assertFalse(assessment.relative_flag)
+
+    def test_previous_step_below_floor_does_not_evaluate_relative_ratio(self) -> None:
+        transitions = self.transitions_from_steps(
+            (0.04,) + (0.0,) * 11,
+            (0.9,) + (0.0,) * 11,
+        )
+        analysis = analyze_suspicious_joint_jumps(
+            transitions,
+            self.config(absolute=None, relative=2.0, floor=0.05),
+        )
+        assessment = analysis.transitions[1].assessments[0]
+        self.assertAlmostEqual(assessment.previous_shortest_abs_delta_rad or 0.0, 0.04)
+        self.assertIsNone(assessment.relative_step_ratio)
+        self.assertFalse(assessment.relative_flag)
+
+    def test_relative_criterion_uses_strict_greater_than_boundary(self) -> None:
+        for current_step, expected in ((0.25, False), (0.375, False), (0.375001, True)):
+            transitions = self.transitions_from_steps(
+                (0.125,) + (0.0,) * 11,
+                (current_step,) + (0.0,) * 11,
+            )
+            analysis = analyze_suspicious_joint_jumps(
+                transitions,
+                self.config(absolute=None, relative=3.0, floor=0.05),
+            )
+            assessment = analysis.transitions[1].assessments[0]
+            with self.subTest(current_step=current_step):
+                self.assertAlmostEqual(
+                    assessment.relative_step_ratio or 0.0,
+                    current_step / 0.125,
+                )
+                self.assertEqual(assessment.relative_flag, expected)
+
+    def test_absolute_relative_and_combined_reasons_are_independent_and_ordered(self) -> None:
+        absolute_only = analyze_suspicious_joint_jumps(
+            self.transitions_from_steps((0.6,) + (0.0,) * 11),
+            self.config(absolute=0.5, relative=2.0),
+        ).transitions[0].assessments[0]
+        self.assertTrue(absolute_only.absolute_flag)
+        self.assertFalse(absolute_only.relative_flag)
+        self.assertEqual(absolute_only.reasons, (ABSOLUTE_STEP_REASON,))
+
+        relative_only = analyze_suspicious_joint_jumps(
+            self.transitions_from_steps(
+                (0.1,) + (0.0,) * 11,
+                (0.31,) + (0.0,) * 11,
+            ),
+            self.config(absolute=1.0, relative=3.0),
+        ).transitions[1].assessments[0]
+        self.assertFalse(relative_only.absolute_flag)
+        self.assertTrue(relative_only.relative_flag)
+        self.assertEqual(relative_only.reasons, (RELATIVE_GROWTH_REASON,))
+
+        both = analyze_suspicious_joint_jumps(
+            self.transitions_from_steps(
+                (0.2,) + (0.0,) * 11,
+                (0.8,) + (0.0,) * 11,
+            ),
+            self.config(absolute=0.5, relative=3.0),
+        ).transitions[1].assessments[0]
+        self.assertTrue(both.absolute_flag)
+        self.assertTrue(both.relative_flag)
+        self.assertTrue(both.suspicious)
+        self.assertEqual(
+            both.reasons,
+            (ABSOLUTE_STEP_REASON, RELATIVE_GROWTH_REASON),
+        )
+
+    def test_assessments_preserve_canonical_joint_identity(self) -> None:
+        step = (0.0,) * 9 + (1.1,) + (0.0,) * 2
+        analysis = analyze_suspicious_joint_jumps(
+            self.transitions_from_steps(step),
+            self.config(absolute=1.0, relative=None),
+        )
+        assessment = analysis.transitions[0].assessments[9]
+        self.assertEqual(assessment.joint_index, 9)
+        self.assertEqual(assessment.joint_name, "right_joint_4")
+        self.assertEqual(analysis.transitions[0].suspicious_joint_names, ("right_joint_4",))
+
+    def test_wraparound_detection_uses_shortest_not_large_raw_delta(self) -> None:
+        previous = (3.13,) + (0.0,) * 11
+        current = (-3.13,) + (0.0,) * 11
+        transition = analyze_joint_transition(
+            from_sample_index=0,
+            to_sample_index=1,
+            previous_joint_positions_rad=previous,
+            current_joint_positions_rad=current,
+        )
+        raw_before = transition.joint_deltas[0].delta_rad
+        shortest_before = transition.joint_deltas[0].shortest_delta_rad
+        analysis = analyze_suspicious_joint_jumps(
+            (transition,),
+            self.config(absolute=1.0, relative=None),
+        )
+        assessment = analysis.transitions[0].assessments[0]
+        self.assertAlmostEqual(raw_before, -6.26)
+        self.assertLess(abs(shortest_before), 0.03)
+        self.assertEqual(assessment.shortest_delta_rad, shortest_before)
+        self.assertFalse(assessment.absolute_flag)
+        self.assertFalse(assessment.suspicious)
+        self.assertEqual(transition.joint_deltas[0].delta_rad, raw_before)
+        self.assertEqual(transition.joint_deltas[0].shortest_delta_rad, shortest_before)
+
+    def test_trajectory_counts_and_chronological_suspicious_transitions(self) -> None:
+        transitions = self.transitions_from_steps(
+            (0.1, 0.1) + (0.0,) * 10,
+            (0.4, 1.2) + (0.0,) * 10,
+            (1.3, 0.2, 1.1) + (0.0,) * 9,
+        )
+        analysis = analyze_suspicious_joint_jumps(
+            transitions,
+            self.config(absolute=1.0, relative=3.0, floor=0.05),
+        )
+        self.assertTrue(analysis.analysis_completed)
+        self.assertEqual(analysis.suspicious_transition_count, 2)
+        self.assertEqual(analysis.suspicious_joint_record_count, 4)
+        self.assertEqual(
+            tuple(item.to_sample_index for item in analysis.suspicious_transitions),
+            (2, 3),
+        )
+
+    def test_zero_transitions_produces_completed_empty_analysis(self) -> None:
+        analysis = analyze_suspicious_joint_jumps((), self.config())
+        self.assertTrue(analysis.analysis_completed)
+        self.assertEqual(analysis.transitions, ())
+        self.assertEqual(analysis.suspicious_transitions, ())
+        self.assertEqual(analysis.suspicious_transition_count, 0)
+        self.assertEqual(analysis.suspicious_joint_record_count, 0)
+
+        one_accepted = solve_sequential_object_trajectory_ik(
+            self.trajectory,
+            FakeMoveItAdapter(invalid_at=1),
+        )
+        result_analysis = one_accepted.analyze_suspicious_jumps(self.config())
+        self.assertEqual(one_accepted.accepted_sample_count, 1)
+        self.assertEqual(result_analysis.transitions, ())
+        self.assertEqual(result_analysis.suspicious_transition_count, 0)
+        self.assertEqual(result_analysis.suspicious_joint_record_count, 0)
+
+    def test_failed_or_rejected_sample_is_excluded_from_jump_sequence(self) -> None:
+        for adapter in (
+            FakeMoveItAdapter(left_fail_at=2),
+            FakeMoveItAdapter(right_fail_at=2),
+            FakeMoveItAdapter(invalid_at=2),
+        ):
+            with self.subTest(adapter=adapter):
+                result = solve_sequential_object_trajectory_ik(self.trajectory, adapter)
+                analysis = result.analyze_suspicious_jumps(self.config())
+                self.assertEqual(result.accepted_sample_count, 2)
+                self.assertEqual(len(result.continuity_transitions), 1)
+                self.assertEqual(len(analysis.transitions), 1)
+                self.assertEqual(analysis.transitions[0].from_sample_index, 0)
+                self.assertEqual(analysis.transitions[0].to_sample_index, 1)
+                self.assertFalse(result.samples[-1].accepted)
+
+    def test_disabled_detector_retains_diagnostics_but_never_flags(self) -> None:
+        transitions = self.transitions_from_steps(
+            (0.1,) + (0.0,) * 11,
+            (2.0,) + (0.0,) * 11,
+        )
+        analysis = analyze_suspicious_joint_jumps(
+            transitions,
+            self.config(absolute=0.5, relative=2.0, enabled=False),
+        )
+        assessment = analysis.transitions[1].assessments[0]
+        self.assertAlmostEqual(assessment.relative_step_ratio or 0.0, 20.0)
+        self.assertFalse(assessment.absolute_flag)
+        self.assertFalse(assessment.relative_flag)
+        self.assertFalse(assessment.suspicious)
+        self.assertEqual(assessment.reasons, ())
+
+    def test_suspicion_does_not_change_ik_acceptance_or_completion(self) -> None:
+        offsets = (
+            (0.1,) * 12,
+            (1.5,) + (0.1,) * 11,
+            (0.1,) * 12,
+            (0.1,) * 12,
+            (0.1,) * 12,
+        )
+        result = solve_sequential_object_trajectory_ik(
+            self.trajectory,
+            FakeMoveItAdapter(joint_offsets_by_sample=offsets),
+        )
+        accepted_before = tuple(sample.accepted for sample in result.samples)
+        completed_before = result.completed
+        analysis = result.analyze_suspicious_jumps(self.config())
+        self.assertGreater(analysis.suspicious_transition_count, 0)
+        self.assertEqual(tuple(sample.accepted for sample in result.samples), accepted_before)
+        self.assertTrue(all(accepted_before))
+        self.assertEqual(result.completed, completed_before)
+        self.assertTrue(result.completed)
+        self.assertEqual(result.accepted_sample_count, 5)
+
+
 class ArchitectureAndSafetyTests(unittest.TestCase):
     def test_core_has_no_ros_moveit_driver_or_numpy_dependency(self) -> None:
         source = CORE_PATH.read_text(encoding="utf-8")
@@ -729,6 +1015,30 @@ class ArchitectureAndSafetyTests(unittest.TestCase):
             self.assertIn(f"print({symbol_name})", adapter_source)
         self.assertEqual(ANGULAR_ENDPOINT_TOLERANCE_RAD, 1e-12)
         self.assertEqual(WRAPAROUND_ADJUSTMENT_TOLERANCE_RAD, 1e-9)
+
+    def test_jump_detector_is_explicitly_offline_heuristic_not_safety_limit(self) -> None:
+        core_source = CORE_PATH.read_text(encoding="utf-8")
+        adapter_source = ADAPTER_PATH.read_text(encoding="utf-8")
+        self.assertEqual(
+            JUMP_HEURISTIC_WARNING,
+            "ANALYSIS HEURISTIC ONLY — NOT A ROBOT SAFETY LIMIT",
+        )
+        self.assertIn(JUMP_HEURISTIC_WARNING, core_source)
+        self.assertIn("OFFLINE JUMP HEURISTIC PROFILE", adapter_source)
+        self.assertIn("print_jump_profile(DEFAULT_OFFLINE_JUMP_DETECTION_CONFIG)", adapter_source)
+        self.assertNotIn("SAFE FOR ROBOT EXECUTION", adapter_source)
+        self.assertEqual(
+            DEFAULT_OFFLINE_JUMP_DETECTION_CONFIG.absolute_step_threshold_rad,
+            1.0,
+        )
+        self.assertEqual(
+            DEFAULT_OFFLINE_JUMP_DETECTION_CONFIG.relative_step_ratio_threshold,
+            3.0,
+        )
+        self.assertEqual(
+            DEFAULT_OFFLINE_JUMP_DETECTION_CONFIG.relative_reference_floor_rad,
+            0.05,
+        )
         for not_yet_allowed in (
             "shortest_angular_distance",
             "math.remainder",
