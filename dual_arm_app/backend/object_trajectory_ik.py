@@ -18,12 +18,19 @@ Phase 1G.3C may flag suspicious changes using configurable absolute and relative
 heuristics over shortest-angular deltas. These are offline analysis heuristics,
 not manufacturer, controller, velocity, or physical robot safety limits. Flags
 never change IK acceptance, trajectory completion, joint values, or seeds.
+
+Phase 1G.4 performs greedy multi-candidate selection. Deterministic perturbed
+seed banks produce independent arm candidates, raw-coordinate duplicates are
+removed, every unique Left×Right pair is state-validity checked, and the valid
+pair minimizing ``sum_j (q_candidate,j - q_previous,j)^2`` is selected. This is
+a continuity preference in explicit coordinates, not a dynamic, energy, time,
+or safety metric. No shortest-angle remapping is used for execution cost.
 """
 
 from __future__ import annotations
 
 import math
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, replace
 from typing import Any, Protocol, Sequence
 
 from dual_arm_app.backend.object_grasp_model import RigidTransform
@@ -54,6 +61,12 @@ WRAPAROUND_ADJUSTMENT_TOLERANCE_RAD = 1e-9
 ABSOLUTE_STEP_REASON = "ABSOLUTE_STEP"
 RELATIVE_GROWTH_REASON = "RELATIVE_GROWTH"
 JUMP_HEURISTIC_WARNING = "ANALYSIS HEURISTIC ONLY — NOT A ROBOT SAFETY LIMIT"
+CANDIDATE_EXPLORATION_WARNING = (
+    "OFFLINE IK EXPLORATION PARAMETERS — NOT ROBOT SAFETY LIMITS"
+)
+NO_LEFT_IK_CANDIDATE = "NO_LEFT_IK_CANDIDATE"
+NO_RIGHT_IK_CANDIDATE = "NO_RIGHT_IK_CANDIDATE"
+NO_VALID_DUAL_ARM_PAIR = "NO_VALID_DUAL_ARM_PAIR"
 OFFLINE_MODEL_SEED_NOTICE = (
     "OFFLINE SYNTHETIC / MODEL SEED — NOT PHYSICAL ROBOT CALIBRATION"
 )
@@ -710,6 +723,289 @@ class CombinedStateValidity:
             raise TypeError("diagnostic must be a string")
 
 
+@dataclass(frozen=True)
+class CanonicalJointPositionLimits:
+    """Canonical model position limits supplied to deterministic seed exploration."""
+
+    lower_rad: JointVector12
+    upper_rad: JointVector12
+
+    def __post_init__(self) -> None:
+        lower = _joint_vector(self.lower_rad, 12, "lower_rad")
+        upper = _joint_vector(self.upper_rad, 12, "upper_rad")
+        if any(low >= high for low, high in zip(lower, upper)):
+            raise ValueError("every lower joint limit must be less than its upper limit")
+        object.__setattr__(self, "lower_rad", lower)
+        object.__setattr__(self, "upper_rad", upper)
+
+    def contains(self, positions_rad: Sequence[float]) -> bool:
+        checked = _joint_vector(positions_rad, 12, "positions_rad")
+        return all(
+            lower <= value <= upper
+            for value, lower, upper in zip(checked, self.lower_rad, self.upper_rad)
+        )
+
+    def clamp(self, positions_rad: Sequence[float]) -> JointVector12:
+        """Clamp an exploratory seed only; returned IK solutions are untouched."""
+        checked = _joint_vector(positions_rad, 12, "positions_rad")
+        return tuple(
+            min(max(value, lower), upper)
+            for value, lower, upper in zip(checked, self.lower_rad, self.upper_rad)
+        )  # type: ignore[return-value]
+
+
+@dataclass(frozen=True)
+class IkCandidateExplorationConfig:
+    """Deterministic offline IK exploration and ranking parameters."""
+
+    perturbation_offset_rad: float = 0.35
+    max_attempts_per_arm: int = 13
+    duplicate_tolerance_rad: float = 1e-5
+    ranking_tie_tolerance: float = 1e-12
+
+    def __post_init__(self) -> None:
+        offset = _finite_number(self.perturbation_offset_rad, "perturbation_offset_rad")
+        duplicate = _finite_number(self.duplicate_tolerance_rad, "duplicate_tolerance_rad")
+        tie = _finite_number(self.ranking_tie_tolerance, "ranking_tie_tolerance")
+        if offset <= 0.0:
+            raise ValueError("perturbation_offset_rad must be greater than zero")
+        if duplicate < 0.0:
+            raise ValueError("duplicate_tolerance_rad must be non-negative")
+        if tie < 0.0:
+            raise ValueError("ranking_tie_tolerance must be non-negative")
+        if (
+            isinstance(self.max_attempts_per_arm, bool)
+            or not isinstance(self.max_attempts_per_arm, int)
+            or not 1 <= self.max_attempts_per_arm <= 13
+        ):
+            raise ValueError("max_attempts_per_arm must be an integer within [1, 13]")
+        object.__setattr__(self, "perturbation_offset_rad", offset)
+        object.__setattr__(self, "duplicate_tolerance_rad", duplicate)
+        object.__setattr__(self, "ranking_tie_tolerance", tie)
+
+
+DEFAULT_OFFLINE_CANDIDATE_EXPLORATION_CONFIG = IkCandidateExplorationConfig()
+SINGLE_CANDIDATE_EXPLORATION_CONFIG = IkCandidateExplorationConfig(
+    max_attempts_per_arm=1,
+)
+
+
+def generate_arm_seed_bank(
+    base_seed_joint_positions_rad: Sequence[float],
+    group_name: str,
+    config: IkCandidateExplorationConfig,
+    joint_limits: CanonicalJointPositionLimits | None,
+) -> tuple[JointVector12, ...]:
+    """Generate base, then ``+offset, -offset`` for each arm joint.
+
+    Exploratory seeds use deterministic CLAMP against the supplied model limits.
+    The base seed remains exact and must already satisfy limits when exploration
+    is enabled. Clamping never changes a solver-returned IK solution.
+    """
+    base = _joint_vector(
+        base_seed_joint_positions_rad,
+        12,
+        "base_seed_joint_positions_rad",
+    )
+    if group_name not in (LEFT_GROUP_NAME, RIGHT_GROUP_NAME):
+        raise ValueError("group_name must be left_arm or right_arm")
+    if not isinstance(config, IkCandidateExplorationConfig):
+        raise TypeError("config must be an IkCandidateExplorationConfig")
+    if config.max_attempts_per_arm > 1:
+        if not isinstance(joint_limits, CanonicalJointPositionLimits):
+            raise TypeError("joint_limits are required for exploratory seed generation")
+        if not joint_limits.contains(base):
+            raise ValueError("base seed must satisfy canonical model joint limits")
+
+    seeds: list[JointVector12] = [base]  # type: ignore[list-item]
+    first_joint_index = 0 if group_name == LEFT_GROUP_NAME else 6
+    for local_joint_index in range(6):
+        canonical_index = first_joint_index + local_joint_index
+        for direction in (1.0, -1.0):
+            perturbed = list(base)
+            perturbed[canonical_index] += direction * config.perturbation_offset_rad
+            seed = (
+                joint_limits.clamp(perturbed)
+                if joint_limits is not None
+                else tuple(perturbed)
+            )
+            seeds.append(seed)  # type: ignore[arg-type]
+    return tuple(seeds[:config.max_attempts_per_arm])
+
+
+def raw_joint_vectors_are_duplicates(
+    left_positions_rad: Sequence[float],
+    right_positions_rad: Sequence[float],
+    tolerance_rad: float,
+) -> bool:
+    """Compare explicit raw coordinates; no shortest-angle equivalence is used."""
+    left = _joint_vector(left_positions_rad, 6, "left_positions_rad")
+    right = _joint_vector(right_positions_rad, 6, "right_positions_rad")
+    tolerance = _finite_number(tolerance_rad, "tolerance_rad")
+    if tolerance < 0.0:
+        raise ValueError("tolerance_rad must be non-negative")
+    return max(abs(a - b) for a, b in zip(left, right)) <= tolerance
+
+
+@dataclass(frozen=True)
+class ArmIkCandidate:
+    """One deterministic IK attempt and its raw-coordinate deduplication status."""
+
+    candidate_index: int
+    source_seed_index: int
+    source_seed_rad: JointVector12
+    solver_success: bool
+    joint_positions_rad: JointVector6 | None
+    duplicate_of_candidate_index: int | None
+    diagnostic: str = ""
+
+    @property
+    def is_unique_success(self) -> bool:
+        return self.solver_success and self.duplicate_of_candidate_index is None
+
+
+@dataclass(frozen=True)
+class ArmCandidateGenerationResult:
+    group_name: str
+    attempts: tuple[ArmIkCandidate, ...]
+
+    @property
+    def attempt_count(self) -> int:
+        return len(self.attempts)
+
+    @property
+    def unique_candidates(self) -> tuple[ArmIkCandidate, ...]:
+        return tuple(item for item in self.attempts if item.is_unique_success)
+
+    @property
+    def unique_candidate_count(self) -> int:
+        return len(self.unique_candidates)
+
+
+@dataclass(frozen=True)
+class DualArmIkCandidatePair:
+    """One scored explicit-coordinate Left×Right candidate pair."""
+
+    pair_index: int
+    left_candidate_index: int
+    right_candidate_index: int
+    combined_joint_positions_rad: JointVector12
+    state_valid: bool
+    raw_continuity_cost: float
+    max_raw_joint_step_rad: float
+    max_raw_joint_step_index: int
+    max_raw_joint_step_name: str
+    selected: bool = False
+    validation_diagnostic: str = ""
+
+
+def score_dual_arm_candidate_pair(
+    *,
+    pair_index: int,
+    left_candidate: ArmIkCandidate,
+    right_candidate: ArmIkCandidate,
+    previous_joint_positions_rad: Sequence[float],
+    state_valid: bool,
+    validation_diagnostic: str = "",
+) -> DualArmIkCandidatePair:
+    """Score with ``sum((q_candidate-q_previous)^2)`` in raw radian coordinates."""
+    if left_candidate.joint_positions_rad is None:
+        raise ValueError("left candidate must provide joint positions")
+    if right_candidate.joint_positions_rad is None:
+        raise ValueError("right candidate must provide joint positions")
+    previous = _joint_vector(
+        previous_joint_positions_rad,
+        12,
+        "previous_joint_positions_rad",
+    )
+    combined = combine_arm_joint_solutions(
+        left_candidate.joint_positions_rad,
+        right_candidate.joint_positions_rad,
+    )
+    raw_delta = joint_delta_rad(combined, previous)
+    cost = sum(value * value for value in raw_delta)
+    maximum_index = max(range(12), key=lambda index: abs(raw_delta[index]))
+    return DualArmIkCandidatePair(
+        pair_index=pair_index,
+        left_candidate_index=left_candidate.candidate_index,
+        right_candidate_index=right_candidate.candidate_index,
+        combined_joint_positions_rad=combined,
+        state_valid=bool(state_valid),
+        raw_continuity_cost=cost,
+        max_raw_joint_step_rad=abs(raw_delta[maximum_index]),
+        max_raw_joint_step_index=maximum_index,
+        max_raw_joint_step_name=DUAL_ARM_JOINT_ORDER[maximum_index],
+        validation_diagnostic=validation_diagnostic,
+    )
+
+
+def select_best_dual_arm_candidate_pair(
+    pairs: Sequence[DualArmIkCandidatePair],
+    tie_tolerance: float,
+) -> tuple[DualArmIkCandidatePair | None, tuple[DualArmIkCandidatePair, ...]]:
+    """Select valid minimum raw cost using explicit deterministic tie rules."""
+    checked = tuple(pairs)
+    if any(not isinstance(pair, DualArmIkCandidatePair) for pair in checked):
+        raise TypeError("pairs must contain DualArmIkCandidatePair values")
+    tolerance = _finite_number(tie_tolerance, "tie_tolerance")
+    if tolerance < 0.0:
+        raise ValueError("tie_tolerance must be non-negative")
+    valid = tuple(pair for pair in checked if pair.state_valid)
+    if not valid:
+        return None, checked
+
+    def better(candidate: DualArmIkCandidatePair, incumbent: DualArmIkCandidatePair) -> bool:
+        cost_delta = candidate.raw_continuity_cost - incumbent.raw_continuity_cost
+        if cost_delta < -tolerance:
+            return True
+        if abs(cost_delta) > tolerance:
+            return False
+        step_delta = candidate.max_raw_joint_step_rad - incumbent.max_raw_joint_step_rad
+        if step_delta < -tolerance:
+            return True
+        if abs(step_delta) > tolerance:
+            return False
+        return (
+            candidate.left_candidate_index,
+            candidate.right_candidate_index,
+            candidate.pair_index,
+        ) < (
+            incumbent.left_candidate_index,
+            incumbent.right_candidate_index,
+            incumbent.pair_index,
+        )
+
+    selected = valid[0]
+    for candidate in valid[1:]:
+        if better(candidate, selected):
+            selected = candidate
+    marked = tuple(
+        replace(pair, selected=pair.pair_index == selected.pair_index)
+        for pair in checked
+    )
+    return next(pair for pair in marked if pair.selected), marked
+
+
+@dataclass(frozen=True)
+class SampleCandidateSelectionDiagnostics:
+    left_generation: ArmCandidateGenerationResult
+    right_generation: ArmCandidateGenerationResult
+    candidate_pairs: tuple[DualArmIkCandidatePair, ...]
+    selected_pair_index: int | None
+
+    @property
+    def candidate_pair_count(self) -> int:
+        return len(self.candidate_pairs)
+
+    @property
+    def valid_candidate_pair_count(self) -> int:
+        return sum(pair.state_valid for pair in self.candidate_pairs)
+
+    @property
+    def selected_pair(self) -> DualArmIkCandidatePair | None:
+        return next((pair for pair in self.candidate_pairs if pair.selected), None)
+
+
 class ObjectTrajectoryIkAdapter(Protocol):
     """Boundary implemented by a planning-only MoveIt service adapter or fake."""
 
@@ -732,6 +1028,70 @@ class ObjectTrajectoryIkAdapter(Protocol):
     ) -> CombinedStateValidity: ...
 
 
+def _generate_arm_candidates(
+    *,
+    adapter: ObjectTrajectoryIkAdapter,
+    group_name: str,
+    ik_link_name: str,
+    target_world_T_tip: RigidTransform,
+    base_seed: JointVector12,
+    timeout_s: float,
+    config: IkCandidateExplorationConfig,
+    joint_limits: CanonicalJointPositionLimits | None,
+) -> ArmCandidateGenerationResult:
+    seed_bank = generate_arm_seed_bank(base_seed, group_name, config, joint_limits)
+    attempts: list[ArmIkCandidate] = []
+    for seed_index, source_seed in enumerate(seed_bank):
+        try:
+            solution = adapter.solve_arm_ik(
+                group_name=group_name,
+                ik_link_name=ik_link_name,
+                target_world_T_tip=target_world_T_tip,
+                seed_joint_positions_rad=source_seed,
+                timeout_s=timeout_s,
+                avoid_collisions=False,
+            )
+        except Exception as error:
+            solution = ArmIkSolution(
+                False,
+                diagnostic=f"IK candidate exception: {error}",
+            )
+        if not isinstance(solution, ArmIkSolution):
+            solution = ArmIkSolution(
+                False,
+                diagnostic="IK candidate adapter returned invalid result",
+            )
+
+        duplicate_of = None
+        if solution.success and solution.joint_positions_rad is not None:
+            for earlier in attempts:
+                if (
+                    earlier.is_unique_success
+                    and earlier.joint_positions_rad is not None
+                    and raw_joint_vectors_are_duplicates(
+                        solution.joint_positions_rad,
+                        earlier.joint_positions_rad,
+                        config.duplicate_tolerance_rad,
+                    )
+                ):
+                    duplicate_of = earlier.candidate_index
+                    break
+        attempts.append(ArmIkCandidate(
+            candidate_index=seed_index,
+            source_seed_index=seed_index,
+            source_seed_rad=source_seed,
+            solver_success=solution.success,
+            joint_positions_rad=solution.joint_positions_rad,
+            duplicate_of_candidate_index=duplicate_of,
+            diagnostic=solution.diagnostic,
+        ))
+    return ArmCandidateGenerationResult(group_name=group_name, attempts=tuple(attempts))
+
+
+def _empty_arm_generation(group_name: str) -> ArmCandidateGenerationResult:
+    return ArmCandidateGenerationResult(group_name=group_name, attempts=())
+
+
 @dataclass(frozen=True)
 class ObjectTrajectoryIkSampleResult:
     sample_index: int
@@ -747,6 +1107,7 @@ class ObjectTrajectoryIkSampleResult:
     continuity_from_previous: TransitionContinuity | None
     failure_reason: str | None
     diagnostic_message: str
+    candidate_selection: SampleCandidateSelectionDiagnostics | None = None
 
     @property
     def joint_delta_from_previous_rad(self) -> JointVector12 | None:
@@ -764,6 +1125,90 @@ class ObjectTrajectoryIkSampleResult:
         if self.continuity_from_previous is None:
             return None
         return self.continuity_from_previous.max_abs_joint_step_rad
+
+    @property
+    def left_ik_attempt_count(self) -> int:
+        return (
+            self.candidate_selection.left_generation.attempt_count
+            if self.candidate_selection is not None
+            else int(self.left_ik_success)
+        )
+
+    @property
+    def right_ik_attempt_count(self) -> int:
+        return (
+            self.candidate_selection.right_generation.attempt_count
+            if self.candidate_selection is not None
+            else int(self.right_ik_success)
+        )
+
+    @property
+    def left_unique_candidate_count(self) -> int:
+        return (
+            self.candidate_selection.left_generation.unique_candidate_count
+            if self.candidate_selection is not None
+            else int(self.left_ik_success)
+        )
+
+    @property
+    def right_unique_candidate_count(self) -> int:
+        return (
+            self.candidate_selection.right_generation.unique_candidate_count
+            if self.candidate_selection is not None
+            else int(self.right_ik_success)
+        )
+
+    @property
+    def candidate_pair_count(self) -> int:
+        return (
+            self.candidate_selection.candidate_pair_count
+            if self.candidate_selection is not None
+            else int(self.combined_joint_positions_rad is not None)
+        )
+
+    @property
+    def valid_candidate_pair_count(self) -> int:
+        return (
+            self.candidate_selection.valid_candidate_pair_count
+            if self.candidate_selection is not None
+            else int(self.combined_valid)
+        )
+
+    @property
+    def selected_pair(self) -> DualArmIkCandidatePair | None:
+        return (
+            self.candidate_selection.selected_pair
+            if self.candidate_selection is not None
+            else None
+        )
+
+    @property
+    def selected_left_candidate_index(self) -> int | None:
+        return self.selected_pair.left_candidate_index if self.selected_pair else None
+
+    @property
+    def selected_right_candidate_index(self) -> int | None:
+        return self.selected_pair.right_candidate_index if self.selected_pair else None
+
+    @property
+    def selected_pair_index(self) -> int | None:
+        return self.selected_pair.pair_index if self.selected_pair else None
+
+    @property
+    def selected_raw_continuity_cost(self) -> float | None:
+        return self.selected_pair.raw_continuity_cost if self.selected_pair else None
+
+    @property
+    def selected_max_raw_joint_step_rad(self) -> float | None:
+        return self.selected_pair.max_raw_joint_step_rad if self.selected_pair else None
+
+    @property
+    def selected_max_raw_joint_step_index(self) -> int | None:
+        return self.selected_pair.max_raw_joint_step_index if self.selected_pair else None
+
+    @property
+    def selected_max_raw_joint_step_name(self) -> str | None:
+        return self.selected_pair.max_raw_joint_step_name if self.selected_pair else None
 
 
 @dataclass(frozen=True)
@@ -819,6 +1264,7 @@ def _failure_sample(
     combined_positions: JointVector12 | None,
     reason: str,
     diagnostic: str,
+    candidate_selection: SampleCandidateSelectionDiagnostics | None = None,
 ) -> ObjectTrajectoryIkSampleResult:
     return ObjectTrajectoryIkSampleResult(
         sample_index=sample_index,
@@ -834,6 +1280,7 @@ def _failure_sample(
         continuity_from_previous=None,
         failure_reason=reason,
         diagnostic_message=diagnostic,
+        candidate_selection=candidate_selection,
     )
 
 
@@ -845,15 +1292,19 @@ def solve_sequential_object_trajectory_ik(
         DEFAULT_INITIAL_DUAL_ARM_SEED_RAD
     ),
     ik_timeout_s: float = DEFAULT_IK_TIMEOUT_S,
+    candidate_exploration_config: IkCandidateExplorationConfig = (
+        SINGLE_CANDIDATE_EXPLORATION_CONFIG
+    ),
+    joint_limits: CanonicalJointPositionLimits | None = None,
 ) -> ObjectTrajectoryIkResult:
-    """Solve ordered samples with previous-accepted-state seed propagation.
+    """Greedily select the minimum-cost valid candidate pair at each sample.
 
-    Both independent arm requests at sample ``i`` receive the same pair seed.
-    The newly solved left candidate is deliberately not inserted into the right
-    request seed. Failed or combined-invalid candidates stop processing and are
-    never propagated. ``avoid_collisions`` is explicitly false; combined state
-    validity is the acceptance gate. Joint step values are recorded only and no
-    jump threshold is applied in Phase 1G.2A.
+    Both arm seed banks derive from the same previous selected pair. Every unique
+    Left×Right pair is checked with combined state validity, scored using raw
+    explicit-coordinate squared displacement, and ranked deterministically.
+    Only the selected pair propagates. The default one-attempt config preserves
+    the prior single-candidate caller behavior; the runtime explicitly enables
+    the 13-attempt offline exploration profile.
     """
     if not isinstance(trajectory, ObjectTrajectory):
         raise TypeError("trajectory must be an ObjectTrajectory")
@@ -861,6 +1312,10 @@ def solve_sequential_object_trajectory_ik(
         raise TypeError("adapter must provide solve_arm_ik")
     if not callable(getattr(adapter, "check_combined_state", None)):
         raise TypeError("adapter must provide check_combined_state")
+    if not isinstance(candidate_exploration_config, IkCandidateExplorationConfig):
+        raise TypeError(
+            "candidate_exploration_config must be an IkCandidateExplorationConfig"
+        )
     pair_seed = _joint_vector(
         initial_seed_joint_positions_rad,
         12,
@@ -876,21 +1331,24 @@ def solve_sequential_object_trajectory_ik(
     failed_sample_index: int | None = None
 
     for sample_index, sample in enumerate(trajectory.samples):
-        try:
-            left = adapter.solve_arm_ik(
-                group_name=LEFT_GROUP_NAME,
-                ik_link_name=LEFT_IK_LINK_NAME,
-                target_world_T_tip=sample.world_T_left,
-                seed_joint_positions_rad=pair_seed,  # type: ignore[arg-type]
-                timeout_s=timeout_s,
-                avoid_collisions=False,
-            )
-        except Exception as error:  # adapter/runtime boundary becomes a result
-            left = ArmIkSolution(False, diagnostic=f"Left IK exception: {error}")
-        if not isinstance(left, ArmIkSolution):
-            left = ArmIkSolution(False, diagnostic="Left IK adapter returned invalid result")
-        if not left.success:
+        left_generation = _generate_arm_candidates(
+            adapter=adapter,
+            group_name=LEFT_GROUP_NAME,
+            ik_link_name=LEFT_IK_LINK_NAME,
+            target_world_T_tip=sample.world_T_left,
+            base_seed=pair_seed,  # type: ignore[arg-type]
+            timeout_s=timeout_s,
+            config=candidate_exploration_config,
+            joint_limits=joint_limits,
+        )
+        if not left_generation.unique_candidates:
             failed_sample_index = sample_index
+            diagnostics = SampleCandidateSelectionDiagnostics(
+                left_generation=left_generation,
+                right_generation=_empty_arm_generation(RIGHT_GROUP_NAME),
+                candidate_pairs=(),
+                selected_pair_index=None,
+            )
             results.append(_failure_sample(
                 sample_index=sample_index,
                 time_from_start_s=sample.time_from_start_s,
@@ -898,29 +1356,33 @@ def solve_sequential_object_trajectory_ik(
                 left_success=False,
                 right_success=False,
                 combined_valid=False,
-                left_positions=left.joint_positions_rad,
+                left_positions=None,
                 right_positions=None,
                 combined_positions=None,
-                reason="LEFT_IK_FAILED",
-                diagnostic=left.diagnostic or "Left IK failed",
+                reason=NO_LEFT_IK_CANDIDATE,
+                diagnostic="No unique successful Left IK candidate",
+                candidate_selection=diagnostics,
             ))
             break
 
-        try:
-            right = adapter.solve_arm_ik(
-                group_name=RIGHT_GROUP_NAME,
-                ik_link_name=RIGHT_IK_LINK_NAME,
-                target_world_T_tip=sample.world_T_right,
-                seed_joint_positions_rad=pair_seed,  # type: ignore[arg-type]
-                timeout_s=timeout_s,
-                avoid_collisions=False,
-            )
-        except Exception as error:
-            right = ArmIkSolution(False, diagnostic=f"Right IK exception: {error}")
-        if not isinstance(right, ArmIkSolution):
-            right = ArmIkSolution(False, diagnostic="Right IK adapter returned invalid result")
-        if not right.success:
+        right_generation = _generate_arm_candidates(
+            adapter=adapter,
+            group_name=RIGHT_GROUP_NAME,
+            ik_link_name=RIGHT_IK_LINK_NAME,
+            target_world_T_tip=sample.world_T_right,
+            base_seed=pair_seed,  # type: ignore[arg-type]
+            timeout_s=timeout_s,
+            config=candidate_exploration_config,
+            joint_limits=joint_limits,
+        )
+        if not right_generation.unique_candidates:
             failed_sample_index = sample_index
+            diagnostics = SampleCandidateSelectionDiagnostics(
+                left_generation=left_generation,
+                right_generation=right_generation,
+                candidate_pairs=(),
+                selected_pair_index=None,
+            )
             results.append(_failure_sample(
                 sample_index=sample_index,
                 time_from_start_s=sample.time_from_start_s,
@@ -928,34 +1390,59 @@ def solve_sequential_object_trajectory_ik(
                 left_success=True,
                 right_success=False,
                 combined_valid=False,
-                left_positions=left.joint_positions_rad,
-                right_positions=right.joint_positions_rad,
+                left_positions=left_generation.unique_candidates[0].joint_positions_rad,
+                right_positions=None,
                 combined_positions=None,
-                reason="RIGHT_IK_FAILED",
-                diagnostic=right.diagnostic or "Right IK failed",
+                reason=NO_RIGHT_IK_CANDIDATE,
+                diagnostic="No unique successful Right IK candidate",
+                candidate_selection=diagnostics,
             ))
             break
 
-        combined = combine_arm_joint_solutions(
-            left.joint_positions_rad,  # type: ignore[arg-type]
-            right.joint_positions_rad,  # type: ignore[arg-type]
+        pair_records: list[DualArmIkCandidatePair] = []
+        for left_candidate in left_generation.unique_candidates:
+            for right_candidate in right_generation.unique_candidates:
+                combined_candidate = combine_arm_joint_solutions(
+                    left_candidate.joint_positions_rad,  # type: ignore[arg-type]
+                    right_candidate.joint_positions_rad,  # type: ignore[arg-type]
+                )
+                try:
+                    validity = adapter.check_combined_state(
+                        joint_positions_rad=combined_candidate,
+                        group_name=DUAL_ARM_GROUP_NAME,
+                    )
+                except Exception as error:
+                    validity = CombinedStateValidity(
+                        False,
+                        diagnostic=f"Combined validity exception: {error}",
+                    )
+                if not isinstance(validity, CombinedStateValidity):
+                    validity = CombinedStateValidity(
+                        False,
+                        diagnostic="State-validity adapter returned invalid result",
+                    )
+                pair_records.append(score_dual_arm_candidate_pair(
+                    pair_index=len(pair_records),
+                    left_candidate=left_candidate,
+                    right_candidate=right_candidate,
+                    previous_joint_positions_rad=pair_seed,
+                    state_valid=validity.valid,
+                    validation_diagnostic=validity.diagnostic,
+                ))
+
+        selected_pair, marked_pairs = select_best_dual_arm_candidate_pair(
+            pair_records,
+            candidate_exploration_config.ranking_tie_tolerance,
         )
-        try:
-            validity = adapter.check_combined_state(
-                joint_positions_rad=combined,
-                group_name=DUAL_ARM_GROUP_NAME,
-            )
-        except Exception as error:
-            validity = CombinedStateValidity(
-                False,
-                diagnostic=f"Combined validity exception: {error}",
-            )
-        if not isinstance(validity, CombinedStateValidity):
-            validity = CombinedStateValidity(
-                False,
-                diagnostic="State-validity adapter returned invalid result",
-            )
-        if not validity.valid:
+        diagnostics = SampleCandidateSelectionDiagnostics(
+            left_generation=left_generation,
+            right_generation=right_generation,
+            candidate_pairs=marked_pairs,
+            selected_pair_index=(
+                selected_pair.pair_index if selected_pair is not None else None
+            ),
+        )
+        if selected_pair is None:
             failed_sample_index = sample_index
             results.append(_failure_sample(
                 sample_index=sample_index,
@@ -964,14 +1451,30 @@ def solve_sequential_object_trajectory_ik(
                 left_success=True,
                 right_success=True,
                 combined_valid=False,
-                left_positions=left.joint_positions_rad,
-                right_positions=right.joint_positions_rad,
-                combined_positions=combined,
-                reason="COMBINED_STATE_INVALID",
-                diagnostic=validity.diagnostic or "Combined dual-arm state is invalid",
+                left_positions=left_generation.unique_candidates[0].joint_positions_rad,
+                right_positions=right_generation.unique_candidates[0].joint_positions_rad,
+                combined_positions=(
+                    marked_pairs[0].combined_joint_positions_rad
+                    if marked_pairs
+                    else None
+                ),
+                reason=NO_VALID_DUAL_ARM_PAIR,
+                diagnostic="No Left×Right candidate pair passed dual-arm validity",
+                candidate_selection=diagnostics,
             ))
             break
 
+        selected_left = next(
+            candidate
+            for candidate in left_generation.unique_candidates
+            if candidate.candidate_index == selected_pair.left_candidate_index
+        )
+        selected_right = next(
+            candidate
+            for candidate in right_generation.unique_candidates
+            if candidate.candidate_index == selected_pair.right_candidate_index
+        )
+        combined = selected_pair.combined_joint_positions_rad
         continuity = None
         if previous_accepted is not None:
             if previous_accepted_sample_index is None:
@@ -990,12 +1493,13 @@ def solve_sequential_object_trajectory_ik(
             right_ik_success=True,
             combined_valid=True,
             accepted=True,
-            left_joint_positions_rad=left.joint_positions_rad,
-            right_joint_positions_rad=right.joint_positions_rad,
+            left_joint_positions_rad=selected_left.joint_positions_rad,
+            right_joint_positions_rad=selected_right.joint_positions_rad,
             combined_joint_positions_rad=combined,
             continuity_from_previous=continuity,
             failure_reason=None,
-            diagnostic_message="ACCEPTED — PLANNING MODEL STATE VALID",
+            diagnostic_message="ACCEPTED — SELECTED VALID MINIMUM RAW-COST PAIR",
+            candidate_selection=diagnostics,
         ))
         previous_accepted = combined
         previous_accepted_sample_index = sample_index

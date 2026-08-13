@@ -15,6 +15,8 @@ from dual_arm_app.backend.object_trajectory import (
 from dual_arm_app.backend.object_trajectory_ik import (
     ABSOLUTE_STEP_REASON,
     ANGULAR_ENDPOINT_TOLERANCE_RAD,
+    CANDIDATE_EXPLORATION_WARNING,
+    DEFAULT_OFFLINE_CANDIDATE_EXPLORATION_CONFIG,
     DEFAULT_INITIAL_DUAL_ARM_SEED_RAD,
     DEFAULT_OFFLINE_JUMP_DETECTION_CONFIG,
     DUAL_ARM_GROUP_NAME,
@@ -25,6 +27,9 @@ from dual_arm_app.backend.object_trajectory_ik import (
     JOINT_POSITIONS_UNCHANGED_NOTICE,
     JUMP_HEURISTIC_WARNING,
     OFFLINE_MODEL_SEED_NOTICE,
+    NO_LEFT_IK_CANDIDATE,
+    NO_RIGHT_IK_CANDIDATE,
+    NO_VALID_DUAL_ARM_PAIR,
     RAW_JOINT_DELTA_NOTICE,
     RAW_JOINT_DELTA_PRESERVED_NOTICE,
     RIGHT_GROUP_NAME,
@@ -34,16 +39,23 @@ from dual_arm_app.backend.object_trajectory_ik import (
     SHORTEST_ANGULAR_ANALYSIS_NOTICE,
     WRAPAROUND_ADJUSTMENT_TOLERANCE_RAD,
     ArmIkSolution,
+    ArmIkCandidate,
+    CanonicalJointPositionLimits,
     CombinedStateValidity,
     JointDeltaRecord,
     JointJumpDetectionConfig,
+    IkCandidateExplorationConfig,
     TransitionContinuity,
     analyze_joint_transition,
     analyze_suspicious_joint_jumps,
     combine_arm_joint_solutions,
+    generate_arm_seed_bank,
     joint_delta_rad,
     max_abs_joint_step_rad,
     rotation_matrix_to_quaternion_xyzw,
+    raw_joint_vectors_are_duplicates,
+    score_dual_arm_candidate_pair,
+    select_best_dual_arm_candidate_pair,
     shortest_angular_delta_rad,
     solve_sequential_object_trajectory_ik,
     summarize_trajectory_continuity,
@@ -135,6 +147,66 @@ class FakeMoveItAdapter:
         return CombinedStateValidity(valid, diagnostic)
 
 
+class MultiCandidateFakeAdapter:
+    """Target-aware fake for deterministic multi-attempt selection tests."""
+
+    def __init__(self, *, solution_callback=None, validity_callback=None) -> None:
+        self.solution_callback = solution_callback
+        self.validity_callback = validity_callback
+        self.ik_calls: list[dict[str, object]] = []
+        self.validity_calls: list[tuple[float, ...]] = []
+        self.attempt_counts: dict[tuple[int, str], int] = {}
+
+    @staticmethod
+    def _sample_index(group_name, target) -> int:
+        for index, sample in enumerate(SYNTHETIC_TRANSLATION_ONLY_OBJECT_TRAJECTORY.samples):
+            expected = (
+                sample.world_T_left
+                if group_name == LEFT_GROUP_NAME
+                else sample.world_T_right
+            )
+            if target is expected:
+                return index
+        raise AssertionError("unexpected target transform")
+
+    def solve_arm_ik(
+        self,
+        *,
+        group_name,
+        ik_link_name,
+        target_world_T_tip,
+        seed_joint_positions_rad,
+        timeout_s,
+        avoid_collisions,
+    ) -> ArmIkSolution:
+        sample_index = self._sample_index(group_name, target_world_T_tip)
+        key = (sample_index, group_name)
+        attempt_index = self.attempt_counts.get(key, 0)
+        self.attempt_counts[key] = attempt_index + 1
+        seed = tuple(seed_joint_positions_rad)
+        self.ik_calls.append({
+            "sample_index": sample_index,
+            "group_name": group_name,
+            "attempt_index": attempt_index,
+            "seed": seed,
+            "avoid_collisions": avoid_collisions,
+        })
+        if self.solution_callback is not None:
+            return self.solution_callback(sample_index, group_name, attempt_index, seed)
+        positions = seed[:6] if group_name == LEFT_GROUP_NAME else seed[6:]
+        return ArmIkSolution(True, positions)
+
+    def check_combined_state(self, *, joint_positions_rad, group_name):
+        positions = tuple(joint_positions_rad)
+        self.validity_calls.append(positions)
+        valid = (
+            self.validity_callback(positions)
+            if self.validity_callback is not None
+            else True
+        )
+        return CombinedStateValidity(bool(valid), "synthetic pair validity")
+
+
 class JointAndQuaternionTests(unittest.TestCase):
     def test_canonical_joint_order_is_fixed(self) -> None:
         self.assertEqual(
@@ -193,6 +265,415 @@ class JointAndQuaternionTests(unittest.TestCase):
             rotation_matrix_to_quaternion_xyzw(None)  # type: ignore[arg-type]
 
 
+class MultiCandidateSelectionCoreTests(unittest.TestCase):
+    trajectory = SYNTHETIC_TRANSLATION_ONLY_OBJECT_TRAJECTORY
+    limits = CanonicalJointPositionLimits((-20.0,) * 12, (20.0,) * 12)
+
+    @staticmethod
+    def candidate(index: int, positions) -> ArmIkCandidate:
+        return ArmIkCandidate(
+            candidate_index=index,
+            source_seed_index=index,
+            source_seed_rad=(0.0,) * 12,
+            solver_success=True,
+            joint_positions_rad=tuple(positions),
+            duplicate_of_candidate_index=None,
+        )
+
+    def test_exploration_config_defaults_and_validation(self) -> None:
+        config = DEFAULT_OFFLINE_CANDIDATE_EXPLORATION_CONFIG
+        self.assertEqual(config.perturbation_offset_rad, 0.35)
+        self.assertEqual(config.max_attempts_per_arm, 13)
+        self.assertEqual(config.duplicate_tolerance_rad, 1e-5)
+        self.assertEqual(config.ranking_tie_tolerance, 1e-12)
+        with self.assertRaises(FrozenInstanceError):
+            config.max_attempts_per_arm = 1  # type: ignore[misc]
+
+        for value in (math.nan, math.inf, -math.inf, 0.0, -0.1, True, False):
+            with self.subTest(field="offset", value=value):
+                with self.assertRaises((TypeError, ValueError)):
+                    IkCandidateExplorationConfig(perturbation_offset_rad=value)
+        for value in (0, -1, 14, 1.5, True, False):
+            with self.subTest(field="attempts", value=value):
+                with self.assertRaises((TypeError, ValueError)):
+                    IkCandidateExplorationConfig(max_attempts_per_arm=value)
+        for field_name in ("duplicate_tolerance_rad", "ranking_tie_tolerance"):
+            for value in (math.nan, math.inf, -math.inf, -0.1, True, False):
+                with self.subTest(field=field_name, value=value):
+                    with self.assertRaises((TypeError, ValueError)):
+                        IkCandidateExplorationConfig(**{field_name: value})
+
+    def test_seed_bank_order_is_base_then_positive_negative_per_arm_joint(self) -> None:
+        base = tuple(float(index) for index in range(12))
+        config = IkCandidateExplorationConfig(
+            perturbation_offset_rad=0.25,
+            max_attempts_per_arm=13,
+        )
+        left = generate_arm_seed_bank(base, LEFT_GROUP_NAME, config, self.limits)
+        right = generate_arm_seed_bank(base, RIGHT_GROUP_NAME, config, self.limits)
+        self.assertEqual(left[0], base)
+        self.assertEqual(right[0], base)
+        for local_index in range(6):
+            positive_index = 1 + 2 * local_index
+            negative_index = positive_index + 1
+            expected_left_positive = list(base)
+            expected_left_negative = list(base)
+            expected_left_positive[local_index] += 0.25
+            expected_left_negative[local_index] -= 0.25
+            self.assertEqual(left[positive_index], tuple(expected_left_positive))
+            self.assertEqual(left[negative_index], tuple(expected_left_negative))
+
+            canonical_right_index = 6 + local_index
+            expected_right_positive = list(base)
+            expected_right_negative = list(base)
+            expected_right_positive[canonical_right_index] += 0.25
+            expected_right_negative[canonical_right_index] -= 0.25
+            self.assertEqual(right[positive_index], tuple(expected_right_positive))
+            self.assertEqual(right[negative_index], tuple(expected_right_negative))
+
+    def test_exploratory_seed_clamps_to_supplied_model_limits_only(self) -> None:
+        limits = CanonicalJointPositionLimits((-1.0,) * 12, (1.0,) * 12)
+        base = (0.9,) + (0.0,) * 11
+        config = IkCandidateExplorationConfig(
+            perturbation_offset_rad=0.35,
+            max_attempts_per_arm=3,
+        )
+        seeds = generate_arm_seed_bank(base, LEFT_GROUP_NAME, config, limits)
+        self.assertEqual(seeds[0], base)
+        self.assertEqual(seeds[1][0], 1.0)
+        self.assertEqual(seeds[2][0], 0.55)
+        self.assertTrue(all(limits.contains(seed) for seed in seeds))
+        with self.assertRaises(TypeError):
+            generate_arm_seed_bank(base, LEFT_GROUP_NAME, config, None)
+
+    def test_raw_duplicate_detection_exact_tolerance_and_two_pi_distinction(self) -> None:
+        base = (0.0,) * 6
+        self.assertTrue(raw_joint_vectors_are_duplicates(base, base, 1e-5))
+        self.assertTrue(raw_joint_vectors_are_duplicates(
+            base,
+            (1e-5,) + (0.0,) * 5,
+            1e-5,
+        ))
+        self.assertFalse(raw_joint_vectors_are_duplicates(
+            base,
+            (1.0001e-5,) + (0.0,) * 5,
+            1e-5,
+        ))
+        self.assertFalse(raw_joint_vectors_are_duplicates(
+            base,
+            (2.0 * math.pi,) + (0.0,) * 5,
+            1e-5,
+        ))
+
+    def test_pair_scoring_uses_canonical_raw_coordinate_squared_cost(self) -> None:
+        left = self.candidate(2, (1.0, -2.0, 0.0, 0.0, 0.0, 0.0))
+        right = self.candidate(3, (0.0, 0.0, 0.0, 0.5, 0.0, 0.0))
+        pair = score_dual_arm_candidate_pair(
+            pair_index=7,
+            left_candidate=left,
+            right_candidate=right,
+            previous_joint_positions_rad=(0.0,) * 12,
+            state_valid=True,
+        )
+        self.assertEqual(
+            pair.combined_joint_positions_rad,
+            (1.0, -2.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.5, 0.0, 0.0),
+        )
+        self.assertEqual(pair.raw_continuity_cost, 5.25)
+        self.assertEqual(pair.max_raw_joint_step_rad, 2.0)
+        self.assertEqual(pair.max_raw_joint_step_index, 1)
+        self.assertEqual(pair.max_raw_joint_step_name, "left_joint_2")
+
+        wrap_coordinate_pair = score_dual_arm_candidate_pair(
+            pair_index=8,
+            left_candidate=self.candidate(0, (-3.13,) + (0.0,) * 5),
+            right_candidate=self.candidate(0, (0.0,) * 6),
+            previous_joint_positions_rad=(3.13,) + (0.0,) * 11,
+            state_valid=True,
+        )
+        self.assertAlmostEqual(wrap_coordinate_pair.max_raw_joint_step_rad, 6.26)
+        self.assertAlmostEqual(wrap_coordinate_pair.raw_continuity_cost, 6.26 ** 2)
+
+    def test_selection_ignores_invalid_pair_and_prefers_lower_raw_cost(self) -> None:
+        previous = (0.0,) * 12
+        right = self.candidate(0, (0.0,) * 6)
+        invalid_near = score_dual_arm_candidate_pair(
+            pair_index=0,
+            left_candidate=self.candidate(0, (0.1,) + (0.0,) * 5),
+            right_candidate=right,
+            previous_joint_positions_rad=previous,
+            state_valid=False,
+        )
+        valid_far = score_dual_arm_candidate_pair(
+            pair_index=1,
+            left_candidate=self.candidate(1, (0.4,) + (0.0,) * 5),
+            right_candidate=right,
+            previous_joint_positions_rad=previous,
+            state_valid=True,
+        )
+        valid_farthest = score_dual_arm_candidate_pair(
+            pair_index=2,
+            left_candidate=self.candidate(2, (0.8,) + (0.0,) * 5),
+            right_candidate=right,
+            previous_joint_positions_rad=previous,
+            state_valid=True,
+        )
+        selected, marked = select_best_dual_arm_candidate_pair(
+            (invalid_near, valid_farthest, valid_far),
+            1e-12,
+        )
+        self.assertIsNotNone(selected)
+        self.assertEqual(selected.pair_index, 1)
+        self.assertFalse(marked[0].selected)
+        self.assertFalse(marked[1].selected)
+        self.assertTrue(marked[2].selected)
+
+    def test_selection_ties_use_max_step_then_candidate_indices(self) -> None:
+        previous = (0.0,) * 12
+        right_zero = self.candidate(0, (0.0,) * 6)
+        larger_max = score_dual_arm_candidate_pair(
+            pair_index=8,
+            left_candidate=self.candidate(4, (1.0,) + (0.0,) * 5),
+            right_candidate=right_zero,
+            previous_joint_positions_rad=previous,
+            state_valid=True,
+        )
+        smaller_max = score_dual_arm_candidate_pair(
+            pair_index=9,
+            left_candidate=self.candidate(
+                5,
+                (math.sqrt(0.5), math.sqrt(0.5), 0.0, 0.0, 0.0, 0.0),
+            ),
+            right_candidate=right_zero,
+            previous_joint_positions_rad=previous,
+            state_valid=True,
+        )
+        selected, _ = select_best_dual_arm_candidate_pair(
+            (larger_max, smaller_max),
+            1e-12,
+        )
+        self.assertEqual(selected.pair_index, 9)
+
+        identical_high_index = score_dual_arm_candidate_pair(
+            pair_index=3,
+            left_candidate=self.candidate(2, (0.5,) + (0.0,) * 5),
+            right_candidate=self.candidate(2, (0.0,) * 6),
+            previous_joint_positions_rad=previous,
+            state_valid=True,
+        )
+        identical_low_index = score_dual_arm_candidate_pair(
+            pair_index=4,
+            left_candidate=self.candidate(1, (0.5,) + (0.0,) * 5),
+            right_candidate=self.candidate(1, (0.0,) * 6),
+            previous_joint_positions_rad=previous,
+            state_valid=True,
+        )
+        selected, _ = select_best_dual_arm_candidate_pair(
+            (identical_high_index, identical_low_index),
+            1e-12,
+        )
+        self.assertEqual(selected.left_candidate_index, 1)
+        self.assertEqual(selected.right_candidate_index, 1)
+        self.assertEqual(selected.pair_index, 4)
+
+        same_indices_later_pair = score_dual_arm_candidate_pair(
+            pair_index=9,
+            left_candidate=self.candidate(1, (0.5,) + (0.0,) * 5),
+            right_candidate=self.candidate(1, (0.0,) * 6),
+            previous_joint_positions_rad=previous,
+            state_valid=True,
+        )
+        selected, _ = select_best_dual_arm_candidate_pair(
+            (same_indices_later_pair, identical_low_index),
+            1e-12,
+        )
+        self.assertEqual(selected.pair_index, 4)
+
+    def test_multi_candidate_cartesian_product_and_base_selection(self) -> None:
+        adapter = MultiCandidateFakeAdapter()
+        config = IkCandidateExplorationConfig(max_attempts_per_arm=3)
+        result = solve_sequential_object_trajectory_ik(
+            self.trajectory,
+            adapter,
+            candidate_exploration_config=config,
+            joint_limits=self.limits,
+        )
+        self.assertTrue(result.completed)
+        for sample in result.samples:
+            self.assertEqual(sample.left_ik_attempt_count, 3)
+            self.assertEqual(sample.right_ik_attempt_count, 3)
+            self.assertEqual(sample.left_unique_candidate_count, 3)
+            self.assertEqual(sample.right_unique_candidate_count, 3)
+            self.assertEqual(sample.candidate_pair_count, 9)
+            self.assertEqual(sample.valid_candidate_pair_count, 9)
+            self.assertEqual(sample.selected_left_candidate_index, 0)
+            self.assertEqual(sample.selected_right_candidate_index, 0)
+            self.assertEqual(sample.selected_pair_index, 0)
+        self.assertEqual(len(adapter.validity_calls), 45)
+
+    def test_repeated_solver_results_are_recorded_but_deduplicated(self) -> None:
+        initial = DEFAULT_INITIAL_DUAL_ARM_SEED_RAD
+
+        def same_solution(sample_index, group_name, attempt_index, seed):
+            positions = initial[:6] if group_name == LEFT_GROUP_NAME else initial[6:]
+            return ArmIkSolution(True, positions)
+
+        adapter = MultiCandidateFakeAdapter(solution_callback=same_solution)
+        result = solve_sequential_object_trajectory_ik(
+            self.trajectory,
+            adapter,
+            candidate_exploration_config=IkCandidateExplorationConfig(
+                max_attempts_per_arm=3,
+            ),
+            joint_limits=self.limits,
+        )
+        first = result.samples[0]
+        self.assertEqual(first.left_ik_attempt_count, 3)
+        self.assertEqual(first.right_ik_attempt_count, 3)
+        self.assertEqual(first.left_unique_candidate_count, 1)
+        self.assertEqual(first.right_unique_candidate_count, 1)
+        self.assertEqual(first.candidate_pair_count, 1)
+        left_attempts = first.candidate_selection.left_generation.attempts
+        self.assertIsNone(left_attempts[0].duplicate_of_candidate_index)
+        self.assertEqual(left_attempts[1].duplicate_of_candidate_index, 0)
+        self.assertEqual(left_attempts[2].duplicate_of_candidate_index, 0)
+
+    def test_both_arm_banks_share_base_and_selected_pair_propagates(self) -> None:
+        initial = DEFAULT_INITIAL_DUAL_ARM_SEED_RAD
+
+        def solution(sample_index, group_name, attempt_index, seed):
+            arm_base = initial[:6] if group_name == LEFT_GROUP_NAME else initial[6:]
+            if sample_index == 0:
+                offsets = (1.0, 0.1, 0.5)
+                return ArmIkSolution(
+                    True,
+                    tuple(value + offsets[attempt_index] for value in arm_base),
+                )
+            positions = seed[:6] if group_name == LEFT_GROUP_NAME else seed[6:]
+            return ArmIkSolution(True, positions)
+
+        adapter = MultiCandidateFakeAdapter(solution_callback=solution)
+        result = solve_sequential_object_trajectory_ik(
+            self.trajectory,
+            adapter,
+            candidate_exploration_config=IkCandidateExplorationConfig(
+                max_attempts_per_arm=3,
+            ),
+            joint_limits=self.limits,
+        )
+        selected_zero = result.samples[0].combined_joint_positions_rad
+        self.assertEqual(result.samples[0].selected_left_candidate_index, 1)
+        self.assertEqual(result.samples[0].selected_right_candidate_index, 1)
+        sample_zero_left_base = next(
+            call for call in adapter.ik_calls
+            if call["sample_index"] == 0
+            and call["group_name"] == LEFT_GROUP_NAME
+            and call["attempt_index"] == 0
+        )
+        sample_zero_right_base = next(
+            call for call in adapter.ik_calls
+            if call["sample_index"] == 0
+            and call["group_name"] == RIGHT_GROUP_NAME
+            and call["attempt_index"] == 0
+        )
+        self.assertEqual(sample_zero_left_base["seed"], initial)
+        self.assertEqual(sample_zero_right_base["seed"], initial)
+        for right_call in (
+            call for call in adapter.ik_calls
+            if call["sample_index"] == 0 and call["group_name"] == RIGHT_GROUP_NAME
+        ):
+            self.assertEqual(right_call["seed"][:6], initial[:6])
+
+        sample_one_base_calls = [
+            call for call in adapter.ik_calls
+            if call["sample_index"] == 1 and call["attempt_index"] == 0
+        ]
+        self.assertEqual(len(sample_one_base_calls), 2)
+        self.assertTrue(all(call["seed"] == selected_zero for call in sample_one_base_calls))
+
+    def test_candidate_failure_reasons_and_no_seed_propagation(self) -> None:
+        config = IkCandidateExplorationConfig(max_attempts_per_arm=3)
+
+        def left_failure(sample_index, group_name, attempt_index, seed):
+            if group_name == LEFT_GROUP_NAME:
+                return ArmIkSolution(False, diagnostic="no left")
+            return ArmIkSolution(True, seed[6:])
+
+        left_result = solve_sequential_object_trajectory_ik(
+            self.trajectory,
+            MultiCandidateFakeAdapter(solution_callback=left_failure),
+            candidate_exploration_config=config,
+            joint_limits=self.limits,
+        )
+        self.assertEqual(left_result.failed_sample_index, 0)
+        self.assertEqual(left_result.samples[0].failure_reason, NO_LEFT_IK_CANDIDATE)
+        self.assertEqual(left_result.samples[0].right_ik_attempt_count, 0)
+
+        def right_failure(sample_index, group_name, attempt_index, seed):
+            if group_name == RIGHT_GROUP_NAME:
+                return ArmIkSolution(False, diagnostic="no right")
+            return ArmIkSolution(True, seed[:6])
+
+        right_result = solve_sequential_object_trajectory_ik(
+            self.trajectory,
+            MultiCandidateFakeAdapter(solution_callback=right_failure),
+            candidate_exploration_config=config,
+            joint_limits=self.limits,
+        )
+        self.assertEqual(right_result.samples[0].failure_reason, NO_RIGHT_IK_CANDIDATE)
+        self.assertEqual(right_result.samples[0].candidate_pair_count, 0)
+
+        invalid_result = solve_sequential_object_trajectory_ik(
+            self.trajectory,
+            MultiCandidateFakeAdapter(validity_callback=lambda positions: False),
+            candidate_exploration_config=config,
+            joint_limits=self.limits,
+        )
+        self.assertEqual(invalid_result.samples[0].failure_reason, NO_VALID_DUAL_ARM_PAIR)
+        self.assertEqual(invalid_result.samples[0].candidate_pair_count, 9)
+        self.assertEqual(invalid_result.samples[0].valid_candidate_pair_count, 0)
+        self.assertEqual(invalid_result.accepted_sample_count, 0)
+
+    def test_selected_trajectory_retains_all_continuity_and_jump_analysis(self) -> None:
+        adapter = MultiCandidateFakeAdapter()
+        result = solve_sequential_object_trajectory_ik(
+            self.trajectory,
+            adapter,
+            candidate_exploration_config=IkCandidateExplorationConfig(
+                max_attempts_per_arm=3,
+            ),
+            joint_limits=self.limits,
+        )
+        self.assertTrue(result.completed)
+        self.assertEqual(len(result.continuity_transitions), 4)
+        self.assertTrue(all(
+            transition.joint_deltas[0].delta_rad == 0.0
+            for transition in result.continuity_transitions
+        ))
+        self.assertTrue(all(
+            transition.joint_deltas[0].shortest_delta_rad == 0.0
+            for transition in result.continuity_transitions
+        ))
+        jump_analysis = result.analyze_suspicious_jumps()
+        self.assertTrue(jump_analysis.analysis_completed)
+        self.assertEqual(len(jump_analysis.transitions), 4)
+        self.assertEqual(jump_analysis.suspicious_transition_count, 0)
+
+    def test_single_attempt_mode_reproduces_previous_call_counts(self) -> None:
+        adapter = FakeMoveItAdapter()
+        result = solve_sequential_object_trajectory_ik(
+            self.trajectory,
+            adapter,
+            candidate_exploration_config=IkCandidateExplorationConfig(
+                max_attempts_per_arm=1,
+            ),
+        )
+        self.assertTrue(result.completed)
+        self.assertEqual(len(adapter.ik_calls), 10)
+        self.assertEqual(len(adapter.validity_calls), 5)
+        self.assertTrue(all(sample.candidate_pair_count == 1 for sample in result.samples))
+
+
 class SequentialObjectTrajectoryIkTests(unittest.TestCase):
     trajectory = SYNTHETIC_TRANSLATION_ONLY_OBJECT_TRAJECTORY
 
@@ -248,7 +729,7 @@ class SequentialObjectTrajectoryIkTests(unittest.TestCase):
         self.assertEqual(result.failed_sample_index, 2)
         self.assertEqual(result.processed_sample_count, 3)
         self.assertEqual(result.accepted_sample_count, 2)
-        self.assertEqual(result.samples[-1].failure_reason, "LEFT_IK_FAILED")
+        self.assertEqual(result.samples[-1].failure_reason, NO_LEFT_IK_CANDIDATE)
         self.assertEqual(len(adapter.ik_calls), 5)
         self.assertEqual(len(adapter.validity_calls), 2)
 
@@ -259,7 +740,7 @@ class SequentialObjectTrajectoryIkTests(unittest.TestCase):
         self.assertEqual(result.failed_sample_index, 1)
         self.assertEqual(result.processed_sample_count, 2)
         self.assertEqual(result.accepted_sample_count, 1)
-        self.assertEqual(result.samples[-1].failure_reason, "RIGHT_IK_FAILED")
+        self.assertEqual(result.samples[-1].failure_reason, NO_RIGHT_IK_CANDIDATE)
         self.assertEqual(len(adapter.validity_calls), 1)
 
     def test_combined_invalid_state_stops_and_is_never_propagated(self) -> None:
@@ -268,7 +749,7 @@ class SequentialObjectTrajectoryIkTests(unittest.TestCase):
         rejected = result.samples[-1].combined_joint_positions_rad
         self.assertFalse(result.completed)
         self.assertEqual(result.failed_sample_index, 1)
-        self.assertEqual(result.samples[-1].failure_reason, "COMBINED_STATE_INVALID")
+        self.assertEqual(result.samples[-1].failure_reason, NO_VALID_DUAL_ARM_PAIR)
         self.assertIsNotNone(rejected)
         self.assertEqual(len(adapter.ik_calls), 4)
         self.assertEqual(len(adapter.validity_calls), 2)
@@ -1039,6 +1520,23 @@ class ArchitectureAndSafetyTests(unittest.TestCase):
             DEFAULT_OFFLINE_JUMP_DETECTION_CONFIG.relative_reference_floor_rad,
             0.05,
         )
+
+    def test_candidate_selection_is_offline_raw_coordinate_and_model_limit_driven(self) -> None:
+        core_source = CORE_PATH.read_text(encoding="utf-8")
+        adapter_source = ADAPTER_PATH.read_text(encoding="utf-8")
+        self.assertEqual(
+            CANDIDATE_EXPLORATION_WARNING,
+            "OFFLINE IK EXPLORATION PARAMETERS — NOT ROBOT SAFETY LIMITS",
+        )
+        self.assertIn(CANDIDATE_EXPLORATION_WARNING, core_source)
+        self.assertIn("sum(value * value for value in raw_delta)", core_source)
+        self.assertIn("OFFLINE MULTI-CANDIDATE IK EXPLORATION", adapter_source)
+        self.assertIn("dual_jaka_a12_joint_limits.json", adapter_source)
+        self.assertIn("EXPLORATORY SEED LIMIT POLICY = CLAMP", adapter_source)
+        self.assertNotIn("-6.28", core_source)
+        self.assertNotIn("Three.js", core_source)
+        self.assertNotIn("SAFE TO EXECUTE", adapter_source)
+        self.assertNotIn("ROBOT READY", adapter_source)
         for not_yet_allowed in (
             "shortest_angular_distance",
             "math.remainder",
@@ -1059,6 +1557,7 @@ class ArchitectureAndSafetyTests(unittest.TestCase):
             "/left_jaka_driver/get_ik",
             "/right_jaka_driver/get_ik",
             "ExecuteTrajectory",
+            "FollowJointTrajectory",
             "JointTrajectory",
             "create_publisher",
             "create_subscription",

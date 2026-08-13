@@ -1,4 +1,4 @@
-"""ROS2 MoveIt adapter and Phase 1G.3B angular-continuity report.
+"""ROS2 MoveIt adapter for offline multi-candidate dual-arm IK selection.
 
 MOVEIT PLANNING ONLY. NO JAKA DRIVER. NO ROBOT CONNECTION. NO MOTION EXECUTION.
 This module creates only ``/compute_ik`` and ``/check_state_validity`` service
@@ -9,6 +9,8 @@ driver clients.
 from __future__ import annotations
 
 import argparse
+import json
+from pathlib import Path
 from typing import Sequence
 
 import rclpy
@@ -22,6 +24,8 @@ from dual_arm_app.backend.object_trajectory import (
 )
 from dual_arm_app.backend.object_trajectory_ik import (
     ABSOLUTE_STEP_REASON,
+    CANDIDATE_EXPLORATION_WARNING,
+    DEFAULT_OFFLINE_CANDIDATE_EXPLORATION_CONFIG,
     DEFAULT_IK_TIMEOUT_S,
     DEFAULT_OFFLINE_JUMP_DETECTION_CONFIG,
     DUAL_ARM_GROUP_NAME,
@@ -36,7 +40,9 @@ from dual_arm_app.backend.object_trajectory_ik import (
     RELATIVE_GROWTH_REASON,
     SHORTEST_ANGULAR_ANALYSIS_NOTICE,
     ArmIkSolution,
+    CanonicalJointPositionLimits,
     CombinedStateValidity,
+    IkCandidateExplorationConfig,
     JointJumpDetectionConfig,
     JointVector12,
     ObjectTrajectoryIkResult,
@@ -49,6 +55,10 @@ from dual_arm_app.backend.object_trajectory_ik import (
 COMPUTE_IK_SERVICE = "/compute_ik"
 CHECK_STATE_VALIDITY_SERVICE = "/check_state_validity"
 WORLD_FRAME = "world"
+JOINT_LIMIT_METADATA_PATH = (
+    Path(__file__).resolve().parents[1]
+    / "web/assets/dual_jaka_a12_joint_limits.json"
+)
 
 SAFETY_BANNER = """==================================================
 OFFLINE OBJECT TRAJECTORY IK
@@ -62,6 +72,29 @@ JUMP_PROFILE_BANNER = f"""==================================================
 OFFLINE JUMP HEURISTIC PROFILE
 {JUMP_HEURISTIC_WARNING}
 =================================================="""
+
+CANDIDATE_PROFILE_BANNER = f"""==================================================
+OFFLINE MULTI-CANDIDATE IK EXPLORATION
+{CANDIDATE_EXPLORATION_WARNING}
+=================================================="""
+
+
+def load_canonical_joint_limits(
+    metadata_path: Path = JOINT_LIMIT_METADATA_PATH,
+) -> CanonicalJointPositionLimits:
+    """Load existing Xacro-generated model limits in canonical joint order."""
+    metadata = json.loads(metadata_path.read_text(encoding="utf-8"))
+    if metadata.get("unit") != "radian":
+        raise RuntimeError("Joint-limit metadata must use radians")
+    if tuple(metadata.get("joint_order", ())) != DUAL_ARM_JOINT_ORDER:
+        raise RuntimeError("Joint-limit metadata order is not canonical")
+    limits = metadata.get("position_limits")
+    if not isinstance(limits, dict):
+        raise RuntimeError("Joint-limit metadata has no position_limits mapping")
+    return CanonicalJointPositionLimits(
+        lower_rad=tuple(limits[name]["min"] for name in DUAL_ARM_JOINT_ORDER),
+        upper_rad=tuple(limits[name]["max"] for name in DUAL_ARM_JOINT_ORDER),
+    )
 
 
 class MoveItObjectTrajectoryIkNode(Node):
@@ -208,6 +241,18 @@ def print_jump_profile(config: JointJumpDetectionConfig) -> None:
     print(f"REFERENCE FLOOR = {config.relative_reference_floor_rad:.6f} rad")
 
 
+def print_candidate_exploration_profile(
+    config: IkCandidateExplorationConfig,
+) -> None:
+    print(CANDIDATE_PROFILE_BANNER)
+    print(f"IK ATTEMPTS PER ARM = {config.max_attempts_per_arm}")
+    print(f"SINGLE-JOINT SEED OFFSET = {config.perturbation_offset_rad:.6f} rad")
+    print(f"RAW DUPLICATE TOLERANCE = {config.duplicate_tolerance_rad:.8f} rad")
+    print(f"RANKING TIE TOLERANCE = {config.ranking_tie_tolerance:.3e}")
+    print("EXPLORATORY SEED LIMIT POLICY = CLAMP")
+    print(f"MODEL LIMIT METADATA = {JOINT_LIMIT_METADATA_PATH}")
+
+
 def print_result_report(
     result: ObjectTrajectoryIkResult,
     jump_config: JointJumpDetectionConfig = DEFAULT_OFFLINE_JUMP_DETECTION_CONFIG,
@@ -227,6 +272,29 @@ def print_result_report(
         )
         if sample.failure_reason:
             print(f"  Failure: {sample.failure_reason}: {sample.diagnostic_message}")
+        print(f"  Left IK attempts: {sample.left_ik_attempt_count}")
+        print(f"  Left unique candidates: {sample.left_unique_candidate_count}")
+        print(f"  Right IK attempts: {sample.right_ik_attempt_count}")
+        print(f"  Right unique candidates: {sample.right_unique_candidate_count}")
+        print(f"  Candidate pairs: {sample.candidate_pair_count}")
+        print(f"  Valid dual-arm pairs: {sample.valid_candidate_pair_count}")
+        if sample.selected_pair is not None:
+            print(f"  Selected Left candidate: {sample.selected_left_candidate_index}")
+            print(f"  Selected Right candidate: {sample.selected_right_candidate_index}")
+            print(f"  Selected pair: {sample.selected_pair_index}")
+            print(
+                "  Raw continuity cost: "
+                f"{sample.selected_raw_continuity_cost:.9f} rad^2"
+            )
+            print(
+                "  Max raw joint step: "
+                f"{sample.selected_max_raw_joint_step_rad:.6f} rad"
+            )
+            print(
+                "  Max-step joint: "
+                f"{sample.selected_max_raw_joint_step_name} "
+                f"[{sample.selected_max_raw_joint_step_index}]"
+            )
     print(f"Trajectory completed: {'YES' if result.completed else 'NO'}")
     print(
         f"Accepted samples: {result.accepted_sample_count} / "
@@ -380,11 +448,40 @@ def main() -> int:
     )
     parser.add_argument("--ik-timeout", type=float, default=DEFAULT_IK_TIMEOUT_S)
     parser.add_argument("--service-wait-timeout", type=float, default=5.0)
+    parser.add_argument(
+        "--candidate-attempts-per-arm",
+        type=int,
+        default=DEFAULT_OFFLINE_CANDIDATE_EXPLORATION_CONFIG.max_attempts_per_arm,
+    )
+    parser.add_argument(
+        "--exploration-offset-rad",
+        type=float,
+        default=DEFAULT_OFFLINE_CANDIDATE_EXPLORATION_CONFIG.perturbation_offset_rad,
+    )
+    parser.add_argument(
+        "--duplicate-tolerance-rad",
+        type=float,
+        default=DEFAULT_OFFLINE_CANDIDATE_EXPLORATION_CONFIG.duplicate_tolerance_rad,
+    )
+    parser.add_argument(
+        "--ranking-tie-tolerance",
+        type=float,
+        default=DEFAULT_OFFLINE_CANDIDATE_EXPLORATION_CONFIG.ranking_tie_tolerance,
+    )
     arguments = parser.parse_args()
+
+    exploration_config = IkCandidateExplorationConfig(
+        perturbation_offset_rad=arguments.exploration_offset_rad,
+        max_attempts_per_arm=arguments.candidate_attempts_per_arm,
+        duplicate_tolerance_rad=arguments.duplicate_tolerance_rad,
+        ranking_tie_tolerance=arguments.ranking_tie_tolerance,
+    )
 
     print(SAFETY_BANNER)
     print(OFFLINE_MODEL_SEED_NOTICE)
     print_jump_profile(DEFAULT_OFFLINE_JUMP_DETECTION_CONFIG)
+    print_candidate_exploration_profile(exploration_config)
+    joint_limits = load_canonical_joint_limits()
     rclpy.init()
     node: MoveItObjectTrajectoryIkNode | None = None
     try:
@@ -393,6 +490,8 @@ def main() -> int:
             SYNTHETIC_TRANSLATION_ONLY_OBJECT_TRAJECTORY,
             node,
             ik_timeout_s=arguments.ik_timeout,
+            candidate_exploration_config=exploration_config,
+            joint_limits=joint_limits,
         )
         print_result_report(result)
         return 0 if result.completed else 1
