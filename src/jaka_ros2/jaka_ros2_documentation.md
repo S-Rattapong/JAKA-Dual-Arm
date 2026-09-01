@@ -65,14 +65,14 @@ All configuration files, drivers, and tutorials in this manual are designed for 
 The two flowcharts below illustrate the package structure for **JAKA ROS1** and **JAKA ROS2** packages, respectively.
 
 <figure id="figure-1-1">
-  <img src="images/Figure 1-1: JAKA_ROS1_Package_Structure.png" alt="JAKA ROS1 Package Structure">
+  <img src="images/Figure 1-1 - JAKA_ROS1_Package_Structure.png" alt="JAKA ROS1 Package Structure">
   <figcaption>
     <p align="center"><strong>Figure 1-1: JAKA ROS1 Package Structure</strong></p>
   </figcaption>
 </figure>
 
 <figure>
-  <img src="images/Figure 1-2: JAKA_ROS2_Package_Structure.png" alt="JAKA ROS2 Package Structure">
+  <img src="images/Figure 1-2 - JAKA_ROS2_Package_Structure.png" alt="JAKA ROS2 Package Structure">
 </figure>
 <div align="center">
   <h4 id="figure-1-2"><strong>Figure 1-2: JAKA ROS2 Package Structure</strong></h4>
@@ -531,7 +531,7 @@ ros2 launch jaka_driver robot_start.launch.py ip:=<robot_ip>
 > **Note:** Replace `<robot_ip>` with the actual IP address of your robot. This parameter is required for successful communication.
 
 <figure id="figure-4-1">
-  <img src="images/Figure 4-1: Launch JAKA Driver Server.png" alt="Launch JAKA Driver Serve">
+  <img src="images/Figure 4-1 - Launch JAKA Driver Server.png" alt="Launch JAKA Driver Serve">
   <figcaption>
     <p align="center"><strong>Figure 4-1: Launch JAKA Driver Server Command Output</strong></p>
   </figcaption>
@@ -560,14 +560,14 @@ ros2 service call /jaka_driver/joint_move jaka_msgs/srv/Move "{
 > **Note:** The joint motion interface is blocking by default. To use a non-blocking interface, modify the corresponding parameter in **jaka_driver.cpp**.
 
   <figure id="figure-4-2">
-    <img src="images/Figure 4-2: Joint Motion Service.png" alt="Joint Motion Service">
+    <img src="images/Figure 4-2 - Joint Motion Service.png" alt="Joint Motion Service">
     <figcaption>
       <p align="center"><strong>Figure 4-2: Joint Motion Service Command Output</strong></p>
     </figcaption>
   </figure>  
 
   <figure id="figure-4-3">
-    <img src="images/Figure 4-3: Joint Motion Service Execution.png" alt="Joint Motion Service Execution">  
+    <img src="images/Figure 4-3 - Joint Motion Service Execution.png" alt="Joint Motion Service Execution">
     <figcaption>
       <p align="center"><strong>Figure 4-3: Joint Motion Service Execution</strong></p>
     </figcaption>
@@ -592,14 +592,14 @@ ros2 service call /jaka_driver/linear_move jaka_msgs/srv/Move "{
 > **Important:** The pose parameters in this example are for reference only. Ensure that the pose values are within the robot's workspace and do not result in singularities or exceed motion limits.
 
   <figure id="figure-4-4">
-    <img src="images/Figure 4-4: Linear Motion Service.png" alt="Linear Motion Service">
+    <img src="images/Figure 4-4 - Linear Motion Service.png" alt="Linear Motion Service">
     <figcaption>
       <p align="center"><strong>Figure 4-4: Linear Motion Service Command Output</strong></p>
     </figcaption>
   </figure>
 
   <figure id="figure-4-5">
-    <img src="images/Figure 4-5: Linear Motion Service Execution.png" alt="Linear Motion Service Execution">
+    <img src="images/Figure 4-5 - Linear Motion Service Execution.png" alt="Linear Motion Service Execution">
     <figcaption>
       <p align="center"><strong>Figure 4-5: Linear Motion Service Execution</strong></p>
     </figcaption>
@@ -614,7 +614,7 @@ joint: [0, 1.57, -1.57, 1.57, 1.57, 0]
 ```
 
   <figure id="figure-4-6">
-    <img src="images/Figure 4-6: Forward Kinematics Service.png" alt="Forward Kinematics Service">
+    <img src="images/Figure 4-6 - Forward Kinematics Service.png" alt="Forward Kinematics Service">
     <figcaption>
       <p align="center"><strong>Figure 4-6: Forward Kinematics Service Command Output</strong></p>
     </figcaption>
@@ -630,7 +630,7 @@ cartesian_pose: [130.7, 116, 291, 3.13, 0, -1.5707]
 ```
 
   <figure id="figure-4-7">
-    <img src="images/Figure 4-7: Inverse Kinematics Service.png" alt="Inverse Kinematics Service">
+    <img src="images/Figure 4-7 - Inverse Kinematics Service.png" alt="Inverse Kinematics Service">
     <figcaption>
       <p align="center"><strong>Figure 4-7: Inverse Kinematics Service Command Output</strong></p>
     </figcaption>
@@ -656,14 +656,14 @@ ros2 run jaka_driver servoj_demo
 This will enable the servo mode and start executing joint movements. The servo motion will move the robot incrementally to the specified joint positions, demonstrating its basic control functionality.
 
   <figure id="figure-4-8">
-    <img src="images/Figure 4-8: Servoj Demo Executable.png" alt="Servoj Demo Executable">
+    <img src="images/Figure 4-8 - Servoj Demo Executable.png" alt="Servoj Demo Executable">
     <figcaption>
       <p align="center"><strong>Figure 4-8: Servoj Demo Executable Command Output</strong></p>
     </figcaption>
   </figure>
 
   <figure id="figure-4-9">
-    <img src="images/Figure 4-9: ServoJ Demo Execution.png" alt="ServoJ Demo Execution">
+    <img src="images/Figure 4-9 - ServoJ Demo Execution.png" alt="ServoJ Demo Execution">
     <figcaption>
       <p align="center"><strong>Figure 4-9: ServoJ Demo Execution</strong></p>
     </figcaption>
@@ -691,14 +691,14 @@ ros2 run jaka_driver client 111.126, 282.111, 271.55, 3.142, 0, -0.698
 ```
 
   <figure id="figure-4-10">
-    <img src="images/Figure 4-10: Client Executable.png" alt="Client Executable">
+    <img src="images/Figure 4-10 - Client Executable.png" alt="Client Executable">
     <figcaption>
       <p align="center"><strong>Figure 4-10: Client Executable Command Output</strong></p>
     </figcaption>
   </figure>
 
   <figure id="figure-4-11">
-    <img src="images/Figure 4-11: Client Execution.png" alt="Client Execution">
+    <img src="images/Figure 4-11 - Client Execution.png" alt="Client Execution">
     <figcaption>
       <p align="center"><strong>Figure 4-11: Client Execution</strong></p>
     </figcaption>
@@ -715,7 +715,7 @@ ros2 run jaka_driver sdk_test --ros-args -p ip:=<robot_ip>
 > **Note:** Replace `<robot_ip>` with the actual IP address of your robot.
 
   <figure id="figure-4-12">
-    <img src="images/Figure 4-12: SDK Test Executable.png" alt="SDK Test Executable">
+    <img src="images/Figure 4-12 - SDK Test Executable.png" alt="SDK Test Executable">
     <figcaption>
       <p align="center"><strong>Figure 4-12: SDK Test Executable Command Output</strong></p>
     </figcaption>
@@ -735,7 +735,7 @@ The key modification made to `launches.py` is the addition of the `use_rviz_sim`
 2) Replace the default `launches.py` file with the modified version provided in the `jaka_ros2` package ([launches.py](./launches.py)). You can use the `find` command to locate `launches.py` in the MoveIt 2 installation directory as shown below.
 
   <figure id="figure-4-13">
-    <img src="images/Figure 4-13: Locate launches.py.png" alt="Locate launches.py">
+    <img src="images/Figure 4-13 - Locate launches.py.png" alt="Locate launches.py">
     <figcaption>
       <p align="center"><strong>Figure 4-13: Locate launches.py Command Output</strong></p>
     </figcaption>
@@ -749,7 +749,7 @@ ros2 launch jaka_<robot_model>_moveit_config demo.launch.py use_rviz_sim:=true
 > **Note:** Replace `<robot_model>` with the appropriate JAKA robot model name (e.g., `zu3`, `s5`, `a12`, `minicobo`, etc.).
 
   <figure id="figure-4-14">
-    <img src="images/Figure 4-14: Launch Demo Moveit Config in Simulation Mode.png" alt="Launch Demo Moveit Config in Simulation Mode ">
+    <img src="images/Figure 4-14 - Launch Demo Moveit Config in Simulation Mode.png" alt="Launch Demo Moveit Config in Simulation Mode ">
     <figcaption>
       <p align="center"><strong>Figure 4-14: Launch Demo Moveit Config in Simulation Mode Command Output</strong></p>
     </figcaption>
@@ -762,7 +762,7 @@ ros2 launch jaka_<robot_model>_moveit_config demo.launch.py use_rviz_sim:=true
 3) Click **"Plan & Execute"** to generate and visualize the robot's trajectory.
 
   <figure id="figure-4-15">
-    <img src="images/Figure 4-15: RViz Simulation Mode Execution.png" alt="RViz Simulation Mode Execution">
+    <img src="images/Figure 4-15 - RViz Simulation Mode Execution.png" alt="RViz Simulation Mode Execution">
     <figcaption>
       <p align="center"><strong>Figure 4-15: RViz Simulation Mode Execution</strong></p>
     </figcaption>
@@ -795,7 +795,7 @@ Similar to the RViz simulation described in [Section 4.2](#42-moveit-2-tutorial-
 This command starts Gazebo Fortress with the default world (an empty world containing only a ground plane and a light source) and spawns the robot based on the published robot description. The robot will be visible in the Gazebo GUI for inspection.
 
   <figure id="figure-4-16">
-    <img src="images/Figure 4-16: Launch Gazebo Simulation Independently.png" alt="Independent Gazebo simulation Execution" width="1200">
+    <img src="images/Figure 4-16 - Launch Gazebo Simulation Independently.png" alt="Independent Gazebo simulation Execution" width="1200">
     <figcaption>
       <p align="center"><strong>Figure 4-16: Independent Gazebo Simulation Execution</strong></p>
     </figcaption>
@@ -823,14 +823,14 @@ This command starts Gazebo Fortress with the default world (an empty world conta
    - The robot in **Gazebo** should now execute the planned trajectory in real-time.
 
   <figure id="figure-4-17">
-    <img src="images/Figure 4-17: RViz for Demo Gazebo Simulation Execution.png" alt="RViz for Demo Gazebo Simulation Execution">
+    <img src="images/Figure 4-17 - RViz for Demo Gazebo Simulation Execution.png" alt="RViz for Demo Gazebo Simulation Execution">
     <figcaption>
       <p align="center"><strong>Figure 4-17: RViz for Demo Gazebo Simulation Execution</strong></p>
     </figcaption>
   </figure>
 
   <figure id="figure-4-18">
-    <img src="images/Figure 4-18: Demo Gazebo Simulation with RViz Execution.png" alt="Demo Gazebo simulation with RViz Execution" width="1200">
+    <img src="images/Figure 4-18 - Demo Gazebo Simulation with RViz Execution.png" alt="Demo Gazebo simulation with RViz Execution" width="1200">
     <figcaption>
       <p align="center"><strong>Figure 4-18: Demo Gazebo Simulation with RViz Execution</strong></p>
     </figcaption>
@@ -877,7 +877,7 @@ ros2 launch jaka_planner moveit_server.launch.py ip:=<robot_ip> model:=<robot_mo
 ```
 
 <figure id="figure-4-19">
-  <img src="images/Figure 4-19: Launch MoveIt 2 Server.png" alt="Launch MoveIt 2 Server">
+  <img src="images/Figure 4-19 - Launch MoveIt 2 Server.png" alt="Launch MoveIt 2 Server">
   <figcaption>
     <p align="center"><strong>Figure 4-19: Launch MoveIt 2 Server Command Output</strong></p>
   </figcaption>    
@@ -891,7 +891,7 @@ ros2 launch jaka_<robot_model>_moveit_config demo.launch.py
 ```
 
 <figure id="figure-4-20">
-  <img src="images/Figure 4-20: Launch Demo Moveit Config.png" alt="Launch Demo Moveit Config">
+  <img src="images/Figure 4-20 - Launch Demo Moveit Config.png" alt="Launch Demo Moveit Config">
   <figcaption>
     <p align="center"><strong>Figure 4-20: Launch Demo Moveit Config Command Output</strong></p>
   </figcaption> 
@@ -900,14 +900,14 @@ ros2 launch jaka_<robot_model>_moveit_config demo.launch.py
 Once launched, the RViz interface will open, displaying the robot model. The visualization should reflect the current real-world position and orientation of the physical robot.
 
 <figure id="figure-4-21">
-  <img src="images/Figure 4-21: RViz Real Robot Vizualization.png" alt="RViz Real Robot Vizualization">
+  <img src="images/Figure 4-21 - RViz Real Robot Vizualization.png" alt="RViz Real Robot Vizualization">
   <figcaption>
     <p align="center"><strong>Figure 4-21: RViz Real Robot Vizualization</strong></p>
   </figcaption>   
 </figure>
 
 <figure id="figure-4-22">
-  <img src="images/Figure 4-22: JAKA App Real Robot Vizualization.png" alt="JAKA App Real Robot Vizualization">
+  <img src="images/Figure 4-22 - JAKA App Real Robot Vizualization.png" alt="JAKA App Real Robot Vizualization">
   <figcaption>
     <p align="center"><strong>Figure 4-22: JAKA App Real Robot Vizualization</strong></p>
   </figcaption>   
@@ -932,14 +932,14 @@ When defining a target position, there are two execution methods:
 - If the trajectory is **safe and feasible**, click **"Execute"** to send the motion command to the robot.
 
 <figure id="figure-4-23">
-  <img src="images/Figure 4-23: RViz Real Robot Trajectory Planning and Execution.png" alt="RViz Real Robot Trajectory Planning and Execution">
+  <img src="images/Figure 4-23 - RViz Real Robot Trajectory Planning and Execution.png" alt="RViz Real Robot Trajectory Planning and Execution">
   <figcaption>
     <p align="center"><strong>Figure 4-23: RViz Real Robot Trajectory Planning and Execution</strong></p>
   </figcaption>   
 </figure>
 
 <figure id="figure-4-24">
-  <img src="images/Figure 4-24: JAKA App Real Robot Trajectory Execution.png" alt="JAKA App Real Robot Trajectory Execution">
+  <img src="images/Figure 4-24 - JAKA App Real Robot Trajectory Execution.png" alt="JAKA App Real Robot Trajectory Execution">
   <figcaption>
     <p align="center"><strong>Figure 4-24: JAKA App Real Robot Trajectory Execution</strong></p>
   </figcaption>   
@@ -969,14 +969,14 @@ ros2 run jaka_planner moveit_test --ros-args -p model:=<robot_model>
 > - For moveit_test, the default robot model is set to `zu3` in the code. If using a different model, specify it in the startup command (`-p model:=<robot_model>`).
 
 <figure id="figure-4-25">
-  <img src="images/Figure 4-25: MoveIt Test Executable.png" alt="MoveIt Test Executable">
+  <img src="images/Figure 4-25 - MoveIt Test Executable.png" alt="MoveIt Test Executable">
   <figcaption>
     <p align="center"><strong>Figure 4-25: MoveIt Test Executable Command Output</strong></p>
   </figcaption>   
 </figure>
 
 <figure id="figure-4-26">
-  <img src="images/Figure 4-26: MoveIt Test Real Robot Execution.png" alt="MoveIt Test Real Robot Execution">
+  <img src="images/Figure 4-26 - MoveIt Test Real Robot Execution.png" alt="MoveIt Test Real Robot Execution">
   <figcaption>
     <p align="center"><strong>Figure 4-26: MoveIt Test Real Robot Execution</strong></p>
   </figcaption>   
@@ -993,7 +993,7 @@ ros2 run jaka_planner moveit_test --ros-args -p model:=<robot_model>
 > **Note:** Replace `<robot_model>` with the corresponding JAKA robot model.    
 
 <figure id="figure-4-27">
-  <img src="images/Figure 4-27: MoveIt Test RViz Simulation Mode Execution.png" alt="MoveIt Test RViz Simulation Mode Execution">
+  <img src="images/Figure 4-27 - MoveIt Test RViz Simulation Mode Execution.png" alt="MoveIt Test RViz Simulation Mode Execution">
   <figcaption>
     <p align="center"><strong>Figure 4-27: MoveIt Test RViz Simulation Mode Execution</strong></p>
   </figcaption>   
@@ -1012,7 +1012,7 @@ ros2 run jaka_planner moveit_test --ros-args -p model:=<robot_model>
 > **Note:** Replace `<robot_model>` with the corresponding JAKA robot model.
 
 <figure id="figure-4-28">
-  <img src="images/Figure 4-28: MoveIt Test Independent Gazebo Execution.png" alt="MoveIt Test Independent Gazebo Execution" width="1200">
+  <img src="images/Figure 4-28 - MoveIt Test Independent Gazebo Execution.png" alt="MoveIt Test Independent Gazebo Execution" width="1200">
   <figcaption>
     <p align="center"><strong>Figure 4-28: MoveIt Test Independent Gazebo Execution</strong></p>
   </figcaption>   
@@ -1028,14 +1028,14 @@ ros2 run jaka_planner moveit_test --ros-args -p model:=<robot_model>
 > **Note:** Replace `<robot_model>` with the corresponding JAKA robot model.  
 
 <figure id="figure-4-29">
-  <img src="images/Figure 4-29: MoveIt Test RViz for Demo Gazebo Execution.png" alt="MoveIt Test RViz for Demo Gazebo Execution">
+  <img src="images/Figure 4-29 - MoveIt Test RViz for Demo Gazebo Execution.png" alt="MoveIt Test RViz for Demo Gazebo Execution">
   <figcaption>
     <p align="center"><strong>Figure 4-29: MoveIt Test RViz for Demo Gazebo Execution</strong></p>
   </figcaption>   
 </figure>
 
 <figure id="figure-4-30">
-  <img src="images/Figure 4-30: MoveIt Test Demo Gazebo with RViz Execution.png" alt="MoveIt Test Demo Gazebo with RViz Execution" width="1200">
+  <img src="images/Figure 4-30 - MoveIt Test Demo Gazebo with RViz Execution.png" alt="MoveIt Test Demo Gazebo with RViz Execution" width="1200">
   <figcaption>
     <p align="center"><strong>Figure 4-30: MoveIt Test Demo Gazebo with RViz Execution</strong></p>
   </figcaption>   

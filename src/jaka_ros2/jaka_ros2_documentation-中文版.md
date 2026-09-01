@@ -34,14 +34,14 @@
 以下两张流程图分别展示了 JAKA ROS 1 和 JAKA ROS 2 软件包的结构。  
 
 <figure id="figure-1-1">
-  <img src="images/Figure 1-1: JAKA_ROS1_Package_Structure.png" alt="JAKA ROS1 Package Structure">
+  <img src="images/Figure 1-1 - JAKA_ROS1_Package_Structure.png" alt="JAKA ROS1 Package Structure">
   <figcaption>
     <p align="center"><strong>图 1-1：JAKA ROS1 软件包结构</strong></p>
   </figcaption>
 </figure>
 
 <figure>
-  <img src="images/Figure 1-2: JAKA_ROS2_Package_Structure.png" alt="JAKA ROS2 Package Structure">
+  <img src="images/Figure 1-2 - JAKA_ROS2_Package_Structure.png" alt="JAKA ROS2 Package Structure">
 </figure>
 <div align="center">
   <h5 id="figure-1-2"><strong>图 1-2: JAKA ROS2 软件包结构</strong></h5>
@@ -452,7 +452,7 @@ ros2 launch jaka_driver robot_start.launch.py ip:=<robot_ip>
 > **注意:** 请将 <robot_ip> 替换为实际的机器人 IP 地址。此参数是成功通信所必需的。
 
 <figure id="figure-4-1">
-  <img src="images/Figure 4-1: Launch JAKA Driver Server.png" alt="Launch JAKA Driver Serve">
+  <img src="images/Figure 4-1 - Launch JAKA Driver Server.png" alt="Launch JAKA Driver Serve">
   <figcaption>
     <p align="center"><strong>图 4-1： 启动 JAKA 驱动服务器命令输出</strong></p>
   </figcaption>
@@ -480,14 +480,14 @@ ros2 service call /jaka_driver/joint_move jaka_msgs/srv/Move "{
 > **注意：** 默认情况下，关节运动接口是阻塞的。如需使用非阻塞接口，请修改 **jaka_driver.cpp** 中的相应参数。
 
   <figure id="figure-4-2">
-    <img src="images/Figure 4-2: Joint Motion Service.png" alt="Joint Motion Service">
+    <img src="images/Figure 4-2 - Joint Motion Service.png" alt="Joint Motion Service">
     <figcaption>
       <p align="center"><strong>图 4-2：关节运动服务命令输出 </strong></p>
     </figcaption>
   </figure>  
 
   <figure id="figure-4-3">
-    <img src="images/Figure 4-3: Joint Motion Service Execution.png" alt="Joint Motion Service Execution">  
+    <img src="images/Figure 4-3 - Joint Motion Service Execution.png" alt="Joint Motion Service Execution">
     <figcaption>
       <p align="center"><strong>图 4-3：关节运动服务执行</strong></p>
     </figcapti
@@ -513,14 +513,14 @@ ros2 service call /jaka_driver/linear_move jaka_msgs/srv/Move "{
 
 
   <figure id="figure-4-4">
-    <img src="images/Figure 4-4: Linear Motion Service.png" alt="Linear Motion Service">
+    <img src="images/Figure 4-4 - Linear Motion Service.png" alt="Linear Motion Service">
     <figcaption>
       <p align="center"><strong>图 4-4：线性运动服务命令输出</strong></p>
     </figcaption>
   </figure>
 
   <figure id="figure-4-5">
-    <img src="images/Figure 4-5: Linear Motion Service Execution.png" alt="Linear Motion Service Execution">
+    <img src="images/Figure 4-5 - Linear Motion Service Execution.png" alt="Linear Motion Service Execution">
     <figcaption>
       <p align="center"><strong>图 4-5：线性运动服务执行</strong></p>
     </figcaption>
@@ -535,7 +535,7 @@ joint: [0, 1.57, -1.57, 1.57, 1.57, 0]
 ```
 
   <figure id="figure-4-6">
-    <img src="images/Figure 4-6: Forward Kinematics Service.png" alt="Forward Kinematics Service">
+    <img src="images/Figure 4-6 - Forward Kinematics Service.png" alt="Forward Kinematics Service">
     <figcaption>
       <p align="center"><strong>图 4-6：正向运动学服务命令输出</strong></p>
     </figcaption>
@@ -552,7 +552,7 @@ cartesian_pose: [130.7, 116, 291, 3.13, 0, -1.5707]
 ```
 
   <figure id="figure-4-7">
-    <img src="images/Figure 4-7: Inverse Kinematics Service.png" alt="Inverse Kinematics Service">
+    <img src="images/Figure 4-7 - Inverse Kinematics Service.png" alt="Inverse Kinematics Service">
     <figcaption>
       <p align="center"><strong>图 4-7：逆向运动学服务命令输出</strong></p>
     </figcaption>
@@ -582,14 +582,14 @@ ros2 run jaka_driver servoj_demo
 伺服运动将逐步移动机器人到指定的关节位置，演示其基本控制功能。
 
   <figure id="figure-4-8">
-    <img src="images/Figure 4-8: Servoj Demo Executable.png" alt="Servoj Demo Executable">
+    <img src="images/Figure 4-8 - Servoj Demo Executable.png" alt="Servoj Demo Executable">
     <figcaption>
       <p align="center"><strong>图 4-8：Servoj 演示可执行命令输出 </strong></p>
     </figcaption>
   </figure>
 
   <figure id="figure-4-9">
-    <img src="images/Figure 4-9: ServoJ Demo Execution.png" alt="ServoJ Demo Execution">
+    <img src="images/Figure 4-9 - ServoJ Demo Execution.png" alt="ServoJ Demo Execution">
     <figcaption>
       <p align="center"><strong>图 4-9：ServoJ 演示执行</strong></p>
     </figcaption>
@@ -620,14 +620,14 @@ ros2 run jaka_driver client 111.126, 282.111, 271.55, 3.142, 0, -0.698
 ```
 
   <figure id="figure-4-10">
-    <img src="images/Figure 4-10: Client Executable.png" alt="Client Executable">
+    <img src="images/Figure 4-10 - Client Executable.png" alt="Client Executable">
     <figcaption>
       <p align="center"><strong>图 4-10：客户端可执行命令输出</strong></p>
     </figcaption>
   </figure>
 
   <figure id="figure-4-11">
-    <img src="images/Figure 4-11: Client Execution.png" alt="Client Execution">
+    <img src="images/Figure 4-11 - Client Execution.png" alt="Client Execution">
     <figcaption>
       <p align="center"><strong>图 4-11：客户端执行</strong></p>
     </figcaption>
@@ -648,7 +648,7 @@ ros2 run jaka_driver sdk_test --ros-args -p ip:=<robot_ip>
 
 
   <figure id="figure-4-12">
-    <img src="images/Figure 4-12: SDK Test Executable.png" alt="SDK Test Executable">
+    <img src="images/Figure 4-12 - SDK Test Executable.png" alt="SDK Test Executable">
     <figcaption>
       <p align="center"><strong>图 4-12：SDK 测试可执行命令输出</strong></p>
     </figcaption>
@@ -666,7 +666,7 @@ MoveIt 2 是一个强大的运动规划框架，能够为机器人臂提供轨�
 (2) 将默认的 `launches.py` 文件替换为 `jaka_ros2` 包中提供的修改版本（[launches.py](./launches.py)）。您可以使用 `find` 命令定位 MoveIt 2 安装目录中的 `launches.py` 文件，如下所示。
 
   <figure id="figure-4-13">
-    <img src="images/Figure 4-13: Locate launches.py.png" alt="Locate launches.py">
+    <img src="images/Figure 4-13 - Locate launches.py.png" alt="Locate launches.py">
     <figcaption>
       <p align="center"><strong>图 4-13：定位 launches.py 命令输出</strong></p>
     </figcaption>
@@ -683,7 +683,7 @@ ros2 launch jaka_<robot_model>_moveit_config demo.launch.py use_rviz_sim:=true
 
 
   <figure id="figure-4-14">
-    <img src="images/Figure 4-14: Launch Demo Moveit Config in Simulation Mode.png" alt="Launch Demo Moveit Config in Simulation Mode ">
+    <img src="images/Figure 4-14 - Launch Demo Moveit Config in Simulation Mode.png" alt="Launch Demo Moveit Config in Simulation Mode ">
     <figcaption>
       <p align="center"><strong>图 4-14：在仿真模式下启动演示 Moveit 配置命令输出</strong></p>
     </figcaption>
@@ -695,7 +695,7 @@ ros2 launch jaka_<robot_model>_moveit_config demo.launch.py use_rviz_sim:=true
 (3) 点击 **"Plan & Execute"** 生成并可视化机器人的轨迹。
 
   <figure id="figure-4-15">
-    <img src="images/Figure 4-15: RViz Simulation Mode Execution.png" alt="RViz Simulation Mode Execution">
+    <img src="images/Figure 4-15 - RViz Simulation Mode Execution.png" alt="RViz Simulation Mode Execution">
     <figcaption>
       <p align="center"><strong>图 4-15：RViz 仿真模式执行</strong></p>
     </figcaption>
@@ -721,7 +721,7 @@ Gazebo 是一个强大的仿真环境，提供逼真的物理和可视化效果�
    ros2 launch jaka_<robot_model>_moveit_config gazebo.launch.py
    ```  
   <figure id="figure-4-16">
-    <img src="images/Figure 4-16: Launch Gazebo Simulation Independently.png" alt="Independent Gazebo simulation Execution" width="1200">
+    <img src="images/Figure 4-16 - Launch Gazebo Simulation Independently.png" alt="Independent Gazebo simulation Execution" width="1200">
     <figcaption>
       <p align="center"><strong>图 4-16: 独立的 Gazebo 仿真执行</strong></p>
     </figcaption>
@@ -752,14 +752,14 @@ Gazebo 是一个强大的仿真环境，提供逼真的物理和可视化效果�
    - 机器人在 **Gazebo** 中应该能够实时执行规划的轨迹。 
 
   <figure id="figure-4-17">
-    <img src="images/Figure 4-17: RViz for Demo Gazebo Simulation Execution.png" alt="RViz for Demo Gazebo Simulation Execution">
+    <img src="images/Figure 4-17 - RViz for Demo Gazebo Simulation Execution.png" alt="RViz for Demo Gazebo Simulation Execution">
     <figcaption>
       <p align="center"><strong>图 4-17： 演示 RViz  为 Gazebo 仿真执行</strong></p>
     </figcaption>
   </figure>
 
   <figure id="figure-4-18">
-    <img src="images/Figure 4-18: Demo Gazebo Simulation with RViz Execution.png" alt="Demo Gazebo simulation with RViz Execution" width="1200">
+    <img src="images/Figure 4-18 - Demo Gazebo Simulation with RViz Execution.png" alt="Demo Gazebo simulation with RViz Execution" width="1200">
     <figcaption>
       <p align="center"><strong>图 4-18： Gazebo 仿真与 RViz 演示执行</strong></p>
     </figcaption>
@@ -812,7 +812,7 @@ ros2 launch jaka_planner moveit_server.launch.py ip:=<robot_ip> model:=<robot_mo
 ```
 
 <figure id="figure-4-19">
-  <img src="images/Figure 4-19: Launch MoveIt 2 Server.png" alt="Launch MoveIt 2 Server">
+  <img src="images/Figure 4-19 - Launch MoveIt 2 Server.png" alt="Launch MoveIt 2 Server">
   <figcaption>
     <p align="center"><strong>图 4-19：启动 MoveIt 2 服务器命令输出</strong></p>
   </figcaption>    
@@ -824,7 +824,7 @@ ros2 launch jaka_planner moveit_server.launch.py ip:=<robot_ip> model:=<robot_mo
 ros2 launch jaka_<robot_model>_moveit_config demo.launch.py
 ```
 <figure id="figure-4-20">
-  <img src="images/Figure 4-20: Launch Demo Moveit Config.png" alt="Launch Demo Moveit Config">
+  <img src="images/Figure 4-20 - Launch Demo Moveit Config.png" alt="Launch Demo Moveit Config">
   <figcaption>
     <p align="center"><strong>图 4-20：启动示例 Moveit 配置命令输出</strong></p>
   </figcaption> 
@@ -833,14 +833,14 @@ ros2 launch jaka_<robot_model>_moveit_config demo.launch.py
 启动后，RViz 界面将打开，显示机器人模型。可视化应反映物理机器人的当前实际位置和方向。
 
 <figure id="figure-4-21">
-  <img src="images/Figure 4-21: RViz Real Robot Vizualization.png" alt="RViz Real Robot Vizualization">
+  <img src="images/Figure 4-21 - RViz Real Robot Vizualization.png" alt="RViz Real Robot Vizualization">
   <figcaption>
     <p align="center"><strong>图 4-21：RViz 实际机器人可视化</strong></p>
   </figcaption>   
 </figure>
 
 <figure id="figure-4-22">
-  <img src="images/Figure 4-22: JAKA App Real Robot Vizualization.png" alt="JAKA App Real Robot Vizualization">
+  <img src="images/Figure 4-22 - JAKA App Real Robot Vizualization.png" alt="JAKA App Real Robot Vizualization">
   <figcaption>
     <p align="center"><strong>图 4-22：JAKA 应用程序实际机器人可视化</strong></p>
   </figcaption> 
@@ -869,14 +869,14 @@ ros2 launch jaka_<robot_model>_moveit_config demo.launch.py
 - 如果轨迹是 **安全且可行的**，点击 **"Execute"** 将运动命令发送给机器人。
 
 <figure id="figure-4-23">
-  <img src="images/Figure 4-23: RViz Real Robot Trajectory Planning and Execution.png" alt="RViz Real Robot Trajectory Planning and Execution">
+  <img src="images/Figure 4-23 - RViz Real Robot Trajectory Planning and Execution.png" alt="RViz Real Robot Trajectory Planning and Execution">
   <figcaption>
     <p align="center"><strong>图 4-23：RViz 真实机器人轨迹规划和执行</strong></p>
   </figcaption>   
 </figure>
 
 <figure id="figure-4-24">
-  <img src="images/Figure 4-24: JAKA App Real Robot Trajectory Execution.png" alt="JAKA App Real Robot Trajectory Execution">
+  <img src="images/Figure 4-24 - JAKA App Real Robot Trajectory Execution.png" alt="JAKA App Real Robot Trajectory Execution">
   <figcaption>
     <p align="center"><strong>图 4-24：JAKA 应用程序真实机器人轨迹执行</strong></p>
   </figcaption>   
@@ -907,14 +907,14 @@ ros2 run jaka_planner moveit_test --ros-args -p model:=<robot_model>
 
 
 <figure id="figure-4-25">
-  <img src="images/Figure 4-25: MoveIt Test Executable.png" alt="MoveIt Test Executable">
+  <img src="images/Figure 4-25 - MoveIt Test Executable.png" alt="MoveIt Test Executable">
   <figcaption>
     <p align="center"><strong>图 4-25：MoveIt 测试可执行文件命令输出</strong></p>
   </figcaption>   
 </figure>
 
 <figure id="figure-4-26">
-  <img src="images/Figure 4-26: MoveIt Test Real Robot Execution.png" alt="MoveIt Test Real Robot Execution">
+  <img src="images/Figure 4-26 - MoveIt Test Real Robot Execution.png" alt="MoveIt Test Real Robot Execution">
   <figcaption>
     <p align="center"><strong>图 4-26：MoveIt 测试真实机器人执行</strong></p>
   </figcaption>   
@@ -932,7 +932,7 @@ ros2 run jaka_planner moveit_test --ros-args -p model:=<robot_model>
 > **注意：** 将 `<robot_model>` 替换为相应的 JAKA 机器人型号。  
 
 <figure id="figure-4-27">
-  <img src="images/Figure 4-27: MoveIt Test RViz Simulation Mode Execution.png" alt="MoveIt Test RViz Simulation Mode Execution">
+  <img src="images/Figure 4-27 - MoveIt Test RViz Simulation Mode Execution.png" alt="MoveIt Test RViz Simulation Mode Execution">
   <figcaption>
     <p align="center"><strong>图 4-27：MoveIt 测试 RViz 仿真模式执行</strong></p>
   </figcaption>   
@@ -952,7 +952,7 @@ ros2 run jaka_planner moveit_test --ros-args -p model:=<robot_model>
 > **注意：** 将 `<robot_model>` 替换为相应的 JAKA 机器人型号。  
 
 <figure id="figure-4-28">
-  <img src="images/Figure 4-28: MoveIt Test Independent Gazebo Execution.png" alt="MoveIt Test Independent Gazebo Execution" width="1200">
+  <img src="images/Figure 4-28 - MoveIt Test Independent Gazebo Execution.png" alt="MoveIt Test Independent Gazebo Execution" width="1200">
   <figcaption>
     <p align="center"><strong>Figure 4-28: MoveIt 测试独立的 Gazebo 仿真执行</strong></p>
   </figcaption>   
@@ -969,14 +969,14 @@ ros2 run jaka_planner moveit_test --ros-args -p model:=<robot_model>
 > **注意：** 将 `<robot_model>` 替换为相应的 JAKA 机器人型号。  
 
 <figure id="figure-4-29">
-  <img src="images/Figure 4-29: MoveIt Test RViz for Demo Gazebo Execution.png" alt="MoveIt Test RViz for Demo Gazebo Execution">
+  <img src="images/Figure 4-29 - MoveIt Test RViz for Demo Gazebo Execution.png" alt="MoveIt Test RViz for Demo Gazebo Execution">
   <figcaption>
     <p align="center"><strong>Figure 4-29: MoveIt 测试演示 RViz 为 Gazebo 仿真执行</strong></p>
   </figcaption>   
 </figure>
 
 <figure id="figure-4-30">
-  <img src="images/Figure 4-30: MoveIt Test Demo Gazebo with RViz Execution.png" alt="MoveIt Test Demo Gazebo with RViz Execution" width="1200">
+  <img src="images/Figure 4-30 - MoveIt Test Demo Gazebo with RViz Execution.png" alt="MoveIt Test Demo Gazebo with RViz Execution" width="1200">
   <figcaption>
     <p align="center"><strong>Figure 4-30: MoveIt 测试带有 RViz 的 Gazebo 演示模拟执行</strong></p>
   </figcaption>   
