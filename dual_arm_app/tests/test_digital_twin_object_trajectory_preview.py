@@ -300,8 +300,10 @@ console.log(JSON.stringify({
             "function applyObjectPoseFromControls()", 1
         )[1].split("function writeObjectPoseControls", 1)[0]
         manual_reset = self.controller.split(
-            "function resetObjectPreview()", 1
-        )[1].split("function setObjectPreviewVisibility", 1)[0]
+            "function resetGraspFramesToCurrentRobotPose", 1
+        )[1].split(
+            "function initializeUnlockedGraspFramesFromCurrentRobotPoseWhenReady", 1
+        )[0]
         ownership = self.controller.split(
             "function pauseObjectTrajectoryForManualPreview()", 1
         )[1].split("function stopObjectTrajectory", 1)[0]
@@ -386,7 +388,7 @@ console.log(JSON.stringify({
         )
 
     def test_existing_object_preview_zoom_and_sampled_path_contracts_remain(self) -> None:
-        self.assertIn("Object / Grasp Frame Preview", self.html)
+        self.assertIn('id="digitalTwinOperatorGraspStage"', self.html)
         self.assertIn("function applyObjectPreviewPose", self.controller)
         self.assertIn("const NORMALIZED_WHEEL_ZOOM_RATE = 0.035", self.controller)
         self.assertEqual(self.controller.count('addEventListener("wheel"'), 1)

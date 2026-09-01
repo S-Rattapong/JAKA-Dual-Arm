@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 source /opt/ros/humble/setup.bash
 source ~/jaka_ws/install/setup.bash
+export ROS_DOMAIN_ID="${ROS_DOMAIN_ID:-1}"
 
 ros2 run jaka_driver jaka_driver --ros-args \
   -r __node:=left_jaka_driver_node \

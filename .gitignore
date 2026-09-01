@@ -27,3 +27,4 @@ Thumbs.db
 *.tmp
 *.bak
 *.swp
+dual_arm_app/backend/.dual_jaka_web_backend.instance.lock

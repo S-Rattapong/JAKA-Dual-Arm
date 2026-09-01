@@ -4,6 +4,23 @@ left:
 right:
   prefix: /right_jaka_driver
   name: right
+# Receive-only actual-joint source for Digital Twin visualization. This socket
+# is independent from the JAKA SDK telemetry that Phase 5 intentionally freezes
+# while servo_j owns the SDK. It never sends controller data or motion commands.
+actual_feedback:
+  port10000:
+    enabled: true
+    left_ip: 192.168.0.1
+    right_ip: 192.168.0.2
+    port: 10000
+    # Observed on both controllers at runtime: about 100 ms between push packets.
+    expected_period_ms: 100
+    # Allow brief network jitter without falling back to the frozen ROS cache.
+    freshness_threshold_ms: 400
+    connect_timeout_s: 0.5
+    recv_timeout_s: 0.5
+    reconnect_backoff_s: 1.0
+    max_packet_bytes: 65536
 motion:
   default_joint_vel: 2.0
   default_joint_acc: 1.2
@@ -56,6 +73,22 @@ motion:
   sync_min_joint_vel: 0.05
   sync_min_joint_acc: 0.05
   sync_delta_epsilon: 0.0003
+  # Phase-5-only actual-start and recovery settings. Legacy motion ignores them.
+  phase5_start_match_threshold_rad: 0.01
+  phase5_actual_feedback_max_age_ms: 500
+  phase5_recovery_joint_vel: 0.10
+  phase5_recovery_joint_acc: 0.20
+  # Current Phase-5 acceptance setting: 24 ms is the controlled middle ground
+  # after 16 ms showed SDK overruns and 32 ms removed overruns but reduced the
+  # command update rate. Keep trajectory duration/geometry unchanged.
+  # 1=8 ms, 2=16 ms, 3=24 ms, 4=32 ms. This is explicit and never auto-switches.
+  phase5_servo_step_num: 3
+  # Match the startup baseline used by earlier Phase-5 linear runs. Filter
+  # selection is transported by ExecuteJointTrajectory and restored on exit.
+  phase5_servo_filter:
+    mode: LEGACY_FORESIGHT
+    max_buf: 15
+    kp: 0.03
 safety:
   require_power_on: true
   require_servo_on: true

@@ -17,10 +17,25 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
 
+try:
+    from dual_arm_app.backend.center_path_store import CenterPathStore, CenterPathStoreError
+except ImportError:
+    try:
+        from .center_path_store import CenterPathStore, CenterPathStoreError
+    except ImportError:
+        from center_path_store import CenterPathStore, CenterPathStoreError
+
 from std_srvs.srv import Empty
 from sensor_msgs.msg import JointState
 from jaka_msgs.msg import RobotMsg
-from jaka_msgs.srv import Move, GetFK, GetIK
+from jaka_msgs.srv import (
+    Move,
+    GetFK,
+    GetIK,
+    GetFrameState,
+    ExecuteJointTrajectory,
+    GetExecutionStatus,
+)
 
 try:
     from dual_arm_app.backend.joint_feedback import (
@@ -66,6 +81,35 @@ except ImportError:
         )
 
 try:
+    from dual_arm_app.backend.port10000_actual_feedback import (
+        DEFAULT_FRESHNESS_THRESHOLD_MS,
+        DEFAULT_EXPECTED_PERIOD_MS,
+        DEFAULT_MAX_PACKET_BYTES,
+        DEFAULT_PORT,
+        Port10000ActualFeedback,
+        select_visualization_joint_status,
+    )
+except ImportError:
+    try:
+        from .port10000_actual_feedback import (
+            DEFAULT_FRESHNESS_THRESHOLD_MS,
+            DEFAULT_EXPECTED_PERIOD_MS,
+            DEFAULT_MAX_PACKET_BYTES,
+            DEFAULT_PORT,
+            Port10000ActualFeedback,
+            select_visualization_joint_status,
+        )
+    except ImportError:
+        from port10000_actual_feedback import (
+            DEFAULT_FRESHNESS_THRESHOLD_MS,
+            DEFAULT_EXPECTED_PERIOD_MS,
+            DEFAULT_MAX_PACKET_BYTES,
+            DEFAULT_PORT,
+            Port10000ActualFeedback,
+            select_visualization_joint_status,
+        )
+
+try:
     from dual_arm_app.backend.sampled_path_validation import (
         SampledPathValidationInputError,
         normalize_sampled_path_options,
@@ -100,6 +144,236 @@ except ImportError:
             MoveItStateValidationBridge,
             TrajectoryValidationInputError,
             empty_validation_result,
+        )
+
+try:
+    from dual_arm_app.backend.object_global_planning import (
+        ObjectGlobalPlanInputError,
+        normalize_object_global_plan_request,
+        plan_object_global,
+        planning_authority_rejected_result,
+        planning_unavailable_result,
+    )
+except ImportError:
+    try:
+        from .object_global_planning import (
+            ObjectGlobalPlanInputError,
+            normalize_object_global_plan_request,
+            plan_object_global,
+            planning_authority_rejected_result,
+            planning_unavailable_result,
+        )
+    except ImportError:
+        from object_global_planning import (
+            ObjectGlobalPlanInputError,
+            normalize_object_global_plan_request,
+            plan_object_global,
+            planning_authority_rejected_result,
+            planning_unavailable_result,
+        )
+
+try:
+    from dual_arm_app.backend.planning_start_state_config import (
+        planning_start_state_payload,
+    )
+except ImportError:
+    try:
+        from .planning_start_state_config import planning_start_state_payload
+    except ImportError:
+        from planning_start_state_config import planning_start_state_payload
+
+try:
+    from dual_arm_app.backend.world_frame_calibration import (
+        get_world_calibration_revision,
+        get_web_model_calibration_revision,
+        world_calibration_public_payload,
+    )
+except ImportError:
+    try:
+        from .world_frame_calibration import (
+            get_world_calibration_revision,
+            get_web_model_calibration_revision,
+            world_calibration_public_payload,
+        )
+    except ImportError:
+        from world_frame_calibration import (
+            get_world_calibration_revision,
+            get_web_model_calibration_revision,
+            world_calibration_public_payload,
+        )
+
+try:
+    from dual_arm_app.backend.rigid_grasp_configuration import (
+        AuthoritativeRigidGraspState,
+        GRASP_LOCKED,
+        RigidGraspConfigurationError,
+    )
+except ImportError:
+    try:
+        from .rigid_grasp_configuration import (
+            AuthoritativeRigidGraspState,
+            GRASP_LOCKED,
+            RigidGraspConfigurationError,
+        )
+    except ImportError:
+        from rigid_grasp_configuration import (
+            AuthoritativeRigidGraspState,
+            GRASP_LOCKED,
+            RigidGraspConfigurationError,
+        )
+
+try:
+    from dual_arm_app.backend.phase4_trajectory_validation import (
+        DEFAULT_ORIENTATION_TOLERANCE_RAD,
+        DEFAULT_POSITION_TOLERANCE_M,
+        Phase4ValidationInputError,
+        validate_phase4_trajectory,
+    )
+except ImportError:
+    try:
+        from .phase4_trajectory_validation import (
+            DEFAULT_ORIENTATION_TOLERANCE_RAD,
+            DEFAULT_POSITION_TOLERANCE_M,
+            Phase4ValidationInputError,
+            validate_phase4_trajectory,
+        )
+    except ImportError:
+        from phase4_trajectory_validation import (
+            DEFAULT_ORIENTATION_TOLERANCE_RAD,
+            DEFAULT_POSITION_TOLERANCE_M,
+            Phase4ValidationInputError,
+            validate_phase4_trajectory,
+        )
+
+try:
+    from dual_arm_app.backend.phase4_collision_validation import (
+        Phase4CollisionInputError,
+        build_phase4b_collision_result,
+        phase3_plan_to_robot_trajectory,
+    )
+except ImportError:
+    try:
+        from .phase4_collision_validation import (
+            Phase4CollisionInputError,
+            build_phase4b_collision_result,
+            phase3_plan_to_robot_trajectory,
+        )
+    except ImportError:
+        from phase4_collision_validation import (
+            Phase4CollisionInputError,
+            build_phase4b_collision_result,
+            phase3_plan_to_robot_trajectory,
+        )
+
+try:
+    from dual_arm_app.backend.phase4_unified_validation import (
+        Phase4UnifiedValidationInputError,
+        build_phase4_unified_report,
+        evaluate_execution_gate,
+    )
+except ImportError:
+    try:
+        from .phase4_unified_validation import (
+            Phase4UnifiedValidationInputError,
+            build_phase4_unified_report,
+            evaluate_execution_gate,
+        )
+    except ImportError:
+        from phase4_unified_validation import (
+            Phase4UnifiedValidationInputError,
+            build_phase4_unified_report,
+            evaluate_execution_gate,
+        )
+
+try:
+    from dual_arm_app.backend.phase5_execution_artifact import (
+        Phase5ExecutionArtifactError,
+        freeze_validated_execution_artifact,
+    )
+except ImportError:
+    try:
+        from .phase5_execution_artifact import (
+            Phase5ExecutionArtifactError,
+            freeze_validated_execution_artifact,
+        )
+    except ImportError:
+        from phase5_execution_artifact import (
+            Phase5ExecutionArtifactError,
+            freeze_validated_execution_artifact,
+        )
+
+try:
+    from dual_arm_app.backend.phase5_execution_transport import (
+        Phase5AbsoluteStartTransport,
+        Phase5ExecutionTransportError,
+    )
+except ImportError:
+    try:
+        from .phase5_execution_transport import (
+            Phase5AbsoluteStartTransport,
+            Phase5ExecutionTransportError,
+        )
+    except ImportError:
+        from phase5_execution_transport import (
+            Phase5AbsoluteStartTransport,
+            Phase5ExecutionTransportError,
+        )
+
+try:
+    from dual_arm_app.backend.phase5_execution_coordinator import (
+        Phase5ExecutionCoordinator,
+    )
+except ImportError:
+    try:
+        from .phase5_execution_coordinator import Phase5ExecutionCoordinator
+    except ImportError:
+        from phase5_execution_coordinator import Phase5ExecutionCoordinator
+
+try:
+    from dual_arm_app.backend.phase5_execution_feedback import (
+        build_phase5_execution_feedback,
+    )
+except ImportError:
+    try:
+        from .phase5_execution_feedback import (
+            build_phase5_execution_feedback,
+        )
+    except ImportError:
+        from phase5_execution_feedback import (
+            build_phase5_execution_feedback,
+        )
+
+try:
+    from dual_arm_app.backend.phase6_joint_tracking import (
+        compute_joint_tracking_error,
+    )
+except ImportError:
+    try:
+        from .phase6_joint_tracking import compute_joint_tracking_error
+    except ImportError:
+        from phase6_joint_tracking import compute_joint_tracking_error
+
+try:
+    from dual_arm_app.backend.phase5_motion_quality import (
+        REPLAN_FROM_CURRENT_SOURCE,
+        evaluate_actual_start_match,
+        fresh_actual_joint_state,
+        normalize_phase5_motion_settings,
+    )
+except ImportError:
+    try:
+        from .phase5_motion_quality import (
+            REPLAN_FROM_CURRENT_SOURCE,
+            evaluate_actual_start_match,
+            fresh_actual_joint_state,
+            normalize_phase5_motion_settings,
+        )
+    except ImportError:
+        from phase5_motion_quality import (
+            REPLAN_FROM_CURRENT_SOURCE,
+            evaluate_actual_start_match,
+            fresh_actual_joint_state,
+            normalize_phase5_motion_settings,
         )
 
 
@@ -166,6 +440,67 @@ class DigitalTwinTrajectoryValidationRequest(BaseModel):
     sampled_path: Optional[Dict[str, Any]] = None
 
 
+class DigitalTwinObjectGlobalPlanRequest(BaseModel):
+    name: Any
+    waypoints: Any
+    approach_waypoints: Any = None
+    fixed_orientation_rpy_rad: Any
+    segment_duration_s: Any
+    samples_per_segment: Any
+    candidate_attempts_per_arm: Any = None
+    initial_joint_state_rad: Any = None
+    planning_start_state_source: Any = None
+    expected_grasp_content_revision: Any = None
+    expected_lock_generation: Any = None
+    expected_lock_revision: Any = None
+    expected_calibration_revision: Any = None
+    expected_model_calibration_revision: Any = None
+
+
+class DigitalTwinCenterPathSaveRequest(BaseModel):
+    name: str
+    path: Dict[str, Any]
+    overwrite: bool = True
+
+
+class DigitalTwinCenterPathNameRequest(BaseModel):
+    name: str
+
+
+class DigitalTwinCenterPathRenameRequest(BaseModel):
+    name: str
+    new_name: str
+
+
+class DigitalTwinGraspLockRequest(BaseModel):
+    left: Any
+    right: Any
+
+
+class DigitalTwinPhase4TrajectoryValidationRequest(BaseModel):
+    plan: Any
+    start_state: Any = None
+    position_tolerance_m: Any = DEFAULT_POSITION_TOLERANCE_M
+    orientation_tolerance_rad: Any = DEFAULT_ORIENTATION_TOLERANCE_RAD
+
+
+class DigitalTwinPhase4CollisionValidationRequest(BaseModel):
+    plan: Any
+    max_joint_step_rad: Any = 0.05
+
+
+class DigitalTwinPhase4UnifiedValidationRequest(BaseModel):
+    plan: Any
+    start_state: Any = None
+    position_tolerance_m: Any = DEFAULT_POSITION_TOLERANCE_M
+    orientation_tolerance_rad: Any = DEFAULT_ORIENTATION_TOLERANCE_RAD
+    max_joint_step_rad: Any = 0.05
+
+
+class DigitalTwinPhase5ExecuteRequest(BaseModel):
+    operator_confirmed: bool = Field(..., strict=True)
+
+
 class StopRequest(BaseModel):
     side: str = "both"
 
@@ -201,6 +536,14 @@ class DualJakaWebNode(Node):
     def __init__(self, cfg):
         super().__init__("dual_jaka_web_backend")
         self.cfg = cfg
+        try:
+            self.phase5_motion_settings = normalize_phase5_motion_settings(
+                cfg.get("motion", {})
+            )
+            self.phase5_motion_configuration_error = None
+        except Exception as error:
+            self.phase5_motion_settings = None
+            self.phase5_motion_configuration_error = str(error)
 
         self.left_joint = None
         self.right_joint = None
@@ -225,6 +568,42 @@ class DualJakaWebNode(Node):
             }
             for side in ("left", "right")
         }
+        # Independent visualization-only actual feedback. These daemon threads
+        # connect to receive-only port 10000 and never use the JAKA SDK. Phase-5
+        # start matching and safety continue to call the ROS-only cache method.
+        port10000_cfg = cfg.get("actual_feedback", {}).get("port10000", {})
+        self.port10000_freshness_threshold_ms = int(
+            port10000_cfg.get(
+                "freshness_threshold_ms", DEFAULT_FRESHNESS_THRESHOLD_MS
+            )
+        )
+        self.port10000_expected_period_ms = int(
+            port10000_cfg.get("expected_period_ms", DEFAULT_EXPECTED_PERIOD_MS)
+        )
+        self.port10000_actual_feedback = None
+        if port10000_cfg.get("enabled", True):
+            self.port10000_actual_feedback = Port10000ActualFeedback(
+                {
+                    "left": (
+                        str(port10000_cfg.get("left_ip", "192.168.0.1")),
+                        int(port10000_cfg.get("port", DEFAULT_PORT)),
+                    ),
+                    "right": (
+                        str(port10000_cfg.get("right_ip", "192.168.0.2")),
+                        int(port10000_cfg.get("port", DEFAULT_PORT)),
+                    ),
+                },
+                max_packet_bytes=int(
+                    port10000_cfg.get("max_packet_bytes", DEFAULT_MAX_PACKET_BYTES)
+                ),
+                connect_timeout_s=float(port10000_cfg.get("connect_timeout_s", 0.5)),
+                recv_timeout_s=float(port10000_cfg.get("recv_timeout_s", 0.5)),
+                reconnect_backoff_s=float(
+                    port10000_cfg.get("reconnect_backoff_s", 1.0)
+                ),
+                log_warning=lambda message: self.get_logger().warning(message),
+            )
+            self.port10000_actual_feedback.start()
         self.digital_twin_robot_state_cache_lock = threading.Lock()
         self.digital_twin_robot_state_cache = {
             side: {
@@ -247,6 +626,59 @@ class DualJakaWebNode(Node):
             )
         except Exception as error:
             self.moveit_state_validation_error = str(error)
+        self.object_global_planning_adapter = None
+        self.object_global_planning_joint_limits = None
+        self.object_global_planning_error = None
+        self.object_global_planning_lock = threading.Lock()
+        try:
+            from dual_arm_app.backend.moveit_object_trajectory_ik import (
+                MoveItObjectTrajectoryPlanningAdapter,
+                load_canonical_joint_limits,
+            )
+            self.object_global_planning_adapter = (
+                MoveItObjectTrajectoryPlanningAdapter.from_node(self)
+            )
+            self.object_global_planning_joint_limits = load_canonical_joint_limits()
+        except Exception as error:
+            self.object_global_planning_error = str(error)
+        self.phase4_fk_validation_adapter = None
+        self.phase4_fk_validation_error = None
+        self.phase4_validation_lock = threading.Lock()
+        try:
+            from dual_arm_app.backend.moveit_fk_validation import (
+                MoveItFkValidationAdapter,
+            )
+            self.phase4_fk_validation_adapter = MoveItFkValidationAdapter.from_node(self)
+        except Exception as error:
+            self.phase4_fk_validation_error = str(error)
+        self.phase4_planning_scene_adapter = None
+        self.phase4_planning_scene_error = None
+        self.phase4_collision_validation_lock = threading.Lock()
+        try:
+            from dual_arm_app.backend.moveit_planning_scene_validation import (
+                MoveItPlanningSceneValidationAdapter,
+            )
+            if self.moveit_state_validation_bridge is None:
+                raise RuntimeError("Existing MoveIt state-validation bridge is unavailable")
+            self.phase4_planning_scene_adapter = (
+                MoveItPlanningSceneValidationAdapter.from_node(
+                    self, self.moveit_state_validation_bridge, timeout_s=2.0
+                )
+            )
+        except Exception as error:
+            self.phase4_planning_scene_error = str(error)
+        self.phase4_unified_validation_lock = threading.Lock()
+        self.phase4_unified_validation_report = None
+        self.phase4_unified_validation_running = False
+        self.phase4_unified_validation_invalidated_reason = "NO REPORT"
+        self.phase4_unified_validation_generation = 0
+        self.phase5_execution_artifact_lock = threading.Lock()
+        self.phase5_execution_artifact = None
+        self.phase5_execution_artifact_invalidated_reason = "NO VALIDATED ARTIFACT"
+        self.phase5_execution_artifact_generation = 0
+        self.phase5_recovery_initial_lock = threading.Lock()
+        self.phase5_recovery_initial = None
+        self.rigid_grasp_configuration = AuthoritativeRigidGraspState()
 
         self.active_jog: Optional[Dict[str, Any]] = None
         self.active_sequence: Optional[Dict[str, Any]] = None
@@ -258,8 +690,11 @@ class DualJakaWebNode(Node):
         self.deadman_timeout = 0.45
         self.repeat_period = 0.12
 
-        self.waypoint_path = Path.home() / "jaka_ws/dual_arm_app/tasks/waypoints.json"
+        self.waypoint_path = Path(__file__).resolve().parents[1] / "tasks/waypoints.json"
         self.waypoint_path.parent.mkdir(parents=True, exist_ok=True)
+        self.center_path_store = CenterPathStore(
+            Path(__file__).resolve().parents[1] / "saved_paths"
+        )
 
         self.create_subscription(JointState, f"{cfg['left']['prefix']}/joint_position", self.left_joint_cb, 10)
         self.create_subscription(JointState, f"{cfg['right']['prefix']}/joint_position", self.right_joint_cb, 10)
@@ -276,9 +711,62 @@ class DualJakaWebNode(Node):
         self.right_get_fk = self.create_client(GetFK, f"{cfg['right']['prefix']}/get_fk")
         self.left_get_ik = self.create_client(GetIK, f"{cfg['left']['prefix']}/get_ik")
         self.right_get_ik = self.create_client(GetIK, f"{cfg['right']['prefix']}/get_ik")
+        self.left_get_frame_state = self.create_client(GetFrameState, f"{cfg['left']['prefix']}/get_frame_state")
+        self.right_get_frame_state = self.create_client(GetFrameState, f"{cfg['right']['prefix']}/get_frame_state")
 
         self.left_stop = self.create_client(Empty, f"{cfg['left']['prefix']}/stop_move")
         self.right_stop = self.create_client(Empty, f"{cfg['right']['prefix']}/stop_move")
+        self.left_phase5_execute = self.create_client(
+            ExecuteJointTrajectory,
+            f"{cfg['left']['prefix']}/execute_joint_trajectory",
+        )
+        self.right_phase5_execute = self.create_client(
+            ExecuteJointTrajectory,
+            f"{cfg['right']['prefix']}/execute_joint_trajectory",
+        )
+        self.left_phase5_status = self.create_client(
+            GetExecutionStatus,
+            f"{cfg['left']['prefix']}/get_execution_status",
+        )
+        self.right_phase5_status = self.create_client(
+            GetExecutionStatus,
+            f"{cfg['right']['prefix']}/get_execution_status",
+        )
+        self.phase5_execution_transport = Phase5AbsoluteStartTransport(
+            left_client=self.left_phase5_execute,
+            right_client=self.right_phase5_execute,
+            request_factory=self.make_execute_joint_trajectory_request,
+            wait_future_result=self.wait_future_result,
+            stop_generation_getter=lambda: self.stop_generation,
+            left_service_name=f"{cfg['left']['prefix']}/execute_joint_trajectory",
+            right_service_name=f"{cfg['right']['prefix']}/execute_joint_trajectory",
+            servo_filter_config=(
+                self.phase5_motion_settings["servo_filter"]
+                if self.phase5_motion_settings is not None
+                else {
+                    "mode": "LEGACY_FORESIGHT",
+                    "legacy_max_buf": 15,
+                    "legacy_kp": 0.03,
+                }
+            ),
+            servo_step_num=(
+                self.phase5_motion_settings["servo_step_num"]
+                if self.phase5_motion_settings is not None
+                else 1
+            ),
+            configuration_error=self.phase5_motion_configuration_error,
+        )
+        self.phase5_execution_coordinator = Phase5ExecutionCoordinator(
+            artifact_snapshot_getter=self._phase5_artifact_snapshot,
+            phase4_gate_getter=self.phase4_execution_gate_state,
+            transport=self.phase5_execution_transport,
+            safe_state_checker=self.safe_state_ok,
+            start_match_checker=self.phase5_start_match_state,
+            legacy_conflict_getter=self._phase5_legacy_conflicts,
+            stop_generation_getter=lambda: self.stop_generation,
+            abort_callback=self._phase5_abort_existing_stop_path,
+            feedback_getter=self.phase5_driver_execution_feedback,
+        )
 
         self.jog_thread = threading.Thread(target=self.jog_loop, daemon=True)
         self.jog_thread.start()
@@ -403,8 +891,8 @@ class DualJakaWebNode(Node):
             "waypoints": to_builtin(self.load_waypoints()),
         }
 
-    def digital_twin_joint_status(self):
-        """Return only cached joint feedback; never invoke robot operations."""
+    def digital_twin_ros_joint_status(self):
+        """Return only cached ROS joint feedback; retain Phase-5 authority."""
         with self.digital_twin_joint_cache_lock:
             cache_snapshot = {
                 side: {
@@ -421,6 +909,22 @@ class DualJakaWebNode(Node):
                 for side, values in self.digital_twin_joint_cache.items()
             }
         return build_digital_twin_joint_status(cache_snapshot)
+
+    def digital_twin_joint_status(self):
+        """Select actual visualization feedback without changing safety authority."""
+        ros_status = self.digital_twin_ros_joint_status()
+        port10000_cache = (
+            self.port10000_actual_feedback.snapshot()
+            if self.port10000_actual_feedback is not None
+            else {}
+        )
+        return select_visualization_joint_status(
+            port10000_cache,
+            ros_status,
+            server_time_ms=wall_clock_ms(),
+            expected_period_ms=self.port10000_expected_period_ms,
+            freshness_threshold_ms=self.port10000_freshness_threshold_ms,
+        )
 
     def digital_twin_robot_status(self):
         """Return RobotMsg and JointState freshness from caches only."""
@@ -484,6 +988,966 @@ class DualJakaWebNode(Node):
         return self.moveit_state_validation_bridge.validate_trajectory(
             trajectory, sampled_path
         )
+
+    def _phase3_planning_authority(self, normalized_request):
+        """Resolve and verify one immutable grasp/calibration input before IK."""
+        locked = self.rigid_grasp_configuration.locked_snapshot()
+        if locked is None:
+            return None, planning_authority_rejected_result(
+                "RIGID_GRASP_UNLOCKED_OR_MISSING",
+                "Phase-3 planning requires a current immutable GRASP_LOCKED snapshot",
+                normalized_request,
+            )
+        comparisons = (
+            (
+                "expected_grasp_content_revision",
+                locked.content_revision,
+                "GRASP_CONTENT_REVISION_MISMATCH",
+            ),
+            (
+                "expected_lock_generation",
+                locked.lock_generation,
+                "LOCK_GENERATION_MISMATCH",
+            ),
+            (
+                "expected_lock_revision",
+                locked.lock_revision,
+                "LOCK_REVISION_MISMATCH",
+            ),
+        )
+        for field, actual, reason_code in comparisons:
+            expected = normalized_request[field]
+            if expected != actual:
+                return None, planning_authority_rejected_result(
+                    reason_code,
+                    f"{field} does not match current authoritative locked grasp",
+                    normalized_request,
+                    diagnostics={"expected": expected, "current": actual},
+                )
+        try:
+            calibration = world_calibration_public_payload()
+            web_model_revision = get_web_model_calibration_revision()
+        except Exception as error:
+            return None, planning_authority_rejected_result(
+                "CALIBRATION_STATE_UNAVAILABLE_OR_INVALID",
+                f"Canonical World calibration is unavailable or invalid: {error}",
+                normalized_request,
+            )
+        revision = calibration.get("revision")
+        expected_calibration = normalized_request["expected_calibration_revision"]
+        expected_model = normalized_request["expected_model_calibration_revision"]
+        if expected_calibration != revision:
+            return None, planning_authority_rejected_result(
+                "CALIBRATION_REVISION_MISMATCH",
+                "Expected calibration revision does not match backend authority",
+                normalized_request,
+                diagnostics={"expected": expected_calibration, "current": revision},
+            )
+        if web_model_revision != revision:
+            return None, planning_authority_rejected_result(
+                "MODEL_CALIBRATION_REVISION_MISMATCH",
+                "Checked-in Web model revision does not match backend calibration",
+                normalized_request,
+                diagnostics={"model": web_model_revision, "backend": revision},
+            )
+        if expected_model != web_model_revision:
+            return None, planning_authority_rejected_result(
+                "MODEL_CALIBRATION_REVISION_MISMATCH",
+                "Client-expected Web/model revision does not match checked-in model metadata",
+                normalized_request,
+                diagnostics={
+                    "expected_model": expected_model,
+                    "current_model": web_model_revision,
+                },
+            )
+        content = locked.content
+        authority = {
+            "grasp_status": GRASP_LOCKED,
+            "grasp_source": "LOCKED OPERATOR GRASP",
+            "grasp_content_revision": locked.content_revision,
+            "lock_generation": locked.lock_generation,
+            "lock_revision": locked.lock_revision,
+            "left": content.left.as_payload(),
+            "right": content.right.as_payload(),
+            "calibration_revision": revision,
+            "model_calibration_revision": web_model_revision,
+            "calibration_revision_status": "MATCH",
+            "calibration_state": calibration["calibration_state"],
+            "physical_calibration": calibration["physical_calibration"],
+            "physically_calibrated": calibration["physically_calibrated"],
+            "tcp_tool_contract_status": calibration["tcp_tool_contract"]["status"],
+        }
+        return (locked, authority), None
+
+    def _phase3_authority_still_current(self, locked, calibration_revision):
+        current = self.rigid_grasp_configuration.locked_snapshot()
+        if current is None:
+            return False
+        if (
+            current.content_revision != locked.content_revision
+            or current.lock_generation != locked.lock_generation
+            or current.lock_revision != locked.lock_revision
+        ):
+            return False
+        try:
+            return (
+                get_world_calibration_revision() == calibration_revision
+                and get_web_model_calibration_revision() == calibration_revision
+            )
+        except Exception:
+            return False
+
+    def plan_digital_twin_object_global(self, request_payload):
+        """Run MoveIt-backed Phase-3 planning without invoking JAKA motion APIs."""
+        self.invalidate_phase4_unified_validation("NEW GLOBAL PLAN REQUEST")
+        normalized_request = normalize_object_global_plan_request(request_payload)
+        candidate_attempts_per_arm = normalized_request[
+            "candidate_attempts_per_arm"
+        ]
+        resolved_authority, rejection = self._phase3_planning_authority(
+            normalized_request
+        )
+        if rejection is not None:
+            return rejection
+        locked, planning_authority = resolved_authority
+        if (
+            self.object_global_planning_adapter is None
+            or self.object_global_planning_joint_limits is None
+        ):
+            return planning_unavailable_result(
+                self.object_global_planning_error
+                or "MoveIt object-planning adapter is unavailable",
+                candidate_attempts_per_arm,
+                normalized_request["initial_joint_state_rad"],
+                normalized_request["planning_start_state_source"],
+            )
+        unavailable = self.object_global_planning_adapter.unavailable_services()
+        if unavailable:
+            return planning_unavailable_result(
+                "MoveIt planning service(s) unavailable: " + ", ".join(unavailable),
+                candidate_attempts_per_arm,
+                normalized_request["initial_joint_state_rad"],
+                normalized_request["planning_start_state_source"],
+            )
+        with self.object_global_planning_lock:
+            try:
+                result = plan_object_global(
+                    request_payload,
+                    self.object_global_planning_adapter,
+                    self.object_global_planning_joint_limits,
+                    grasp_model=locked.content.model,
+                    planning_authority=planning_authority,
+                )
+                if not self._phase3_authority_still_current(
+                    locked, planning_authority["calibration_revision"]
+                ):
+                    return planning_authority_rejected_result(
+                        "PLANNING_AUTHORITY_CHANGED_IN_FLIGHT",
+                        "Locked grasp or calibration changed while planning was in flight",
+                        normalized_request,
+                    )
+                return result
+            except ObjectGlobalPlanInputError:
+                raise
+            except Exception as error:
+                return planning_unavailable_result(
+                    f"Object planning failed: {error}",
+                    candidate_attempts_per_arm,
+                    normalized_request["initial_joint_state_rad"],
+                    normalized_request["planning_start_state_source"],
+                )
+
+    def digital_twin_planning_start_state(self):
+        """Expose code-defined planning joints without robot or motion access."""
+        return planning_start_state_payload(
+            self.object_global_planning_joint_limits
+        )
+
+    def digital_twin_grasp_configuration_state(self):
+        """Return copy-safe software grasp state without robot access."""
+        state = self.rigid_grasp_configuration.snapshot()
+        state["world_calibration_revision"] = get_world_calibration_revision()
+        return state
+
+    def lock_digital_twin_grasp_configuration(self, request_payload):
+        """Validate and lock one rigid grasp, then invalidate old readiness."""
+        state = self.rigid_grasp_configuration.lock(request_payload)
+        self.invalidate_phase4_unified_validation(
+            "RIGID GRASP LOCK/REVISION CHANGED"
+        )
+        state["world_calibration_revision"] = get_world_calibration_revision()
+        return state
+
+    def unlock_digital_twin_grasp_configuration(self):
+        """Unlock to an editable draft and invalidate old execution artifacts."""
+        state = self.rigid_grasp_configuration.unlock()
+        self.invalidate_phase4_unified_validation("RIGID GRASP UNLOCKED")
+        state["world_calibration_revision"] = get_world_calibration_revision()
+        return state
+
+    def validate_digital_twin_phase4_trajectory(self, request_payload):
+        """Validate a Phase-3 plan through MoveIt model FK; never execute it."""
+        adapter = self.phase4_fk_validation_adapter
+        unavailable_error = self.phase4_fk_validation_error
+        if adapter is not None:
+            try:
+                if not adapter.service_is_ready():
+                    adapter = None
+                    unavailable_error = "MoveIt /compute_fk service is unavailable"
+            except Exception as error:
+                adapter = None
+                unavailable_error = f"MoveIt /compute_fk readiness check failed: {error}"
+        with self.phase4_validation_lock:
+            return validate_phase4_trajectory(
+                request_payload.get("plan"),
+                fk_adapter=adapter,
+                joint_position_limits=self.object_global_planning_joint_limits,
+                start_state=request_payload.get("start_state"),
+                position_tolerance_m=request_payload.get(
+                    "position_tolerance_m", DEFAULT_POSITION_TOLERANCE_M
+                ),
+                orientation_tolerance_rad=request_payload.get(
+                    "orientation_tolerance_rad", DEFAULT_ORIENTATION_TOLERANCE_RAD
+                ),
+                fk_unavailable_error=unavailable_error,
+            )
+
+    def validate_digital_twin_phase4_collision(self, request_payload):
+        """Classify robot/scene contacts without invoking any execution API."""
+        plan = request_payload.get("plan")
+        trajectory = phase3_plan_to_robot_trajectory(plan)
+        max_joint_step_rad = request_payload.get("max_joint_step_rad", 0.05)
+        if self.moveit_state_validation_bridge is None:
+            robot_validation = empty_validation_result(
+                "UNAVAILABLE",
+                self.moveit_state_validation_error
+                or "MoveIt state-validity bridge is unavailable",
+            )
+        else:
+            robot_validation = self.moveit_state_validation_bridge.validate_trajectory(
+                trajectory,
+                {"enabled": True, "max_joint_step_rad": max_joint_step_rad},
+            )
+        # Repository audit found no canonical physical Object or environment
+        # collision geometry. Empty scenes remain explicitly NOT_EVALUATED.
+        with self.phase4_collision_validation_lock:
+            return build_phase4b_collision_result(
+                plan,
+                robot_validation,
+                scene_validator=self.phase4_planning_scene_adapter,
+                object_geometry=None,
+                environment_objects=(),
+                max_joint_step_rad=max_joint_step_rad,
+            )
+
+    def invalidate_phase4_unified_validation(self, reason):
+        """Fail closed whenever the plan artifact or validation input changes."""
+        if hasattr(self, "phase5_execution_coordinator"):
+            self.phase5_execution_coordinator.invalidate_authority(str(reason))
+        with self.phase4_unified_validation_lock:
+            self.phase4_unified_validation_generation += 1
+            self.phase4_unified_validation_report = None
+            self.phase4_unified_validation_running = False
+            self.phase4_unified_validation_invalidated_reason = str(reason)
+            with self.phase5_execution_artifact_lock:
+                self.phase5_execution_artifact = None
+                self.phase5_execution_artifact_invalidated_reason = str(reason)
+                self.phase5_execution_artifact_generation = (
+                    self.phase4_unified_validation_generation
+                )
+
+    def _phase5_artifact_snapshot(self):
+        with self.phase5_execution_artifact_lock:
+            return (
+                self.phase5_execution_artifact,
+                int(self.phase5_execution_artifact_generation),
+                self.phase5_execution_artifact_invalidated_reason,
+            )
+
+    def _phase5_legacy_conflicts(self):
+        conflicts = []
+        with self.active_lock:
+            if self.active_jog is not None:
+                conflicts.append("LEGACY_JOG_ACTIVE")
+            if (
+                isinstance(self.active_sequence, dict)
+                and self.active_sequence.get("status") in {"running", "stop_requested"}
+            ):
+                conflicts.append("LEGACY_SEQUENCE_OR_PROGRAM_ACTIVE")
+            recent_motion = False
+            if isinstance(self.active_motion, dict):
+                sent_at = self.active_motion.get("sent_at_unix_s")
+                recent_motion = isinstance(sent_at, (int, float)) and (
+                    time.time() - float(sent_at) < 2.0
+                )
+            robot_reports_motion = any(
+                state is not None and int(getattr(state, "motion_state", 0)) != 0
+                for state in (self.left_state, self.right_state)
+            )
+            if recent_motion or robot_reports_motion:
+                conflicts.append("LEGACY_OR_ROBOT_MOTION_ACTIVE")
+        return conflicts
+
+    def _phase5_abort_existing_stop_path(self):
+        return self.request_stop_all("both")
+
+    def phase5_start_match_state(self, artifact=None):
+        """Evaluate cached Actual joints against frozen sample zero only."""
+        if self.phase5_motion_settings is None:
+            return {
+                "match": False,
+                "state": "BLOCKED",
+                "reason": (
+                    "PHASE5_MOTION_CONFIGURATION_INVALID: "
+                    + str(self.phase5_motion_configuration_error)
+                ),
+                "max_delta_rad": None,
+                "threshold_rad": None,
+            }
+        if artifact is None:
+            artifact, _generation, _reason = self._phase5_artifact_snapshot()
+        settings = self.phase5_motion_settings
+        return evaluate_actual_start_match(
+            self.digital_twin_ros_joint_status(),
+            artifact,
+            threshold_rad=settings["start_match_threshold_rad"],
+            max_age_ms=settings["actual_feedback_max_age_ms"],
+        )
+
+    def phase5_replan_from_current(self):
+        """Capture a fresh no-motion planning override for the next UI plan."""
+        if self.phase5_motion_settings is None:
+            return {
+                "ok": False,
+                "error": "PHASE5_MOTION_CONFIGURATION_INVALID",
+                "detail": self.phase5_motion_configuration_error,
+                "motion_dispatched": False,
+            }
+        snapshot = fresh_actual_joint_state(
+            self.digital_twin_ros_joint_status(),
+            max_age_ms=self.phase5_motion_settings["actual_feedback_max_age_ms"],
+        )
+        if snapshot["ok"] is not True:
+            return {
+                "ok": False,
+                "error": "REPLAN_FROM_CURRENT_FEEDBACK_BLOCKED",
+                "detail": snapshot["reason"],
+                "motion_dispatched": False,
+            }
+        return {
+            "ok": True,
+            "motion_dispatched": False,
+            "initial_joint_state_rad": snapshot["initial_joint_state_rad"],
+            "planning_start_state_source": REPLAN_FROM_CURRENT_SOURCE,
+            "actual_feedback_max_age_ms": snapshot["max_age_ms"],
+            "semantic": (
+                "NO MOTION — ONE-SHOT OVERRIDE FOR THE NEXT GLOBAL PLAN; "
+                "NORMAL PHASE4/FREEZE/GHOST/CONFIRMATION STILL REQUIRED"
+            ),
+        }
+
+    def phase5_move_to_initial(self):
+        """Explicit recovery motion to the remembered last-executed sample zero."""
+        settings = self.phase5_motion_settings
+        if settings is None:
+            return {
+                "ok": False,
+                "error": "PHASE5_MOTION_CONFIGURATION_INVALID",
+                "detail": self.phase5_motion_configuration_error,
+            }
+        if self.phase5_execution_coordinator.is_active():
+            return {"ok": False, "error": "PHASE5_EXECUTION_ACTIVE"}
+        safe, safe_reason = self.safe_state_ok("both")
+        if not safe:
+            return {
+                "ok": False,
+                "error": "ROBOT_SAFE_STATE_BLOCKED",
+                "detail": safe_reason,
+            }
+        conflicts = self._phase5_legacy_conflicts()
+        if conflicts:
+            return {
+                "ok": False,
+                "error": "LEGACY_CONFLICT_BLOCKED",
+                "blocking_reasons": conflicts,
+            }
+        fresh = fresh_actual_joint_state(
+            self.digital_twin_ros_joint_status(),
+            max_age_ms=settings["actual_feedback_max_age_ms"],
+        )
+        if fresh["ok"] is not True:
+            return {
+                "ok": False,
+                "error": "ACTUAL_FEEDBACK_BLOCKED",
+                "detail": fresh["reason"],
+            }
+
+        with self.phase5_recovery_initial_lock:
+            remembered = (
+                dict(self.phase5_recovery_initial)
+                if isinstance(self.phase5_recovery_initial, dict)
+                else None
+            )
+        if remembered is not None:
+            left_initial = list(remembered["left"])
+            right_initial = list(remembered["right"])
+            target_source = remembered["source"]
+            target_fingerprint = remembered["artifact_fingerprint"]
+            target_generation = remembered["artifact_generation"]
+            target_trajectory_name = remembered["trajectory_name"]
+        else:
+            artifact, generation, artifact_reason = self._phase5_artifact_snapshot()
+            if artifact is None:
+                return {
+                    "ok": False,
+                    "error": "INITIAL_RECOVERY_TARGET_UNAVAILABLE",
+                    "detail": artifact_reason,
+                }
+            try:
+                left_initial = [float(value) for value in artifact.left_positions_rad[0]]
+                right_initial = [float(value) for value in artifact.right_positions_rad[0]]
+                if len(left_initial) != 6 or len(right_initial) != 6:
+                    raise ValueError("sample zero must contain Left6 + Right6")
+            except (AttributeError, IndexError, TypeError, ValueError) as error:
+                return {
+                    "ok": False,
+                    "error": "FROZEN_ARTIFACT_SAMPLE_0_INVALID",
+                    "detail": str(error),
+                }
+            target_source = "CURRENT_FROZEN_ARTIFACT_SAMPLE_0_FALLBACK"
+            target_fingerprint = artifact.artifact_fingerprint
+            target_generation = int(generation)
+            target_trajectory_name = str(artifact.trajectory_name)
+
+        # Recheck the two conflict authorities immediately before the existing
+        # move path performs its own Phase-5/safe-state checks.
+        if self.phase5_execution_coordinator.is_active():
+            return {"ok": False, "error": "PHASE5_EXECUTION_ACTIVE"}
+        conflicts = self._phase5_legacy_conflicts()
+        if conflicts:
+            return {
+                "ok": False,
+                "error": "LEGACY_CONFLICT_BLOCKED",
+                "blocking_reasons": conflicts,
+            }
+        result = self.move_both_joint(
+            left_target=left_initial,
+            right_target=right_initial,
+            side="both",
+            vel=settings["recovery_joint_vel_rad_s"],
+            acc=settings["recovery_joint_acc_rad_s2"],
+        )
+        result["action"] = "MOVE_TO_REMEMBERED_PHASE5_INITIAL_REAL_MOTION"
+        result["initial_target_source"] = target_source
+        result["artifact_fingerprint"] = target_fingerprint
+        result["artifact_generation"] = target_generation
+        result["trajectory_name"] = target_trajectory_name
+        result["recovery_joint_vel_rad_s"] = settings[
+            "recovery_joint_vel_rad_s"
+        ]
+        result["recovery_joint_acc_rad_s2"] = settings[
+            "recovery_joint_acc_rad_s2"
+        ]
+        return result
+
+    def phase5_execution_state(self):
+        """Read authoritative execution feedback plus existing joint caches."""
+        result = self.phase5_execution_coordinator.inspection_state()
+        actual_joints = self.digital_twin_ros_joint_status()
+        result["actual_joints"] = actual_joints
+        monitoring_actual_joints = self.digital_twin_joint_status()
+        result["phase6_joint_tracking"] = compute_joint_tracking_error(
+            result.get("driver_feedback"), monitoring_actual_joints
+        )
+        result["actual_joint_semantic"] = (
+            "P5.11 CACHED ROS JOINT FEEDBACK ONLY — NO NEW ROBOT CALL"
+        )
+        result["motion_quality_configuration"] = (
+            dict(self.phase5_motion_settings)
+            if self.phase5_motion_settings is not None
+            else {
+                "valid": False,
+                "error": self.phase5_motion_configuration_error,
+            }
+        )
+        fresh = (
+            fresh_actual_joint_state(
+                actual_joints,
+                max_age_ms=self.phase5_motion_settings[
+                    "actual_feedback_max_age_ms"
+                ],
+            )
+            if self.phase5_motion_settings is not None
+            else {"ok": False, "reason": "PHASE5_MOTION_CONFIGURATION_INVALID"}
+        )
+        execution_state = (result.get("execution") or {}).get("state")
+        with self.phase5_recovery_initial_lock:
+            remembered_initial = (
+                dict(self.phase5_recovery_initial)
+                if isinstance(self.phase5_recovery_initial, dict)
+                else None
+            )
+        current_artifact_available = (result.get("artifact") or {}).get("available") is True
+        result["initial_recovery_target"] = {
+            "available": remembered_initial is not None or current_artifact_available,
+            "remembered_from_last_execution": remembered_initial is not None,
+            "source": (
+                remembered_initial.get("source")
+                if remembered_initial is not None
+                else (
+                    "CURRENT_FROZEN_ARTIFACT_SAMPLE_0_FALLBACK"
+                    if current_artifact_available
+                    else None
+                )
+            ),
+            "artifact_fingerprint": (
+                remembered_initial.get("artifact_fingerprint")
+                if remembered_initial is not None
+                else (result.get("artifact") or {}).get("artifact_fingerprint")
+            ),
+            "artifact_generation": (
+                remembered_initial.get("artifact_generation")
+                if remembered_initial is not None
+                else (result.get("artifact") or {}).get("generation")
+            ),
+            "trajectory_name": (
+                remembered_initial.get("trajectory_name")
+                if remembered_initial is not None
+                else None
+            ),
+        }
+        result["ready_to_replan_from_current"] = fresh.get("ok") is True
+        result["ready_to_move_to_initial"] = bool(
+            fresh.get("ok") is True
+            and result["initial_recovery_target"]["available"] is True
+            and (result.get("safe_state") or {}).get("ok") is True
+            and not result.get("legacy_conflicts")
+            and execution_state not in {"PREPARING", "ARMED", "RUNNING", "ABORT_REQUESTED"}
+        )
+        return result
+
+    def phase5_driver_execution_feedback(self, trajectory_id):
+        """Read both driver memory snapshots and aggregate them fail-closed."""
+        clients = {
+            "left": self.left_phase5_status,
+            "right": self.right_phase5_status,
+        }
+        futures = {}
+        responses = {"left": None, "right": None}
+        errors = {}
+        for side, client in clients.items():
+            try:
+                ready = bool(client.service_is_ready())
+            except Exception as error:
+                errors[side] = str(error)
+                continue
+            if not ready:
+                errors[side] = f"{side} /get_execution_status service unavailable"
+                continue
+            try:
+                futures[side] = client.call_async(GetExecutionStatus.Request())
+            except Exception as error:
+                errors[side] = str(error)
+
+        # Both read-only requests are dispatched before either wait.
+        deadline = time.monotonic() + 0.12
+        for side, future in futures.items():
+            remaining_s = max(0.0, deadline - time.monotonic())
+            responses[side] = self.wait_future_result(future, timeout=remaining_s)
+            if responses[side] is None:
+                errors[side] = f"{side} /get_execution_status timeout/no response"
+        return build_phase5_execution_feedback(
+            expected_trajectory_id=trajectory_id,
+            left_response=responses["left"],
+            right_response=responses["right"],
+            left_error=errors.get("left"),
+            right_error=errors.get("right"),
+            actual_joint_feedback=self.digital_twin_ros_joint_status(),
+        )
+
+    def prepare_phase5_execution(self):
+        """Capture no-expiry pending operator authority without dispatching motion."""
+        return self.phase5_execution_coordinator.prepare()
+
+    def execute_phase5_execution(self, operator_confirmed):
+        """Consume explicit operator authority and remember validated sample zero."""
+        artifact, generation, _reason = self._phase5_artifact_snapshot()
+        result = self.phase5_execution_coordinator.execute(operator_confirmed)
+        execution = result.get("execution") if isinstance(result, dict) else None
+        if (
+            isinstance(result, dict)
+            and result.get("ok") is True
+            and result.get("accepted") is True
+            and artifact is not None
+            and isinstance(execution, dict)
+            and execution.get("artifact_fingerprint") == artifact.artifact_fingerprint
+            and int(execution.get("artifact_generation")) == int(generation)
+        ):
+            try:
+                remembered = {
+                    "left": tuple(float(value) for value in artifact.left_positions_rad[0]),
+                    "right": tuple(float(value) for value in artifact.right_positions_rad[0]),
+                    "artifact_fingerprint": artifact.artifact_fingerprint,
+                    "artifact_generation": int(generation),
+                    "trajectory_name": str(artifact.trajectory_name),
+                    "source": "LAST_EXECUTED_FROZEN_ARTIFACT_SAMPLE_0",
+                }
+                if len(remembered["left"]) != 6 or len(remembered["right"]) != 6:
+                    raise ValueError("sample zero must contain Left6 + Right6")
+                with self.phase5_recovery_initial_lock:
+                    self.phase5_recovery_initial = remembered
+            except (AttributeError, IndexError, TypeError, ValueError):
+                # Execution authority already passed; recovery-memory failure must
+                # never mutate or retroactively cancel that accepted execution.
+                with self.phase5_recovery_initial_lock:
+                    self.phase5_recovery_initial = None
+        return result
+
+    def phase5_execution_artifact_state(self):
+        """Return a copy-safe P5.1-P5.3 artifact snapshot; never execute it."""
+        with self.phase5_execution_artifact_lock:
+            artifact = self.phase5_execution_artifact
+            reason = self.phase5_execution_artifact_invalidated_reason
+            generation = self.phase5_execution_artifact_generation
+        if artifact is None:
+            return {
+                "ok": True,
+                "available": False,
+                "status": "NOT_FROZEN",
+                "reason": reason,
+                "generation": generation,
+                "artifact": None,
+            }
+        return {
+            "ok": True,
+            "available": True,
+            "status": "FROZEN",
+            "reason": None,
+            "generation": generation,
+            "artifact": artifact.public_payload(),
+        }
+
+    def phase5_execution_transport_state(self):
+        """Inspect the P5.10 whole-trajectory transport without dispatch."""
+        transport = self.phase5_execution_transport.inspection_state()
+        artifact_state = self.phase5_execution_artifact_state()
+        return {
+            "ok": True,
+            "transport": transport,
+            "artifact_available": artifact_state["available"],
+            "artifact_status": artifact_state["status"],
+            "stop_generation": int(self.stop_generation),
+            "execution_endpoint_available": True,
+            "motion_dispatched": False,
+            "semantic": (
+                "READ-ONLY P5.10 TRANSPORT INSPECTION — HOST-TIMED COMMON "
+                "START IS NOT HARD REAL-TIME"
+            ),
+        }
+
+    def _phase4_authoritative_input_validation(self, plan):
+        """Compare one plan artifact with current backend grasp/calibration."""
+        if not isinstance(plan, dict):
+            return {
+                "status": "FAIL",
+                "reason_code": "MALFORMED_PLAN_AUTHORITY",
+                "reason": "Plan must be an object with grasp/calibration metadata",
+            }
+        locked = self.rigid_grasp_configuration.locked_snapshot()
+        grasp = plan.get("grasp")
+        calibration = plan.get("calibration")
+        if locked is None:
+            return {
+                "status": "FAIL",
+                "reason_code": "CURRENT_GRASP_UNLOCKED",
+                "reason": "Current authoritative rigid grasp is not locked",
+            }
+        if not isinstance(grasp, dict):
+            return {
+                "status": "FAIL",
+                "reason_code": "PLAN_GRASP_METADATA_MISSING",
+                "reason": "Plan has no locked-grasp identity metadata",
+            }
+        if not isinstance(calibration, dict):
+            return {
+                "status": "FAIL",
+                "reason_code": "PLAN_CALIBRATION_METADATA_MISSING",
+                "reason": "Plan has no calibration/model identity metadata",
+            }
+        try:
+            authoritative_calibration = world_calibration_public_payload()
+            web_model_revision = get_web_model_calibration_revision()
+        except Exception as error:
+            return {
+                "status": "FAIL",
+                "reason_code": "CALIBRATION_STATE_UNAVAILABLE_OR_INVALID",
+                "reason": str(error),
+            }
+        current_revision = authoritative_calibration["revision"]
+        checks = (
+            ("status", grasp.get("status"), GRASP_LOCKED, "PLAN_GRASP_NOT_LOCKED"),
+            (
+                "grasp_content_revision",
+                grasp.get("content_revision"),
+                locked.content_revision,
+                "PLAN_GRASP_REVISION_STALE",
+            ),
+            (
+                "lock_generation",
+                grasp.get("lock_generation"),
+                locked.lock_generation,
+                "PLAN_LOCK_GENERATION_STALE",
+            ),
+            (
+                "lock_revision",
+                grasp.get("lock_revision"),
+                locked.lock_revision,
+                "PLAN_LOCK_REVISION_STALE",
+            ),
+            (
+                "calibration_revision",
+                calibration.get("revision"),
+                current_revision,
+                "PLAN_CALIBRATION_REVISION_STALE",
+            ),
+            (
+                "model_calibration_revision",
+                calibration.get("model_revision"),
+                web_model_revision,
+                "MODEL_CALIBRATION_REVISION_MISMATCH",
+            ),
+            (
+                "calibration_revision_status",
+                calibration.get("revision_status"),
+                "MATCH",
+                "MODEL_CALIBRATION_REVISION_MISMATCH",
+            ),
+        )
+        if web_model_revision != current_revision:
+            return {
+                "status": "FAIL",
+                "reason_code": "MODEL_CALIBRATION_REVISION_MISMATCH",
+                "reason": "Checked-in Web model revision does not match backend calibration",
+                "plan_value": web_model_revision,
+                "current_value": current_revision,
+            }
+        for field, actual, expected, reason_code in checks:
+            if actual != expected:
+                return {
+                    "status": "FAIL",
+                    "reason_code": reason_code,
+                    "reason": f"Plan {field} does not match current authority",
+                    "field": field,
+                    "plan_value": actual,
+                    "current_value": expected,
+                }
+        return {
+            "status": "PASS",
+            "reason_code": None,
+            "reason": "Plan grasp and calibration match current backend authority",
+            "grasp_status": GRASP_LOCKED,
+            "grasp_content_revision": locked.content_revision,
+            "lock_generation": locked.lock_generation,
+            "lock_revision": locked.lock_revision,
+            "calibration_revision": current_revision,
+            "model_calibration_revision": web_model_revision,
+            "model_calibration_status": "MATCH",
+            "calibration_state": authoritative_calibration["calibration_state"],
+            "physical_calibration": authoritative_calibration["physical_calibration"],
+            "physically_calibrated": authoritative_calibration[
+                "physically_calibrated"
+            ],
+            "tcp_tool_contract_status": authoritative_calibration[
+                "tcp_tool_contract"
+            ]["status"],
+        }
+
+    def validate_digital_twin_phase4_unified(self, request_payload):
+        """Orchestrate existing Phase-4 validators for one immutable plan."""
+        if hasattr(self, "phase5_execution_coordinator"):
+            self.phase5_execution_coordinator.invalidate_authority(
+                "PHASE4 VALIDATION RUNNING"
+            )
+        with self.phase4_unified_validation_lock:
+            self.phase4_unified_validation_generation += 1
+            validation_generation = self.phase4_unified_validation_generation
+            self.phase4_unified_validation_report = None
+            self.phase4_unified_validation_running = True
+            self.phase4_unified_validation_invalidated_reason = "VALIDATION RUNNING"
+            with self.phase5_execution_artifact_lock:
+                self.phase5_execution_artifact = None
+                self.phase5_execution_artifact_invalidated_reason = (
+                    "PHASE4 VALIDATION RUNNING"
+                )
+                self.phase5_execution_artifact_generation = validation_generation
+        try:
+            authority_validation = self._phase4_authoritative_input_validation(
+                request_payload.get("plan")
+            )
+            if authority_validation["status"] != "PASS":
+                raise Phase4UnifiedValidationInputError(
+                    f"{authority_validation['reason_code']}: "
+                    f"{authority_validation['reason']}"
+                )
+            phase4a = self.validate_digital_twin_phase4_trajectory(request_payload)
+            phase4b = self.validate_digital_twin_phase4_collision(request_payload)
+            limits = self.object_global_planning_joint_limits
+            validation_context = {
+                "joint_position_limits": {
+                    "source": "CANONICAL_MOVEIT_MODEL_POSITION_LIMITS",
+                    "lower_rad": list(limits.lower_rad) if limits is not None else None,
+                    "upper_rad": list(limits.upper_rad) if limits is not None else None,
+                },
+                "velocity_limit_source": (phase4a.get("velocity") or {}).get(
+                    "limit_source"
+                ),
+                "acceleration_limit_status": (phase4a.get("acceleration") or {}).get(
+                    "limit_status"
+                ),
+                "acceleration_limit_source": (phase4a.get("acceleration") or {}).get(
+                    "limit_source"
+                ),
+                "object_scene": phase4b.get("object_scene"),
+                "environment_scene": phase4b.get("environment_scene"),
+            }
+            final_authority_validation = (
+                self._phase4_authoritative_input_validation(
+                    request_payload.get("plan")
+                )
+            )
+            identity_fields = (
+                "grasp_content_revision",
+                "lock_generation",
+                "lock_revision",
+                "calibration_revision",
+                "model_calibration_revision",
+            )
+            if (
+                final_authority_validation.get("status") != "PASS"
+                or any(
+                    final_authority_validation.get(field)
+                    != authority_validation.get(field)
+                    for field in identity_fields
+                )
+            ):
+                raise Phase4UnifiedValidationInputError(
+                    "AUTHORITATIVE_INPUT_CHANGED_DURING_VALIDATION: "
+                    "grasp or calibration authority changed while Phase-4 was in flight"
+                )
+            report = build_phase4_unified_report(
+                request_payload.get("plan"),
+                phase4a,
+                phase4b,
+                joint_position_limits=limits,
+                start_state=request_payload.get("start_state"),
+                position_tolerance_m=request_payload.get(
+                    "position_tolerance_m", DEFAULT_POSITION_TOLERANCE_M
+                ),
+                orientation_tolerance_rad=request_payload.get(
+                    "orientation_tolerance_rad", DEFAULT_ORIENTATION_TOLERANCE_RAD
+                ),
+                max_joint_step_rad=request_payload.get("max_joint_step_rad", 0.05),
+                validation_context=validation_context,
+                authoritative_input_validation=authority_validation,
+            )
+            artifact = None
+            artifact_error = None
+            if (
+                report.get("overall_status") == "PASS"
+                and (report.get("execution_gate") or {}).get("execution_ready") is True
+            ):
+                try:
+                    artifact = freeze_validated_execution_artifact(
+                        request_payload.get("plan"),
+                        report,
+                        validation_start_state=request_payload.get("start_state"),
+                    )
+                except Phase5ExecutionArtifactError as error:
+                    artifact_error = (
+                        f"PHASE5_EXECUTION_ARTIFACT_FREEZE_FAILED: {error}"
+                    )
+                except Exception as error:
+                    artifact_error = (
+                        "PHASE5_EXECUTION_ARTIFACT_UNEXPECTED_ERROR: "
+                        f"{error}"
+                    )
+            else:
+                artifact_error = "PHASE4_REPORT_NOT_EXECUTION_READY"
+            with self.phase4_unified_validation_lock:
+                if validation_generation == self.phase4_unified_validation_generation:
+                    self.phase4_unified_validation_report = report
+                    self.phase4_unified_validation_invalidated_reason = None
+                    with self.phase5_execution_artifact_lock:
+                        self.phase5_execution_artifact = artifact
+                        self.phase5_execution_artifact_invalidated_reason = (
+                            None if artifact is not None else artifact_error
+                        )
+                        self.phase5_execution_artifact_generation = validation_generation
+            return report
+        finally:
+            with self.phase4_unified_validation_lock:
+                if validation_generation == self.phase4_unified_validation_generation:
+                    self.phase4_unified_validation_running = False
+
+    def phase4_execution_gate_state(self, current_plan_fingerprint=None):
+        """Return the backend-authoritative additive execution precondition."""
+        with self.phase4_unified_validation_lock:
+            report = self.phase4_unified_validation_report
+            running = self.phase4_unified_validation_running
+            invalidated = self.phase4_unified_validation_invalidated_reason
+        state = evaluate_execution_gate(
+            report,
+            current_plan_fingerprint,
+            validation_running=running,
+        )
+        grasp_state = self.rigid_grasp_configuration.snapshot()
+        grasp_blockers = []
+        if grasp_state["state"] != GRASP_LOCKED:
+            grasp_blockers.append("RIGID_GRASP_NOT_LOCKED")
+        evidence = None
+        if isinstance(report, dict):
+            check = (report.get("checks") or {}).get("authoritative_inputs")
+            evidence = check.get("evidence") if isinstance(check, dict) else None
+        if not isinstance(evidence, dict):
+            grasp_blockers.append("AUTHORITATIVE_PLAN_IDENTITY_MISSING")
+        else:
+            current_locked = self.rigid_grasp_configuration.locked_snapshot()
+            if current_locked is None:
+                grasp_blockers.append("RIGID_GRASP_NOT_LOCKED")
+            else:
+                if evidence.get("grasp_content_revision") != current_locked.content_revision:
+                    grasp_blockers.append("PLAN_GRASP_REVISION_STALE")
+                if evidence.get("lock_generation") != current_locked.lock_generation:
+                    grasp_blockers.append("PLAN_LOCK_GENERATION_STALE")
+                if evidence.get("lock_revision") != current_locked.lock_revision:
+                    grasp_blockers.append("PLAN_LOCK_REVISION_STALE")
+            try:
+                current_calibration_revision = get_world_calibration_revision()
+                current_model_calibration_revision = (
+                    get_web_model_calibration_revision()
+                )
+            except Exception:
+                current_calibration_revision = None
+                current_model_calibration_revision = None
+                grasp_blockers.append("CALIBRATION_STATE_UNAVAILABLE_OR_INVALID")
+            if evidence.get("calibration_revision") != current_calibration_revision:
+                grasp_blockers.append("PLAN_CALIBRATION_REVISION_STALE")
+            if current_model_calibration_revision != current_calibration_revision:
+                grasp_blockers.append("MODEL_CALIBRATION_REVISION_MISMATCH")
+            if (
+                evidence.get("model_calibration_revision")
+                != current_model_calibration_revision
+            ):
+                grasp_blockers.append("MODEL_CALIBRATION_REVISION_MISMATCH")
+        if grasp_blockers:
+            state["execution_ready"] = False
+            state["execution_ready_label"] = "NO"
+            state["status"] = "BLOCKED"
+            state["blocking_reasons"] = list(dict.fromkeys(
+                [*state.get("blocking_reasons", []), *grasp_blockers]
+            ))
+        state["invalidated_reason"] = invalidated
+        return state
 
     def safe_state_ok(self, side):
         selected = []
@@ -585,8 +2049,8 @@ class DualJakaWebNode(Node):
         return req
 
     def wait_future_result(self, future, timeout=0.4):
-        start = time.time()
-        while not future.done() and (time.time() - start) < timeout:
+        start = time.monotonic()
+        while not future.done() and (time.monotonic() - start) < timeout:
             time.sleep(0.01)
         if not future.done():
             return None
@@ -595,6 +2059,58 @@ class DualJakaWebNode(Node):
         except Exception:
             return None
 
+
+    def digital_twin_frame_state(self):
+        """Read active JAKA Tool/User/Mounting state without modifying the robot."""
+        result = {
+            "ok": True,
+            "mode": "READ_ONLY_NO_MOTION",
+            "semantic": (
+                "JAKA kine_forward/get_fk uses current tool, current mounting angle, "
+                "and current user coordinate"
+            ),
+            "units": {"translation": "mm", "rotation": "rad"},
+            "sides": {},
+        }
+        for side, client in (
+            ("left", self.left_get_frame_state),
+            ("right", self.right_get_frame_state),
+        ):
+            side_result = {"available": False, "error": None}
+            if not client.service_is_ready():
+                side_result["error"] = f"{side} /get_frame_state service unavailable"
+                result["ok"] = False
+                result["sides"][side] = side_result
+                continue
+            response = self.wait_future_result(
+                client.call_async(GetFrameState.Request()), timeout=0.8
+            )
+            if response is None:
+                side_result["error"] = f"{side} /get_frame_state timed out"
+                result["ok"] = False
+                result["sides"][side] = side_result
+                continue
+            if int(getattr(response, "ret", 0)) != 1:
+                side_result["error"] = str(
+                    getattr(response, "message", "frame-state getter failed")
+                )
+                result["ok"] = False
+                result["sides"][side] = side_result
+                continue
+            side_result.update({
+                "available": True,
+                "tool_id": int(response.tool_id),
+                "tool_pose": [float(value) for value in response.tool_pose],
+                "user_frame_id": int(response.user_frame_id),
+                "user_frame_pose": [float(value) for value in response.user_frame_pose],
+                "installation_rpy": [float(value) for value in response.installation_rpy],
+                "installation_quaternion_wxyz": [
+                    float(value) for value in response.installation_quaternion
+                ],
+                "error": None,
+            })
+            result["sides"][side] = side_result
+        return result
 
     def get_fk_pose(self, side_name):
         if side_name == "left":
@@ -799,6 +2315,52 @@ class DualJakaWebNode(Node):
         req.index = 0
         return req
 
+    def make_execute_joint_trajectory_request(
+        self,
+        time_from_start_s,
+        flattened_joint_positions_rad,
+        start_time_unix_ns,
+        trajectory_id,
+        servo_filter_config=None,
+        servo_step_num=1,
+    ):
+        req = ExecuteJointTrajectory.Request()
+        req.time_from_start_s = [float(value) for value in time_from_start_s]
+        req.joint_positions_rad_flat = [
+            float(value) for value in flattened_joint_positions_rad
+        ]
+        req.start_time_unix_ns = int(start_time_unix_ns)
+        req.trajectory_id = str(trajectory_id)
+        filter_config = dict(
+            servo_filter_config
+            or {"mode": "LEGACY_FORESIGHT", "legacy_max_buf": 15, "legacy_kp": 0.03}
+        )
+        mode = str(filter_config.get("mode", "LEGACY_FORESIGHT")).upper()
+        req.servo_filter_mode = {
+            "NONE": 0,
+            "LPF": 1,
+            "NLF": 2,
+            "LEGACY_FORESIGHT": 3,
+        }.get(mode, 255)
+        req.servo_filter_legacy_max_buf = int(
+            filter_config.get("legacy_max_buf", 0)
+        )
+        req.servo_filter_legacy_kp = float(filter_config.get("legacy_kp", 0.0))
+        req.servo_filter_lpf_cutoff_hz = float(
+            filter_config.get("lpf_cutoff_hz", 0.0)
+        )
+        req.servo_filter_nlf_max_velocity_deg_s = float(
+            filter_config.get("nlf_max_velocity_deg_s", 0.0)
+        )
+        req.servo_filter_nlf_max_acceleration_deg_s2 = float(
+            filter_config.get("nlf_max_acceleration_deg_s2", 0.0)
+        )
+        req.servo_filter_nlf_max_jerk_deg_s3 = float(
+            filter_config.get("nlf_max_jerk_deg_s3", 0.0)
+        )
+        req.servo_step_num = int(servo_step_num)
+        return req
+
     def send_jog_once(self, cmd):
         side = cmd["side"]
         coord = cmd["coord"]
@@ -848,6 +2410,8 @@ class DualJakaWebNode(Node):
             self.send_jog_once(cmd)
 
     def start_jog(self, req: JogStartRequest):
+        if self.phase5_execution_coordinator.is_active():
+            return {"ok": False, "error": "PHASE5_EXECUTION_ACTIVE"}
         if req.side not in ("left", "right", "both"):
             return {"ok": False, "error": "side must be left, right, or both"}
         if req.coord not in ("joint", "base", "tool"):
@@ -886,6 +2450,8 @@ class DualJakaWebNode(Node):
             return {"ok": True, "active_jog": self.active_jog}
 
     def stop_jog(self, side="both"):
+        if self.phase5_execution_coordinator.is_active():
+            return self.request_stop_all("both")
         with self.active_lock:
             self.active_jog = None
             self.active_motion = None
@@ -903,6 +2469,8 @@ class DualJakaWebNode(Node):
         # Dual-arm synchronized joint move:
         # Treat incoming vel/acc as maximum values, then scale left/right velocity
         # based on each arm's joint distance so both arms finish closer together.
+        if self.phase5_execution_coordinator.is_active():
+            return {"ok": False, "error": "PHASE5_EXECUTION_ACTIVE"}
         ok, msg = self.safe_state_ok(side)
         if not ok:
             return {"ok": False, "error": msg}
@@ -997,6 +2565,7 @@ class DualJakaWebNode(Node):
             "right_acc": right_acc,
             "left_send": left_send,
             "right_send": right_send,
+            "sent_at_unix_s": time.time(),
         }
 
         if left_send:
@@ -1030,6 +2599,7 @@ class DualJakaWebNode(Node):
         # Global stop latch:
         # กด STOP ครั้งเดียวต้องหยุด motion ปัจจุบัน + ยกเลิก sequence ทั้งหมด
         self.stop_generation = getattr(self, "stop_generation", 0) + 1
+        self.phase5_execution_coordinator.on_stop(self.stop_generation)
         self.motion_cancel_requested = True
         self.sequence_cancel_requested = True
 
@@ -1055,6 +2625,11 @@ class DualJakaWebNode(Node):
         }
 
     def home(self, side="both", vel=None, acc=None):
+        if self.phase5_execution_coordinator.is_active():
+            return {
+                "ok": False,
+                "error": "PHASE5_EXECUTION_ACTIVE_HOME_BLOCKED_USE_STOP_FIRST",
+            }
         home_cfg = self.cfg.get("home", {})
         left_home = home_cfg.get("left")
         right_home = home_cfg.get("right")
@@ -1352,6 +2927,37 @@ class DualJakaWebNode(Node):
 
         return log
 
+    def list_center_paths(self):
+        try:
+            return self.center_path_store.list()
+        except Exception as error:
+            return {"ok": False, "error": str(error), "paths": []}
+
+    def save_center_path(self, name, path_payload, overwrite=True):
+        try:
+            return self.center_path_store.save(name, path_payload, overwrite=bool(overwrite))
+        except Exception as error:
+            return {"ok": False, "error": str(error)}
+
+    def load_center_path(self, name):
+        try:
+            return self.center_path_store.load(name)
+        except Exception as error:
+            return {"ok": False, "error": str(error)}
+
+    def rename_center_path(self, name, new_name):
+        try:
+            return self.center_path_store.rename(name, new_name)
+        except Exception as error:
+            return {"ok": False, "error": str(error)}
+
+    def delete_center_path(self, name):
+        try:
+            return self.center_path_store.delete(name)
+        except Exception as error:
+            return {"ok": False, "error": str(error)}
+
+
     def _programs_dir(self):
         d = Path(__file__).resolve().parents[1] / "programs"
         d.mkdir(parents=True, exist_ok=True)
@@ -1512,6 +3118,8 @@ class DualJakaWebNode(Node):
 
 
     def run_program(self, steps, side="both", vel=None, acc=None, loop_mode="once", loop_count=1):
+        if self.phase5_execution_coordinator.is_active():
+            return {"ok": False, "error": "PHASE5_EXECUTION_ACTIVE"}
         if not steps:
             return {"ok": False, "error": "program is empty"}
 
@@ -1734,6 +3342,8 @@ class DualJakaWebNode(Node):
 
 
     def run_sequence(self, names, side="both", vel=None, acc=None):
+        if self.phase5_execution_coordinator.is_active():
+            return {"ok": False, "error": "PHASE5_EXECUTION_ACTIVE"}
         if not names:
             return {"ok": False, "error": "sequence is empty"}
 
@@ -1887,7 +3497,7 @@ class DualJakaWebNode(Node):
 
 
 def load_config():
-    p = Path.home() / "jaka_ws/dual_arm_app/config/robots.yaml"
+    p = Path(__file__).resolve().parents[1] / "config/robots.yaml"
     if not p.exists():
         raise FileNotFoundError(f"Config file not found: {p}")
 
@@ -1944,6 +3554,32 @@ from fastapi import FastAPI
 from fastapi.responses import FileResponse
 from fastapi.middleware.cors import CORSMiddleware
 from pathlib import Path
+
+# Prevent two backend processes from creating the same ROS node name.
+# The lock file remains in the workspace; it is never deleted. The OS releases
+# the advisory lock automatically when the owning process exits.
+import builtins
+import fcntl
+
+_BACKEND_INSTANCE_LOCK_PATH = Path(__file__).resolve().parent / ".dual_jaka_web_backend.instance.lock"
+_PROCESS_LOCK_ATTRIBUTE = "_dual_jaka_web_backend_instance_lock_stream"
+if hasattr(builtins, _PROCESS_LOCK_ATTRIBUTE):
+    # Test harnesses may import this module repeatedly inside one Python process.
+    # Reuse that process's existing lock ownership rather than self-conflicting.
+    _BACKEND_INSTANCE_LOCK_STREAM = getattr(builtins, _PROCESS_LOCK_ATTRIBUTE)
+else:
+    _BACKEND_INSTANCE_LOCK_STREAM = _BACKEND_INSTANCE_LOCK_PATH.open("a+", encoding="utf-8")
+    try:
+        fcntl.flock(
+            _BACKEND_INSTANCE_LOCK_STREAM.fileno(),
+            fcntl.LOCK_EX | fcntl.LOCK_NB,
+        )
+    except BlockingIOError as error:
+        _BACKEND_INSTANCE_LOCK_STREAM.close()
+        raise RuntimeError(
+            "Another dual_jaka_web_backend process already owns the ROS backend instance lock"
+        ) from error
+    setattr(builtins, _PROCESS_LOCK_ATTRIBUTE, _BACKEND_INSTANCE_LOCK_STREAM)
 
 if not rclpy.ok():
     rclpy.init()
@@ -2005,7 +3641,10 @@ _D33_LAST_ACTIVITY = {
     "last_error": None,
 }
 
-_D33_MOTION_EXACT_PATHS = set()
+_D33_MOTION_EXACT_PATHS = {
+    "/api/digital-twin/phase5/execute",
+    "/api/digital-twin/phase5/move-to-initial",
+}
 
 _D33_MOTION_KEYWORDS = (
     "/home",
@@ -2028,6 +3667,21 @@ _D33_NO_MOTION_PATHS = (
     "/api/program/list",
     "/api/program/load",
     "/api/digital-twin/validate-trajectory",
+    "/api/digital-twin/plan-object-global",
+    "/api/digital-twin/center-path",
+    "/api/digital-twin/planning-start-state",
+    "/api/digital-twin/world-calibration",
+    "/api/digital-twin/phase5/execution-artifact",
+    "/api/digital-twin/phase5/execution-transport",
+    "/api/digital-twin/phase5/execution",
+    "/api/digital-twin/phase5/prepare",
+    "/api/digital-twin/phase5/replan-from-current",
+    "/api/digital-twin/grasp-configuration",
+    "/api/digital-twin/grasp-configuration/lock",
+    "/api/digital-twin/grasp-configuration/unlock",
+    "/api/digital-twin/validate-phase4-trajectory",
+    "/api/digital-twin/validate-phase4-collision",
+    "/api/digital-twin/validate-phase4",
 )
 
 def _d33_is_motion_command(path: str, method: str) -> bool:
@@ -2165,7 +3819,7 @@ app.add_middleware(
 
 @app.get("/")
 def index():
-    return FileResponse(str(Path.home() / "jaka_ws/dual_arm_app/web/index.html"))
+    return FileResponse(str(_WEB_DIR / "index.html"))
 
 
 @app.get("/api/status")
@@ -2188,6 +3842,115 @@ def api_digital_twin_tcp():
     return node.digital_twin_tcp_status()
 
 
+@app.get("/api/digital-twin/frame-state")
+def api_digital_twin_frame_state():
+    """Read active controller Tool/User/Mounting state; no motion or setters."""
+    return node.digital_twin_frame_state()
+
+
+@app.get("/api/digital-twin/planning-start-state")
+def api_digital_twin_planning_start_state():
+    return node.digital_twin_planning_start_state()
+
+
+@app.get("/api/digital-twin/world-calibration")
+def api_digital_twin_world_calibration():
+    """Inspect canonical model alignment without accessing either robot."""
+    return {"ok": True, "calibration": world_calibration_public_payload()}
+
+
+@app.get("/api/digital-twin/phase5/execution-artifact")
+def api_digital_twin_phase5_execution_artifact():
+    """Inspect frozen P5.1-P5.3 execution data; never command either robot."""
+    return node.phase5_execution_artifact_state()
+
+
+@app.get("/api/digital-twin/phase5/execution-transport")
+def api_digital_twin_phase5_execution_transport():
+    """Inspect P5.10 transport readiness; never dispatch motion."""
+    return node.phase5_execution_transport_state()
+
+
+@app.get("/api/digital-twin/phase5/execution")
+def api_digital_twin_phase5_execution_state():
+    """Inspect the Phase-5-only gate, operator authority, and minimal state."""
+    return node.phase5_execution_state()
+
+
+@app.post("/api/digital-twin/phase5/prepare")
+def api_digital_twin_phase5_prepare():
+    """No-motion capture of a no-expiry single-use pending operator authority."""
+    return node.prepare_phase5_execution()
+
+
+@app.post("/api/digital-twin/phase5/execute")
+def api_digital_twin_phase5_execute(req: DigitalTwinPhase5ExecuteRequest):
+    """Consume explicit confirmation and submit the frozen dual trajectory."""
+    return node.execute_phase5_execution(req.operator_confirmed)
+
+
+@app.post("/api/digital-twin/phase5/replan-from-current")
+def api_digital_twin_phase5_replan_from_current():
+    """Capture fresh cached Actual joints for the next plan; no motion."""
+    return node.phase5_replan_from_current()
+
+
+@app.post("/api/digital-twin/phase5/move-to-initial")
+def api_digital_twin_phase5_move_to_initial():
+    """Explicit real recovery motion to frozen artifact sample zero."""
+    return node.phase5_move_to_initial()
+
+
+@app.get("/api/digital-twin/center-paths")
+def api_digital_twin_center_paths():
+    return node.list_center_paths()
+
+
+@app.post("/api/digital-twin/center-path/save")
+def api_digital_twin_center_path_save(req: DigitalTwinCenterPathSaveRequest):
+    return node.save_center_path(req.name, req.path, req.overwrite)
+
+
+@app.post("/api/digital-twin/center-path/load")
+def api_digital_twin_center_path_load(req: DigitalTwinCenterPathNameRequest):
+    return node.load_center_path(req.name)
+
+
+@app.post("/api/digital-twin/center-path/rename")
+def api_digital_twin_center_path_rename(req: DigitalTwinCenterPathRenameRequest):
+    return node.rename_center_path(req.name, req.new_name)
+
+
+@app.post("/api/digital-twin/center-path/delete")
+def api_digital_twin_center_path_delete(req: DigitalTwinCenterPathNameRequest):
+    return node.delete_center_path(req.name)
+
+
+@app.get("/api/digital-twin/grasp-configuration")
+def api_digital_twin_grasp_configuration():
+    return {"ok": True, "grasp": node.digital_twin_grasp_configuration_state()}
+
+
+@app.post("/api/digital-twin/grasp-configuration/lock")
+def api_digital_twin_lock_grasp_configuration(req: DigitalTwinGraspLockRequest):
+    payload = req.model_dump() if hasattr(req, "model_dump") else req.dict()
+    try:
+        return {
+            "ok": True,
+            "grasp": node.lock_digital_twin_grasp_configuration(payload),
+        }
+    except RigidGraspConfigurationError as error:
+        raise HTTPException(status_code=422, detail=str(error)) from error
+
+
+@app.post("/api/digital-twin/grasp-configuration/unlock")
+def api_digital_twin_unlock_grasp_configuration():
+    return {
+        "ok": True,
+        "grasp": node.unlock_digital_twin_grasp_configuration(),
+    }
+
+
 @app.post("/api/digital-twin/validate-trajectory")
 def api_digital_twin_validate_trajectory(req: DigitalTwinTrajectoryValidationRequest):
     try:
@@ -2204,6 +3967,72 @@ def api_digital_twin_validate_trajectory(req: DigitalTwinTrajectoryValidationReq
         ),
         "validation": validation,
     }
+
+
+@app.post("/api/digital-twin/plan-object-global")
+def api_digital_twin_plan_object_global(req: DigitalTwinObjectGlobalPlanRequest):
+    payload = (
+        req.model_dump(exclude_unset=True)
+        if hasattr(req, "model_dump")
+        else req.dict(exclude_unset=True)
+    )
+    try:
+        return node.plan_digital_twin_object_global(payload)
+    except ObjectGlobalPlanInputError as error:
+        raise HTTPException(status_code=422, detail=str(error)) from error
+
+
+@app.post("/api/digital-twin/validate-phase4-trajectory")
+def api_digital_twin_validate_phase4_trajectory(
+    req: DigitalTwinPhase4TrajectoryValidationRequest,
+):
+    payload = (
+        req.model_dump(exclude_unset=True)
+        if hasattr(req, "model_dump")
+        else req.dict(exclude_unset=True)
+    )
+    try:
+        validation = node.validate_digital_twin_phase4_trajectory(payload)
+    except Phase4ValidationInputError as error:
+        raise HTTPException(status_code=422, detail=str(error)) from error
+    return {"ok": validation["status"] in {"PASS", "INCOMPLETE"}, "validation": validation}
+
+
+@app.post("/api/digital-twin/validate-phase4-collision")
+def api_digital_twin_validate_phase4_collision(
+    req: DigitalTwinPhase4CollisionValidationRequest,
+):
+    payload = (
+        req.model_dump(exclude_unset=True)
+        if hasattr(req, "model_dump")
+        else req.dict(exclude_unset=True)
+    )
+    try:
+        validation = node.validate_digital_twin_phase4_collision(payload)
+    except (Phase4CollisionInputError, SampledPathValidationInputError) as error:
+        raise HTTPException(status_code=422, detail=str(error)) from error
+    return {"ok": validation["status"] in {"PASS", "INCOMPLETE"}, "validation": validation}
+
+
+@app.post("/api/digital-twin/validate-phase4")
+def api_digital_twin_validate_phase4(
+    req: DigitalTwinPhase4UnifiedValidationRequest,
+):
+    payload = (
+        req.model_dump(exclude_unset=True)
+        if hasattr(req, "model_dump")
+        else req.dict(exclude_unset=True)
+    )
+    try:
+        report = node.validate_digital_twin_phase4_unified(payload)
+    except (
+        Phase4ValidationInputError,
+        Phase4CollisionInputError,
+        Phase4UnifiedValidationInputError,
+        SampledPathValidationInputError,
+    ) as error:
+        raise HTTPException(status_code=422, detail=str(error)) from error
+    return {"ok": True, "report": report}
 
 
 @app.post("/api/jog/start")
@@ -2279,6 +4108,9 @@ def api_program_delete(req: ProgramNameRequest):
 
 @app.post("/api/program/run")
 def api_program_run(req: ProgramRunRequest):
+    # Legacy saved-waypoint programs are independent of the Digital-Twin
+    # Phase-4 plan authority. Phase-5 validated-plan execution must use its
+    # own explicit gated contract rather than silently repurposing this route.
     return node.run_program(
         req.steps,
         req.side,

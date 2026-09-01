@@ -338,6 +338,250 @@
       font-weight: 700;
     }
 
+    .digital-twin-live-mirror-quick {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 18px;
+      margin: 12px 0;
+      padding: 11px 14px;
+      border: 1px solid #334155;
+      border-radius: 10px;
+      background: rgba(15, 23, 42, 0.72);
+    }
+
+    .digital-twin-live-mirror-quick-copy {
+      display: flex;
+      align-items: baseline;
+      flex-wrap: wrap;
+      gap: 8px 14px;
+    }
+
+    .digital-twin-live-mirror-quick-copy strong {
+      color: #e2e8f0;
+      font-size: 14px;
+    }
+
+    .digital-twin-live-mirror-quick-copy span {
+      color: #94a3b8;
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .digital-twin-live-mirror-quick[data-state="on"] {
+      border-color: #10b981;
+    }
+
+    .digital-twin-live-mirror-quick[data-state="partial"],
+    .digital-twin-live-mirror-quick[data-state="error"] {
+      border-color: #f59e0b;
+    }
+
+    .digital-twin-switch {
+      position: relative;
+      display: inline-flex;
+      flex: 0 0 auto;
+      width: 48px;
+      height: 26px;
+      cursor: pointer;
+    }
+
+    .digital-twin-switch input {
+      position: absolute;
+      opacity: 0;
+      width: 1px;
+      height: 1px;
+    }
+
+    .digital-twin-switch-slider {
+      position: absolute;
+      inset: 0;
+      border-radius: 999px;
+      background: #475569;
+      transition: background 120ms ease;
+    }
+
+    .digital-twin-switch-slider::after {
+      content: "";
+      position: absolute;
+      width: 20px;
+      height: 20px;
+      left: 3px;
+      top: 3px;
+      border-radius: 50%;
+      background: #f8fafc;
+      transition: transform 120ms ease;
+    }
+
+    .digital-twin-switch input:checked + .digital-twin-switch-slider {
+      background: #10b981;
+    }
+
+    .digital-twin-switch input:checked + .digital-twin-switch-slider::after {
+      transform: translateX(22px);
+    }
+
+    .digital-twin-switch input:indeterminate + .digital-twin-switch-slider {
+      background: #f59e0b;
+    }
+
+    .digital-twin-switch input:disabled + .digital-twin-switch-slider {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    .digital-twin-switch input:focus-visible + .digital-twin-switch-slider {
+      outline: 2px solid #38bdf8;
+      outline-offset: 2px;
+    }
+
+    .digital-twin-operator-alignment {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px 22px;
+      align-items: center;
+      margin: 12px 0;
+      padding: 12px 14px;
+      border: 1px solid #f59e0b;
+      border-radius: 10px;
+      background: rgba(146, 64, 14, 0.12);
+    }
+
+    .digital-twin-operator-alignment strong[data-state="ok"] {
+      color: #6ee7b7;
+    }
+
+    .digital-twin-operator-alignment strong[data-state="warning"],
+    .digital-twin-operator-calibration-warning {
+      color: #fbbf24;
+    }
+
+    .digital-twin-workflow-guide {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(130px, 1fr));
+      gap: 8px;
+      margin: 14px 0;
+    }
+
+    .digital-twin-workflow-guide span {
+      padding: 10px 12px;
+      border: 1px solid var(--line);
+      border-radius: 9px;
+      background: var(--panel2);
+      color: #cbd5e1;
+      font-weight: 700;
+      text-align: center;
+    }
+
+    .digital-twin-workflow-stage {
+      position: relative;
+      margin-top: 14px;
+      padding: 16px;
+      border: 1px solid #38bdf8;
+      border-radius: 12px;
+      background: rgba(14, 116, 144, 0.08);
+    }
+
+    .digital-twin-workflow-stage h3 {
+      margin: 0 0 6px;
+      font-size: 20px;
+    }
+
+    .digital-twin-stage-kicker {
+      display: inline-block;
+      margin-bottom: 6px;
+      color: #7dd3fc;
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: 0.08em;
+    }
+
+    .digital-twin-operator-status {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px 24px;
+      align-items: center;
+      margin: 10px 0;
+      padding: 11px 12px;
+      border: 1px solid var(--line);
+      border-radius: 9px;
+      background: var(--panel2);
+    }
+
+    .digital-twin-operator-status strong {
+      color: #e2e8f0;
+    }
+
+    .digital-twin-grasp-editors {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+      margin: 12px 0;
+    }
+
+    .digital-twin-grasp-editor-card {
+      padding: 12px;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      background: rgba(15, 23, 42, 0.38);
+    }
+
+    .digital-twin-grasp-editor-card .digital-twin-object-pose-grid {
+      grid-template-columns: repeat(3, minmax(80px, 1fr));
+    }
+
+    .digital-twin-frame-buttons button[aria-pressed="true"],
+    .digital-twin-mode-buttons button[aria-pressed="true"] {
+      border-color: #38bdf8;
+      background: #0e7490;
+      color: white;
+    }
+
+    .digital-twin-primary-action {
+      border-color: #22c55e;
+      background: #15803d;
+      color: white;
+      font-weight: 800;
+    }
+
+    .digital-twin-primary-action:disabled {
+      border-color: var(--line);
+      background: #334155;
+      color: #94a3b8;
+    }
+
+    .digital-twin-locked-summary {
+      border-color: #22c55e;
+      background: rgba(21, 128, 61, 0.16);
+    }
+
+    .digital-twin-operator-details {
+      margin-top: 12px;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      background: rgba(15, 23, 42, 0.34);
+    }
+
+    .digital-twin-operator-details > summary {
+      padding: 11px 12px;
+      color: #cbd5e1;
+      cursor: pointer;
+      font-weight: 700;
+    }
+
+    .digital-twin-operator-details > :not(summary) {
+      margin-left: 12px;
+      margin-right: 12px;
+    }
+
+    .digital-twin-operator-details > :last-child {
+      margin-bottom: 12px;
+    }
+
+    .digital-twin-concise-failure:not(:empty):not([data-empty="true"]) {
+      color: #fca5a5;
+    }
+
     .digital-twin-mirror-panel {
       margin-top: 12px;
       padding: 12px;
@@ -404,12 +648,28 @@
       box-sizing: border-box;
     }
 
+    .digital-twin-object-pose-grid input[readonly] {
+      color: var(--muted);
+      cursor: not-allowed;
+      opacity: 0.78;
+    }
+
     .digital-twin-object-visibility {
       display: flex;
       flex-wrap: wrap;
       gap: 14px;
       align-items: center;
       margin-top: 10px;
+    }
+
+    .digital-twin-object-relative-poses {
+      margin-top: 12px;
+      padding-top: 10px;
+      border-top: 1px solid rgba(245, 158, 11, 0.45);
+    }
+
+    .digital-twin-object-relative-poses h4 {
+      margin: 10px 0 6px;
     }
 
     .digital-twin-object-preview-notice {
@@ -459,6 +719,223 @@
 
     #digitalTwinObjectTrajectoryError:not(:empty) {
       color: #fca5a5;
+    }
+
+    .digital-twin-object-waypoint-panel,
+    .digital-twin-global-plan-panel {
+      margin-top: 12px;
+      padding: 12px;
+      border: 1px solid #f59e0b;
+      border-radius: 10px;
+      background: rgba(146, 64, 14, 0.12);
+    }
+
+    .digital-twin-global-plan-panel {
+      border-color: #fb7185;
+      background: rgba(159, 18, 57, 0.10);
+    }
+
+    .digital-twin-object-waypoint-grid,
+    .digital-twin-object-waypoint-row {
+      display: grid;
+      grid-template-columns: minmax(110px, 1.4fr) repeat(6, minmax(76px, 1fr)) repeat(2, minmax(150px, 1.5fr)) auto auto auto;
+      gap: 6px;
+      align-items: center;
+      margin-top: 6px;
+    }
+
+    .digital-twin-object-waypoint-row input {
+      width: 100%;
+      min-width: 0;
+      box-sizing: border-box;
+    }
+
+    .digital-twin-waypoint-profile-control {
+      display: grid;
+      grid-template-columns: minmax(70px, 1fr) 64px auto;
+      gap: 4px;
+      align-items: center;
+    }
+
+    .digital-twin-waypoint-profile-control small {
+      grid-column: 1 / -1;
+      color: var(--muted);
+      line-height: 1.2;
+    }
+
+    .digital-twin-waypoint-profile-control.is-final-waypoint-profile {
+      opacity: 0.68;
+    }
+
+    .digital-twin-angle-unit-control {
+      display: flex;
+      justify-content: flex-end;
+      align-items: center;
+      gap: 8px;
+      margin: 10px 0;
+      padding: 8px 10px;
+      border: 1px solid #475569;
+      border-radius: 8px;
+      background: rgba(15, 23, 42, 0.55);
+    }
+
+    .digital-twin-center-path-library {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 7px;
+      margin-top: 8px;
+      padding: 8px;
+      border: 1px solid #334155;
+      border-radius: 8px;
+      background: rgba(15, 23, 42, 0.48);
+    }
+
+    .digital-twin-center-path-library select,
+    .digital-twin-center-path-library input {
+      min-width: 180px;
+    }
+
+    #digitalTwinCenterPathStatus {
+      font-weight: 800;
+      color: #93c5fd;
+    }
+
+    .digital-twin-waypoint-id-cell {
+      display: flex;
+      gap: 6px;
+      align-items: center;
+      min-width: 0;
+    }
+
+    .digital-twin-waypoint-drag-handle {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      flex: 0 0 26px;
+      height: 30px;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      cursor: grab;
+      user-select: none;
+      font-weight: 900;
+    }
+
+    .digital-twin-waypoint-drag-handle:active {
+      cursor: grabbing;
+    }
+
+    .digital-twin-object-waypoint-row:hover {
+      outline: 1px solid rgba(250, 204, 21, 0.65);
+      outline-offset: 2px;
+      border-radius: 5px;
+      background: rgba(250, 204, 21, 0.035);
+    }
+
+    .digital-twin-object-waypoint-row.is-dragging {
+      opacity: 0.45;
+    }
+
+    .digital-twin-object-waypoint-row.drop-before {
+      box-shadow: inset 0 3px 0 #38bdf8;
+    }
+
+    .digital-twin-object-waypoint-row.drop-after {
+      box-shadow: inset 0 -3px 0 #38bdf8;
+    }
+
+    .digital-twin-approach-waypoint-card {
+      margin-top: 8px;
+      padding: 10px;
+      border: 1px solid var(--line);
+      border-radius: 9px;
+      background: var(--panel2);
+    }
+
+    .digital-twin-approach-waypoint-header {
+      display: grid;
+      grid-template-columns: minmax(120px, 1fr) auto auto auto;
+      gap: 6px;
+      align-items: center;
+      margin-bottom: 8px;
+    }
+
+    .digital-twin-approach-pose-columns {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .digital-twin-approach-pose-panel {
+      padding: 8px;
+      border: 1px solid #334155;
+      border-radius: 8px;
+      background: rgba(15, 23, 42, 0.65);
+    }
+
+    .digital-twin-approach-pose-grid {
+      display: grid;
+      grid-template-columns: repeat(6, minmax(75px, 1fr));
+      gap: 6px;
+      margin-top: 6px;
+    }
+
+    .digital-twin-approach-pose-grid label {
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .digital-twin-approach-pose-grid input,
+    .digital-twin-approach-waypoint-header input {
+      width: 100%;
+      min-width: 0;
+    }
+
+    .digital-twin-global-plan-controls {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: center;
+      margin: 10px 0;
+    }
+
+    .digital-twin-global-plan-controls input[type="range"] {
+      flex: 1 1 260px;
+    }
+
+    .digital-twin-phase3-warning {
+      margin-top: 10px;
+      color: #fda4af;
+      font-weight: 800;
+      line-height: 1.5;
+    }
+
+    #digitalTwinObjectWaypointError,
+    #digitalTwinGlobalPlanError {
+      color: #fca5a5;
+    }
+
+    @media (max-width: 820px) {
+      .digital-twin-workflow-guide,
+      .digital-twin-grasp-editors {
+        grid-template-columns: 1fr;
+      }
+
+      .digital-twin-object-waypoint-grid,
+      .digital-twin-object-waypoint-row {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .digital-twin-approach-pose-columns {
+        grid-template-columns: 1fr;
+      }
+
+      .digital-twin-approach-pose-grid {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+      }
     }
 
     .digital-twin-planned-panel {
@@ -538,12 +1015,142 @@
       font-weight: 800;
     }
 
+    .digital-twin-phase5-panel {
+      border-color: #f97316;
+      background: rgba(124, 45, 18, 0.13);
+    }
+
+    .digital-twin-phase5-panel > h3 {
+      margin-bottom: 4px;
+    }
+
+    .digital-twin-phase5-safety-notice {
+      margin: 8px 0 12px;
+      padding: 9px 11px;
+      border-left: 4px solid #fb923c;
+      border-radius: 6px;
+      background: rgba(124, 45, 18, 0.24);
+      line-height: 1.4;
+    }
+
+    .digital-twin-phase5-status-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 8px;
+    }
+
+    .digital-twin-phase5-status-card {
+      display: flex;
+      min-width: 0;
+      flex-direction: column;
+      gap: 5px;
+      padding: 10px 11px;
+      border: 1px solid var(--line);
+      border-radius: 9px;
+      background: var(--panel2);
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .digital-twin-phase5-status-card strong {
+      color: var(--text);
+      font-size: 14px;
+      line-height: 1.35;
+      overflow-wrap: anywhere;
+    }
+
+    .digital-twin-phase5-status-card-wide {
+      grid-column: span 2;
+    }
+
+    .digital-twin-phase5-progress-row {
+      display: grid;
+      grid-template-columns: minmax(180px, 1fr) minmax(180px, 1.4fr);
+      gap: 12px;
+      align-items: center;
+      margin-top: 8px;
+      padding: 9px 11px;
+      border: 1px solid var(--line);
+      border-radius: 9px;
+      background: rgba(15, 23, 42, 0.72);
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .digital-twin-phase5-progress-row > span {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 5px;
+      justify-content: space-between;
+    }
+
+    .digital-twin-phase5-progress {
+      width: 100%;
+      height: 8px;
+      margin-top: 5px;
+      overflow: hidden;
+      border: 0;
+      border-radius: 999px;
+      background: #334155;
+      accent-color: #38bdf8;
+    }
+
+    .digital-twin-phase5-progress::-webkit-progress-bar {
+      border-radius: 999px;
+      background: #334155;
+    }
+
+    .digital-twin-phase5-progress::-webkit-progress-value {
+      border-radius: 999px;
+      background: #38bdf8;
+    }
+
+    .digital-twin-phase5-blockers {
+      display: flex;
+      gap: 8px;
+      margin-top: 8px;
+      padding: 9px 11px;
+      border: 1px solid rgba(74, 222, 128, 0.35);
+      border-radius: 9px;
+      background: rgba(21, 128, 61, 0.12);
+      color: #bbf7d0;
+      font-size: 13px;
+      overflow-wrap: anywhere;
+    }
+
+    .digital-twin-phase5-blockers[data-blocked="true"] {
+      border-color: rgba(248, 113, 113, 0.55);
+      background: rgba(127, 29, 29, 0.2);
+      color: #fecaca;
+    }
+
+    .digital-twin-phase5-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin: 10px 0 0;
+    }
+
+    .digital-twin-phase5-actions button {
+      flex: 0 1 auto;
+      font-size: 14px;
+    }
+
+    .digital-twin-phase5-diagnostics .digital-twin-readout {
+      grid-template-columns: repeat(3, minmax(170px, 1fr));
+    }
+
     @media (max-width: 1200px) {
       .top-grid,
       .two-grid,
       .jog-grid {
         grid-template-columns: 1fr;
       }
+
+      .digital-twin-phase5-status-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
     }
 
     @media (max-width: 700px) {
@@ -566,6 +1173,20 @@
 
       .digital-twin-readout {
         grid-template-columns: 1fr;
+      }
+
+      .digital-twin-phase5-status-grid,
+      .digital-twin-phase5-progress-row,
+      .digital-twin-phase5-diagnostics .digital-twin-readout {
+        grid-template-columns: 1fr;
+      }
+
+      .digital-twin-phase5-status-card-wide {
+        grid-column: auto;
+      }
+
+      .digital-twin-phase5-actions button {
+        flex: 1 1 100%;
       }
 
       .digital-twin-object-pose-grid {
@@ -762,11 +1383,59 @@
       <button id="digitalTwinToggleAxes" type="button">Toggle Axes</button>
     </div>
 
+    <div id="digitalTwinLiveMirrorQuick" class="digital-twin-live-mirror-quick" aria-label="Live Mirror quick control">
+      <div class="digital-twin-live-mirror-quick-copy">
+        <strong>Live Mirror</strong>
+        <span id="digitalTwinLiveMirrorQuickStatus">OFF — FEEDBACK + MIRROR STOPPED</span>
+      </div>
+      <label class="digital-twin-switch" for="digitalTwinLiveMirrorSwitch">
+        <input
+          id="digitalTwinLiveMirrorSwitch"
+          type="checkbox"
+          role="switch"
+          aria-label="Live Mirror — Live Feedback and Mirror"
+        />
+        <span class="digital-twin-switch-slider" aria-hidden="true"></span>
+      </label>
+    </div>
+
+    <div class="digital-twin-operator-alignment" aria-label="Operator calibration summary">
+      <span>Model Alignment: <strong id="digitalTwinOperatorModelAlignment">CHECKING</strong></span>
+      <span
+        id="digitalTwinOperatorPhysicalCalibrationWarning"
+        class="digital-twin-operator-calibration-warning"
+      >Physical world calibration not completed — offline planning only.</span>
+    </div>
+
+    <nav class="digital-twin-workflow-guide" aria-label="Center planning workflow">
+      <span>1. Grasp Setup</span>
+      <span>2. Center Waypoints</span>
+      <span>3. Preview &amp; Execute</span>
+    </nav>
+
+    <div class="digital-twin-angle-unit-control" aria-label="Global operator rotation unit">
+      <label for="digitalTwinRotationUnit"><strong>Rotation Unit</strong></label>
+      <select id="digitalTwinRotationUnit">
+        <option value="degrees" selected>Degrees (°)</option>
+        <option value="radians">Radians (rad)</option>
+      </select>
+      <span class="small">Applies to operator-facing pose rotations; canonical planning remains radians.</span>
+    </div>
+
+    <details class="digital-twin-operator-details" aria-label="Viewer diagnostics">
+      <summary>Viewer / Robot Diagnostics</summary>
+
     <div class="digital-twin-meta" aria-label="Digital Twin read-only state">
       <span>Mode: <strong id="digitalTwinOperatingMode">STATIC MODEL</strong></span>
       <span>Model: <strong>Dual JAKA A12</strong></span>
       <span>Feedback: <strong id="digitalTwinFeedbackState">FEEDBACK STOPPED</strong></span>
       <span>Commands: <strong>DISABLED</strong></span>
+      <span>Calibration State: <strong id="digitalTwinCalibrationState">UNKNOWN</strong></span>
+      <span>Physically Calibrated: <strong id="digitalTwinPhysicalCalibration">false</strong></span>
+      <span>Backend Calibration Revision: <strong id="digitalTwinBackendCalibrationRevision">UNAVAILABLE</strong></span>
+      <span>Web Model Revision: <strong id="digitalTwinModelCalibrationRevision">UNAVAILABLE</strong></span>
+      <span>Model/Calibration Revision: <strong id="digitalTwinCalibrationRevisionStatus">LOADING</strong></span>
+      <span>Revision Error: <strong id="digitalTwinCalibrationRevisionError">NONE</strong></span>
     </div>
 
     <div class="digital-twin-mirror-panel" aria-label="Digital Twin mirror controls">
@@ -776,6 +1445,7 @@
         <span>Mirror Enabled: <strong id="digitalTwinMirrorEnabled">false</strong></span>
         <span>Joint Unit: <strong id="digitalTwinJointUnit">radians</strong></span>
         <span>Update Source: <strong id="digitalTwinUpdateSource">NONE</strong></span>
+        <span>Main Model Source: <strong id="digitalTwinMainModelSource">URDF DEFAULT POSE</strong></span>
         <span>Last Snapshot: <strong id="digitalTwinLastSnapshot">NEVER</strong></span>
         <span>Last Applied: <strong id="digitalTwinLastApplied">NEVER</strong></span>
         <span>Validation Error: <strong id="digitalTwinMirrorError">NONE</strong></span>
@@ -803,7 +1473,7 @@
           <button id="digitalTwinStopLiveFeedback" type="button">Stop Live Feedback</button>
         </div>
         <div class="small">
-          Reads cached joint feedback only. Stopping preserves the current model pose.
+          Reads cached joint feedback only. After feedback becomes stale, the offline code configuration owns the main model.
         </div>
       </div>
       <div class="digital-twin-live-source" aria-label="Cache-only robot feedback status">
@@ -812,11 +1482,17 @@
           <span>Status Source: <strong id="digitalTwinRobotStatusSourceState">STOPPED</strong></span>
           <span>Status Error: <strong id="digitalTwinRobotStatusError">NONE</strong></span>
           <span>Left Feedback: <strong id="digitalTwinLeftFeedbackStatus">MISSING</strong></span>
+          <span>Left Connection (feedback-derived): <strong id="digitalTwinLeftConnectionStatus">MISSING</strong></span>
+          <span>Left Robot State: <strong id="digitalTwinLeftRobotStateSummary">UNAVAILABLE</strong></span>
+          <span>Left Phase-1 Fault/Alert: <strong id="digitalTwinLeftFaultAlert">FEEDBACK MISSING</strong></span>
           <span>Left power_state: <strong id="digitalTwinLeftPowerState">UNAVAILABLE</strong></span>
           <span>Left servo_state: <strong id="digitalTwinLeftServoState">UNAVAILABLE</strong></span>
           <span>Left motion_state: <strong id="digitalTwinLeftMotionState">UNAVAILABLE</strong></span>
           <span>Left collision_state: <strong id="digitalTwinLeftCollisionState">UNAVAILABLE</strong></span>
           <span>Right Feedback: <strong id="digitalTwinRightFeedbackStatus">MISSING</strong></span>
+          <span>Right Connection (feedback-derived): <strong id="digitalTwinRightConnectionStatus">MISSING</strong></span>
+          <span>Right Robot State: <strong id="digitalTwinRightRobotStateSummary">UNAVAILABLE</strong></span>
+          <span>Right Phase-1 Fault/Alert: <strong id="digitalTwinRightFaultAlert">FEEDBACK MISSING</strong></span>
           <span>Right power_state: <strong id="digitalTwinRightPowerState">UNAVAILABLE</strong></span>
           <span>Right servo_state: <strong id="digitalTwinRightServoState">UNAVAILABLE</strong></span>
           <span>Right motion_state: <strong id="digitalTwinRightMotionState">UNAVAILABLE</strong></span>
@@ -824,6 +1500,37 @@
         </div>
         <div class="small">
           LIVE/STALE/MISSING/INVALID describes feedback freshness, not a guaranteed robot-network connection.
+          Phase-1 state/safety alerts use only the four displayed RobotMsg fields and are not complete JAKA fault codes.
+        </div>
+      </div>
+      <div class="digital-twin-live-source" aria-label="URDF model TCP flange world pose">
+        <h3>Model TCP/Flange — Web/URDF World</h3>
+        <div class="digital-twin-readout">
+          <span>Source: <strong id="digitalTwinModelTcpSource">URDF MODEL FK FROM MIRRORED JOINT STATE</strong></span>
+          <span>Semantics: <strong id="digitalTwinModelTcpSemantic">Digital Twin model TCP/flange</strong></span>
+          <span>Frame / Units: <strong>Web/URDF world — translation m / orientation rad</strong></span>
+          <span>RPY Convention: <strong>R = Rz(yaw) × Ry(pitch) × Rx(roll)</strong></span>
+          <span>Model TCP Error: <strong id="digitalTwinModelTcpError">NONE</strong></span>
+          <span>Left Model TCP: <strong id="digitalTwinLeftModelTcpStatus">UNAVAILABLE</strong></span>
+          <span>Left Terminal Link: <strong id="digitalTwinLeftModelTcpLink">left_J6</strong></span>
+          <span>Left x [m]: <strong id="digitalTwinLeftModelTcpX">UNAVAILABLE</strong></span>
+          <span>Left y [m]: <strong id="digitalTwinLeftModelTcpY">UNAVAILABLE</strong></span>
+          <span>Left z [m]: <strong id="digitalTwinLeftModelTcpZ">UNAVAILABLE</strong></span>
+          <span>Left rx [rad]: <strong id="digitalTwinLeftModelTcpRx">UNAVAILABLE</strong></span>
+          <span>Left ry [rad]: <strong id="digitalTwinLeftModelTcpRy">UNAVAILABLE</strong></span>
+          <span>Left rz [rad]: <strong id="digitalTwinLeftModelTcpRz">UNAVAILABLE</strong></span>
+          <span>Right Model TCP: <strong id="digitalTwinRightModelTcpStatus">UNAVAILABLE</strong></span>
+          <span>Right Terminal Link: <strong id="digitalTwinRightModelTcpLink">right_J6</strong></span>
+          <span>Right x [m]: <strong id="digitalTwinRightModelTcpX">UNAVAILABLE</strong></span>
+          <span>Right y [m]: <strong id="digitalTwinRightModelTcpY">UNAVAILABLE</strong></span>
+          <span>Right z [m]: <strong id="digitalTwinRightModelTcpZ">UNAVAILABLE</strong></span>
+          <span>Right rx [rad]: <strong id="digitalTwinRightModelTcpRx">UNAVAILABLE</strong></span>
+          <span>Right ry [rad]: <strong id="digitalTwinRightModelTcpRy">UNAVAILABLE</strong></span>
+          <span>Right rz [rad]: <strong id="digitalTwinRightModelTcpRz">UNAVAILABLE</strong></span>
+        </div>
+        <div class="small">
+          Axes are attached to the terminal J6 links and represent model flange frames only;
+          they are not a claim about the active physical controller tool frame.
         </div>
       </div>
       <div class="digital-twin-live-source" aria-label="Read-only TCP forward kinematics status">
@@ -835,60 +1542,397 @@
           <span>TCP Unit: <strong>translation mm / orientation rad</strong></span>
           <span>TCP Frame: <strong>JAKA controller current user coordinate</strong></span>
           <span>TCP Error: <strong id="digitalTwinTcpSourceError">NONE</strong></span>
-          <span>3D TCP Frames: <strong id="digitalTwinTcpPlacementState">TCP FRAME PLACEMENT BLOCKED PENDING VERIFIED BASE↔WORLD CONVERSION</strong></span>
+          <span>3D Placement: <strong id="digitalTwinTcpPlacementState">CONTROLLER FK DIAGNOSTIC — NOT USED FOR WEB-WORLD PLACEMENT</strong></span>
+          <span>Left Controller x [mm]: <strong id="digitalTwinLeftControllerTcpX">UNAVAILABLE</strong></span>
+          <span>Left Controller y [mm]: <strong id="digitalTwinLeftControllerTcpY">UNAVAILABLE</strong></span>
+          <span>Left Controller z [mm]: <strong id="digitalTwinLeftControllerTcpZ">UNAVAILABLE</strong></span>
+          <span>Left Controller rx [rad]: <strong id="digitalTwinLeftControllerTcpRx">UNAVAILABLE</strong></span>
+          <span>Left Controller ry [rad]: <strong id="digitalTwinLeftControllerTcpRy">UNAVAILABLE</strong></span>
+          <span>Left Controller rz [rad]: <strong id="digitalTwinLeftControllerTcpRz">UNAVAILABLE</strong></span>
+          <span>Right Controller x [mm]: <strong id="digitalTwinRightControllerTcpX">UNAVAILABLE</strong></span>
+          <span>Right Controller y [mm]: <strong id="digitalTwinRightControllerTcpY">UNAVAILABLE</strong></span>
+          <span>Right Controller z [mm]: <strong id="digitalTwinRightControllerTcpZ">UNAVAILABLE</strong></span>
+          <span>Right Controller rx [rad]: <strong id="digitalTwinRightControllerTcpRx">UNAVAILABLE</strong></span>
+          <span>Right Controller ry [rad]: <strong id="digitalTwinRightControllerTcpRy">UNAVAILABLE</strong></span>
+          <span>Right Controller rz [rad]: <strong id="digitalTwinRightControllerTcpRz">UNAVAILABLE</strong></span>
         </div>
         <div class="small">
           Source: JAKA GetFK from current joint feedback; this is forward kinematics, not external metrology.
         </div>
       </div>
     </div>
+    </details>
     <div
-      class="digital-twin-object-preview-panel"
-      aria-label="Offline synthetic object and grasp frame preview"
+      id="digitalTwinOperatorGraspStage"
+      class="digital-twin-object-preview-panel digital-twin-workflow-stage"
+      aria-label="Step 1 Grasp Setup"
     >
-      <h3>Object / Grasp Frame Preview</h3>
-      <div class="digital-twin-readout" aria-label="Object preview read-only metadata">
-        <span>Preview: <strong>OFFLINE SYNTHETIC OBJECT POSE</strong></span>
-        <span>Fixture: <strong>O_T_L [0, +0.25, 0] m</strong></span>
-        <span>Fixture: <strong>O_T_R [0, -0.25, 0] m</strong></span>
-        <span>Error: <strong id="digitalTwinObjectPreviewError">NONE</strong></span>
+      <span class="digital-twin-stage-kicker">STEP 1</span>
+      <h3>Grasp Setup</h3>
+      <p id="digitalTwinOperatorGraspInstruction" class="small">
+        Set both grasp poses, then lock the grasp.
+      </p>
+      <div class="digital-twin-operator-status" aria-label="Grasp setup status">
+        <strong id="digitalTwinOperatorGraspStatus">Grasp Setup Required</strong>
+        <span id="digitalTwinObjectPreviewError">No preview error</span>
       </div>
-      <div class="digital-twin-object-pose-grid" aria-label="Synthetic object pose controls">
-        <label for="digitalTwinObjectX">Object X [m]
-          <input id="digitalTwinObjectX" type="number" min="-3" max="3" step="0.01" value="-1.32" />
+      <div id="digitalTwinGraspLockedSummary" class="digital-twin-operator-status digital-twin-locked-summary" hidden>
+        <strong>✓ Grasp Locked</strong>
+        <span>This grasp configuration is preserved from the current planning state.</span>
+        <div class="row" aria-label="Locked grasp setup actions">
+          <button id="digitalTwinUnlockGraspConfiguration" type="button" disabled>
+            Edit Current Grasp
+          </button>
+          <button id="digitalTwinStartNewGraspFromCurrentRobotPose" class="digital-twin-primary-action" type="button" disabled>
+            Start New Grasp from Current Robot Pose
+          </button>
+        </div>
+        <span class="small">
+          Reset Frames is available after unlocking. Starting a new grasp unlocks first,
+          snapshots the displayed robot pose once, and does not lock automatically.
+        </span>
+      </div>
+      <div id="digitalTwinGraspUnlockedEditor" aria-label="Rigid grasp configuration editor">
+        <div class="row digital-twin-frame-buttons" aria-label="Select item to edit">
+          <span>Select:</span>
+          <button id="digitalTwinSelectObjectFrame" type="button" aria-pressed="true">Center</button>
+          <button id="digitalTwinSelectLeftGraspFrame" type="button" aria-pressed="false">Left Grasp</button>
+          <button id="digitalTwinSelectRightGraspFrame" type="button" aria-pressed="false">Right Grasp</button>
+        </div>
+        <div class="row digital-twin-mode-buttons" aria-label="Grasp manipulation mode">
+          <span>Manipulation:</span>
+          <button id="digitalTwinGraspGizmoTranslate" type="button" aria-pressed="true">Move</button>
+          <button id="digitalTwinGraspGizmoRotate" type="button" aria-pressed="false">Rotate</button>
+        </div>
+        <div class="digital-twin-grasp-editors">
+          <div class="digital-twin-grasp-editor-card" aria-labelledby="digitalTwinLeftGraspEditorTitle">
+            <h4 id="digitalTwinLeftGraspEditorTitle">Left Arm Grasp</h4>
+            <div class="digital-twin-object-pose-grid" aria-label="Left rigid grasp editor">
+              <label for="digitalTwinLeftGraspX">X [m]<input id="digitalTwinLeftGraspX" type="number" min="-3" max="3" step="0.001" /></label>
+              <label for="digitalTwinLeftGraspY">Y [m]<input id="digitalTwinLeftGraspY" type="number" min="-3" max="3" step="0.001" /></label>
+              <label for="digitalTwinLeftGraspZ">Z [m]<input id="digitalTwinLeftGraspZ" type="number" min="-3" max="3" step="0.001" /></label>
+              <label for="digitalTwinLeftGraspRollDeg"><span data-digital-twin-rotation-label="Roll">Roll [deg]</span><input id="digitalTwinLeftGraspRollDeg" type="number" min="-360" max="360" step="0.1" /></label>
+              <label for="digitalTwinLeftGraspPitchDeg"><span data-digital-twin-rotation-label="Pitch">Pitch [deg]</span><input id="digitalTwinLeftGraspPitchDeg" type="number" min="-360" max="360" step="0.1" /></label>
+              <label for="digitalTwinLeftGraspYawDeg"><span data-digital-twin-rotation-label="Yaw">Yaw [deg]</span><input id="digitalTwinLeftGraspYawDeg" type="number" min="-360" max="360" step="0.1" /></label>
+            </div>
+            <button id="digitalTwinApplyLeftGrasp" type="button">Apply Left Pose</button>
+          </div>
+          <div class="digital-twin-grasp-editor-card" aria-labelledby="digitalTwinRightGraspEditorTitle">
+            <h4 id="digitalTwinRightGraspEditorTitle">Right Arm Grasp</h4>
+            <div class="digital-twin-object-pose-grid" aria-label="Right rigid grasp editor">
+              <label for="digitalTwinRightGraspX">X [m]<input id="digitalTwinRightGraspX" type="number" min="-3" max="3" step="0.001" /></label>
+              <label for="digitalTwinRightGraspY">Y [m]<input id="digitalTwinRightGraspY" type="number" min="-3" max="3" step="0.001" /></label>
+              <label for="digitalTwinRightGraspZ">Z [m]<input id="digitalTwinRightGraspZ" type="number" min="-3" max="3" step="0.001" /></label>
+              <label for="digitalTwinRightGraspRollDeg"><span data-digital-twin-rotation-label="Roll">Roll [deg]</span><input id="digitalTwinRightGraspRollDeg" type="number" min="-360" max="360" step="0.1" /></label>
+              <label for="digitalTwinRightGraspPitchDeg"><span data-digital-twin-rotation-label="Pitch">Pitch [deg]</span><input id="digitalTwinRightGraspPitchDeg" type="number" min="-360" max="360" step="0.1" /></label>
+              <label for="digitalTwinRightGraspYawDeg"><span data-digital-twin-rotation-label="Yaw">Yaw [deg]</span><input id="digitalTwinRightGraspYawDeg" type="number" min="-360" max="360" step="0.1" /></label>
+            </div>
+            <button id="digitalTwinApplyRightGrasp" type="button">Apply Right Pose</button>
+          </div>
+        </div>
+        <button id="digitalTwinLockGraspConfiguration" class="digital-twin-primary-action" type="button" disabled>Lock Grasp</button>
+      </div>
+      <details class="digital-twin-operator-details" aria-label="Grasp diagnostics">
+        <summary>Grasp Diagnostics</summary>
+        <div class="digital-twin-readout">
+          <span>Grasp State: <strong id="digitalTwinGraspConfigurationState">GRASP_UNLOCKED</strong></span>
+          <span>Draft Source: <strong id="digitalTwinGraspDraftSource">UNAVAILABLE</strong></span>
+          <span>Revision: <strong id="digitalTwinGraspRevision">UNAVAILABLE</strong></span>
+          <span>Lock Generation: <strong id="digitalTwinGraspLockGeneration">0</strong></span>
+          <span>Selected Frame: <strong id="digitalTwinGraspSelectedFrame">CENTER</strong></span>
+          <span>Gizmo Mode: <strong id="digitalTwinGraspGizmoMode">TRANSLATE</strong></span>
+          <span>Planner Integration: <strong id="digitalTwinGraspPlannerIntegration">LOADING</strong></span>
+          <span>World Calibration Revision: <strong id="digitalTwinGraspWorldCalibrationRevision">UNAVAILABLE</strong></span>
+          <span>Frame Alignment: <strong id="digitalTwinGraspAlignmentStatus">NOT CHECKED</strong></span>
+          <span>Error: <strong id="digitalTwinGraspConfigurationError">NONE</strong></span>
+        </div>
+        <label for="digitalTwinGraspSelectedFrameControl">Internal frame selection</label>
+        <select id="digitalTwinGraspSelectedFrameControl">
+          <option value="CENTER" selected>Center</option>
+          <option value="LEFT_GRASP">Left Grasp</option>
+          <option value="RIGHT_GRASP">Right Grasp</option>
+        </select>
+      </details>
+      <div class="digital-twin-object-pose-grid" aria-label="Center pose controls">
+        <label for="digitalTwinObjectX">Center X [m]
+          <input id="digitalTwinObjectX" type="number" min="-3" max="3" step="0.01" value="0" />
         </label>
-        <label for="digitalTwinObjectY">Object Y [m]
+        <label for="digitalTwinObjectY">Center Y [m]
           <input id="digitalTwinObjectY" type="number" min="-3" max="3" step="0.01" value="0" />
         </label>
-        <label for="digitalTwinObjectZ">Object Z [m]
+        <label for="digitalTwinObjectZ">Center Z [m]
           <input id="digitalTwinObjectZ" type="number" min="-3" max="3" step="0.01" value="1.2" />
         </label>
-        <label for="digitalTwinObjectRoll">Roll [rad]
-          <input id="digitalTwinObjectRoll" type="number" min="-6.283185" max="6.283185" step="0.01" value="0" />
+        <label for="digitalTwinObjectRoll"><span data-digital-twin-rotation-label="Roll">Roll [deg]</span>
+          <input id="digitalTwinObjectRoll" type="number" min="-6.283185" max="6.283185" step="0.01" value="0"  />
         </label>
-        <label for="digitalTwinObjectPitch">Pitch [rad]
-          <input id="digitalTwinObjectPitch" type="number" min="-6.283185" max="6.283185" step="0.01" value="0" />
+        <label for="digitalTwinObjectPitch"><span data-digital-twin-rotation-label="Pitch">Pitch [deg]</span>
+          <input id="digitalTwinObjectPitch" type="number" min="-6.283185" max="6.283185" step="0.01" value="0"  />
         </label>
-        <label for="digitalTwinObjectYaw">Yaw [rad]
-          <input id="digitalTwinObjectYaw" type="number" min="-6.283185" max="6.283185" step="0.01" value="0" />
+        <label for="digitalTwinObjectYaw"><span data-digital-twin-rotation-label="Yaw">Yaw [deg]</span>
+          <input id="digitalTwinObjectYaw" type="number" min="-6.283185" max="6.283185" step="0.01" value="0"  />
         </label>
       </div>
-      <div class="row" aria-label="Object preview pose actions">
-        <button id="digitalTwinApplyObjectPose" type="button">Apply Object Pose</button>
-        <button id="digitalTwinResetObjectPreview" type="button">Reset Object Preview</button>
+      <div class="small"><strong>Center orientation is editable after Lock Grasp and is stored per W waypoint.</strong></div>
+      <div class="row" aria-label="Center preview pose actions">
+        <button id="digitalTwinApplyObjectPose" type="button">Apply Center Pose</button>
+        <button id="digitalTwinResetObjectPreview" type="button" disabled>Reset Frames to Current Robot Pose</button>
+        <button id="digitalTwinObjectDragToggle" type="button" aria-pressed="false">
+          Enable Selected Frame Gizmo — OFFLINE
+        </button>
       </div>
-      <div class="digital-twin-object-visibility" aria-label="Object preview visibility">
-        <label><input id="digitalTwinShowObject" type="checkbox" checked /> Show Object</label>
-        <label><input id="digitalTwinShowObjectFrame" type="checkbox" checked /> Show Object Frame</label>
+      <div class="digital-twin-readout" aria-label="Center 6D gizmo state">
+        <span>Selected Frame Gizmo: <strong id="digitalTwinObjectDragState">DISABLED</strong></span>
+        <span>Center: <strong>TRANSLATE / ROTATE FOR LOCKED W WAYPOINTS</strong></span>
+        <span>Grasp Frames: <strong>TRANSLATE / ROTATE WHILE UNLOCKED; SCALE DISABLED</strong></span>
+        <span>Owner: <strong id="digitalTwinObjectDragOwnership">NONE</strong></span>
+        <span>Error: <strong id="digitalTwinObjectDragError">NONE</strong></span>
+      </div>
+      <div class="digital-twin-object-visibility" aria-label="Planning frame visibility">
+        <label><input id="digitalTwinShowObjectFrame" type="checkbox" checked /> Show Center Frame</label>
         <label><input id="digitalTwinShowGraspFrames" type="checkbox" checked /> Show Grasp Frames</label>
       </div>
+      <details class="digital-twin-operator-details" aria-label="Read-only object and grasp relative poses">
+        <summary>Relative Pose Diagnostics</summary>
+        <div class="small">
+          Translation: meters · Orientation: <span data-digital-twin-rotation-label="operator selected">operator selected [deg]</span>
+          · R = Rz(yaw) * Ry(pitch) * Rx(roll)
+        </div>
+        <h4>Object-relative Left Grasp (^O T_L)</h4>
+        <div class="digital-twin-readout" aria-label="Object-relative left grasp numeric pose">
+          <span>x [m]: <strong id="digitalTwinObjectTLeftX">UNAVAILABLE</strong></span>
+          <span>y [m]: <strong id="digitalTwinObjectTLeftY">UNAVAILABLE</strong></span>
+          <span>z [m]: <strong id="digitalTwinObjectTLeftZ">UNAVAILABLE</strong></span>
+          <span><span data-digital-twin-rotation-label="rx">rx [deg]</span>: <strong id="digitalTwinObjectTLeftRx">UNAVAILABLE</strong></span>
+          <span><span data-digital-twin-rotation-label="ry">ry [deg]</span>: <strong id="digitalTwinObjectTLeftRy">UNAVAILABLE</strong></span>
+          <span><span data-digital-twin-rotation-label="rz">rz [deg]</span>: <strong id="digitalTwinObjectTLeftRz">UNAVAILABLE</strong></span>
+        </div>
+        <h4>Object-relative Right Grasp (^O T_R)</h4>
+        <div class="digital-twin-readout" aria-label="Object-relative right grasp numeric pose">
+          <span>x [m]: <strong id="digitalTwinObjectTRightX">UNAVAILABLE</strong></span>
+          <span>y [m]: <strong id="digitalTwinObjectTRightY">UNAVAILABLE</strong></span>
+          <span>z [m]: <strong id="digitalTwinObjectTRightZ">UNAVAILABLE</strong></span>
+          <span><span data-digital-twin-rotation-label="rx">rx [deg]</span>: <strong id="digitalTwinObjectTRightRx">UNAVAILABLE</strong></span>
+          <span><span data-digital-twin-rotation-label="ry">ry [deg]</span>: <strong id="digitalTwinObjectTRightRy">UNAVAILABLE</strong></span>
+          <span><span data-digital-twin-rotation-label="rz">rz [deg]</span>: <strong id="digitalTwinObjectTRightRz">UNAVAILABLE</strong></span>
+        </div>
+        <h4>Left Grasp → Right Grasp Relative Pose (^L T_R)</h4>
+        <div class="small">Frame notation: ^L T_R = inverse(^O T_L) * ^O T_R</div>
+        <div class="digital-twin-readout" aria-label="Left-to-right grasp numeric relative pose">
+          <span>x [m]: <strong id="digitalTwinLeftTRightX">UNAVAILABLE</strong></span>
+          <span>y [m]: <strong id="digitalTwinLeftTRightY">UNAVAILABLE</strong></span>
+          <span>z [m]: <strong id="digitalTwinLeftTRightZ">UNAVAILABLE</strong></span>
+          <span><span data-digital-twin-rotation-label="rx">rx [deg]</span>: <strong id="digitalTwinLeftTRightRx">UNAVAILABLE</strong></span>
+          <span><span data-digital-twin-rotation-label="ry">ry [deg]</span>: <strong id="digitalTwinLeftTRightRy">UNAVAILABLE</strong></span>
+          <span><span data-digital-twin-rotation-label="rz">rz [deg]</span>: <strong id="digitalTwinLeftTRightRz">UNAVAILABLE</strong></span>
+        </div>
+      </details>
       <div class="digital-twin-object-preview-notice">
-        OFFLINE SYNTHETIC OBJECT/GRASP PREVIEW<br />
-        NOT CALIBRATED FROM PHYSICAL ROBOT<br />
-        GRASP FRAMES ARE TARGET/PLANNING FRAMES<br />
-        ROBOT IK NOT APPLIED — NO PHYSICAL EXECUTION
+        <strong>Independent Approach Waypoints — PRE-RIGID</strong><br />
+        While the grasp is unlocked, move Left/Right grasp frames independently and save approach targets.
+        After the final approach target is prepared, set the Final Grasp and Lock. Center waypoints remain rigid-only.<br />
+        <span class="small">A-last → Final Grasp is an implicit pre-rigid segment and uses one Segment Duration before W0.</span>
+      </div>
+      <div class="digital-twin-operator-status" aria-label="Independent approach waypoint status">
+        <span>Approach Waypoints: <strong id="digitalTwinApproachWaypointCount">0</strong></span>
+        <span>Semantic: <strong>INDEPENDENT LEFT/RIGHT — BEFORE RIGID GRASP</strong></span>
+      </div>
+      <div id="digitalTwinApproachWaypointList" aria-label="Independent Left Right approach waypoint list"></div>
+      <div class="row" aria-label="Independent approach waypoint controls">
+        <input id="digitalTwinApproachWaypointNewId" value="A0" aria-label="Approach waypoint identifier" />
+        <button id="digitalTwinApproachWaypointAddCurrent" type="button">Save Current Left/Right as Approach</button>
+        <button id="digitalTwinApproachWaypointClear" type="button">Clear Approach Waypoints</button>
+      </div>
+      <div class="digital-twin-object-preview-notice">
+        Offline Center/grasp preview — no physical execution.
       </div>
     </div>
+    <div
+      id="digitalTwinOperatorWaypointStage"
+      class="digital-twin-object-waypoint-panel digital-twin-workflow-stage"
+      aria-label="Step 2 Center Waypoints"
+    >
+      <span class="digital-twin-stage-kicker">STEP 2</span>
+      <h3>Center Waypoints</h3>
+      <div class="small">
+        Move and/or rotate the Center, then save its current 6D pose. Both arms follow the locked grasp
+        rigidly, so every Center waypoint may have its own XYZ + Roll/Pitch/Yaw orientation.
+      </div>
+      <div class="digital-twin-operator-status" aria-label="Center waypoint status">
+        <span>Waypoint State: <strong id="digitalTwinObjectWaypointState">EMPTY</strong></span>
+        <span>Center Waypoints: <strong id="digitalTwinObjectWaypointCount">0</strong></span>
+        <span>Hover Frame Ghost: <strong id="digitalTwinObjectWaypointHoverPreview">NONE</strong></span>
+        <span>Error: <strong id="digitalTwinObjectWaypointError">NONE</strong></span>
+      </div>
+      <div class="digital-twin-center-path-library" aria-label="Persistent Center Path Library">
+        <strong>Path Library:</strong>
+        <select id="digitalTwinCenterPathSelect" aria-label="Saved Center paths">
+          <option value="">No saved paths yet</option>
+        </select>
+        <input id="digitalTwinCenterPathName" type="text" maxlength="80" placeholder="Path name" aria-label="Center path name" />
+        <button id="digitalTwinCenterPathSave" type="button">Save</button>
+        <button id="digitalTwinCenterPathSaveAs" type="button">Save As</button>
+        <button id="digitalTwinCenterPathLoad" type="button">Load</button>
+        <button id="digitalTwinCenterPathRename" type="button">Rename</button>
+        <button id="digitalTwinCenterPathDelete" type="button">Delete</button>
+        <span id="digitalTwinCenterPathStatus" class="small">NO PATH LOADED</span>
+        <span class="small">Saved in the workspace; survives browser refresh. Path storage is NO MOTION.</span>
+      </div>
+      <div class="row digital-twin-mode-buttons" aria-label="Center waypoint 6D manipulation">
+        <strong>Center 3D:</strong>
+        <button id="digitalTwinCenterWaypointMove" type="button" aria-pressed="true">Move Center</button>
+        <button id="digitalTwinCenterWaypointRotate" type="button" aria-pressed="false">Rotate Center</button>
+        <button id="digitalTwinCenterWaypointGizmoToggle" type="button" aria-pressed="false">Enable Center Gizmo</button>
+        <span class="small">Available after Lock Grasp; A0/A1 remain independent pre-rigid targets.</span>
+      </div>
+      <div class="digital-twin-object-waypoint-grid" aria-hidden="true">
+        <strong>Identifier</strong><strong>X [m]</strong><strong>Y [m]</strong><strong>Z [m]</strong>
+        <strong data-digital-twin-rotation-label="Roll">Roll [deg]</strong><strong data-digital-twin-rotation-label="Pitch">Pitch [deg]</strong><strong data-digital-twin-rotation-label="Yaw">Yaw [deg]</strong>
+        <strong>Speed %</strong><strong>Acceleration %</strong>
+        <strong>Center</strong><strong>Duplicate</strong><strong>Delete</strong>
+      </div>
+      <div class="small">
+        Hover any waypoint row to preview its Center, Left, and Right Frame Ghosts in the Digital Twin.<br />
+        <strong>Wn profile applies to Wn → Wn+1.</strong> 100% is the existing baseline;
+        lower values only slow/stretch. These are relative planning scales, not manufacturer
+        hard limits or Phase-4 acceleration certification. The final waypoint has no outgoing segment.
+      </div>
+      <div id="digitalTwinObjectWaypointList" aria-label="Ordered Center Waypoint rows"></div>
+      <div class="digital-twin-object-waypoint-grid" aria-label="Add Center Waypoint">
+        <input id="digitalTwinObjectWaypointNewId" value="W0" aria-label="New Center Waypoint identifier" />
+        <input id="digitalTwinObjectWaypointNewX" type="number" step="0.01" value="0" aria-label="New Center Waypoint X meters" />
+        <input id="digitalTwinObjectWaypointNewY" type="number" step="0.01" value="0" aria-label="New Center Waypoint Y meters" />
+        <input id="digitalTwinObjectWaypointNewZ" type="number" step="0.01" value="0.8" aria-label="New Center Waypoint Z meters" />
+        <input id="digitalTwinObjectWaypointNewRoll" type="number" step="0.1" value="0" aria-label="New Center Waypoint Roll degrees" />
+        <input id="digitalTwinObjectWaypointNewPitch" type="number" step="0.1" value="0" aria-label="New Center Waypoint Pitch degrees" />
+        <input id="digitalTwinObjectWaypointNewYaw" type="number" step="0.1" value="0" aria-label="New Center Waypoint Yaw degrees" />
+        <span class="small">Speed 100% default</span>
+        <span class="small">Acceleration 100% default</span>
+        <button id="digitalTwinObjectWaypointAdd" type="button">Add Waypoint</button>
+        <button id="digitalTwinObjectWaypointAddCurrent" class="digital-twin-primary-action" type="button">Save Current Center as Waypoint</button>
+        <button id="digitalTwinObjectWaypointClear" type="button">Clear</button>
+      </div>
+      <details class="digital-twin-operator-details">
+        <summary>Waypoint Details</summary>
+        <div class="digital-twin-readout" aria-label="Object waypoint diagnostics">
+          <span><span data-digital-twin-rotation-label="Fallback Orientation RPY">Fallback Orientation RPY [deg]</span>: <strong id="digitalTwinObjectWaypointOrientation">0, 0, 0</strong></span>
+          <span>Orientation Source: <strong id="digitalTwinObjectWaypointOrientationSource">PER-WAYPOINT 6D CENTER POSE / LEGACY FALLBACK</strong></span>
+          <span>3D Visualization: <strong>CENTER WAYPOINT PATH — PRE-PLAN ONLY</strong></span>
+        </div>
+        <button id="digitalTwinObjectWaypointDemo" type="button">Load 3-Waypoint Demo Fixture</button>
+      </details>
+    </div>
+    <details
+      id="digitalTwinOperatorPlanStage"
+      class="digital-twin-global-plan-panel digital-twin-operator-details"
+      aria-label="Advanced manual planning"
+    >
+      <summary>Advanced / Manual Planning — NO MOTION</summary>
+      <div class="digital-twin-operator-status" aria-label="Manual planning preview models">
+        <span>Actual Robot: <strong>Current / Feedback Model</strong></span>
+        <span>Planned Robot: <strong>Blue Ghost Preview</strong></span>
+      </div>
+      <button id="digitalTwinPlanObjectGlobal" class="digital-twin-primary-action" type="button" disabled>Generate Trajectory</button>
+      <div class="digital-twin-global-plan-controls" aria-label="Planned Robot preview controls">
+        <button id="digitalTwinGlobalPlanPlay" type="button">Play / Resume</button>
+        <button id="digitalTwinGlobalPlanPause" type="button">Pause</button>
+        <button id="digitalTwinGlobalPlanReset" type="button">Reset to Start</button>
+        <label for="digitalTwinGlobalPlanPlaybackRate">Preview speed</label>
+        <select id="digitalTwinGlobalPlanPlaybackRate">
+          <option value="0.25">0.25x</option><option value="0.5">0.5x</option>
+          <option value="1" selected>1.0x</option><option value="2">2.0x</option>
+        </select>
+        <label for="digitalTwinGlobalPlanScrubber">Preview time [s]</label>
+        <input id="digitalTwinGlobalPlanScrubber" type="range" min="0" max="0" step="0.01" value="0" disabled />
+      </div>
+      <details class="digital-twin-operator-details">
+        <summary>Advanced Planning Settings / Diagnostics</summary>
+        <div class="row" aria-label="Advanced planning settings">
+          <label for="digitalTwinGlobalPlanCandidateAttemptsInput">IK Attempts / Arm</label>
+          <input
+            id="digitalTwinGlobalPlanCandidateAttemptsInput"
+            type="number"
+            min="1"
+            max="13"
+            step="1"
+            value="3"
+            inputmode="numeric"
+          />
+          <label for="digitalTwinObjectWaypointSegmentDuration">Baseline Segment Duration [s] (100% / 100%)</label>
+          <input id="digitalTwinObjectWaypointSegmentDuration" type="number" min="0.01" step="0.1" value="2" />
+          <label for="digitalTwinObjectWaypointSamplesPerSegment">Samples / Segment</label>
+          <input id="digitalTwinObjectWaypointSamplesPerSegment" type="number" min="2" step="1" value="3" />
+        </div>
+      <div class="digital-twin-readout" aria-label="Global planner diagnostics">
+        <span>Planner State: <strong id="digitalTwinGlobalPlanState">EMPTY</strong></span>
+        <span>Planner Source: <strong id="digitalTwinGlobalPlanSource">GLOBAL GRAPH SEARCH — GENERATED GRAPH OPTIMUM</strong></span>
+        <span>Grasp: <strong id="digitalTwinGlobalPlanGraspState">UNLOCKED</strong></span>
+        <span>Grasp Revision: <strong id="digitalTwinGlobalPlanGraspRevision">UNAVAILABLE</strong></span>
+        <span>Lock Generation: <strong id="digitalTwinGlobalPlanLockGeneration">0</strong></span>
+        <span>Calibration Revision: <strong id="digitalTwinGlobalPlanCalibrationRevision">UNAVAILABLE</strong></span>
+        <span>Model Calibration: <strong id="digitalTwinGlobalPlanModelCalibration">UNAVAILABLE</strong></span>
+        <span>Planner Grasp Source: <strong id="digitalTwinGlobalPlanGraspSource">LOCKED OPERATOR GRASP REQUIRED</strong></span>
+        <span>Planning Start State Source: <strong id="digitalTwinGlobalPlanPlanningStartSource">UNAVAILABLE</strong></span>
+        <span>Start → First maximum raw joint delta [rad]: <strong id="digitalTwinGlobalPlanStartToFirstMax">UNAVAILABLE</strong></span>
+        <span>Start → First joint name / index: <strong id="digitalTwinGlobalPlanStartToFirstJoint">UNAVAILABLE</strong></span>
+        <span>Start Transition Policy: <strong>PHASE-4 START-TRANSITION VALIDATION NOT YET APPLIED</strong></span>
+        <span>IK Attempts / Arm: <strong id="digitalTwinGlobalPlanCandidateAttempts">3</strong></span>
+        <span>Exploration Profile: <strong id="digitalTwinGlobalPlanExplorationProfile">WEB RUNTIME — BOUNDED IK SEED EXPLORATION</strong></span>
+        <span>Candidate Pruning Applied: <strong id="digitalTwinGlobalPlanCandidatePruning">false</strong></span>
+        <span>Planning Elapsed: <strong id="digitalTwinGlobalPlanPlanningElapsed">UNAVAILABLE</strong></span>
+        <span>Center Waypoints: <strong id="digitalTwinGlobalPlanWaypointCount">0</strong></span>
+        <span>Center Samples: <strong id="digitalTwinGlobalPlanSampleCount">0</strong></span>
+        <span>Trajectory Duration: <strong id="digitalTwinGlobalPlanDuration">0.00 s</strong></span>
+        <span>100% Baseline Segment Duration: <strong id="digitalTwinGlobalPlanBaselineDuration">UNAVAILABLE</strong></span>
+        <span>Rigid Segment Durations: <strong id="digitalTwinGlobalPlanSegmentDurations">UNAVAILABLE</strong></span>
+        <span>Outgoing Wn Profiles: <strong id="digitalTwinGlobalPlanTimingProfiles">UNAVAILABLE</strong></span>
+        <span>Graph Layers: <strong id="digitalTwinGlobalPlanLayerCount">0</strong></span>
+        <span>Nodes per Layer: <strong id="digitalTwinGlobalPlanLayerCounts">NONE</strong></span>
+        <span>Global Path Complete: <strong id="digitalTwinGlobalPlanComplete">NO</strong></span>
+        <span>Selected Node Path / IDs: <strong id="digitalTwinGlobalPlanSelectedNodes">NONE</strong></span>
+        <span>Global Cost [rad²]: <strong id="digitalTwinGlobalPlanGlobalCost">UNAVAILABLE</strong></span>
+        <span>Greedy Cost [rad²]: <strong id="digitalTwinGlobalPlanGreedyCost">UNAVAILABLE</strong></span>
+        <span>Cost Difference: <strong id="digitalTwinGlobalPlanCostDifference">UNAVAILABLE</strong></span>
+        <span>Global &lt;= Greedy: <strong id="digitalTwinGlobalPlanNotWorse">UNAVAILABLE</strong></span>
+        <span>Maximum raw single-joint transition: <strong id="digitalTwinGlobalPlanMaxTransition">UNAVAILABLE</strong></span>
+        <span>Joint name / index: <strong id="digitalTwinGlobalPlanMaxTransitionJoint">UNAVAILABLE</strong></span>
+        <span>Failure Sample / Layer: <strong id="digitalTwinGlobalPlanFailedSample">NONE</strong></span>
+        <span>Failure Reason: <strong id="digitalTwinGlobalPlanFailureReason">NONE</strong></span>
+        <span>Optimality Scope: <strong id="digitalTwinGlobalPlanOptimality">Exact optimum over generated layered candidate graph</strong></span>
+        <span>Planning Units: <strong>translation m · orientation rad · joint rad · time s · edge cost rad²</strong></span>
+        <span>Integrated Owner: <strong id="digitalTwinIntegratedPreviewOwner">NONE</strong></span>
+        <span>Integrated Time: <strong id="digitalTwinIntegratedPreviewTime">0.00 s</strong></span>
+        <span>Integrated Segment: <strong id="digitalTwinIntegratedPreviewSegment">NONE</strong></span>
+        <span>Integrated Alpha: <strong id="digitalTwinIntegratedPreviewAlpha">0.000</strong></span>
+        <span>Error: <strong id="digitalTwinGlobalPlanError">NONE</strong></span>
+      </div>
+      <div class="small">
+        IK exploration budget: higher values may increase candidate diversity and
+        planning time. This is not a robot safety setting and does not prune generated nodes.<br />
+        One common preview clock drives Center, Left Planned Ghost, and Right Planned Ghost.
+        Pause freezes the current time; Play / Resume continues from it; Reset keeps the plan loaded.
+        INTERPOLATION IS FOR VISUALIZATION ONLY.
+      </div>
+      </details>
+      <div class="digital-twin-phase3-warning">
+        Offline preview only — no robot motion is sent.
+      </div>
+    </details>
+    <details
+      id="digitalTwinOperatorValidateStage"
+      class="digital-twin-operator-details"
+      aria-label="Advanced manual validation"
+    >
+      <summary>Advanced / Manual Validation — NO MOTION</summary>
+      <button id="digitalTwinValidatePhase4Unified" class="digital-twin-primary-action" type="button" disabled>
+        Validate Trajectory
+      </button>
+      <div class="small">
+        Validation is offline and model-based. It does not command either robot.
+      </div>
+    </details>
+    <details id="digitalTwinAdvancedDiagnostics" class="digital-twin-operator-details">
+      <summary>Advanced / Diagnostics</summary>
     <div
       class="digital-twin-object-trajectory-panel"
       aria-label="Offline object Cartesian trajectory preview"
@@ -955,7 +1999,7 @@
         Current Time and the scrubber preserve the requested continuous time;
         Current Sample and Alpha report the nearest discrete sample. No Cartesian
         pose interpolation is applied. Nearest-sample ties choose the earlier sample.
-        Manual Apply Object Pose or Reset Object Preview pauses trajectory playback
+        Manual Apply Center Pose or Reset Frames pauses trajectory playback
         and takes frame ownership. Clear preserves the last visible object/grasp pose.
       </div>
       <div class="digital-twin-object-trajectory-notice">
@@ -1137,10 +2181,301 @@
           DYNAMICS NOT VALIDATED — PHYSICAL EXECUTION NOT VALIDATED —
           NOT FOR ROBOT EXECUTION
         </div>
+        <h3>Phase 4 — Trajectory / Relative Pose / Dynamics</h3>
+        <div class="digital-twin-readout" aria-label="Phase 4 trajectory validation state">
+          <span>Overall: <strong id="digitalTwinPhase4Overall">NOT VALIDATED</strong></span>
+          <span>Start State: <strong id="digitalTwinPhase4StartState">UNAVAILABLE</strong></span>
+          <span>Common Timeline: <strong id="digitalTwinPhase4CommonTimeline">NOT EVALUATED</strong></span>
+          <span>Start Transition: <strong id="digitalTwinPhase4StartTransition">NOT EVALUATED</strong></span>
+          <span>End State: <strong id="digitalTwinPhase4EndState">NOT EVALUATED</strong></span>
+          <span>FK Target Validation: <strong id="digitalTwinPhase4FkTarget">NOT EVALUATED</strong></span>
+          <span>Left Max Position Error [m]: <strong id="digitalTwinPhase4LeftPositionError">NOT EVALUATED</strong></span>
+          <span>Right Max Position Error [m]: <strong id="digitalTwinPhase4RightPositionError">NOT EVALUATED</strong></span>
+          <span>Left Max Orientation Error [rad]: <strong id="digitalTwinPhase4LeftOrientationError">NOT EVALUATED</strong></span>
+          <span>Right Max Orientation Error [rad]: <strong id="digitalTwinPhase4RightOrientationError">NOT EVALUATED</strong></span>
+          <span>Relative Translation Error [m]: <strong id="digitalTwinPhase4RelativeTranslationError">NOT EVALUATED</strong></span>
+          <span>Relative Orientation Error [rad]: <strong id="digitalTwinPhase4RelativeOrientationError">NOT EVALUATED</strong></span>
+          <span>Fixed Grasp Relationship: <strong id="digitalTwinPhase4FixedGrasp">NOT EVALUATED</strong></span>
+          <span>Maximum Joint Velocity [rad/s]: <strong id="digitalTwinPhase4MaxVelocity">NOT EVALUATED</strong></span>
+          <span>Velocity Limit [rad/s]: <strong id="digitalTwinPhase4VelocityLimit">NOT EVALUATED</strong></span>
+          <span>Velocity Limit Source: <strong id="digitalTwinPhase4VelocityLimitSource">NOT EVALUATED</strong></span>
+          <span>Velocity PASS/FAIL: <strong id="digitalTwinPhase4VelocityStatus">NOT EVALUATED</strong></span>
+          <span>Maximum Discrete Acceleration [rad/s²]: <strong id="digitalTwinPhase4MaxAcceleration">NOT EVALUATED</strong></span>
+          <span>Acceleration Limit Status: <strong id="digitalTwinPhase4AccelerationLimitStatus">NOT EVALUATED</strong></span>
+          <span>Acceleration Limit Validation: <strong id="digitalTwinPhase4AccelerationValidation">NOT EVALUATED</strong></span>
+          <span>Validation Error: <strong id="digitalTwinPhase4Error">NONE</strong></span>
+        </div>
+        <div class="row" aria-label="Phase 4 plan-only validation controls">
+          <button id="digitalTwinPhase4UseActualStart" type="button" disabled>
+            Use Current Actual Joints as Validation Start
+          </button>
+          <button id="digitalTwinPhase4ClearStart" type="button">Clear Validation Start</button>
+          <button id="digitalTwinValidatePhase4Trajectory" type="button" disabled>
+            Validate Current Global Plan — Phase 4
+          </button>
+        </div>
+        <div class="digital-twin-validation-notice">
+          MODEL-CONSISTENCY CHECK — NOT PHYSICAL METROLOGY —
+          ACCELERATION LIMIT UNAVAILABLE — PHASE-4 VALIDATION IN PROGRESS —
+          NOT EXECUTION READY
+        </div>
+        <h3>Phase 4B — Planning Scene / Collision Validation</h3>
+        <div class="digital-twin-readout" aria-label="Phase 4B collision validation state">
+          <span>Overall: <strong id="digitalTwinPhase4BCollisionOverall">NOT VALIDATED</strong></span>
+          <span>Robot Stored-Point Collision: <strong id="digitalTwinPhase4BRobotStored">NOT EVALUATED</strong></span>
+          <span>Robot Sampled-Path Collision: <strong id="digitalTwinPhase4BRobotSampled">NOT EVALUATED</strong></span>
+          <span>Self Collision: <strong id="digitalTwinPhase4BSelfCollision">NOT EVALUATED</strong></span>
+          <span>Inter-Arm Collision: <strong id="digitalTwinPhase4BInterArmCollision">NOT EVALUATED</strong></span>
+          <span>Object Scene: <strong id="digitalTwinPhase4BObjectScene">NOT CONFIGURED</strong></span>
+          <span>Object Collision: <strong id="digitalTwinPhase4BObjectCollision">NOT EVALUATED</strong></span>
+          <span>Environment Scene: <strong id="digitalTwinPhase4BEnvironmentScene">NOT CONFIGURED</strong></span>
+          <span>Environment Collision: <strong id="digitalTwinPhase4BEnvironmentCollision">NOT EVALUATED</strong></span>
+          <span>First Collision Category: <strong id="digitalTwinPhase4BFirstCategory">NONE</strong></span>
+          <span>First Collision Pair: <strong id="digitalTwinPhase4BFirstPair">NONE</strong></span>
+          <span>First Collision Sample / Segment: <strong id="digitalTwinPhase4BFirstLocation">NONE</strong></span>
+          <span>First Collision Alpha / Time: <strong id="digitalTwinPhase4BFirstAlphaTime">N/A</strong></span>
+          <span>Penetration Depth: <strong id="digitalTwinPhase4BPenetration">N/A</strong></span>
+          <span>Validation Error: <strong id="digitalTwinPhase4BCollisionError">NONE</strong></span>
+        </div>
+        <div class="row" aria-label="Phase 4B plan-only collision controls">
+          <button id="digitalTwinValidatePhase4Collision" type="button" disabled>
+            Validate Current Global Plan — Phase 4B
+          </button>
+          <button id="digitalTwinClearPhase4Collision" type="button">
+            Clear Phase 4B Validation
+          </button>
+        </div>
+        <div class="digital-twin-validation-notice">
+          OBJECT COLLISION GEOMETRY NOT CONFIGURED —
+          ENVIRONMENT COLLISION SCENE NOT CONFIGURED —
+          DISCRETE SAMPLED CHECK — NOT CONTINUOUS COLLISION GUARANTEE —
+          NOT EXECUTION READY
+        </div>
+        <h3>Phase 4C — UNIFIED VALIDATION REPORT</h3>
+        <div class="digital-twin-validation-notice">
+          CURRENT PROJECT VALIDATION SCOPE — DEFERRED CHECKS REMAIN UNVALIDATED —
+          NOT FULL INDUSTRIAL SAFETY VALIDATION
+        </div>
+        <div class="digital-twin-readout" aria-label="Phase 4C unified validation report">
+          <span>Overall Validation: <strong id="digitalTwinPhase4COverall">NOT_VALIDATED</strong></span>
+          <span>Execution Ready: <strong id="digitalTwinPhase4CExecutionReady">NO</strong></span>
+          <span>Current-Scope Status: <strong id="digitalTwinPhase4CScopeStatus">NOT READY UNDER CURRENT PROJECT SCOPE</strong></span>
+          <span>Plan Fingerprint: <strong id="digitalTwinPhase4CPlanFingerprint">NONE</strong></span>
+          <span>Authoritative Inputs: <strong id="digitalTwinPhase4CAuthoritativeInputs">NOT EVALUATED</strong></span>
+          <span>Validated Grasp Revision: <strong id="digitalTwinPhase4CGraspRevision">NONE</strong></span>
+          <span>Validated Lock Generation: <strong id="digitalTwinPhase4CLockGeneration">NONE</strong></span>
+          <span>Validated Calibration Revision: <strong id="digitalTwinPhase4CCalibrationRevision">NONE</strong></span>
+          <span>Stale Validation: <strong id="digitalTwinPhase4CStale">false</strong></span>
+          <h4>REQUIRED VALIDATION</h4>
+          <span>IK Complete: <strong id="digitalTwinPhase4CIk">NOT EVALUATED</strong></span>
+          <span>Joint Position Limits: <strong id="digitalTwinPhase4CJointLimits">NOT EVALUATED</strong></span>
+          <span>Self Collision: <strong id="digitalTwinPhase4CSelfCollision">NOT EVALUATED</strong></span>
+          <span>Inter-Arm Collision: <strong id="digitalTwinPhase4CInterArmCollision">NOT EVALUATED</strong></span>
+          <span>Sampled-Path Collision: <strong id="digitalTwinPhase4CSampledCollision">NOT EVALUATED</strong></span>
+          <span>Start Transition: <strong id="digitalTwinPhase4CStartTransition">NOT EVALUATED</strong></span>
+          <span>Joint Continuity: <strong id="digitalTwinPhase4CContinuity">NOT EVALUATED</strong></span>
+          <span>Joint Jump: <strong id="digitalTwinPhase4CJump">NOT EVALUATED</strong></span>
+          <span>FK Target: <strong id="digitalTwinPhase4CFk">NOT EVALUATED</strong></span>
+          <span>Relative Pose: <strong id="digitalTwinPhase4CRelativePose">NOT EVALUATED</strong></span>
+          <span>Fixed Grasp: <strong id="digitalTwinPhase4CFixedGrasp">NOT EVALUATED</strong></span>
+          <span>Common Timeline: <strong id="digitalTwinPhase4CTimeline">NOT EVALUATED</strong></span>
+          <span>Velocity: <strong id="digitalTwinPhase4CVelocity">NOT EVALUATED</strong></span>
+          <h4>DEFERRED VALIDATION</h4>
+          <span>Object Collision: <strong id="digitalTwinPhase4CObjectCollision">DEFERRED — NOT CONFIGURED</strong></span>
+          <span>Environment Collision: <strong id="digitalTwinPhase4CEnvironmentCollision">DEFERRED — NOT CONFIGURED</strong></span>
+          <span>Acceleration Limit: <strong id="digitalTwinPhase4CAcceleration">DEFERRED — LIMIT UNAVAILABLE</strong></span>
+          <span>Deferred Findings: <strong id="digitalTwinPhase4CDeferredWarnings">P4.5, P4.6, P4.20 REMAIN DEFERRED AND UNVALIDATED</strong></span>
+          <h4>CURRENT-SCOPE FAILURE DIAGNOSTICS</h4>
+          <span>First Blocking Check: <strong id="digitalTwinPhase4CFirstCheck">NONE</strong></span>
+          <span>Failure Reason: <strong id="digitalTwinPhase4CFailureReason">NONE</strong></span>
+          <span>Failure Location: <strong id="digitalTwinPhase4CFailureLocation">NONE</strong></span>
+          <span>Collision Category / Pair: <strong id="digitalTwinPhase4CCollision">NONE</strong></span>
+          <span>Joint Jump Details: <strong id="digitalTwinPhase4CJumpDetails">NONE</strong></span>
+          <span>Relative Pose Max Errors: <strong id="digitalTwinPhase4CRelativeDetails">NONE</strong></span>
+          <span>Locked Expected Relative Pose: <strong id="digitalTwinPhase4CExpectedRelative">NONE</strong></span>
+          <span>Velocity / Acceleration Details: <strong id="digitalTwinPhase4CDynamicsDetails">NONE</strong></span>
+          <span>Blocking Reasons: <strong id="digitalTwinPhase4CBlockingReasons">UNIFIED_VALIDATION_REPORT_MISSING</strong></span>
+          <span>Validation Error: <strong id="digitalTwinPhase4CError">NONE</strong></span>
+        </div>
+        <div class="row" aria-label="Phase 4C plan-only validation controls">
+          <button id="digitalTwinClearPhase4Unified" type="button">
+            Clear Unified Validation
+          </button>
+        </div>
+        <div class="digital-twin-validation-notice">
+          READY UNDER CURRENT PROJECT SCOPE ONLY WHEN ALL REQUIRED CHECKS PASS —
+          OBJECT/ENVIRONMENT COLLISION AND ACCELERATION HARD-LIMIT VALIDATION
+          ARE DEFERRED AND REMAIN UNVALIDATED — NOT SAFETY CERTIFICATION
+        </div>
       </div>
     </div>
+    </details>
+    <section
+      id="digitalTwinPhase5ExecutionSection"
+      class="digital-twin-validation-panel digital-twin-phase5-panel digital-twin-workflow-stage"
+      aria-label="Step 3 Preview and Execute"
+    >
+      <span class="digital-twin-stage-kicker">STEP 3</span>
+      <h3>Preview &amp; Execute</h3>
+      <div class="small">Phase 5 Execution — REAL ROBOT COMMAND</div>
+      <div class="digital-twin-operator-status" aria-label="Planning and validation readiness">
+        <span>Planning: <strong id="digitalTwinOperatorPlanStatus">LOCK GRASP TO CONTINUE</strong></span>
+        <span>Validation: <strong id="digitalTwinOperatorValidationStatus">NOT VALIDATED</strong></span>
+        <span>Execution Ready: <strong id="digitalTwinOperatorExecutionReady">NO</strong></span>
+        <span
+          id="digitalTwinOperatorValidationReason"
+          class="digital-twin-concise-failure"
+          data-empty="true"
+        >Generate a trajectory, then validate it.</span>
+      </div>
+      <div class="digital-twin-validation-notice digital-twin-phase5-safety-notice">
+        REAL ROBOT MOTION — Frozen Ghost verification and one explicit final browser
+        confirmation required. Clear the workspace and keep STOP / E-stop ready.
+      </div>
+      <div class="digital-twin-phase5-status-grid" aria-label="Phase 5 execution gate status">
+        <span class="digital-twin-phase5-status-card">
+          Frozen Artifact
+          <strong id="digitalTwinPhase5ArtifactStatus">NOT FROZEN</strong>
+        </span>
+        <span class="digital-twin-phase5-status-card digital-twin-phase5-status-card-wide">
+          Frozen Ghost / Interlock
+          <strong id="digitalTwinPhase5PreviewStatus">NOT LOADED</strong>
+          <strong id="digitalTwinPhase5PreviewInterlock">BLOCKED — VERIFIED GHOST REQUIRED</strong>
+        </span>
+        <span class="digital-twin-phase5-status-card">
+          Phase 4 Gate
+          <strong id="digitalTwinPhase5GateStatus">BLOCKED</strong>
+        </span>
+        <span class="digital-twin-phase5-status-card">
+          Robot Safe State
+          <strong id="digitalTwinPhase5SafeState">BLOCKED</strong>
+        </span>
+        <span class="digital-twin-phase5-status-card">
+          Start Match
+          <strong id="digitalTwinPhase5StartMatch">BLOCKED</strong>
+        </span>
+        <span class="digital-twin-phase5-status-card">
+          Execution State
+          <strong id="digitalTwinPhase5ExecutionState">IDLE</strong>
+        </span>
+        <span class="digital-twin-phase5-status-card digital-twin-phase5-status-card-wide">
+          Execution Result
+          <strong id="digitalTwinPhase5CombinedResult">IDLE</strong>
+        </span>
+        <span class="digital-twin-phase5-status-card digital-twin-phase5-status-card-wide">
+          Last Operator Action
+          <strong id="digitalTwinPhase5OperatorAction">READY FOR OPERATOR</strong>
+        </span>
+      </div>
+      <div class="digital-twin-phase5-progress-row" aria-label="Phase 5 common execution progress">
+        <span>Common timeline <strong id="digitalTwinPhase5CommonTimeline">0.000 / 0.000 s</strong></span>
+        <div>
+          <span>Common progress: <strong id="digitalTwinPhase5CommonProgress">0.0%</strong></span>
+          <progress
+            id="digitalTwinPhase5ProgressBar"
+            class="digital-twin-phase5-progress"
+            max="100"
+            value="0"
+            aria-label="Phase 5 common progress"
+          ></progress>
+        </div>
+      </div>
+      <div class="digital-twin-phase5-blockers" role="status" aria-live="polite">
+        <strong>Blocking:</strong>
+        <span id="digitalTwinPhase5BlockingReasons">LOADING</span>
+      </div>
+      <div class="digital-twin-phase5-actions" aria-label="Phase 5 primary operator controls">
+        <button id="digitalTwinPhase5ReplanFromCurrent" type="button" disabled>
+          Replan From Current — NO MOTION
+        </button>
+        <button id="digitalTwinPhase5PreviewPlay" type="button" disabled>Play Frozen Ghost — NO MOTION</button>
+        <button id="digitalTwinPhase5MoveToInitial" class="stop" type="button" disabled>
+          Move to Initial — REAL MOTION
+        </button>
+        <button id="digitalTwinPhase5Stop" class="stop" type="button" onclick="stopBoth()">
+          STOP BOTH — EXISTING STOP PATH
+        </button>
+        <button id="digitalTwinPhase5Prepare" class="digital-twin-primary-action" type="button" disabled>
+          Execute — REAL MOTION
+        </button>
+      </div>
+      <details class="digital-twin-operator-details digital-twin-phase5-secondary-controls">
+        <summary>More preview / status controls</summary>
+        <div class="digital-twin-phase5-actions" aria-label="Phase 5 secondary preview and status controls">
+          <button id="digitalTwinPhase5PreviewReload" type="button">Reload Frozen Ghost — NO MOTION</button>
+          <button id="digitalTwinPhase5PreviewReset" type="button" disabled>Reset Ghost to Start</button>
+          <button id="digitalTwinPhase5Refresh" type="button">Refresh Phase 5 Status</button>
+        </div>
+      </details>
+      <details
+        id="digitalTwinPhase5Diagnostics"
+        class="digital-twin-operator-details digital-twin-phase5-diagnostics"
+        aria-label="Phase 5 execution diagnostics"
+      >
+        <summary>Execution diagnostics and raw feedback</summary>
+        <div class="digital-twin-readout">
+          <span>Artifact Fingerprint: <strong id="digitalTwinPhase5ArtifactFingerprint">NONE</strong></span>
+          <span>Artifact Generation: <strong id="digitalTwinPhase5ArtifactGeneration">NONE</strong></span>
+          <span>STOP Generation: <strong id="digitalTwinPhase5StopGeneration">UNAVAILABLE</strong></span>
+          <span>Frozen Preview Trajectory: <strong id="digitalTwinPhase5PreviewTrajectory">UNAVAILABLE</strong></span>
+          <span>Trajectory ID: <strong id="digitalTwinPhase5TrajectoryId">NONE</strong></span>
+          <span>Common Start Semantics: <strong id="digitalTwinPhase5CommonStart">HOST-TIMED — NOT HARD REAL-TIME</strong></span>
+          <span>Trajectory Transport: <strong id="digitalTwinPhase5TransportStatus">NOT READY</strong></span>
+          <span>Replan From Current: <strong id="digitalTwinPhase5ReplanState">NOT ARMED — CODE CONFIG DEFAULT</strong></span>
+          <span>Move-to-Initial Target: <strong id="digitalTwinPhase5InitialTarget">UNAVAILABLE</strong></span>
+          <span>Start Match Max Delta [rad]: <strong id="digitalTwinPhase5StartMaxDelta">N/A</strong></span>
+          <span>Start Match Threshold [rad]: <strong id="digitalTwinPhase5StartThreshold">N/A</strong></span>
+          <span>Start Match Reason: <strong id="digitalTwinPhase5StartReason">UNAVAILABLE</strong></span>
+          <span>Start Match Per-Joint Deltas [rad]: <strong id="digitalTwinPhase5StartJointDeltas">UNAVAILABLE</strong></span>
+          <span>Phase-5 Servo Filter: <strong id="digitalTwinPhase5Filter">LEGACY_FORESIGHT (15, 0.03)</strong></span>
+          <span>Authoritative Reason: <strong id="digitalTwinPhase5CombinedReason">NONE</strong></span>
+          <span>Authoritative Detail / Error: <strong id="digitalTwinPhase5Error">NONE</strong></span>
+          <span>Left Driver / Progress: <strong id="digitalTwinPhase5LeftDriver">UNAVAILABLE / N/A</strong></span>
+          <span>Left Terminal Detail: <strong id="digitalTwinPhase5LeftReason">NONE</strong></span>
+          <span>Right Driver / Progress: <strong id="digitalTwinPhase5RightDriver">UNAVAILABLE / N/A</strong></span>
+          <span>Right Terminal Detail: <strong id="digitalTwinPhase5RightReason">NONE</strong></span>
+          <span>Left Motion Quality: <strong id="digitalTwinPhase5LeftQuality">UNAVAILABLE</strong></span>
+          <span>Right Motion Quality: <strong id="digitalTwinPhase5RightQuality">UNAVAILABLE</strong></span>
+          <span>Left Stream / Timing / servo_j Call: <strong id="digitalTwinPhase5LeftTiming">UNAVAILABLE</strong></span>
+          <span>Right Stream / Timing / servo_j Call: <strong id="digitalTwinPhase5RightTiming">UNAVAILABLE</strong></span>
+          <span>Actual Left Joints [rad]: <strong id="digitalTwinPhase5ActualLeftJoints">UNAVAILABLE</strong></span>
+          <span>Actual Left Joint Cache: <strong id="digitalTwinPhase5ActualLeftJointStatus">valid=false; received=N/A; age=N/A</strong></span>
+          <span>Actual Right Joints [rad]: <strong id="digitalTwinPhase5ActualRightJoints">UNAVAILABLE</strong></span>
+          <span>Actual Right Joint Cache: <strong id="digitalTwinPhase5ActualRightJointStatus">valid=false; received=N/A; age=N/A</strong></span>
+          <span>Actual Left TCP: <strong id="digitalTwinPhase5ActualLeftTcp">UNAVAILABLE</strong></span>
+          <span>Actual Right TCP: <strong id="digitalTwinPhase5ActualRightTcp">UNAVAILABLE</strong></span>
+          <span>Actual TCP Source: <strong id="digitalTwinPhase5ActualTcpStatus">UNAVAILABLE</strong></span>
+          <span>TCP Coordinate Disclaimer: <strong id="digitalTwinPhase5TcpDisclaimer">CONTROLLER CURRENT USER COORDINATE; NOT WEB-WORLD PLACEMENT</strong></span>
+        </div>
+      </details>
+    </section>
+    <details
+      id="digitalTwinPhase6Monitoring"
+      class="digital-twin-operator-details digital-twin-phase5-diagnostics"
+      aria-label="Phase 6 monitoring — read only"
+      open
+    >
+      <summary>Phase 6 Monitoring — READ ONLY</summary>
+      <div class="digital-twin-validation-notice">
+        P6.1 Joint Tracking Error — monitoring only. No threshold, fault, or coordinated STOP is enabled yet.
+      </div>
+      <div class="digital-twin-readout" aria-label="P6.1 joint tracking error">
+        <span>P6.1 Status: <strong id="digitalTwinP6JointTrackingStatus">NOT EVALUATED</strong></span>
+        <span>Actual Source: <strong id="digitalTwinP6JointTrackingSource">UNAVAILABLE</strong></span>
+        <span>Combined Max |Error| [rad]: <strong id="digitalTwinP6JointTrackingCombinedMax">N/A</strong></span>
+        <span>Worst Joint: <strong id="digitalTwinP6JointTrackingCombinedJoint">N/A</strong></span>
+        <span>Left Max |Error| [rad]: <strong id="digitalTwinP6JointTrackingLeftMax">N/A</strong></span>
+        <span>Left Worst Joint: <strong id="digitalTwinP6JointTrackingLeftJoint">N/A</strong></span>
+        <span>Right Max |Error| [rad]: <strong id="digitalTwinP6JointTrackingRightMax">N/A</strong></span>
+        <span>Right Worst Joint: <strong id="digitalTwinP6JointTrackingRightJoint">N/A</strong></span>
+        <span>Left Error Vector [rad]: <strong id="digitalTwinP6JointTrackingLeftVector">UNAVAILABLE</strong></span>
+        <span>Right Error Vector [rad]: <strong id="digitalTwinP6JointTrackingRightVector">UNAVAILABLE</strong></span>
+        <span>Time Alignment: <strong id="digitalTwinP6JointTrackingTiming">LATEST COMMAND VS LATEST ACTUAL</strong></span>
+        <span>Safety Authority: <strong id="digitalTwinP6JointTrackingAuthority">OBSERVE ONLY — NO THRESHOLD / STOP</strong></span>
+      </div>
+    </details>
     <div class="digital-twin-warning">
-      Visualization only — live feedback is read-only and sends no execution commands.
+      Live Mirror / preview visualization is read-only. Phase 5 Execute above is an explicit real-robot command and requires operator confirmation.
     </div>
   </section>
 
@@ -1188,7 +2523,7 @@
       </div>
 
       <div class="row">
-        <button class="green" onclick="runSequence()">Run Program</button>
+        <button id="runProgramButton" class="green" onclick="runSequence()">Run Program</button>
         <button onclick="saveProgramFile()">Save Program</button>
         <button onclick="loadSelectedProgram()">Load Program</button>
         <button onclick="clearSequence()">Clear Sequence</button>
@@ -2388,8 +3723,8 @@ init();
 </script>
 
 
-<script type="module" src="/web-assets/digital_twin.js?v=object-trajectory-preview-v1"></script>
-<script type="module" src="/web-assets/digital_twin_live_source.js"></script>
+<script type="module" src="/web-assets/digital_twin.js?v=phase6-p6-1-joint-tracking-v1"></script>
+<script type="module" src="/web-assets/digital_twin_live_source.js?v=feature5-live-mirror-switch-v1"></script>
 <script type="module" src="/web-assets/digital_twin_robot_status_source.js"></script>
 <script type="module" src="/web-assets/digital_twin_tcp_source.js"></script>
 

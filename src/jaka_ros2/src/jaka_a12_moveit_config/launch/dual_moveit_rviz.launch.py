@@ -1,4 +1,6 @@
 import os
+import sys
+from pathlib import Path
 
 from ament_index_python.packages import get_package_share_directory
 from launch import LaunchDescription
@@ -8,6 +10,9 @@ from launch.substitutions import Command, FindExecutable, LaunchConfiguration, P
 from launch_ros.actions import Node
 from launch_ros.substitutions import FindPackageShare
 import yaml
+
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from world_calibration_launch import calibrated_robot_description
 
 
 def load_yaml(package_name, relative_path):
@@ -32,9 +37,7 @@ def generate_launch_description():
         [FindPackageShare(package_name), "config", "moveit.rviz"]
     )
 
-    robot_description = {
-        "robot_description": Command([FindExecutable(name="xacro"), " ", xacro_file]),
-    }
+    robot_description = calibrated_robot_description(xacro_file)
     robot_description_semantic = {
         "robot_description_semantic": Command(["cat ", srdf_file]),
     }

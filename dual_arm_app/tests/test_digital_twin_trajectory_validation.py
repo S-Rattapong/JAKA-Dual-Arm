@@ -21,6 +21,7 @@ VALIDATOR_PATH = WEB_ROOT / "digital_twin_trajectory_validation.js"
 TRAJECTORY_PATH = WEB_ROOT / "digital_twin_trajectory_preview.js"
 PLANNED_PATH = WEB_ROOT / "digital_twin_planned_preview.js"
 ADAPTER_PATH = WEB_ROOT / "digital_twin_status_adapter.js"
+SMOOTHING_PATH = WEB_ROOT / "digital_twin_live_smoothing.js"
 DIGITAL_TWIN_PATH = WEB_ROOT / "digital_twin.js"
 HTML_PATH = WEB_ROOT / "index.html"
 PROTECTED_UI_PROMPT = REPOSITORY_ROOT / "real_robot_configs" / "ui fix.md"
@@ -225,6 +226,11 @@ import {{
   isNormalizedSnapshotStale,
   normalizeDualArmStatusSnapshot,
 }} from "./adapter.mjs";
+import {{
+  DEFAULT_VISUAL_SMOOTHING_TAU_MS,
+  copyDualArmPose,
+  smoothDualArmPose,
+}} from "./smoothing.mjs";
 import {{ maxAbsoluteJointDelta, normalizePlannedDualArmPose }} from "./planned.mjs";
 import {{
   normalizeDualArmTrajectory,
@@ -301,6 +307,7 @@ console.log(JSON.stringify({{
         result = _run_node(
             {
                 "adapter.mjs": self.adapter,
+                "smoothing.mjs": SMOOTHING_PATH.read_text(encoding="utf-8"),
                 "planned.mjs": self.planned,
                 "trajectory.mjs": self.trajectory,
                 "validator.mjs": self.validator,

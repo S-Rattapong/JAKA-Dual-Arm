@@ -168,7 +168,9 @@ class BackendJointFeedbackContractTests(unittest.TestCase):
         for forbidden in ("get_fk_pose", "call_async", "publish", "create_request"):
             with self.subTest(forbidden=forbidden):
                 self.assertNotIn(forbidden, method_source)
-        self.assertIn("build_digital_twin_joint_status", method_source)
+        self.assertIn("select_visualization_joint_status", method_source)
+        ros_method = ast.unparse(self.class_method("digital_twin_ros_joint_status"))
+        self.assertIn("build_digital_twin_joint_status", ros_method)
 
     def test_endpoint_is_get_only_and_returns_only_joint_status(self) -> None:
         route = self.module_function("api_digital_twin_joints")
@@ -293,6 +295,8 @@ const initialHeader = {
 };
 const validPayload = {
   ok: true,
+  source: "jaka_port10000_actual_feedback",
+  source_diagnostics: {both_port10000_arms_fresh: true},
   left: { valid: true, joint: [1,2,3,4,5,6], received_at_ms: 900 },
   right: { valid: true, joint: [-1,-2,-3,-4,-5,-6], received_at_ms: 950 },
 };
@@ -321,7 +325,7 @@ const fetchesFromDoubleStart = fetchCalls.length - fetchCountBeforeStart;
 resolveStartFetch({ ok: true, status: 200, json: async () => validPayload });
 await live.pollLiveFeedbackOnce();
 await Promise.resolve();
-const pollTimersAfterStart = [...timers.values()].filter(timer => timer.delay === 500).length;
+const pollTimersAfterStart = [...timers.values()].filter(timer => timer.delay === 10).length;
 fetchImplementation = async () => ({
   ok: true,
   status: 200,
@@ -392,7 +396,7 @@ console.log(JSON.stringify({
         output = json.loads(result.stdout)
         self.assertFalse(output["initial"]["running"])
         self.assertEqual(output["initial"]["status"], "STOPPED")
-        self.assertEqual(output["initial"]["pollIntervalMs"], 500)
+        self.assertEqual(output["initial"]["pollIntervalMs"], 10)
         self.assertEqual(output["initialFetchCount"], 0)
         self.assertEqual(output["initialHeader"], {
             "mode": "STATIC / LAST POSE",
@@ -426,6 +430,15 @@ console.log(JSON.stringify({
         self.assertTrue(output["abortObserved"])
         self.assertEqual(output["resetCalls"], 0)
         self.assertFalse(output["finalState"]["running"])
+        self.assertEqual(
+            output["finalState"]["endpointSource"],
+            "jaka_port10000_actual_feedback",
+        )
+        self.assertTrue(
+            output["finalState"]["sourceDiagnostics"][
+                "both_port10000_arms_fresh"
+            ]
+        )
         self.assertEqual(output["finalState"]["status"], "STOPPED")
 
 

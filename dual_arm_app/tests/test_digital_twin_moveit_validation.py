@@ -108,6 +108,7 @@ def contact(body_1, body_2, depth):
 def run_node(harness):
     sources = {
         "adapter.mjs": (WEB / "digital_twin_status_adapter.js").read_text(),
+        "smoothing.mjs": (WEB / "digital_twin_live_smoothing.js").read_text(),
         "planned.mjs": (WEB / "digital_twin_planned_preview.js").read_text(),
         "trajectory.mjs": (WEB / "digital_twin_trajectory_preview.js").read_text(),
         "validator.mjs": (WEB / "digital_twin_trajectory_validation.js").read_text(),
@@ -268,6 +269,7 @@ class FrontendValidationTests(unittest.TestCase):
     def test_full_pipeline_states_duplicate_guard_and_joint_limit_gate(self):
         harness = f'''
 import {{ DEFAULT_STALE_TIMEOUT_MS, isNormalizedSnapshotStale, normalizeDualArmStatusSnapshot }} from "./adapter.mjs";
+import {{ DEFAULT_VISUAL_SMOOTHING_TAU_MS, copyDualArmPose, smoothDualArmPose }} from "./smoothing.mjs";
 import {{ maxAbsoluteJointDelta, normalizePlannedDualArmPose }} from "./planned.mjs";
 import {{ normalizeDualArmTrajectory, sampleTrajectoryAtTime, trajectoryDurationSeconds, trajectoryPointAtIndex }} from "./trajectory.mjs";
 import {{ validateTrajectoryJointLimits }} from "./validator.mjs";

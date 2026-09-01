@@ -163,12 +163,13 @@ console.log(JSON.stringify({
             with self.subTest(forbidden=forbidden):
                 self.assertNotIn(forbidden, self.helper)
 
-    def test_scene_contains_object_and_three_distinct_frames(self) -> None:
+    def test_scene_omits_synthetic_mesh_and_keeps_three_distinct_frames(self) -> None:
         create_preview = self.controller.split(
             "function createObjectGraspPreview()", 1
         )[1].split("function applyObjectPreviewPose", 1)[0]
-        self.assertIn("new THREE.BoxGeometry(", create_preview)
-        self.assertIn('objectFrame.name = "Object Frame O"', create_preview)
+        self.assertNotIn("new THREE.BoxGeometry(", create_preview)
+        self.assertNotIn("Synthetic Workpiece", create_preview)
+        self.assertIn('objectFrame.name = "Center / Coordination Frame C"', create_preview)
         self.assertIn('"Left Grasp Frame L"', create_preview)
         self.assertIn('"Right Grasp Frame R"', create_preview)
         self.assertIn('axes.name = "World Frame W axes"', self.controller)
@@ -183,21 +184,27 @@ console.log(JSON.stringify({
             "function applyObjectPreviewPose(pose)", 1
         )[1].split("function objectPoseFromControls", 1)[0]
         reset_block = self.controller.split(
-            "function resetObjectPreview()", 1
-        )[1].split("function setObjectPreviewVisibility", 1)[0]
-        self.assertIn("computeWorldGraspFrameMatrices(normalizedPose)", apply_block)
-        self.assertIn("transforms.worldTObject", apply_block)
+            "function resetGraspFramesToCurrentRobotPose", 1
+        )[1].split(
+            "function initializeUnlockedGraspFramesFromCurrentRobotPoseWhenReady", 1
+        )[0]
+        self.assertIn(
+            "computeWorldGraspFrameMatrices(normalizedPose, graspContent)",
+            apply_block,
+        )
+        self.assertIn("currentRigidGraspContent()", apply_block)
+        self.assertIn("applyMatrixToFrame(objectFrame, worldTObject)", apply_block)
         self.assertIn("transforms.worldTLeft", apply_block)
         self.assertIn("transforms.worldTRight", apply_block)
-        self.assertIn("INITIAL_SYNTHETIC_OBJECT_POSE", reset_block)
-        self.assertIn("objectVisible: true", reset_block)
+        self.assertIn("deriveGraspFrameResetFromWorldTips", reset_block)
+        self.assertIn("currentDisplayedModelTipWorldMatrices", reset_block)
+        self.assertIn("objectVisible: false", reset_block)
         self.assertIn("objectFrameVisible: true", reset_block)
         self.assertIn("graspFramesVisible: true", reset_block)
         for source in (apply_block, reset_block):
             for forbidden in (
                 "setJointValues(",
                 "applyJointValuesToModel(",
-                "robot",
                 "planned",
                 "requestMoveIt",
                 "fetch(",
@@ -209,23 +216,23 @@ console.log(JSON.stringify({
 
     def test_object_pose_controls_units_actions_visibility_and_warnings(self) -> None:
         for label in (
-            "Object / Grasp Frame Preview",
-            "Object X [m]",
-            "Object Y [m]",
-            "Object Z [m]",
-            "Roll [rad]",
-            "Pitch [rad]",
-            "Yaw [rad]",
-            "Apply Object Pose",
-            "Reset Object Preview",
-            "Show Object",
-            "Show Object Frame",
+            "Grasp Setup",
+            "Center X [m]",
+            "Center Y [m]",
+            "Center Z [m]",
+            "Rotation Unit",
+            "Degrees (°)",
+            "Radians (rad)",
+            "Roll [deg]",
+            "Pitch [deg]",
+            "Yaw [deg]",
+            "Apply Center Pose",
+            "Reset Frames to Current Robot Pose",
+            "Show Center Frame",
             "Show Grasp Frames",
-            "OFFLINE SYNTHETIC OBJECT/GRASP PREVIEW",
-            "NOT CALIBRATED FROM PHYSICAL ROBOT",
-            "GRASP FRAMES ARE TARGET/PLANNING FRAMES",
-            "ROBOT IK NOT APPLIED",
-            "NO PHYSICAL EXECUTION",
+            "Offline Center/grasp preview",
+            "Physical world calibration not completed",
+            "no physical execution",
         ):
             with self.subTest(label=label):
                 self.assertIn(label, self.html)
@@ -239,7 +246,6 @@ console.log(JSON.stringify({
             "digitalTwinObjectYaw",
             "digitalTwinApplyObjectPose",
             "digitalTwinResetObjectPreview",
-            "digitalTwinShowObject",
             "digitalTwinShowObjectFrame",
             "digitalTwinShowGraspFrames",
         ):

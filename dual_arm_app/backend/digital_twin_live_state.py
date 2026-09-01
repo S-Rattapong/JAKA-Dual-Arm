@@ -170,6 +170,8 @@ def normalize_tcp_pose(pose: Any) -> dict[str, Any]:
             if not math.isfinite(converted):
                 raise ValueError(f"TCP pose value {index} must be finite")
             normalized.append(converted)
+        if normalized == [9999.0] * 6:
+            raise ValueError("JAKA GetFK returned the documented driver failure sentinel 9999")
         return {"valid": True, "tcp": normalized, "error": None}
     except (TypeError, ValueError) as error:
         return {"valid": False, "tcp": None, "error": str(error)}

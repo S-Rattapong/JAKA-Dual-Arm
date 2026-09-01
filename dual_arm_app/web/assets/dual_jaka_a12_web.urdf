@@ -23,7 +23,7 @@
     </collision>
   </link>
   <joint name="left_fixed" type="fixed">
-    <origin rpy="1.570796326795 0.0 3.14159265359" xyz="0.0 0.075 1.2"/>
+    <origin rpy="1.57443900609587 0.00157870658316782 3.14115595321641" xyz="-0.759623984260727 0.110586943833874 0.136510144598804"/>
     <parent link="world"/>
     <child link="left_base_link"/>
   </joint>
@@ -249,7 +249,7 @@
     </collision>
   </link>
   <joint name="right_fixed" type="fixed">
-    <origin rpy="-1.570796326795 0.0 3.14159265359" xyz="0.0 -0.075 1.2"/>
+    <origin rpy="-1.57111248148528 0.00733114096125062 -3.14115515910762" xyz="-0.762701204626243 -0.0717851558956737 0.134522498785659"/>
     <parent link="world"/>
     <child link="right_base_link"/>
   </joint>

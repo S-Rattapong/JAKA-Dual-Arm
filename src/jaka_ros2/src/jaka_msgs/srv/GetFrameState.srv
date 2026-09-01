@@ -1,0 +1,9 @@
+---
+int16 ret
+string message
+int16 tool_id
+float64[] tool_pose
+int16 user_frame_id
+float64[] user_frame_pose
+float64[] installation_rpy
+float64[] installation_quaternion

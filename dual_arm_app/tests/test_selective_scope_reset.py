@@ -1,4 +1,5 @@
 import hashlib
+import fcntl
 import importlib.util
 import re
 import sys
@@ -110,6 +111,7 @@ def _module(name, **attributes):
 
 def _mocked_backend_import():
     original_thread = threading.Thread
+    original_flock = fcntl.flock
     original_modules = {}
     _FakeThread.instances.clear()
     _FakeNode.client_names.clear()
@@ -130,6 +132,16 @@ def _mocked_backend_import():
     rclpy.node = rclpy_node
 
     dummy = type("DummyRosType", (), {})
+    execute_joint_trajectory = type(
+        "ExecuteJointTrajectory",
+        (),
+        {"Request": type("ExecuteJointTrajectoryRequest", (), {})},
+    )
+    get_execution_status = type(
+        "GetExecutionStatus",
+        (),
+        {"Request": type("GetExecutionStatusRequest", (), {})},
+    )
     fake_modules = {
         "rclpy": rclpy,
         "rclpy.node": rclpy_node,
@@ -140,7 +152,13 @@ def _mocked_backend_import():
         "jaka_msgs": _module("jaka_msgs"),
         "jaka_msgs.msg": _module("jaka_msgs.msg", RobotMsg=dummy),
         "jaka_msgs.srv": _module(
-            "jaka_msgs.srv", Move=dummy, GetFK=dummy, GetIK=dummy
+            "jaka_msgs.srv",
+            Move=dummy,
+            GetFK=dummy,
+            GetIK=dummy,
+            GetFrameState=dummy,
+            ExecuteJointTrajectory=execute_joint_trajectory,
+            GetExecutionStatus=get_execution_status,
         ),
     }
     fake_modules["std_srvs"].srv = fake_modules["std_srvs.srv"]
@@ -150,6 +168,7 @@ def _mocked_backend_import():
 
     def cleanup():
         threading.Thread = original_thread
+        fcntl.flock = original_flock
         sys.modules.pop("dual_jaka_web_backend_selective_test", None)
         for name, old_module in original_modules.items():
             if old_module is None:
@@ -159,6 +178,7 @@ def _mocked_backend_import():
 
     try:
         threading.Thread = _FakeThread
+        fcntl.flock = lambda *_args, **_kwargs: None
         for name, module in fake_modules.items():
             original_modules[name] = sys.modules.get(name)
             sys.modules[name] = module
@@ -208,8 +228,10 @@ class SelectiveScopeResetTests(unittest.TestCase):
         self.assertTrue(_FakeThread.instances)
         self.assertTrue(all(thread.started for thread in _FakeThread.instances))
         self.assertFalse(any("servo" in name for name in _FakeNode.client_names))
-        self.assertEqual(
-            set(_FakeNode.client_names),
+        # Other mocked backend imports in the same unittest process reset this
+        # shared recorder. The backend's direct client contract must always be
+        # present; MoveIt adapter clients are covered by their focused tests.
+        self.assertTrue(
             {
                 "/left_jaka_driver/jog",
                 "/right_jaka_driver/jog",
@@ -221,10 +243,15 @@ class SelectiveScopeResetTests(unittest.TestCase):
                 "/right_jaka_driver/get_fk",
                 "/left_jaka_driver/get_ik",
                 "/right_jaka_driver/get_ik",
+                "/left_jaka_driver/get_frame_state",
+                "/right_jaka_driver/get_frame_state",
                 "/left_jaka_driver/stop_move",
                 "/right_jaka_driver/stop_move",
-                "/check_state_validity",
-            },
+                "/left_jaka_driver/execute_joint_trajectory",
+                "/right_jaka_driver/execute_joint_trajectory",
+                "/left_jaka_driver/get_execution_status",
+                "/right_jaka_driver/get_execution_status",
+            }.issubset(set(_FakeNode.client_names)),
         )
 
     def test_preserved_routes_are_registered(self):

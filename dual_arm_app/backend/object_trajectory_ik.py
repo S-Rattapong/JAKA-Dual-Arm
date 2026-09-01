@@ -25,16 +25,25 @@ removed, every unique Left×Right pair is state-validity checked, and the valid
 pair minimizing ``sum_j (q_candidate,j - q_previous,j)^2`` is selected. This is
 a continuity preference in explicit coordinates, not a dynamic, energy, time,
 or safety metric. No shortest-angle remapping is used for execution cost.
+
+Phase 3A keeps that Greedy behavior as a baseline and adds a separate layered
+candidate graph. Every later layer explores from all valid nodes in the prior
+layer, without pruning, before exact dynamic-programming search and deterministic
+backtracking. "Global" means the exact optimum over that generated graph only;
+it does not mean an optimum over continuous configuration space or every IK root.
 """
 
 from __future__ import annotations
 
 import math
 from dataclasses import dataclass, field, replace
-from typing import Any, Protocol, Sequence
+from typing import Any, Callable, Protocol, Sequence
 
 from dual_arm_app.backend.object_grasp_model import RigidTransform
 from dual_arm_app.backend.object_trajectory import ObjectTrajectory
+from dual_arm_app.backend.planning_start_state_config import (
+    PLANNING_START_STATE_COMBINED_RAD,
+)
 
 
 LEFT_JOINT_ORDER = tuple(f"left_joint_{index}" for index in range(1, 7))
@@ -67,23 +76,21 @@ CANDIDATE_EXPLORATION_WARNING = (
 NO_LEFT_IK_CANDIDATE = "NO_LEFT_IK_CANDIDATE"
 NO_RIGHT_IK_CANDIDATE = "NO_RIGHT_IK_CANDIDATE"
 NO_VALID_DUAL_ARM_PAIR = "NO_VALID_DUAL_ARM_PAIR"
+EMPTY_GRAPH_LAYER = "EMPTY_GRAPH_LAYER"
+NO_FEASIBLE_INCOMING_EDGE = "NO_FEASIBLE_INCOMING_EDGE"
+NO_COMPLETE_GLOBAL_PATH = "NO_COMPLETE_GLOBAL_PATH"
+GLOBAL_GRAPH_OPTIMALITY_SCOPE = (
+    "EXACT GLOBAL OPTIMUM OVER THE GENERATED LAYERED CANDIDATE GRAPH ONLY"
+)
+RAW_DISPLACEMENT_COST_NOTICE = (
+    "JOINT-SPACE DISPLACEMENT PROXY IN RADIAN^2 — NOT ENERGY, TORQUE, "
+    "EXECUTION TIME, VELOCITY, ACCELERATION, MANUFACTURER SAFETY, OR COLLISION"
+)
 OFFLINE_MODEL_SEED_NOTICE = (
     "OFFLINE SYNTHETIC / MODEL SEED — NOT PHYSICAL ROBOT CALIBRATION"
 )
-DEFAULT_INITIAL_DUAL_ARM_SEED_RAD = (
-    3.1399999999999997,
-    0.5187280000000003,
-    -0.8000720000000001,
-    0.0,
-    0.7988159999999995,
-    0.0,
-    0.0,
-    2.6162480000000015,
-    0.7988159999999995,
-    0.0,
-    2.3399279999999996,
-    0.0,
-)
+# Backward-compatible name; the values live only in planning_start_state_config.py.
+DEFAULT_INITIAL_DUAL_ARM_SEED_RAD = PLANNING_START_STATE_COMBINED_RAD
 
 JointVector6 = tuple[float, float, float, float, float, float]
 JointVector12 = tuple[
@@ -1516,3 +1523,891 @@ def solve_sequential_object_trajectory_ik(
         failed_sample_index=failed_sample_index,
         samples=tuple(results),
     )
+
+
+@dataclass(frozen=True)
+class TrajectoryCandidateProvenance:
+    """One valid Left×Right generation route into a graph node."""
+
+    parent_node_id: str | None
+    left_candidate_index: int
+    left_source_seed_index: int
+    left_diagnostic: str
+    right_candidate_index: int
+    right_source_seed_index: int
+    right_diagnostic: str
+    left_source_seed_rad: JointVector12 | None = None
+    right_source_seed_rad: JointVector12 | None = None
+
+
+@dataclass(frozen=True)
+class TrajectoryCandidateAttemptDiagnostic:
+    """Diagnostics-only record for one arm IK attempt during graph generation."""
+
+    sample_index: int
+    parent_node_id: str | None
+    group_name: str
+    candidate_index: int
+    source_seed_index: int
+    source_seed_rad: JointVector12
+    solver_success: bool
+    joint_positions_rad: JointVector6 | None
+    duplicate_of_candidate_index: int | None
+    diagnostic: str
+
+
+@dataclass(frozen=True)
+class TrajectoryCandidatePairRejection:
+    """Diagnostics-only record for a candidate pair rejected before node insertion."""
+
+    sample_index: int
+    parent_node_id: str | None
+    rejection_type: str
+    left_candidate_index: int
+    left_source_seed_index: int
+    right_candidate_index: int
+    right_source_seed_index: int
+    combined_joint_positions_rad: JointVector12
+    diagnostic: str
+
+
+@dataclass(frozen=True)
+class TrajectoryCandidateNode:
+    """One state-valid 12-joint node in a deterministic sample layer."""
+
+    sample_index: int
+    node_index: int
+    combined_joint_positions_rad: JointVector12
+    provenance: tuple[TrajectoryCandidateProvenance, ...]
+    state_validity_provenance: tuple[str, ...]
+    node_id: str = field(init=False)
+    state_valid: bool = field(default=True, init=False)
+
+    def __post_init__(self) -> None:
+        for label, value in (
+            ("sample_index", self.sample_index),
+            ("node_index", self.node_index),
+        ):
+            if isinstance(value, bool) or not isinstance(value, int) or value < 0:
+                raise ValueError(f"{label} must be a non-negative integer")
+        positions = _joint_vector(
+            self.combined_joint_positions_rad,
+            12,
+            "combined_joint_positions_rad",
+        )
+        provenance = tuple(self.provenance)
+        validity = tuple(self.state_validity_provenance)
+        if not provenance:
+            raise ValueError("graph node provenance must not be empty")
+        if any(not isinstance(item, TrajectoryCandidateProvenance) for item in provenance):
+            raise TypeError("provenance must contain TrajectoryCandidateProvenance")
+        if not validity or any(not isinstance(item, str) for item in validity):
+            raise ValueError("state-validity provenance must contain diagnostics")
+        object.__setattr__(self, "combined_joint_positions_rad", positions)
+        object.__setattr__(self, "provenance", provenance)
+        object.__setattr__(self, "state_validity_provenance", validity)
+        object.__setattr__(self, "node_id", f"L{self.sample_index}:N{self.node_index}")
+
+    @property
+    def left_joint_positions_rad(self) -> JointVector6:
+        return self.combined_joint_positions_rad[:6]  # type: ignore[return-value]
+
+    @property
+    def right_joint_positions_rad(self) -> JointVector6:
+        return self.combined_joint_positions_rad[6:]  # type: ignore[return-value]
+
+
+@dataclass(frozen=True)
+class TrajectoryCandidateLayer:
+    """All unioned, raw-coordinate-deduplicated valid nodes for one sample."""
+
+    sample_index: int
+    time_from_start_s: float
+    nodes: tuple[TrajectoryCandidateNode, ...]
+    source_parent_node_ids: tuple[str, ...]
+    left_unique_candidate_count: int = 0
+    right_unique_candidate_count: int = 0
+    candidate_pair_count: int = 0
+    valid_candidate_pair_count: int = 0
+    candidate_attempt_diagnostics: tuple[
+        TrajectoryCandidateAttemptDiagnostic, ...
+    ] = ()
+    rejected_candidate_pairs: tuple[TrajectoryCandidatePairRejection, ...] = ()
+
+    def __post_init__(self) -> None:
+        if (
+            isinstance(self.sample_index, bool)
+            or not isinstance(self.sample_index, int)
+            or self.sample_index < 0
+        ):
+            raise ValueError("sample_index must be a non-negative integer")
+        time_s = _finite_number(self.time_from_start_s, "time_from_start_s")
+        if time_s < 0.0:
+            raise ValueError("time_from_start_s must be non-negative")
+        nodes = tuple(self.nodes)
+        if any(not isinstance(node, TrajectoryCandidateNode) for node in nodes):
+            raise TypeError("nodes must contain TrajectoryCandidateNode values")
+        if any(node.sample_index != self.sample_index for node in nodes):
+            raise ValueError("every node must belong to the layer sample index")
+        if tuple(node.node_index for node in nodes) != tuple(range(len(nodes))):
+            raise ValueError("node indices must be deterministic from zero")
+        parents = tuple(self.source_parent_node_ids)
+        if any(not isinstance(item, str) for item in parents):
+            raise TypeError("source_parent_node_ids must contain strings")
+        for label in (
+            "left_unique_candidate_count",
+            "right_unique_candidate_count",
+            "candidate_pair_count",
+            "valid_candidate_pair_count",
+        ):
+            value = getattr(self, label)
+            if isinstance(value, bool) or not isinstance(value, int) or value < 0:
+                raise ValueError(f"{label} must be a non-negative integer")
+        object.__setattr__(self, "time_from_start_s", time_s)
+        object.__setattr__(self, "nodes", nodes)
+        object.__setattr__(self, "source_parent_node_ids", parents)
+        object.__setattr__(
+            self,
+            "candidate_attempt_diagnostics",
+            tuple(self.candidate_attempt_diagnostics),
+        )
+        object.__setattr__(
+            self,
+            "rejected_candidate_pairs",
+            tuple(self.rejected_candidate_pairs),
+        )
+
+
+@dataclass(frozen=True)
+class PlannerFailureDiagnostic:
+    reason: str
+    failed_sample_index: int
+    message: str
+    left_candidate_count: int = 0
+    right_candidate_count: int = 0
+    candidate_pair_count: int = 0
+    valid_pair_count: int = 0
+
+
+@dataclass(frozen=True)
+class TrajectoryCandidateGraph:
+    """Immutable generated graph; incomplete graphs retain failure diagnostics."""
+
+    trajectory_name: str
+    requested_layer_count: int
+    layers: tuple[TrajectoryCandidateLayer, ...]
+    completed: bool
+    failure: PlannerFailureDiagnostic | None = None
+    candidate_pruning_applied: bool = field(default=False, init=False)
+
+    def __post_init__(self) -> None:
+        layers = tuple(self.layers)
+        if any(not isinstance(layer, TrajectoryCandidateLayer) for layer in layers):
+            raise TypeError("layers must contain TrajectoryCandidateLayer values")
+        if tuple(layer.sample_index for layer in layers) != tuple(range(len(layers))):
+            raise ValueError("graph layers must be chronological from zero")
+        if any(
+            current.time_from_start_s >= following.time_from_start_s
+            for current, following in zip(layers, layers[1:])
+        ):
+            raise ValueError("graph layer times must be strictly increasing")
+        if self.completed:
+            if len(layers) != self.requested_layer_count or self.failure is not None:
+                raise ValueError("completed graph must contain every requested layer")
+        elif self.failure is None:
+            raise ValueError("incomplete graph requires a failure diagnostic")
+        object.__setattr__(self, "layers", layers)
+
+
+@dataclass(frozen=True)
+class TrajectoryEdgeFeasibility:
+    feasible: bool
+    diagnostic: str
+
+    def __post_init__(self) -> None:
+        if not isinstance(self.feasible, bool):
+            raise TypeError("feasible must be boolean")
+        if not isinstance(self.diagnostic, str) or not self.diagnostic:
+            raise ValueError("edge feasibility diagnostic must be non-empty")
+
+
+@dataclass(frozen=True)
+class TrajectoryGraphEdge:
+    from_sample_index: int
+    from_node_index: int
+    to_sample_index: int
+    to_node_index: int
+    feasible: bool
+    feasibility_diagnostic: str
+    raw_displacement_cost_rad2: float
+    max_raw_joint_step_rad: float
+    max_raw_joint_step_index: int
+    max_raw_joint_step_name: str
+
+    def __post_init__(self) -> None:
+        if self.to_sample_index != self.from_sample_index + 1:
+            raise ValueError("graph edges may connect consecutive layers only")
+        _finite_number(self.raw_displacement_cost_rad2, "raw_displacement_cost_rad2")
+        _finite_number(self.max_raw_joint_step_rad, "max_raw_joint_step_rad")
+
+
+@dataclass(frozen=True)
+class SelectedTrajectoryGraphPoint:
+    sample_index: int
+    time_from_start_s: float
+    graph_node_id: str
+    graph_node_index: int
+    combined_joint_positions_rad: JointVector12
+    left_joint_positions_rad: JointVector6
+    right_joint_positions_rad: JointVector6
+    edge_cost_from_predecessor_rad2: float
+    cumulative_cost_rad2: float
+    candidate_provenance: tuple[TrajectoryCandidateProvenance, ...]
+
+
+@dataclass(frozen=True)
+class GlobalNodeSearchDiagnostic:
+    """The exact DP value/backpointer retained for one generated graph node."""
+
+    sample_index: int
+    node_index: int
+    reachable: bool
+    selected_predecessor_node_index: int | None
+    local_edge_cost_rad2: float | None
+    cumulative_cost_rad2: float | None
+
+
+@dataclass(frozen=True)
+class GlobalTrajectorySearchResult:
+    completed: bool
+    selected_path: tuple[SelectedTrajectoryGraphPoint, ...]
+    cumulative_raw_displacement_cost_rad2: float | None
+    maximum_raw_single_joint_transition_rad: float | None
+    failed_sample_index: int | None
+    failure: PlannerFailureDiagnostic | None
+    evaluated_edges: tuple[TrajectoryGraphEdge, ...]
+    node_search_diagnostics: tuple[GlobalNodeSearchDiagnostic, ...] = ()
+    optimality_scope: str = field(default=GLOBAL_GRAPH_OPTIMALITY_SCOPE, init=False)
+
+
+@dataclass(frozen=True)
+class GreedyTrajectorySearchResult:
+    completed: bool
+    selected_path: tuple[SelectedTrajectoryGraphPoint, ...]
+    cumulative_raw_displacement_cost_rad2: float | None
+    maximum_raw_single_joint_transition_rad: float | None
+    failed_sample_index: int | None
+    failure: PlannerFailureDiagnostic | None
+
+
+@dataclass(frozen=True)
+class GreedyGlobalComparison:
+    greedy: GreedyTrajectorySearchResult
+    global_search: GlobalTrajectorySearchResult
+    global_not_worse_on_equivalent_graph: bool | None
+    tie_tolerance: float
+
+
+EdgeFeasibilityCallback = Callable[
+    [TrajectoryCandidateNode, TrajectoryCandidateNode],
+    TrajectoryEdgeFeasibility,
+]
+
+
+def _combined_raw_duplicates(
+    left: Sequence[float],
+    right: Sequence[float],
+    tolerance_rad: float,
+) -> bool:
+    checked_left = _joint_vector(left, 12, "left_combined_joint_positions_rad")
+    checked_right = _joint_vector(right, 12, "right_combined_joint_positions_rad")
+    return max(abs(a - b) for a, b in zip(checked_left, checked_right)) <= tolerance_rad
+
+
+def build_object_trajectory_candidate_graph(
+    trajectory: ObjectTrajectory,
+    adapter: ObjectTrajectoryIkAdapter,
+    *,
+    initial_seed_joint_positions_rad: Sequence[float] = DEFAULT_INITIAL_DUAL_ARM_SEED_RAD,
+    ik_timeout_s: float = DEFAULT_IK_TIMEOUT_S,
+    candidate_exploration_config: IkCandidateExplorationConfig = (
+        DEFAULT_OFFLINE_CANDIDATE_EXPLORATION_CONFIG
+    ),
+    joint_limits: CanonicalJointPositionLimits | None = None,
+    retain_debug_diagnostics: bool = False,
+) -> TrajectoryCandidateGraph:
+    """Generate every layer from all valid nodes in the preceding layer.
+
+    No candidate pruning is performed. Each parent node independently feeds the
+    accepted multi-seed arm machinery; valid Left×Right results are unioned and
+    raw-coordinate-deduplicated within the layer. This preserves branch diversity
+    and is independent of the existing greedy winner propagation.
+    """
+    if not isinstance(trajectory, ObjectTrajectory):
+        raise TypeError("trajectory must be an ObjectTrajectory")
+    if not callable(getattr(adapter, "solve_arm_ik", None)):
+        raise TypeError("adapter must provide solve_arm_ik")
+    if not callable(getattr(adapter, "check_combined_state", None)):
+        raise TypeError("adapter must provide check_combined_state")
+    if not isinstance(candidate_exploration_config, IkCandidateExplorationConfig):
+        raise TypeError("candidate_exploration_config must be valid")
+    if not isinstance(retain_debug_diagnostics, bool):
+        raise TypeError("retain_debug_diagnostics must be boolean")
+    initial_seed = _joint_vector(
+        initial_seed_joint_positions_rad,
+        12,
+        "initial_seed_joint_positions_rad",
+    )
+    timeout_s = _finite_number(ik_timeout_s, "ik_timeout_s")
+    if timeout_s <= 0.0:
+        raise ValueError("ik_timeout_s must be greater than zero")
+
+    layers: list[TrajectoryCandidateLayer] = []
+    for sample_index, sample in enumerate(trajectory.samples):
+        parent_seeds: tuple[tuple[str | None, JointVector12], ...]
+        if sample_index == 0:
+            parent_seeds = ((None, initial_seed),)  # type: ignore[assignment]
+        else:
+            parent_seeds = tuple(
+                (node.node_id, node.combined_joint_positions_rad)
+                for node in layers[-1].nodes
+            )
+
+        nodes: list[TrajectoryCandidateNode] = []
+        left_count = 0
+        right_count = 0
+        pair_count = 0
+        valid_pair_count = 0
+        attempt_diagnostics: list[TrajectoryCandidateAttemptDiagnostic] = []
+        rejected_pairs: list[TrajectoryCandidatePairRejection] = []
+        for parent_node_id, base_seed in parent_seeds:
+            left_generation = _generate_arm_candidates(
+                adapter=adapter,
+                group_name=LEFT_GROUP_NAME,
+                ik_link_name=LEFT_IK_LINK_NAME,
+                target_world_T_tip=sample.world_T_left,
+                base_seed=base_seed,
+                timeout_s=timeout_s,
+                config=candidate_exploration_config,
+                joint_limits=joint_limits,
+            )
+            right_generation = _generate_arm_candidates(
+                adapter=adapter,
+                group_name=RIGHT_GROUP_NAME,
+                ik_link_name=RIGHT_IK_LINK_NAME,
+                target_world_T_tip=sample.world_T_right,
+                base_seed=base_seed,
+                timeout_s=timeout_s,
+                config=candidate_exploration_config,
+                joint_limits=joint_limits,
+            )
+            if retain_debug_diagnostics:
+                for generation in (left_generation, right_generation):
+                    attempt_diagnostics.extend(
+                        TrajectoryCandidateAttemptDiagnostic(
+                            sample_index=sample_index,
+                            parent_node_id=parent_node_id,
+                            group_name=generation.group_name,
+                            candidate_index=attempt.candidate_index,
+                            source_seed_index=attempt.source_seed_index,
+                            source_seed_rad=attempt.source_seed_rad,
+                            solver_success=attempt.solver_success,
+                            joint_positions_rad=attempt.joint_positions_rad,
+                            duplicate_of_candidate_index=(
+                                attempt.duplicate_of_candidate_index
+                            ),
+                            diagnostic=attempt.diagnostic,
+                        )
+                        for attempt in generation.attempts
+                    )
+            left_count += left_generation.unique_candidate_count
+            right_count += right_generation.unique_candidate_count
+            for left_candidate in left_generation.unique_candidates:
+                for right_candidate in right_generation.unique_candidates:
+                    pair_count += 1
+                    combined = combine_arm_joint_solutions(
+                        left_candidate.joint_positions_rad,  # type: ignore[arg-type]
+                        right_candidate.joint_positions_rad,  # type: ignore[arg-type]
+                    )
+                    try:
+                        validity = adapter.check_combined_state(
+                            joint_positions_rad=combined,
+                            group_name=DUAL_ARM_GROUP_NAME,
+                        )
+                    except Exception as error:
+                        validity = CombinedStateValidity(
+                            False,
+                            diagnostic=f"Combined validity exception: {error}",
+                        )
+                    if not isinstance(validity, CombinedStateValidity):
+                        validity = CombinedStateValidity(
+                            False,
+                            diagnostic="State-validity adapter returned invalid result",
+                        )
+                    if not validity.valid:
+                        if retain_debug_diagnostics:
+                            rejected_pairs.append(TrajectoryCandidatePairRejection(
+                                sample_index=sample_index,
+                                parent_node_id=parent_node_id,
+                                rejection_type="STATE_VALIDITY_REJECTION",
+                                left_candidate_index=left_candidate.candidate_index,
+                                left_source_seed_index=left_candidate.source_seed_index,
+                                right_candidate_index=right_candidate.candidate_index,
+                                right_source_seed_index=right_candidate.source_seed_index,
+                                combined_joint_positions_rad=combined,
+                                diagnostic=(
+                                    validity.diagnostic
+                                    or "State validity rejected candidate pair without detail"
+                                ),
+                            ))
+                        continue
+                    valid_pair_count += 1
+                    provenance = TrajectoryCandidateProvenance(
+                        parent_node_id=parent_node_id,
+                        left_candidate_index=left_candidate.candidate_index,
+                        left_source_seed_index=left_candidate.source_seed_index,
+                        left_diagnostic=left_candidate.diagnostic,
+                        right_candidate_index=right_candidate.candidate_index,
+                        right_source_seed_index=right_candidate.source_seed_index,
+                        right_diagnostic=right_candidate.diagnostic,
+                        left_source_seed_rad=(
+                            left_candidate.source_seed_rad
+                            if retain_debug_diagnostics else None
+                        ),
+                        right_source_seed_rad=(
+                            right_candidate.source_seed_rad
+                            if retain_debug_diagnostics else None
+                        ),
+                    )
+                    duplicate_index = next((
+                        index
+                        for index, node in enumerate(nodes)
+                        if _combined_raw_duplicates(
+                            combined,
+                            node.combined_joint_positions_rad,
+                            candidate_exploration_config.duplicate_tolerance_rad,
+                        )
+                    ), None)
+                    if duplicate_index is not None:
+                        duplicate = nodes[duplicate_index]
+                        nodes[duplicate_index] = replace(
+                            duplicate,
+                            provenance=(*duplicate.provenance, provenance),
+                            state_validity_provenance=(
+                                *duplicate.state_validity_provenance,
+                                validity.diagnostic,
+                            ),
+                        )
+                        continue
+                    nodes.append(TrajectoryCandidateNode(
+                        sample_index=sample_index,
+                        node_index=len(nodes),
+                        combined_joint_positions_rad=combined,
+                        provenance=(provenance,),
+                        state_validity_provenance=(validity.diagnostic,),
+                    ))
+
+        if not nodes:
+            if left_count == 0:
+                reason = NO_LEFT_IK_CANDIDATE
+                message = "No unique successful Left IK candidate from any parent"
+            elif right_count == 0:
+                reason = NO_RIGHT_IK_CANDIDATE
+                message = "No unique successful Right IK candidate from any parent"
+            elif pair_count > 0 and valid_pair_count == 0:
+                reason = NO_VALID_DUAL_ARM_PAIR
+                message = "No Left×Right pair passed combined dual-arm validity"
+            else:
+                reason = EMPTY_GRAPH_LAYER
+                message = "Candidate union produced an empty graph layer"
+            failure = PlannerFailureDiagnostic(
+                reason=reason,
+                failed_sample_index=sample_index,
+                message=message,
+                left_candidate_count=left_count,
+                right_candidate_count=right_count,
+                candidate_pair_count=pair_count,
+                valid_pair_count=valid_pair_count,
+            )
+            return TrajectoryCandidateGraph(
+                trajectory_name=trajectory.name,
+                requested_layer_count=trajectory.sample_count,
+                layers=tuple(layers),
+                completed=False,
+                failure=failure,
+            )
+
+        layers.append(TrajectoryCandidateLayer(
+            sample_index=sample_index,
+            time_from_start_s=sample.time_from_start_s,
+            nodes=tuple(nodes),
+            source_parent_node_ids=tuple(
+                parent_id if parent_id is not None else "INITIAL_SEED"
+                for parent_id, _seed in parent_seeds
+            ),
+            left_unique_candidate_count=left_count,
+            right_unique_candidate_count=right_count,
+            candidate_pair_count=pair_count,
+            valid_candidate_pair_count=valid_pair_count,
+            candidate_attempt_diagnostics=tuple(attempt_diagnostics),
+            rejected_candidate_pairs=tuple(rejected_pairs),
+        ))
+
+    return TrajectoryCandidateGraph(
+        trajectory_name=trajectory.name,
+        requested_layer_count=trajectory.sample_count,
+        layers=tuple(layers),
+        completed=True,
+    )
+
+
+def default_graph_edge_feasibility(
+    from_node: TrajectoryCandidateNode,
+    to_node: TrajectoryCandidateNode,
+) -> TrajectoryEdgeFeasibility:
+    """Apply structural Phase-3 feasibility only, with no invented threshold."""
+    if not isinstance(from_node, TrajectoryCandidateNode) or not isinstance(
+        to_node,
+        TrajectoryCandidateNode,
+    ):
+        return TrajectoryEdgeFeasibility(False, "Both endpoints must be graph nodes")
+    if to_node.sample_index != from_node.sample_index + 1:
+        return TrajectoryEdgeFeasibility(False, "Layers are not consecutive")
+    if not from_node.state_valid or not to_node.state_valid:
+        return TrajectoryEdgeFeasibility(False, "Both endpoints must be valid nodes")
+    try:
+        _joint_vector(from_node.combined_joint_positions_rad, 12, "from_node joints")
+        _joint_vector(to_node.combined_joint_positions_rad, 12, "to_node joints")
+    except (TypeError, ValueError) as error:
+        return TrajectoryEdgeFeasibility(False, f"Invalid edge endpoint: {error}")
+    return TrajectoryEdgeFeasibility(
+        True,
+        "FEASIBLE — VALID NODES IN CONSECUTIVE LAYERS; NO PHASE-4 LIMIT APPLIED",
+    )
+
+
+def graph_edge_between(
+    from_node: TrajectoryCandidateNode,
+    to_node: TrajectoryCandidateNode,
+    edge_feasibility: EdgeFeasibilityCallback = default_graph_edge_feasibility,
+) -> TrajectoryGraphEdge:
+    """Return structural feasibility plus raw displacement proxy diagnostics."""
+    feasibility = edge_feasibility(from_node, to_node)
+    if not isinstance(feasibility, TrajectoryEdgeFeasibility):
+        raise TypeError("edge feasibility callback must return TrajectoryEdgeFeasibility")
+    delta = joint_delta_rad(
+        to_node.combined_joint_positions_rad,
+        from_node.combined_joint_positions_rad,
+    )
+    maximum_index = max(range(12), key=lambda index: abs(delta[index]))
+    return TrajectoryGraphEdge(
+        from_sample_index=from_node.sample_index,
+        from_node_index=from_node.node_index,
+        to_sample_index=to_node.sample_index,
+        to_node_index=to_node.node_index,
+        feasible=feasibility.feasible,
+        feasibility_diagnostic=feasibility.diagnostic,
+        raw_displacement_cost_rad2=sum(value * value for value in delta),
+        max_raw_joint_step_rad=abs(delta[maximum_index]),
+        max_raw_joint_step_index=maximum_index,
+        max_raw_joint_step_name=DUAL_ARM_JOINT_ORDER[maximum_index],
+    )
+
+
+def build_consecutive_graph_edges(
+    graph: TrajectoryCandidateGraph,
+    edge_feasibility: EdgeFeasibilityCallback = default_graph_edge_feasibility,
+) -> tuple[TrajectoryGraphEdge, ...]:
+    """Build the complete consecutive-layer bipartite edge set without pruning."""
+    if not isinstance(graph, TrajectoryCandidateGraph):
+        raise TypeError("graph must be a TrajectoryCandidateGraph")
+    edges: list[TrajectoryGraphEdge] = []
+    for from_layer, to_layer in zip(graph.layers, graph.layers[1:]):
+        for from_node in from_layer.nodes:
+            for to_node in to_layer.nodes:
+                edges.append(graph_edge_between(from_node, to_node, edge_feasibility))
+    return tuple(edges)
+
+
+def _path_point(
+    layer: TrajectoryCandidateLayer,
+    node: TrajectoryCandidateNode,
+    edge_cost: float,
+    cumulative_cost: float,
+) -> SelectedTrajectoryGraphPoint:
+    return SelectedTrajectoryGraphPoint(
+        sample_index=layer.sample_index,
+        time_from_start_s=layer.time_from_start_s,
+        graph_node_id=node.node_id,
+        graph_node_index=node.node_index,
+        combined_joint_positions_rad=node.combined_joint_positions_rad,
+        left_joint_positions_rad=node.left_joint_positions_rad,
+        right_joint_positions_rad=node.right_joint_positions_rad,
+        edge_cost_from_predecessor_rad2=edge_cost,
+        cumulative_cost_rad2=cumulative_cost,
+        candidate_provenance=node.provenance,
+    )
+
+
+def search_global_candidate_graph(
+    graph: TrajectoryCandidateGraph,
+    *,
+    tie_tolerance: float = 1e-12,
+    edge_feasibility: EdgeFeasibilityCallback = default_graph_edge_feasibility,
+    retain_debug_diagnostics: bool = False,
+) -> GlobalTrajectorySearchResult:
+    """Exact dynamic programming shortest path over the generated layered DAG.
+
+    Costs within ``tie_tolerance`` tie; the lower predecessor node index wins,
+    then the lower final node index wins. This is exact only over ``graph`` and
+    never claims optimality over continuous configuration space or all IK roots.
+    """
+    if not isinstance(graph, TrajectoryCandidateGraph):
+        raise TypeError("graph must be a TrajectoryCandidateGraph")
+    tolerance = _finite_number(tie_tolerance, "tie_tolerance")
+    if tolerance < 0.0:
+        raise ValueError("tie_tolerance must be non-negative")
+    if not isinstance(retain_debug_diagnostics, bool):
+        raise TypeError("retain_debug_diagnostics must be boolean")
+    if not graph.completed:
+        return GlobalTrajectorySearchResult(
+            completed=False,
+            selected_path=(),
+            cumulative_raw_displacement_cost_rad2=None,
+            maximum_raw_single_joint_transition_rad=None,
+            failed_sample_index=graph.failure.failed_sample_index,
+            failure=graph.failure,
+            evaluated_edges=(),
+        )
+    for layer in graph.layers:
+        if not layer.nodes:
+            failure = PlannerFailureDiagnostic(
+                EMPTY_GRAPH_LAYER,
+                layer.sample_index,
+                "Global search encountered an empty graph layer",
+            )
+            return GlobalTrajectorySearchResult(
+                False, (), None, None, layer.sample_index, failure, (),
+            )
+    if not graph.layers:
+        failure = PlannerFailureDiagnostic(
+            EMPTY_GRAPH_LAYER,
+            0,
+            "Global search requires at least one graph layer",
+        )
+        return GlobalTrajectorySearchResult(False, (), None, None, 0, failure, ())
+
+    edges = build_consecutive_graph_edges(graph, edge_feasibility)
+    edges_by_target: dict[tuple[int, int], list[TrajectoryGraphEdge]] = {}
+    for edge in edges:
+        edges_by_target.setdefault(
+            (edge.to_sample_index, edge.to_node_index),
+            [],
+        ).append(edge)
+
+    costs: dict[tuple[int, int], float] = {
+        (0, node.node_index): 0.0 for node in graph.layers[0].nodes
+    }
+    predecessors: dict[tuple[int, int], int] = {}
+    incoming_costs: dict[tuple[int, int], float] = {}
+
+    def node_search_diagnostics() -> tuple[GlobalNodeSearchDiagnostic, ...]:
+        if not retain_debug_diagnostics:
+            return ()
+        diagnostics = []
+        for diagnostic_layer in graph.layers:
+            for diagnostic_node in diagnostic_layer.nodes:
+                key = (diagnostic_layer.sample_index, diagnostic_node.node_index)
+                diagnostics.append(GlobalNodeSearchDiagnostic(
+                    sample_index=diagnostic_layer.sample_index,
+                    node_index=diagnostic_node.node_index,
+                    reachable=key in costs,
+                    selected_predecessor_node_index=predecessors.get(key),
+                    local_edge_cost_rad2=(
+                        0.0 if diagnostic_layer.sample_index == 0
+                        else incoming_costs.get(key)
+                    ),
+                    cumulative_cost_rad2=costs.get(key),
+                ))
+        return tuple(diagnostics)
+
+    for layer in graph.layers[1:]:
+        reachable_count = 0
+        for node in layer.nodes:
+            target_key = (layer.sample_index, node.node_index)
+            best_total: float | None = None
+            best_predecessor: int | None = None
+            best_edge_cost: float | None = None
+            for edge in edges_by_target.get(target_key, ()):
+                previous_key = (edge.from_sample_index, edge.from_node_index)
+                if not edge.feasible or previous_key not in costs:
+                    continue
+                candidate_total = costs[previous_key] + edge.raw_displacement_cost_rad2
+                if (
+                    best_total is None
+                    or candidate_total < best_total - tolerance
+                    or (
+                        abs(candidate_total - best_total) <= tolerance
+                        and edge.from_node_index < best_predecessor  # type: ignore[operator]
+                    )
+                ):
+                    best_total = candidate_total
+                    best_predecessor = edge.from_node_index
+                    best_edge_cost = edge.raw_displacement_cost_rad2
+            if best_total is not None:
+                costs[target_key] = best_total
+                predecessors[target_key] = best_predecessor  # type: ignore[assignment]
+                incoming_costs[target_key] = best_edge_cost  # type: ignore[assignment]
+                reachable_count += 1
+        if reachable_count == 0:
+            reason = (
+                NO_COMPLETE_GLOBAL_PATH
+                if layer.sample_index == len(graph.layers) - 1
+                else NO_FEASIBLE_INCOMING_EDGE
+            )
+            failure = PlannerFailureDiagnostic(
+                reason,
+                layer.sample_index,
+                "No graph node has a feasible edge from a reachable predecessor",
+            )
+            return GlobalTrajectorySearchResult(
+                False,
+                (),
+                None,
+                None,
+                layer.sample_index,
+                failure,
+                edges,
+                node_search_diagnostics(),
+            )
+
+    final_layer = graph.layers[-1]
+    reachable_final_nodes = tuple(
+        node for node in final_layer.nodes
+        if (final_layer.sample_index, node.node_index) in costs
+    )
+    final_node = reachable_final_nodes[0]
+    for candidate in reachable_final_nodes[1:]:
+        candidate_cost = costs[(final_layer.sample_index, candidate.node_index)]
+        selected_cost = costs[(final_layer.sample_index, final_node.node_index)]
+        if candidate_cost < selected_cost - tolerance or (
+            abs(candidate_cost - selected_cost) <= tolerance
+            and candidate.node_index < final_node.node_index
+        ):
+            final_node = candidate
+    selected_indices = [final_node.node_index]
+    for sample_index in range(final_layer.sample_index, 0, -1):
+        selected_indices.append(predecessors[(sample_index, selected_indices[-1])])
+    selected_indices.reverse()
+
+    path: list[SelectedTrajectoryGraphPoint] = []
+    maximum_step = 0.0
+    for layer, node_index in zip(graph.layers, selected_indices):
+        node = layer.nodes[node_index]
+        key = (layer.sample_index, node_index)
+        edge_cost = incoming_costs.get(key, 0.0)
+        path.append(_path_point(layer, node, edge_cost, costs[key]))
+        if layer.sample_index > 0:
+            predecessor_index = selected_indices[layer.sample_index - 1]
+            edge = next(
+                item for item in edges
+                if item.from_sample_index == layer.sample_index - 1
+                and item.from_node_index == predecessor_index
+                and item.to_sample_index == layer.sample_index
+                and item.to_node_index == node_index
+            )
+            maximum_step = max(maximum_step, edge.max_raw_joint_step_rad)
+    return GlobalTrajectorySearchResult(
+        completed=True,
+        selected_path=tuple(path),
+        cumulative_raw_displacement_cost_rad2=path[-1].cumulative_cost_rad2,
+        maximum_raw_single_joint_transition_rad=maximum_step,
+        failed_sample_index=None,
+        failure=None,
+        evaluated_edges=edges,
+        node_search_diagnostics=node_search_diagnostics(),
+    )
+
+
+def search_greedy_candidate_graph(
+    graph: TrajectoryCandidateGraph,
+    *,
+    tie_tolerance: float = 1e-12,
+    edge_feasibility: EdgeFeasibilityCallback = default_graph_edge_feasibility,
+) -> GreedyTrajectorySearchResult:
+    """Select the locally cheapest feasible outgoing edge as a baseline."""
+    tolerance = _finite_number(tie_tolerance, "tie_tolerance")
+    if tolerance < 0.0:
+        raise ValueError("tie_tolerance must be non-negative")
+    if not graph.completed or not graph.layers or any(not layer.nodes for layer in graph.layers):
+        failure = graph.failure or PlannerFailureDiagnostic(
+            EMPTY_GRAPH_LAYER,
+            next((layer.sample_index for layer in graph.layers if not layer.nodes), 0),
+            "Greedy search requires a complete non-empty graph",
+        )
+        return GreedyTrajectorySearchResult(
+            False, (), None, None, failure.failed_sample_index, failure,
+        )
+    selected = graph.layers[0].nodes[0]
+    cumulative = 0.0
+    maximum_step = 0.0
+    path = [_path_point(graph.layers[0], selected, 0.0, 0.0)]
+    for layer in graph.layers[1:]:
+        candidates = tuple(
+            graph_edge_between(selected, node, edge_feasibility)
+            for node in layer.nodes
+        )
+        feasible = tuple(edge for edge in candidates if edge.feasible)
+        if not feasible:
+            failure = PlannerFailureDiagnostic(
+                NO_FEASIBLE_INCOMING_EDGE,
+                layer.sample_index,
+                "Greedy winner has no feasible outgoing edge",
+            )
+            return GreedyTrajectorySearchResult(
+                False, tuple(path), None, maximum_step, layer.sample_index, failure,
+            )
+        best = feasible[0]
+        for candidate in feasible[1:]:
+            delta = candidate.raw_displacement_cost_rad2 - best.raw_displacement_cost_rad2
+            if delta < -tolerance or (
+                abs(delta) <= tolerance
+                and candidate.to_node_index < best.to_node_index
+            ):
+                best = candidate
+        selected = layer.nodes[best.to_node_index]
+        cumulative += best.raw_displacement_cost_rad2
+        maximum_step = max(maximum_step, best.max_raw_joint_step_rad)
+        path.append(_path_point(layer, selected, best.raw_displacement_cost_rad2, cumulative))
+    return GreedyTrajectorySearchResult(
+        True, tuple(path), cumulative, maximum_step, None, None,
+    )
+
+
+def compare_greedy_and_global(
+    graph: TrajectoryCandidateGraph,
+    *,
+    tie_tolerance: float = 1e-12,
+    edge_feasibility: EdgeFeasibilityCallback = default_graph_edge_feasibility,
+    retain_debug_diagnostics: bool = False,
+) -> GreedyGlobalComparison:
+    """Compare local Greedy and exact DP over the identical generated graph."""
+    tolerance = _finite_number(tie_tolerance, "tie_tolerance")
+    greedy = search_greedy_candidate_graph(
+        graph,
+        tie_tolerance=tolerance,
+        edge_feasibility=edge_feasibility,
+    )
+    global_search = search_global_candidate_graph(
+        graph,
+        tie_tolerance=tolerance,
+        edge_feasibility=edge_feasibility,
+        retain_debug_diagnostics=retain_debug_diagnostics,
+    )
+    not_worse = None
+    if greedy.completed and global_search.completed:
+        not_worse = (
+            global_search.cumulative_raw_displacement_cost_rad2
+            <= greedy.cumulative_raw_displacement_cost_rad2 + tolerance
+        )
+    return GreedyGlobalComparison(greedy, global_search, not_worse, tolerance)

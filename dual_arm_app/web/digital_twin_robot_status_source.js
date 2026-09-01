@@ -1,5 +1,10 @@
 // Phase 1 cache-only RobotMsg and JointState freshness source. It is isolated
 // from the joint mirror so a status failure cannot stop model rendering.
+import {
+  deriveRobotStateAndAlert,
+  feedbackConnectionStatus,
+} from "./digital_twin_phase1_state.js";
+
 const ROBOT_STATUS_ENDPOINT = "/api/digital-twin/robot-status";
 const DEFAULT_STATUS_POLL_INTERVAL_MS = 500;
 const FETCH_TIMEOUT_MS = 1000;
@@ -66,6 +71,18 @@ function normalizeRobotStatus(payload) {
 function renderSide(sideName, side) {
   const title = sideName[0].toUpperCase() + sideName.slice(1);
   setText(`digitalTwin${title}FeedbackStatus`, side.feedbackStatus);
+  let connectionStatus = "MISSING";
+  let summary = { robotState: "UNAVAILABLE", faultAlert: "FEEDBACK MISSING" };
+  try {
+    connectionStatus = feedbackConnectionStatus(side.feedbackStatus);
+    summary = deriveRobotStateAndAlert(side);
+  } catch (_error) {
+    connectionStatus = "INVALID";
+    summary = { robotState: "UNAVAILABLE", faultAlert: "INVALID FEEDBACK" };
+  }
+  setText(`digitalTwin${title}ConnectionStatus`, connectionStatus);
+  setText(`digitalTwin${title}RobotStateSummary`, summary.robotState);
+  setText(`digitalTwin${title}FaultAlert`, summary.faultAlert);
   for (const field of STATE_FIELDS) {
     const suffix = field.split("_").map(
       (part) => part[0].toUpperCase() + part.slice(1),
@@ -86,7 +103,7 @@ function render() {
   } else {
     for (const sideName of ["left", "right"]) {
       renderSide(sideName, {
-        feedbackStatus: sourceState.lastFetchError ? "UNAVAILABLE" : "MISSING",
+        feedbackStatus: "MISSING",
         state: null,
       });
     }
@@ -133,6 +150,17 @@ async function executePoll() {
       throw new Error(`Robot status request failed with HTTP ${response.status}`);
     }
     sourceState.latestSnapshot = normalizeRobotStatus(await response.json());
+    const digitalTwin = window.dualArmDigitalTwin;
+    if (digitalTwin && typeof digitalTwin.setModelTcpFeedbackStatus === "function") {
+      const nonLiveStatuses = {};
+      for (const side of ["left", "right"]) {
+        const status = sourceState.latestSnapshot[side].feedbackStatus;
+        if (status !== "LIVE") nonLiveStatuses[side] = status;
+      }
+      if (Object.keys(nonLiveStatuses).length > 0) {
+        digitalTwin.setModelTcpFeedbackStatus(nonLiveStatuses);
+      }
+    }
     sourceState.lastFetchError = null;
     sourceState.status = sourceState.running ? "RUNNING — CACHE ONLY" : "STOPPED";
   } catch (error) {

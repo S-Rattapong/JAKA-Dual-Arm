@@ -3,12 +3,24 @@
 
 from __future__ import annotations
 
+import json
 import os
 import shutil
 import subprocess
+import sys
 import tempfile
 import xml.etree.ElementTree as ET
 from pathlib import Path
+
+
+REPOSITORY_ROOT = Path(__file__).resolve().parents[2]
+if str(REPOSITORY_ROOT) not in sys.path:
+    sys.path.insert(0, str(REPOSITORY_ROOT))
+
+from dual_arm_app.backend.world_frame_calibration import (  # noqa: E402
+    WorldCalibration,
+    load_world_calibration,
+)
 
 
 XACRO_RELATIVE_PATH = Path(
@@ -16,6 +28,9 @@ XACRO_RELATIVE_PATH = Path(
 )
 OUTPUT_RELATIVE_PATH = Path(
     "dual_arm_app/web/assets/dual_jaka_a12_web.urdf"
+)
+METADATA_RELATIVE_PATH = Path(
+    "dual_arm_app/web/assets/dual_jaka_a12_web.metadata.json"
 )
 ROS_MESH_PREFIX = "package://jaka_description/meshes/jaka_a12_meshes/"
 # The URDF is served from /digital-twin/assets/. URDFLoader resolves geometry
@@ -40,7 +55,7 @@ def find_repository_root() -> Path:
     )
 
 
-def generate_urdf(xacro_path: Path) -> str:
+def generate_urdf(xacro_path: Path, calibration: WorldCalibration) -> str:
     """Run xacro and return a Web-compatible, validated URDF string."""
     xacro_command = shutil.which("xacro")
     if xacro_command is None:
@@ -49,8 +64,13 @@ def generate_urdf(xacro_path: Path) -> str:
         )
 
     try:
+        arguments = [xacro_command, str(xacro_path)]
+        arguments.extend(
+            f"{name}:={value}"
+            for name, value in calibration.xacro_mappings().items()
+        )
         result = subprocess.run(
-            [xacro_command, str(xacro_path)],
+            arguments,
             check=True,
             capture_output=True,
             text=True,
@@ -62,6 +82,22 @@ def generate_urdf(xacro_path: Path) -> str:
     urdf_text = result.stdout.replace(ROS_MESH_PREFIX, WEB_MESH_PREFIX)
     validate_urdf(urdf_text)
     return urdf_text
+
+
+def generate_model_metadata(calibration: WorldCalibration) -> str:
+    """Build non-authoritative metadata binding the asset to a revision."""
+    metadata = {
+        "schema_version": calibration.schema_version,
+        "calibration_state": calibration.calibration_state,
+        "calibration_revision": calibration.revision,
+        "model_file": OUTPUT_RELATIVE_PATH.name,
+        "frames": {
+            "world": calibration.world_frame,
+            "left_base": calibration.left_base_frame,
+            "right_base": calibration.right_base_frame,
+        },
+    }
+    return json.dumps(metadata, indent=2, sort_keys=True) + "\n"
 
 
 def validate_urdf(urdf_text: str) -> None:
@@ -118,11 +154,17 @@ def main() -> int:
     repository_root = find_repository_root()
     xacro_path = repository_root / XACRO_RELATIVE_PATH
     output_path = repository_root / OUTPUT_RELATIVE_PATH
+    metadata_path = repository_root / METADATA_RELATIVE_PATH
     if not xacro_path.is_file():
         raise RuntimeError(f"Verified dual-arm Xacro does not exist: {xacro_path}")
 
-    write_atomically(output_path, generate_urdf(xacro_path))
+    calibration = load_world_calibration(
+        repository_root / "dual_arm_app/config/world_frame_calibration.json"
+    )
+    write_atomically(output_path, generate_urdf(xacro_path, calibration))
+    write_atomically(metadata_path, generate_model_metadata(calibration))
     print(f"Generated Web URDF: {output_path}")
+    print(f"Generated Web model metadata: {metadata_path}")
     return 0
 
 

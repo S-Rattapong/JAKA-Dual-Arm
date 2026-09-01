@@ -25,6 +25,7 @@ HTML = ROOT / "dual_arm_app/web/index.html"
 JOINT_SOURCE = ROOT / "dual_arm_app/web/digital_twin_live_source.js"
 STATUS_SOURCE = ROOT / "dual_arm_app/web/digital_twin_robot_status_source.js"
 TCP_SOURCE = ROOT / "dual_arm_app/web/digital_twin_tcp_source.js"
+PHASE1_STATE = ROOT / "dual_arm_app/web/digital_twin_phase1_state.js"
 
 
 def valid_state_cache(received_at_ms=900):
@@ -179,6 +180,12 @@ class TcpNormalizationTests(unittest.TestCase):
         self.assertIsNone(both["left"]["tcp"])
         self.assertIsNone(both["right"]["tcp"])
 
+    def test_jaka_getfk_9999_failure_sentinel_is_rejected(self):
+        normalized = normalize_tcp_pose([9999.0] * 6)
+        self.assertFalse(normalized["valid"])
+        self.assertIsNone(normalized["tcp"])
+        self.assertIn("failure sentinel", normalized["error"])
+
     def test_malformed_nan_infinity_and_bool_are_rejected(self):
         bad_poses = ([1, 2], [1, 2, 3, 4, 5, math.nan],
                      [1, 2, 3, 4, 5, math.inf],
@@ -249,6 +256,7 @@ class FrontendIsolationTests(unittest.TestCase):
         cls.joint = JOINT_SOURCE.read_text(encoding="utf-8")
         cls.status = STATUS_SOURCE.read_text(encoding="utf-8")
         cls.tcp = TCP_SOURCE.read_text(encoding="utf-8")
+        cls.phase1_state = PHASE1_STATE.read_text(encoding="utf-8")
         cls.html = HTML.read_text(encoding="utf-8")
 
     def test_source_separation_no_general_status_or_commands(self):
@@ -261,14 +269,15 @@ class FrontendIsolationTests(unittest.TestCase):
             for fragment in ("/api/jog", "/api/home", "/api/direct", "/api/program"):
                 self.assertNotIn(fragment, source)
 
-    def test_status_ui_semantics_tcp_blocker_and_existing_controls(self):
+    def test_status_ui_semantics_tcp_separation_and_existing_controls(self):
         for text in (
             "Left Feedback:", "Right Feedback:", "power_state",
             "servo_state", "motion_state", "collision_state",
             "Left TCP:", "Right TCP:",
             "translation mm / orientation rad",
             "feedback freshness, not a guaranteed robot-network connection",
-            "TCP FRAME PLACEMENT BLOCKED PENDING VERIFIED BASE↔WORLD CONVERSION",
+            "CONTROLLER FK DIAGNOSTIC — NOT USED FOR WEB-WORLD PLACEMENT",
+            "Model TCP/Flange — Web/URDF World",
             "Direct Joint Move", "Direct TCP Move", "STOP BOTH", "Home Both",
             "Waypoint Manager", "Program / Sequence",
         ):
@@ -330,8 +339,16 @@ console.log(JSON.stringify({ afterStatusFailure, afterTcpFailure, final: globalT
         with tempfile.TemporaryDirectory(prefix="phase1-live-") as temp:
             directory = Path(temp)
             (directory / "joint.mjs").write_text(self.joint, encoding="utf-8")
-            (directory / "status.mjs").write_text(self.status, encoding="utf-8")
+            (directory / "status.mjs").write_text(
+                self.status.replace(
+                    '"./digital_twin_phase1_state.js"', '"./phase1_state.mjs"'
+                ),
+                encoding="utf-8",
+            )
             (directory / "tcp.mjs").write_text(self.tcp, encoding="utf-8")
+            (directory / "phase1_state.mjs").write_text(
+                self.phase1_state, encoding="utf-8"
+            )
             (directory / "harness.mjs").write_text(harness, encoding="utf-8")
             try:
                 result = subprocess.run(
@@ -382,7 +399,12 @@ payload = {
 await status.pollRobotStatusOnce();
 const renderedStatus = {
   left: ui.digitalTwinLeftFeedbackStatus,
+  leftConnection: ui.digitalTwinLeftConnectionStatus,
+  leftRobotState: ui.digitalTwinLeftRobotStateSummary,
+  leftAlert: ui.digitalTwinLeftFaultAlert,
   right: ui.digitalTwinRightFeedbackStatus,
+  rightConnection: ui.digitalTwinRightConnectionStatus,
+  rightAlert: ui.digitalTwinRightFaultAlert,
   rightPower: ui.digitalTwinRightPowerState,
 };
 payload = {
@@ -397,15 +419,25 @@ await tcp.pollTcpOnce();
 console.log(JSON.stringify({
   renderedStatus,
   leftTcp: ui.digitalTwinLeftTcpStatus,
+  leftTcpX: ui.digitalTwinLeftControllerTcpX,
   rightTcp: ui.digitalTwinRightTcpStatus,
+  rightTcpX: ui.digitalTwinRightControllerTcpX,
   placement: ui.digitalTwinTcpPlacementState,
 }));
 })().catch((error) => { console.error(error); process.exitCode = 1; });
 '''
         with tempfile.TemporaryDirectory(prefix="phase1-render-") as temp:
             directory = Path(temp)
-            (directory / "status.mjs").write_text(self.status, encoding="utf-8")
+            (directory / "status.mjs").write_text(
+                self.status.replace(
+                    '"./digital_twin_phase1_state.js"', '"./phase1_state.mjs"'
+                ),
+                encoding="utf-8",
+            )
             (directory / "tcp.mjs").write_text(self.tcp, encoding="utf-8")
+            (directory / "phase1_state.mjs").write_text(
+                self.phase1_state, encoding="utf-8"
+            )
             (directory / "harness.mjs").write_text(harness, encoding="utf-8")
             result = subprocess.run(
                 ["node", str(directory / "harness.mjs")],
@@ -414,12 +446,19 @@ console.log(JSON.stringify({
         output = json.loads(result.stdout)
         self.assertEqual(output["renderedStatus"], {
             "left": "STALE",
+            "leftConnection": "STALE",
+            "leftRobotState": "UNAVAILABLE",
+            "leftAlert": "FEEDBACK STALE",
             "right": "MISSING",
+            "rightConnection": "MISSING",
+            "rightAlert": "FEEDBACK MISSING",
             "rightPower": "UNAVAILABLE",
         })
         self.assertEqual(output["leftTcp"], "LIVE")
+        self.assertEqual(output["leftTcpX"], "1.000000")
         self.assertEqual(output["rightTcp"], "UNAVAILABLE")
-        self.assertIn("BLOCKED PENDING VERIFIED BASE↔WORLD", output["placement"])
+        self.assertEqual(output["rightTcpX"], "UNAVAILABLE")
+        self.assertIn("NOT USED FOR WEB-WORLD PLACEMENT", output["placement"])
 
 
 if __name__ == "__main__":

@@ -2,17 +2,24 @@
 <robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="dual_jaka_a12">
   <xacro:include filename="$(find jaka_a12_moveit_config)/config/jaka_a12_prefixed.urdf.xacro"/>
 
+  <!-- Required canonical-calibration inputs. Empty values intentionally fail
+       Xacro processing rather than falling back to duplicated model constants. -->
+  <xacro:arg name="left_base_xyz" default=""/>
+  <xacro:arg name="left_base_rpy" default=""/>
+  <xacro:arg name="right_base_xyz" default=""/>
+  <xacro:arg name="right_base_rpy" default=""/>
+
   <link name="world"/>
 
   <xacro:jaka_a12_prefixed
     prefix="left_"
     parent="world"
-    base_xyz="0.0 0.075 1.2"
-    base_rpy="1.570796326795 0.0 3.14159265359"/>
+    base_xyz="$(arg left_base_xyz)"
+    base_rpy="$(arg left_base_rpy)"/>
 
   <xacro:jaka_a12_prefixed
     prefix="right_"
     parent="world"
-    base_xyz="0.0 -0.075 1.2"
-    base_rpy="-1.570796326795 0.0 3.14159265359"/>
+    base_xyz="$(arg right_base_xyz)"
+    base_rpy="$(arg right_base_rpy)"/>
 </robot>

@@ -1,0 +1,27 @@
+# One arm's complete Phase-5 absolute joint trajectory.
+# time_from_start_s is shared verbatim by the Left and Right requests.
+float64[] time_from_start_s
+# Row-major N x 6 absolute joint positions in radians.
+float64[] joint_positions_rad_flat
+# Identical absolute host wall-clock start supplied to both drivers.
+int64 start_time_unix_ns
+string trajectory_id
+# Phase-5-only JAKA servo filter selection. Unused tuning fields must be zero.
+uint8 SERVO_FILTER_NONE=0
+uint8 SERVO_FILTER_LPF=1
+uint8 SERVO_FILTER_NLF=2
+uint8 SERVO_FILTER_LEGACY_FORESIGHT=3
+uint8 servo_filter_mode
+int32 servo_filter_legacy_max_buf
+float64 servo_filter_legacy_kp
+float64 servo_filter_lpf_cutoff_hz
+float64 servo_filter_nlf_max_velocity_deg_s
+float64 servo_filter_nlf_max_acceleration_deg_s2
+float64 servo_filter_nlf_max_jerk_deg_s3
+# JAKA controller servo period multiplier: 1=8 ms, 2=16 ms.
+uint8 servo_step_num
+---
+bool accepted
+int64 ret
+string message
+string trajectory_id

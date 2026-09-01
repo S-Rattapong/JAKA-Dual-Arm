@@ -13,6 +13,7 @@ from pathlib import Path
 REPOSITORY_ROOT = Path(__file__).resolve().parents[2]
 APP_ROOT = REPOSITORY_ROOT / "dual_arm_app"
 ADAPTER_PATH = APP_ROOT / "web/digital_twin_status_adapter.js"
+SMOOTHING_PATH = APP_ROOT / "web/digital_twin_live_smoothing.js"
 DIGITAL_TWIN_PATH = APP_ROOT / "web/digital_twin.js"
 HTML_PATH = APP_ROOT / "web/index.html"
 MOTION_ROUTE_FRAGMENTS = (
@@ -31,6 +32,9 @@ def _run_node_harness(adapter_source: str, harness_source: str) -> dict:
     with tempfile.TemporaryDirectory(prefix="phase1c1-") as temporary_directory:
         directory = Path(temporary_directory)
         (directory / "adapter.mjs").write_text(adapter_source, encoding="utf-8")
+        (directory / "smoothing.mjs").write_text(
+            SMOOTHING_PATH.read_text(encoding="utf-8"), encoding="utf-8"
+        )
         (directory / "harness.mjs").write_text(harness_source, encoding="utf-8")
         result = subprocess.run(
             ["node", str(directory / "harness.mjs")],
@@ -112,6 +116,11 @@ import {{
   isNormalizedSnapshotStale,
   normalizeDualArmStatusSnapshot,
 }} from "./adapter.mjs";
+import {{
+  DEFAULT_VISUAL_SMOOTHING_TAU_MS,
+  copyDualArmPose,
+  smoothDualArmPose,
+}} from "./smoothing.mjs";
 globalThis.document = {{ getElementById() {{ return null; }} }};
 {controller_source}
 const applied = [];

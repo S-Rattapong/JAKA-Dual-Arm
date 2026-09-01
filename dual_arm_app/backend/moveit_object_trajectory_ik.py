@@ -10,8 +10,9 @@ from __future__ import annotations
 
 import argparse
 import json
+import time
 from pathlib import Path
-from typing import Sequence
+from typing import Any, Callable, Sequence
 
 import rclpy
 from moveit_msgs.msg import MoveItErrorCodes
@@ -97,6 +98,147 @@ def load_canonical_joint_limits(
     )
 
 
+class MoveItObjectTrajectoryPlanningAdapter:
+    """Reusable planning-only clients hosted by an existing ROS node.
+
+    FastAPI uses ``from_node`` while its existing executor spins that node.
+    The standalone CLI node supplies its synchronous spin waiter. Both paths
+    share identical request construction and response parsing here.
+    """
+
+    def __init__(
+        self,
+        compute_ik_client: Any,
+        state_validity_client: Any,
+        clock: Any,
+        call_and_wait: Callable[[Any, Any, float], Any],
+    ) -> None:
+        self.compute_ik_client = compute_ik_client
+        self.state_validity_client = state_validity_client
+        self.clock = clock
+        self.call_and_wait = call_and_wait
+
+    @classmethod
+    def from_node(cls, node: Any) -> "MoveItObjectTrajectoryPlanningAdapter":
+        compute_client = node.create_client(GetPositionIK, COMPUTE_IK_SERVICE)
+        state_client = node.create_client(GetStateValidity, CHECK_STATE_VALIDITY_SERVICE)
+
+        def wait_on_existing_executor(client: Any, request: Any, timeout_s: float) -> Any:
+            future = client.call_async(request)
+            deadline = time.monotonic() + timeout_s
+            while not future.done() and time.monotonic() < deadline:
+                time.sleep(0.005)
+            if not future.done():
+                cancel = getattr(future, "cancel", None)
+                if callable(cancel):
+                    cancel()
+                raise TimeoutError("MoveIt planning service response timed out")
+            exception = future.exception()
+            if exception is not None:
+                raise RuntimeError(f"MoveIt planning service failed: {exception}")
+            response = future.result()
+            if response is None:
+                raise RuntimeError("MoveIt planning service returned no response")
+            return response
+
+        return cls(compute_client, state_client, node.get_clock(), wait_on_existing_executor)
+
+    @staticmethod
+    def _fill_seed(robot_state: object, seed: Sequence[float]) -> None:
+        robot_state.joint_state.name = list(DUAL_ARM_JOINT_ORDER)
+        robot_state.joint_state.position = list(seed)
+        robot_state.is_diff = False
+
+    def unavailable_services(self) -> tuple[str, ...]:
+        unavailable = []
+        for service_name, client in (
+            (COMPUTE_IK_SERVICE, self.compute_ik_client),
+            (CHECK_STATE_VALIDITY_SERVICE, self.state_validity_client),
+        ):
+            ready = getattr(client, "service_is_ready", None)
+            is_ready = bool(ready()) if callable(ready) else bool(
+                client.wait_for_service(timeout_sec=0.0)
+            )
+            if not is_ready:
+                unavailable.append(service_name)
+        return tuple(unavailable)
+
+    def solve_arm_ik(
+        self,
+        *,
+        group_name: str,
+        ik_link_name: str,
+        target_world_T_tip: RigidTransform,
+        seed_joint_positions_rad: JointVector12,
+        timeout_s: float,
+        avoid_collisions: bool,
+    ) -> ArmIkSolution:
+        request = GetPositionIK.Request()
+        request.ik_request.group_name = group_name
+        request.ik_request.ik_link_name = ik_link_name
+        request.ik_request.avoid_collisions = bool(avoid_collisions)
+        timeout_seconds = int(timeout_s)
+        request.ik_request.timeout.sec = timeout_seconds
+        request.ik_request.timeout.nanosec = int(
+            (timeout_s - timeout_seconds) * 1_000_000_000
+        )
+        self._fill_seed(request.ik_request.robot_state, seed_joint_positions_rad)
+
+        pose = request.ik_request.pose_stamped
+        pose.header.frame_id = WORLD_FRAME
+        pose.header.stamp = self.clock.now().to_msg()
+        matrix = target_world_T_tip.matrix
+        pose.pose.position.x = matrix[0][3]
+        pose.pose.position.y = matrix[1][3]
+        pose.pose.position.z = matrix[2][3]
+        quaternion = rotation_matrix_to_quaternion_xyzw(target_world_T_tip)
+        pose.pose.orientation.x = quaternion[0]
+        pose.pose.orientation.y = quaternion[1]
+        pose.pose.orientation.z = quaternion[2]
+        pose.pose.orientation.w = quaternion[3]
+
+        response = self.call_and_wait(self.compute_ik_client, request, timeout_s + 1.0)
+        error_code = int(response.error_code.val)
+        if error_code != MoveItErrorCodes.SUCCESS:
+            return ArmIkSolution(False, diagnostic=f"MoveIt IK error_code={error_code}")
+        positions_by_name = dict(zip(
+            response.solution.joint_state.name,
+            response.solution.joint_state.position,
+        ))
+        expected_names = (
+            LEFT_JOINT_ORDER if group_name == "left_arm" else RIGHT_JOINT_ORDER
+        )
+        missing = tuple(name for name in expected_names if name not in positions_by_name)
+        if missing:
+            return ArmIkSolution(
+                False,
+                diagnostic=f"MoveIt IK response missing joints: {', '.join(missing)}",
+            )
+        return ArmIkSolution(
+            True,
+            tuple(positions_by_name[name] for name in expected_names),
+            diagnostic=f"MoveIt IK success for {group_name}",
+        )
+
+    def check_combined_state(
+        self,
+        *,
+        joint_positions_rad: JointVector12,
+        group_name: str,
+    ) -> CombinedStateValidity:
+        request = GetStateValidity.Request()
+        request.group_name = group_name
+        self._fill_seed(request.robot_state, joint_positions_rad)
+        response = self.call_and_wait(self.state_validity_client, request, 2.0)
+        contact_count = len(response.contacts)
+        diagnostic = (
+            "Combined state valid"
+            if response.valid
+            else f"Combined state invalid; contacts={contact_count}"
+        )
+        return CombinedStateValidity(bool(response.valid), diagnostic)
+
+
 class MoveItObjectTrajectoryIkNode(Node):
     """Planning-only synchronous adapter over two MoveIt service clients."""
 
@@ -118,6 +260,12 @@ class MoveItObjectTrajectoryIkNode(Node):
                 raise RuntimeError(
                     f"Offline MoveIt planning service unavailable: {service_name}"
                 )
+        self.planning_adapter = MoveItObjectTrajectoryPlanningAdapter(
+            self.compute_ik_client,
+            self.state_validity_client,
+            self.get_clock(),
+            self._call,
+        )
 
     @staticmethod
     def _fill_seed(robot_state: object, seed: Sequence[float]) -> None:
@@ -148,59 +296,13 @@ class MoveItObjectTrajectoryIkNode(Node):
         timeout_s: float,
         avoid_collisions: bool,
     ) -> ArmIkSolution:
-        request = GetPositionIK.Request()
-        request.ik_request.group_name = group_name
-        request.ik_request.ik_link_name = ik_link_name
-        request.ik_request.avoid_collisions = bool(avoid_collisions)
-        timeout_seconds = int(timeout_s)
-        request.ik_request.timeout.sec = timeout_seconds
-        request.ik_request.timeout.nanosec = int(
-            (timeout_s - timeout_seconds) * 1_000_000_000
-        )
-        self._fill_seed(request.ik_request.robot_state, seed_joint_positions_rad)
-
-        pose = request.ik_request.pose_stamped
-        pose.header.frame_id = WORLD_FRAME
-        pose.header.stamp = self.get_clock().now().to_msg()
-        matrix = target_world_T_tip.matrix
-        pose.pose.position.x = matrix[0][3]
-        pose.pose.position.y = matrix[1][3]
-        pose.pose.position.z = matrix[2][3]
-        quaternion = rotation_matrix_to_quaternion_xyzw(target_world_T_tip)
-        pose.pose.orientation.x = quaternion[0]
-        pose.pose.orientation.y = quaternion[1]
-        pose.pose.orientation.z = quaternion[2]
-        pose.pose.orientation.w = quaternion[3]
-
-        response = self._call(
-            self.compute_ik_client,
-            request,
-            timeout_s + 1.0,
-        )
-        error_code = int(response.error_code.val)
-        if error_code != MoveItErrorCodes.SUCCESS:
-            return ArmIkSolution(
-                False,
-                diagnostic=f"MoveIt IK error_code={error_code}",
-            )
-
-        positions_by_name = dict(zip(
-            response.solution.joint_state.name,
-            response.solution.joint_state.position,
-        ))
-        expected_names = (
-            LEFT_JOINT_ORDER if group_name == "left_arm" else RIGHT_JOINT_ORDER
-        )
-        missing = tuple(name for name in expected_names if name not in positions_by_name)
-        if missing:
-            return ArmIkSolution(
-                False,
-                diagnostic=f"MoveIt IK response missing joints: {', '.join(missing)}",
-            )
-        return ArmIkSolution(
-            True,
-            tuple(positions_by_name[name] for name in expected_names),
-            diagnostic=f"MoveIt IK success for {group_name}",
+        return self.planning_adapter.solve_arm_ik(
+            group_name=group_name,
+            ik_link_name=ik_link_name,
+            target_world_T_tip=target_world_T_tip,
+            seed_joint_positions_rad=seed_joint_positions_rad,
+            timeout_s=timeout_s,
+            avoid_collisions=avoid_collisions,
         )
 
     def check_combined_state(
@@ -209,17 +311,10 @@ class MoveItObjectTrajectoryIkNode(Node):
         joint_positions_rad: JointVector12,
         group_name: str,
     ) -> CombinedStateValidity:
-        request = GetStateValidity.Request()
-        request.group_name = group_name
-        self._fill_seed(request.robot_state, joint_positions_rad)
-        response = self._call(self.state_validity_client, request, 2.0)
-        contact_count = len(response.contacts)
-        diagnostic = (
-            "Combined state valid"
-            if response.valid
-            else f"Combined state invalid; contacts={contact_count}"
+        return self.planning_adapter.check_combined_state(
+            joint_positions_rad=joint_positions_rad,
+            group_name=group_name,
         )
-        return CombinedStateValidity(bool(response.valid), diagnostic)
 
 
 def print_jump_profile(config: JointJumpDetectionConfig) -> None:

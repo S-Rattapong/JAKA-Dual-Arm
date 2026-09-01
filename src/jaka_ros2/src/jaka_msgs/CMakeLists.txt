@@ -30,6 +30,9 @@ rosidl_generate_interfaces(${PROJECT_NAME}
   "srv/ClearError.srv"
   "srv/GetFK.srv"
   "srv/GetIK.srv"
+  "srv/GetFrameState.srv"
+  "srv/ExecuteJointTrajectory.srv"
+  "srv/GetExecutionStatus.srv"
    DEPENDENCIES std_msgs std_srvs
 )
 
@@ -53,4 +56,3 @@ ament_package()
   # set(ament_cmake_cpplint_FOUND TRUE)
   # ament_lint_auto_find_test_dependencies()
 # endif()
-

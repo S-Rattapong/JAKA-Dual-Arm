@@ -1,0 +1,71 @@
+# Read-only request. The response is a snapshot of driver-owned memory only.
+---
+bool valid
+int64 ret
+string message
+string trajectory_id
+string state
+bool active
+int64 start_time_unix_ns
+# Host wall-clock timestamps around the first/last servo_j calls.
+int64 first_dispatch_unix_ns
+int64 first_servo_return_unix_ns
+int64 last_dispatch_unix_ns
+int64 last_servo_return_unix_ns
+int64 terminal_time_unix_ns
+float64 duration_s
+float64 elapsed_s
+float64 progress_0_to_1
+# Zero-based index of the latest successfully sent sample; -1 means none sent.
+int64 sample_index
+uint64 sample_count
+# P6.1 read-only command snapshot from driver memory. This is the exact latest
+# sample whose servo_j call returned success; it does not query the robot.
+bool commanded_sample_valid
+float64 commanded_time_from_start_s
+float64[] commanded_joints_rad
+string terminal_reason
+# Motion-quality diagnostics from this arm's final generated servo stream.
+float64 max_abs_velocity_rad_s
+float64 rms_velocity_rad_s
+float64 max_abs_acceleration_rad_s2
+float64 rms_acceleration_rad_s2
+float64 max_abs_jerk_rad_s3
+float64 rms_jerk_rad_s3
+# Host dispatch timing measured against configured servo-period steady-clock instants.
+uint64 dispatch_sample_count
+float64 mean_abs_lateness_ms
+float64 p95_abs_lateness_ms
+float64 p99_abs_lateness_ms
+float64 max_abs_lateness_ms
+float64 mean_abs_jitter_ms
+float64 p95_abs_jitter_ms
+float64 p99_abs_jitter_ms
+float64 max_abs_jitter_ms
+uint64 missed_cycle_count
+# Wall duration of each JAKA servo_j SDK call.
+uint64 servo_j_call_sample_count
+# Calls whose wall duration reached/exceeded the configured command period.
+uint64 servo_j_overrun_count
+float64 mean_servo_j_call_duration_ms
+float64 p95_servo_j_call_duration_ms
+float64 p99_servo_j_call_duration_ms
+float64 max_servo_j_call_duration_ms
+# Controller/telemetry settings used by this Phase-5 execution.
+uint8 servo_step_num
+float64 command_period_ms
+string telemetry_mode
+# Number of normal 50 ms telemetry polls intentionally skipped while the
+# Phase-5 stream exclusively owned the shared SDK session.
+uint64 telemetry_suppressed_poll_count
+# Conservative adjacent-command velocity guard.
+float64 stream_guard_limit_rad_s
+float64 stream_guard_observed_max_rad_s
+# Phase-5-only filter actually selected for this trajectory.
+string servo_filter_mode
+int32 servo_filter_legacy_max_buf
+float64 servo_filter_legacy_kp
+float64 servo_filter_lpf_cutoff_hz
+float64 servo_filter_nlf_max_velocity_deg_s
+float64 servo_filter_nlf_max_acceleration_deg_s2
+float64 servo_filter_nlf_max_jerk_deg_s3

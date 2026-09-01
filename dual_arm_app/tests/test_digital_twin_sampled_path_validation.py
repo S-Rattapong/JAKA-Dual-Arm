@@ -109,6 +109,7 @@ def bridge(client, timeout_s=2.0):
 def run_node(harness):
     sources = {
         "adapter.mjs": (WEB / "digital_twin_status_adapter.js").read_text(),
+        "smoothing.mjs": (WEB / "digital_twin_live_smoothing.js").read_text(),
         "planned.mjs": (WEB / "digital_twin_planned_preview.js").read_text(),
         "trajectory.mjs": (WEB / "digital_twin_trajectory_preview.js").read_text(),
         "validator.mjs": (WEB / "digital_twin_trajectory_validation.js").read_text(),
@@ -308,6 +309,7 @@ class FrontendSampledValidationTests(unittest.TestCase):
     def test_pipeline_input_checking_pass_fail_and_human_diagnostics(self):
         harness = f'''
 import {{ DEFAULT_STALE_TIMEOUT_MS, isNormalizedSnapshotStale, normalizeDualArmStatusSnapshot }} from "./adapter.mjs";
+import {{ DEFAULT_VISUAL_SMOOTHING_TAU_MS, copyDualArmPose, smoothDualArmPose }} from "./smoothing.mjs";
 import {{ maxAbsoluteJointDelta, normalizePlannedDualArmPose }} from "./planned.mjs";
 import {{ normalizeDualArmTrajectory, sampleTrajectoryAtTime, trajectoryDurationSeconds, trajectoryPointAtIndex }} from "./trajectory.mjs";
 import {{ validateTrajectoryJointLimits }} from "./validator.mjs";
@@ -368,6 +370,7 @@ console.log(JSON.stringify({{ invalidStep, callsAfterInvalidStep, checking, pass
     def test_confirmed_runtime_fixture_load_only_and_validation_button_lifecycle(self):
         harness = f'''
 import {{ DEFAULT_STALE_TIMEOUT_MS, isNormalizedSnapshotStale, normalizeDualArmStatusSnapshot }} from "./adapter.mjs";
+import {{ DEFAULT_VISUAL_SMOOTHING_TAU_MS, copyDualArmPose, smoothDualArmPose }} from "./smoothing.mjs";
 import {{ maxAbsoluteJointDelta, normalizePlannedDualArmPose }} from "./planned.mjs";
 import {{ normalizeDualArmTrajectory, sampleTrajectoryAtTime, trajectoryDurationSeconds, trajectoryPointAtIndex }} from "./trajectory.mjs";
 import {{ validateTrajectoryJointLimits }} from "./validator.mjs";

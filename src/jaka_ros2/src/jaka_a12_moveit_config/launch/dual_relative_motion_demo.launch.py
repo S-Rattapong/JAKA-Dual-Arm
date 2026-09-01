@@ -1,3 +1,6 @@
+import sys
+from pathlib import Path
+
 from launch import LaunchDescription
 from launch.actions import DeclareLaunchArgument
 from launch.conditions import IfCondition
@@ -10,6 +13,9 @@ from launch.substitutions import (
 from launch_ros.actions import Node
 from launch_ros.parameter_descriptions import ParameterValue
 from launch_ros.substitutions import FindPackageShare
+
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from world_calibration_launch import calibrated_robot_description
 
 
 def generate_launch_description():
@@ -32,9 +38,7 @@ def generate_launch_description():
         [FindPackageShare("jaka_a12_moveit_config"), "config", "dual_jaka_a12_tf_demo.rviz"]
     )
 
-    robot_description = {
-        "robot_description": Command([FindExecutable(name="xacro"), " ", xacro_file]),
-    }
+    robot_description = calibrated_robot_description(xacro_file)
 
     return LaunchDescription(
         [

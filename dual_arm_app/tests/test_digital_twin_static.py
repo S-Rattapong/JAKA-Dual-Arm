@@ -138,14 +138,24 @@ class StaticDigitalTwinTests(unittest.TestCase):
         self.assertIn('id="digitalTwinViewer"', self.html)
         self.assertIn('id="digitalTwinStatus"', self.html)
 
-    def test_digital_twin_panel_has_no_execute_button(self) -> None:
-        match = re.search(
-            r'<section class="panel" aria-labelledby="digitalTwinTitle">(.*?)</section>',
+    def test_only_dedicated_phase5_section_has_explicit_execute_button(self) -> None:
+        phase5_match = re.search(
+            r'<section\s+id="digitalTwinPhase5ExecutionSection"(.*?)</section>',
             self.html,
             flags=re.DOTALL,
         )
-        self.assertIsNotNone(match)
-        self.assertNotRegex(match.group(1), r"<button[^>]*>\s*Execute\b")
+        self.assertIsNotNone(phase5_match)
+        phase5 = phase5_match.group(1)
+        self.assertRegex(
+            phase5,
+            r'<button id="digitalTwinPhase5Prepare"[^>]*disabled[^>]*>\s*Execute\s+—\s+REAL MOTION',
+        )
+        self.assertNotIn('id="digitalTwinPhase5Execute"', phase5)
+        self.assertNotIn('id="digitalTwinPhase5OperatorConfirmed"', phase5)
+        self.assertIn('id="digitalTwinPhase5PreviewInterlock"', phase5)
+
+        without_phase5 = self.html[:phase5_match.start()] + self.html[phase5_match.end():]
+        self.assertNotRegex(without_phase5, r"<button[^>]*>\s*Execute\b")
 
     def test_html_ids_are_not_duplicated(self) -> None:
         parser = _IdCollector()

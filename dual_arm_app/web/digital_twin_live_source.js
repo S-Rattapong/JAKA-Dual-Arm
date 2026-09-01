@@ -1,7 +1,7 @@
 // Phase 1C.2A read-only source. This module polls joint feedback only and
 // deliberately contains no robot command integration.
 const JOINT_FEEDBACK_ENDPOINT = "/api/digital-twin/joints";
-const DEFAULT_POLL_INTERVAL_MS = 500;
+const DEFAULT_POLL_INTERVAL_MS = 10;
 const FETCH_TIMEOUT_MS = 1000;
 const INITIALIZATION_FLAG = "__dualArmDigitalTwinLiveSourceInitialized";
 
@@ -11,6 +11,8 @@ const liveState = {
   pollIntervalMs: DEFAULT_POLL_INTERVAL_MS,
   lastFetchMs: null,
   lastFeedbackTimestampMs: null,
+  endpointSource: null,
+  sourceDiagnostics: null,
   lastFetchError: null,
 };
 
@@ -29,6 +31,54 @@ function formatTimestamp(timestampMs) {
 function setTextById(id, value) {
   const element = document.getElementById(id);
   if (element) element.textContent = value;
+}
+
+function getMirrorEnabledState() {
+  const digitalTwin = window.dualArmDigitalTwin;
+  if (!digitalTwin || typeof digitalTwin.getMirrorState !== "function") return null;
+  try {
+    return digitalTwin.getMirrorState().enabled === true;
+  } catch (_error) {
+    return null;
+  }
+}
+
+function updateUnifiedLiveMirrorUi() {
+  const switchElement = document.getElementById("digitalTwinLiveMirrorSwitch");
+  const quickPanel = document.getElementById("digitalTwinLiveMirrorQuick");
+  const mirrorEnabled = getMirrorEnabledState();
+  const mirrorKnown = typeof mirrorEnabled === "boolean";
+  const fullyEnabled = liveState.running && (mirrorKnown ? mirrorEnabled : true);
+  const fullyDisabled = !liveState.running && (mirrorKnown ? !mirrorEnabled : true);
+  const partial = !fullyEnabled && !fullyDisabled;
+
+  if (switchElement) {
+    switchElement.checked = fullyEnabled;
+    switchElement.indeterminate = partial;
+    if (typeof switchElement.setAttribute === "function") {
+      switchElement.setAttribute(
+        "aria-checked",
+        partial ? "mixed" : (fullyEnabled ? "true" : "false"),
+      );
+    }
+  }
+
+  let status = "OFF — FEEDBACK + MIRROR STOPPED";
+  let state = "off";
+  if (liveState.running && liveState.lastFetchError) {
+    status = "ON — LIVE FEEDBACK ERROR";
+    state = "error";
+  } else if (fullyEnabled) {
+    status = "ON — LIVE FEEDBACK + MIRROR";
+    state = "on";
+  } else if (partial) {
+    status = liveState.running
+      ? "PARTIAL — FEEDBACK ON / MIRROR OFF"
+      : "PARTIAL — FEEDBACK OFF / MIRROR ON";
+    state = "partial";
+  }
+  setTextById("digitalTwinLiveMirrorQuickStatus", status);
+  if (quickPanel && quickPanel.dataset) quickPanel.dataset.state = state;
 }
 
 function updateLiveSourceUi() {
@@ -53,6 +103,7 @@ function updateLiveSourceUi() {
   Object.entries(values).forEach(([id, value]) => {
     setTextById(id, value);
   });
+  updateUnifiedLiveMirrorUi();
 }
 
 function getLiveFeedbackState() {
@@ -62,6 +113,8 @@ function getLiveFeedbackState() {
     pollIntervalMs: liveState.pollIntervalMs,
     lastFetchMs: liveState.lastFetchMs,
     lastFeedbackTimestampMs: liveState.lastFeedbackTimestampMs,
+    endpointSource: liveState.endpointSource,
+    sourceDiagnostics: liveState.sourceDiagnostics,
     lastFetchError: liveState.lastFetchError,
     hasInFlightRequest: activeAbortController !== null,
   };
@@ -98,6 +151,8 @@ function normalizedEndpointSnapshot(payload) {
       payload.left.received_at_ms,
       payload.right.received_at_ms,
     ),
+    endpointSource: typeof payload.source === "string" ? payload.source : null,
+    sourceDiagnostics: payload.source_diagnostics || null,
   };
 }
 
@@ -127,6 +182,8 @@ async function executePoll() {
       "LIVE JOINT FEEDBACK",
     );
     liveState.lastFeedbackTimestampMs = normalized.receivedAtMs;
+    liveState.endpointSource = normalized.endpointSource;
+    liveState.sourceDiagnostics = normalized.sourceDiagnostics;
     liveState.lastFetchError = null;
     liveState.status = liveState.running ? "RUNNING — READ ONLY" : "STOPPED";
   } catch (error) {
@@ -198,17 +255,66 @@ function stopLiveFeedback() {
   return getLiveFeedbackState();
 }
 
+function setUnifiedLiveMirrorEnabled(enabled) {
+  if (typeof enabled !== "boolean") {
+    throw new TypeError("Live Mirror enabled state must be boolean");
+  }
+  const digitalTwin = window.dualArmDigitalTwin;
+  if (!digitalTwin || typeof digitalTwin.setMirrorEnabled !== "function") {
+    liveState.status = "ERROR — READ ONLY";
+    liveState.lastFetchError = "Digital Twin mirror API is unavailable";
+    updateLiveSourceUi();
+    return getLiveFeedbackState();
+  }
+
+  if (enabled) {
+    if (liveState.running) {
+      digitalTwin.setMirrorEnabled(true);
+      updateLiveSourceUi();
+      return getLiveFeedbackState();
+    }
+    return startLiveFeedback();
+  }
+
+  stopLiveFeedback();
+  digitalTwin.setMirrorEnabled(false);
+  updateLiveSourceUi();
+  return getLiveFeedbackState();
+}
+
 function bindLiveSourceControls() {
   const startButton = document.getElementById("digitalTwinStartLiveFeedback");
   const stopButton = document.getElementById("digitalTwinStopLiveFeedback");
+  const unifiedSwitch = document.getElementById("digitalTwinLiveMirrorSwitch");
   if (startButton) startButton.addEventListener("click", startLiveFeedback);
   if (stopButton) stopButton.addEventListener("click", stopLiveFeedback);
+  if (unifiedSwitch) {
+    unifiedSwitch.addEventListener("change", () => {
+      setUnifiedLiveMirrorEnabled(unifiedSwitch.checked === true);
+    });
+  }
+
+  for (const id of [
+    "digitalTwinEnableMirror",
+    "digitalTwinDisableMirror",
+    "digitalTwinResetStaticPose",
+    "digitalTwinMockPoseA",
+    "digitalTwinMockPoseB",
+  ]) {
+    const diagnosticControl = document.getElementById(id);
+    if (diagnosticControl) {
+      diagnosticControl.addEventListener("click", () => {
+        Promise.resolve().then(updateUnifiedLiveMirrorUi);
+      });
+    }
+  }
 }
 
 export {
   DEFAULT_POLL_INTERVAL_MS,
   getLiveFeedbackState,
   pollLiveFeedbackOnce,
+  setUnifiedLiveMirrorEnabled,
   startLiveFeedback,
   stopLiveFeedback,
 };
@@ -218,6 +324,7 @@ if (!window[INITIALIZATION_FLAG]) {
   window.dualArmDigitalTwinLiveSource = {
     getLiveFeedbackState,
     pollLiveFeedbackOnce,
+    setUnifiedLiveMirrorEnabled,
     startLiveFeedback,
     stopLiveFeedback,
   };

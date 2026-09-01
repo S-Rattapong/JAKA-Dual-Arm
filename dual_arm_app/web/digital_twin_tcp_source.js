@@ -1,11 +1,11 @@
-// Phase 1 read-only FK source. The returned pose remains in each robot base
-// frame and is not placed in Web world until Base-to-World is verified.
+// Phase 1 read-only Controller FK diagnostic. The returned pose remains in the
+// controller current-user coordinate and is never placed in the Web world.
 const TCP_ENDPOINT = "/api/digital-twin/tcp";
 const DEFAULT_TCP_POLL_INTERVAL_MS = 500;
 const FETCH_TIMEOUT_MS = 1200;
 const INITIALIZATION_FLAG = "__dualArmDigitalTwinTcpSourceInitialized";
 const TCP_PLACEMENT_BLOCKER =
-  "TCP FRAME PLACEMENT BLOCKED PENDING VERIFIED BASE↔WORLD CONVERSION";
+  "CONTROLLER FK DIAGNOSTIC — NOT USED FOR WEB-WORLD PLACEMENT";
 
 const sourceState = {
   running: false,
@@ -77,6 +77,23 @@ function render() {
       "digitalTwinRightTcpStatus",
       sourceState.latestSnapshot.right.valid ? "LIVE" : "UNAVAILABLE",
     );
+  }
+  for (const side of ["left", "right"]) {
+    const title = side[0].toUpperCase() + side.slice(1);
+    const sideSnapshot = sourceState.latestSnapshot
+      ? sourceState.latestSnapshot[side]
+      : null;
+    const values = sideSnapshot && sideSnapshot.valid
+      ? sideSnapshot.tcp
+      : [null, null, null, null, null, null];
+    ["X", "Y", "Z", "Rx", "Ry", "Rz"].forEach((component, index) => {
+      setText(
+        `digitalTwin${title}ControllerTcp${component}`,
+        typeof values[index] === "number" && Number.isFinite(values[index])
+          ? values[index].toFixed(6)
+          : "UNAVAILABLE",
+      );
+    });
   }
 }
 

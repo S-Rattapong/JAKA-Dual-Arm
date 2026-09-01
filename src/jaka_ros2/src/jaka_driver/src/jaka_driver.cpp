@@ -23,21 +23,36 @@
 #include "jaka_msgs/srv/get_io.hpp"
 #include "jaka_msgs/srv/get_fk.hpp"
 #include "jaka_msgs/srv/get_ik.hpp"
+#include "jaka_msgs/srv/get_frame_state.hpp"
+#include "jaka_msgs/srv/execute_joint_trajectory.hpp"
+#include "jaka_msgs/srv/get_execution_status.hpp"
 #include "jaka_msgs/srv/clear_error.hpp"
 
 #include "jaka_driver/JAKAZuRobot.h"
 #include "jaka_driver/jkerr.h"
 #include "jaka_driver/jktypes.h"
 #include "jaka_driver/conversion.h"
+#include "jaka_driver/phase5_joint_trajectory.hpp"
 
 #include <action_msgs/msg/goal_status_array.hpp>
 #include <control_msgs/action/follow_joint_trajectory.hpp>
 #include <trajectory_msgs/msg/joint_trajectory.hpp>
 
 #include <string>
+#include <algorithm>
 #include <map>
 #include <chrono>
 #include <thread>
+#include <atomic>
+#include <cctype>
+#include <cmath>
+#include <cstdint>
+#include <exception>
+#include <limits>
+#include <mutex>
+#include <numeric>
+#include <utility>
+#include <vector>
 using namespace std;
 
 const double PI = 3.1415926;
@@ -48,6 +63,79 @@ int jog_count = 0;
 //Define variable: save the number of jog calls
 int jog_count_temp = 0;
 JAKAZuRobot robot;
+
+// Phase-5 trajectory reservation/cancellation is isolated from legacy motion
+// services. The worker reuses the single global SDK session above.
+mutex phase5_trajectory_mutex;
+atomic<bool> phase5_trajectory_cancel_requested{false};
+atomic<bool> phase5_sdk_control_window_active{false};
+atomic<uint64_t> phase5_telemetry_suppressed_poll_count{0U};
+mutex phase5_telemetry_gate_mutex;
+bool phase5_trajectory_active = false;
+string phase5_active_trajectory_id;
+constexpr int32_t kPhase5LegacyForesightMaxBuf = 15;
+constexpr double kPhase5LegacyForesightKp = 0.03;
+struct Phase5ExecutionStatus
+{
+    bool valid = true;
+    int64_t ret = 1;
+    string message = "read-only in-memory Phase-5 execution status";
+    string trajectory_id;
+    string state = "IDLE";
+    bool active = false;
+    int64_t start_time_unix_ns = 0;
+    int64_t first_dispatch_unix_ns = 0;
+    int64_t first_servo_return_unix_ns = 0;
+    int64_t last_dispatch_unix_ns = 0;
+    int64_t last_servo_return_unix_ns = 0;
+    int64_t terminal_time_unix_ns = 0;
+    double duration_s = 0.0;
+    double elapsed_s = 0.0;
+    double progress_0_to_1 = 0.0;
+    int64_t sample_index = -1;
+    uint64_t sample_count = 0;
+    bool commanded_sample_valid = false;
+    double commanded_time_from_start_s = 0.0;
+    array<double, 6> commanded_joints_rad{};
+    string terminal_reason;
+    double max_abs_velocity_rad_s = 0.0;
+    double rms_velocity_rad_s = 0.0;
+    double max_abs_acceleration_rad_s2 = 0.0;
+    double rms_acceleration_rad_s2 = 0.0;
+    double max_abs_jerk_rad_s3 = 0.0;
+    double rms_jerk_rad_s3 = 0.0;
+    uint64_t dispatch_sample_count = 0;
+    double mean_abs_lateness_ms = 0.0;
+    double p95_abs_lateness_ms = 0.0;
+    double p99_abs_lateness_ms = 0.0;
+    double max_abs_lateness_ms = 0.0;
+    double mean_abs_jitter_ms = 0.0;
+    double p95_abs_jitter_ms = 0.0;
+    double p99_abs_jitter_ms = 0.0;
+    double max_abs_jitter_ms = 0.0;
+    uint64_t missed_cycle_count = 0;
+    uint64_t servo_j_call_sample_count = 0;
+    uint64_t servo_j_overrun_count = 0;
+    double mean_servo_j_call_duration_ms = 0.0;
+    double p95_servo_j_call_duration_ms = 0.0;
+    double p99_servo_j_call_duration_ms = 0.0;
+    double max_servo_j_call_duration_ms = 0.0;
+    uint8_t servo_step_num = 1U;
+    double command_period_ms = 8.0;
+    string telemetry_mode = "NORMAL";
+    uint64_t telemetry_suppressed_poll_count = 0U;
+    double stream_guard_limit_rad_s =
+        jaka_driver::phase5::kMaximumCommandVelocityRadS;
+    double stream_guard_observed_max_rad_s = 0.0;
+    string servo_filter_mode = "LEGACY_FORESIGHT";
+    int32_t servo_filter_legacy_max_buf = kPhase5LegacyForesightMaxBuf;
+    double servo_filter_legacy_kp = kPhase5LegacyForesightKp;
+    double servo_filter_lpf_cutoff_hz = 0.0;
+    double servo_filter_nlf_max_velocity_deg_s = 0.0;
+    double servo_filter_nlf_max_acceleration_deg_s2 = 0.0;
+    double servo_filter_nlf_max_jerk_deg_s3 = 0.0;
+};
+Phase5ExecutionStatus phase5_execution_status;
 //SDK interface return status
 map<int, string>mapErr = {
     {2,"ERR_FUCTION_CALL_ERROR"},
@@ -293,6 +381,753 @@ bool servo_j_callback(const shared_ptr<jaka_msgs::srv::ServoMove::Request> reque
     return true;
 }
 
+static int64_t host_wall_clock_now_ns()
+{
+    return chrono::duration_cast<chrono::nanoseconds>(
+        chrono::system_clock::now().time_since_epoch()).count();
+}
+
+bool get_execution_status_callback(
+    [[maybe_unused]] const shared_ptr<jaka_msgs::srv::GetExecutionStatus::Request> request,
+    shared_ptr<jaka_msgs::srv::GetExecutionStatus::Response> response)
+{
+    // P5.11 status is a strict memory snapshot. Do not add robot/JAKA SDK calls.
+    lock_guard<mutex> lock(phase5_trajectory_mutex);
+    response->valid = phase5_execution_status.valid;
+    response->ret = phase5_execution_status.ret;
+    response->message = phase5_execution_status.message;
+    response->trajectory_id = phase5_execution_status.trajectory_id;
+    response->state = phase5_execution_status.state;
+    response->active = phase5_execution_status.active;
+    response->start_time_unix_ns = phase5_execution_status.start_time_unix_ns;
+    response->first_dispatch_unix_ns = phase5_execution_status.first_dispatch_unix_ns;
+    response->first_servo_return_unix_ns = phase5_execution_status.first_servo_return_unix_ns;
+    response->last_dispatch_unix_ns = phase5_execution_status.last_dispatch_unix_ns;
+    response->last_servo_return_unix_ns = phase5_execution_status.last_servo_return_unix_ns;
+    response->terminal_time_unix_ns = phase5_execution_status.terminal_time_unix_ns;
+    response->duration_s = phase5_execution_status.duration_s;
+    response->elapsed_s = phase5_execution_status.elapsed_s;
+    response->progress_0_to_1 = phase5_execution_status.progress_0_to_1;
+    response->sample_index = phase5_execution_status.sample_index;
+    response->sample_count = phase5_execution_status.sample_count;
+    response->commanded_sample_valid = phase5_execution_status.commanded_sample_valid;
+    response->commanded_time_from_start_s =
+        phase5_execution_status.commanded_time_from_start_s;
+    response->commanded_joints_rad.assign(
+        phase5_execution_status.commanded_joints_rad.begin(),
+        phase5_execution_status.commanded_joints_rad.end());
+    response->terminal_reason = phase5_execution_status.terminal_reason;
+    response->max_abs_velocity_rad_s = phase5_execution_status.max_abs_velocity_rad_s;
+    response->rms_velocity_rad_s = phase5_execution_status.rms_velocity_rad_s;
+    response->max_abs_acceleration_rad_s2 = phase5_execution_status.max_abs_acceleration_rad_s2;
+    response->rms_acceleration_rad_s2 = phase5_execution_status.rms_acceleration_rad_s2;
+    response->max_abs_jerk_rad_s3 = phase5_execution_status.max_abs_jerk_rad_s3;
+    response->rms_jerk_rad_s3 = phase5_execution_status.rms_jerk_rad_s3;
+    response->dispatch_sample_count = phase5_execution_status.dispatch_sample_count;
+    response->mean_abs_lateness_ms = phase5_execution_status.mean_abs_lateness_ms;
+    response->p95_abs_lateness_ms = phase5_execution_status.p95_abs_lateness_ms;
+    response->p99_abs_lateness_ms = phase5_execution_status.p99_abs_lateness_ms;
+    response->max_abs_lateness_ms = phase5_execution_status.max_abs_lateness_ms;
+    response->mean_abs_jitter_ms = phase5_execution_status.mean_abs_jitter_ms;
+    response->p95_abs_jitter_ms = phase5_execution_status.p95_abs_jitter_ms;
+    response->p99_abs_jitter_ms = phase5_execution_status.p99_abs_jitter_ms;
+    response->max_abs_jitter_ms = phase5_execution_status.max_abs_jitter_ms;
+    response->missed_cycle_count = phase5_execution_status.missed_cycle_count;
+    response->servo_j_call_sample_count = phase5_execution_status.servo_j_call_sample_count;
+    response->servo_j_overrun_count = phase5_execution_status.servo_j_overrun_count;
+    response->mean_servo_j_call_duration_ms = phase5_execution_status.mean_servo_j_call_duration_ms;
+    response->p95_servo_j_call_duration_ms = phase5_execution_status.p95_servo_j_call_duration_ms;
+    response->p99_servo_j_call_duration_ms = phase5_execution_status.p99_servo_j_call_duration_ms;
+    response->max_servo_j_call_duration_ms = phase5_execution_status.max_servo_j_call_duration_ms;
+    response->servo_step_num = phase5_execution_status.servo_step_num;
+    response->command_period_ms = phase5_execution_status.command_period_ms;
+    response->telemetry_mode = phase5_execution_status.telemetry_mode;
+    response->telemetry_suppressed_poll_count =
+        phase5_execution_status.active
+        ? phase5_telemetry_suppressed_poll_count.load()
+        : phase5_execution_status.telemetry_suppressed_poll_count;
+    response->stream_guard_limit_rad_s = phase5_execution_status.stream_guard_limit_rad_s;
+    response->stream_guard_observed_max_rad_s = phase5_execution_status.stream_guard_observed_max_rad_s;
+    response->servo_filter_mode = phase5_execution_status.servo_filter_mode;
+    response->servo_filter_legacy_max_buf = phase5_execution_status.servo_filter_legacy_max_buf;
+    response->servo_filter_legacy_kp = phase5_execution_status.servo_filter_legacy_kp;
+    response->servo_filter_lpf_cutoff_hz = phase5_execution_status.servo_filter_lpf_cutoff_hz;
+    response->servo_filter_nlf_max_velocity_deg_s = phase5_execution_status.servo_filter_nlf_max_velocity_deg_s;
+    response->servo_filter_nlf_max_acceleration_deg_s2 = phase5_execution_status.servo_filter_nlf_max_acceleration_deg_s2;
+    response->servo_filter_nlf_max_jerk_deg_s3 = phase5_execution_status.servo_filter_nlf_max_jerk_deg_s3;
+    return true;
+}
+
+struct Phase5ServoFilterConfig
+{
+    uint8_t mode = 3U;
+    int32_t legacy_max_buf = kPhase5LegacyForesightMaxBuf;
+    double legacy_kp = kPhase5LegacyForesightKp;
+    double lpf_cutoff_hz = 0.0;
+    double nlf_max_velocity_deg_s = 0.0;
+    double nlf_max_acceleration_deg_s2 = 0.0;
+    double nlf_max_jerk_deg_s3 = 0.0;
+};
+
+static string phase5_filter_label(const uint8_t mode)
+{
+    if (mode == 1U) return "LPF";
+    if (mode == 2U) return "NLF";
+    if (mode == 3U) return "LEGACY_FORESIGHT";
+    return "NONE";
+}
+
+static bool finite_in_range(const double value, const double minimum, const double maximum)
+{
+    return isfinite(value) && value >= minimum && value <= maximum;
+}
+
+static bool validate_phase5_filter(
+    const Phase5ServoFilterConfig &config, string &message)
+{
+    const bool lpf_zero = config.lpf_cutoff_hz == 0.0;
+    const bool legacy_zero = config.legacy_max_buf == 0 && config.legacy_kp == 0.0;
+    const bool nlf_zero = config.nlf_max_velocity_deg_s == 0.0 &&
+        config.nlf_max_acceleration_deg_s2 == 0.0 &&
+        config.nlf_max_jerk_deg_s3 == 0.0;
+    if (config.mode == 0U && legacy_zero && lpf_zero && nlf_zero)
+    {
+        return true;
+    }
+    if (config.mode == 1U && legacy_zero &&
+        finite_in_range(config.lpf_cutoff_hz, 0.1, 100.0) && nlf_zero)
+    {
+        return true;
+    }
+    if (config.mode == 2U && legacy_zero && lpf_zero &&
+        finite_in_range(config.nlf_max_velocity_deg_s, 0.1, 2000.0) &&
+        finite_in_range(config.nlf_max_acceleration_deg_s2, 0.1, 20000.0) &&
+        finite_in_range(config.nlf_max_jerk_deg_s3, 0.1, 200000.0))
+    {
+        return true;
+    }
+    if (config.mode == 3U && config.legacy_max_buf == kPhase5LegacyForesightMaxBuf &&
+        config.legacy_kp == kPhase5LegacyForesightKp && lpf_zero && nlf_zero)
+    {
+        return true;
+    }
+    message = "servo filter mode/tuning is invalid or contains nonzero unused fields";
+    return false;
+}
+
+static int apply_phase5_filter(const Phase5ServoFilterConfig &config)
+{
+    if (config.mode == 1U)
+    {
+        return robot.servo_move_use_joint_LPF(config.lpf_cutoff_hz);
+    }
+    if (config.mode == 2U)
+    {
+        return robot.servo_move_use_joint_NLF(
+            config.nlf_max_velocity_deg_s,
+            config.nlf_max_acceleration_deg_s2,
+            config.nlf_max_jerk_deg_s3);
+    }
+    if (config.mode == 3U)
+    {
+        return robot.servo_speed_foresight(config.legacy_max_buf, config.legacy_kp);
+    }
+    return robot.servo_move_use_none_filter();
+}
+
+static int restore_phase5_legacy_foresight_baseline()
+{
+    return robot.servo_speed_foresight(
+        kPhase5LegacyForesightMaxBuf, kPhase5LegacyForesightKp);
+}
+
+static double percentile_ms(vector<double> values, const double percentile)
+{
+    if (values.empty()) return 0.0;
+    sort(values.begin(), values.end());
+    const double index = percentile * static_cast<double>(values.size() - 1U);
+    const size_t lower = static_cast<size_t>(floor(index));
+    const size_t upper = min(lower + 1U, values.size() - 1U);
+    const double alpha = index - static_cast<double>(lower);
+    return values[lower] + alpha * (values[upper] - values[lower]);
+}
+
+static void store_phase5_dispatch_timing(
+    const string &trajectory_id,
+    const vector<double> &abs_lateness_ms,
+    const vector<double> &abs_jitter_ms,
+    const vector<double> &servo_j_call_duration_ms,
+    const uint64_t missed_cycle_count,
+    const uint64_t servo_j_overrun_count)
+{
+    lock_guard<mutex> lock(phase5_trajectory_mutex);
+    if (phase5_active_trajectory_id != trajectory_id) return;
+    const auto mean = [](const vector<double> &values) {
+        return values.empty() ? 0.0 :
+            accumulate(values.begin(), values.end(), 0.0) /
+            static_cast<double>(values.size());
+    };
+    phase5_execution_status.dispatch_sample_count =
+        static_cast<uint64_t>(abs_lateness_ms.size());
+    phase5_execution_status.mean_abs_lateness_ms = mean(abs_lateness_ms);
+    phase5_execution_status.p95_abs_lateness_ms = percentile_ms(abs_lateness_ms, 0.95);
+    phase5_execution_status.p99_abs_lateness_ms = percentile_ms(abs_lateness_ms, 0.99);
+    phase5_execution_status.max_abs_lateness_ms = abs_lateness_ms.empty() ? 0.0 :
+        *max_element(abs_lateness_ms.begin(), abs_lateness_ms.end());
+    phase5_execution_status.mean_abs_jitter_ms = mean(abs_jitter_ms);
+    phase5_execution_status.p95_abs_jitter_ms = percentile_ms(abs_jitter_ms, 0.95);
+    phase5_execution_status.p99_abs_jitter_ms = percentile_ms(abs_jitter_ms, 0.99);
+    phase5_execution_status.max_abs_jitter_ms = abs_jitter_ms.empty() ? 0.0 :
+        *max_element(abs_jitter_ms.begin(), abs_jitter_ms.end());
+    phase5_execution_status.missed_cycle_count = missed_cycle_count;
+    phase5_execution_status.servo_j_call_sample_count =
+        static_cast<uint64_t>(servo_j_call_duration_ms.size());
+    phase5_execution_status.servo_j_overrun_count = servo_j_overrun_count;
+    phase5_execution_status.mean_servo_j_call_duration_ms =
+        mean(servo_j_call_duration_ms);
+    phase5_execution_status.p95_servo_j_call_duration_ms =
+        percentile_ms(servo_j_call_duration_ms, 0.95);
+    phase5_execution_status.p99_servo_j_call_duration_ms =
+        percentile_ms(servo_j_call_duration_ms, 0.99);
+    phase5_execution_status.max_servo_j_call_duration_ms =
+        servo_j_call_duration_ms.empty() ? 0.0 :
+        *max_element(servo_j_call_duration_ms.begin(), servo_j_call_duration_ms.end());
+}
+
+struct Phase5SdkCleanupResult
+{
+    int disable_ret = 0;
+    int baseline_restore_ret = 0;
+    bool baseline_restore_skipped = false;
+};
+
+static Phase5SdkCleanupResult cleanup_phase5_sdk_control_window(
+    const bool servo_mode_enabled)
+{
+    Phase5SdkCleanupResult result;
+    if (servo_mode_enabled)
+    {
+        result.disable_ret = robot.servo_move_enable(FALSE);
+    }
+    // JAKA filter selection is configured only outside servo mode. If disable
+    // failed, do not risk calling a filter-reset API while mode may remain on.
+    if (!servo_mode_enabled || result.disable_ret == 0)
+    {
+        result.baseline_restore_ret = restore_phase5_legacy_foresight_baseline();
+    }
+    else
+    {
+        result.baseline_restore_skipped = true;
+    }
+    {
+        lock_guard<mutex> telemetry_gate(phase5_telemetry_gate_mutex);
+        phase5_sdk_control_window_active.store(false);
+    }
+    return result;
+}
+
+static void finish_phase5_trajectory(
+    const string &trajectory_id, const bool servo_mode_enabled,
+    const char *terminal_status)
+{
+    const Phase5SdkCleanupResult cleanup =
+        cleanup_phase5_sdk_control_window(servo_mode_enabled);
+    if (cleanup.disable_ret != 0)
+    {
+        RCLCPP_ERROR(
+            rclcpp::get_logger("phase5_joint_trajectory"),
+            "trajectory_id=%s failed to disable servo mode, error_code=%d",
+            trajectory_id.c_str(), cleanup.disable_ret);
+    }
+    {
+        lock_guard<mutex> lock(phase5_trajectory_mutex);
+        if (phase5_active_trajectory_id == trajectory_id)
+        {
+            string reason = terminal_status;
+            if (cleanup.baseline_restore_skipped)
+            {
+                reason = "SERVO_BASELINE_RESTORE_SKIPPED_AFTER_" + reason;
+            }
+            else if (cleanup.baseline_restore_ret != 0)
+            {
+                reason = "SERVO_BASELINE_RESTORE_FAILED_AFTER_" + reason;
+            }
+            if (cleanup.disable_ret != 0)
+            {
+                reason = "SERVO_DISABLE_FAILED_AFTER_" + reason;
+            }
+            if (reason.rfind("CANCELLED", 0) == 0)
+            {
+                phase5_execution_status.state = "ABORTED";
+            }
+            else if (reason == "COMPLETED")
+            {
+                phase5_execution_status.state = "COMPLETED";
+            }
+            else
+            {
+                phase5_execution_status.state = "FAILED";
+            }
+            phase5_execution_status.terminal_reason = reason;
+            const int64_t terminal_time_unix_ns = host_wall_clock_now_ns();
+            phase5_execution_status.terminal_time_unix_ns = terminal_time_unix_ns;
+            if (phase5_execution_status.state == "COMPLETED")
+            {
+                phase5_execution_status.elapsed_s = phase5_execution_status.duration_s;
+                phase5_execution_status.progress_0_to_1 = 1.0;
+                if (phase5_execution_status.sample_count > 0U)
+                {
+                    phase5_execution_status.sample_index =
+                        static_cast<int64_t>(phase5_execution_status.sample_count - 1U);
+                }
+            }
+            else if (phase5_execution_status.start_time_unix_ns > 0)
+            {
+                const double terminal_elapsed_s = max(
+                    0.0,
+                    static_cast<double>(terminal_time_unix_ns -
+                        phase5_execution_status.start_time_unix_ns) / 1e9);
+                phase5_execution_status.elapsed_s = min(
+                    max(phase5_execution_status.elapsed_s, terminal_elapsed_s),
+                    phase5_execution_status.duration_s);
+                phase5_execution_status.progress_0_to_1 =
+                    phase5_execution_status.duration_s > 0.0
+                    ? min(max(
+                        phase5_execution_status.elapsed_s /
+                        phase5_execution_status.duration_s, 0.0), 1.0)
+                    : 0.0;
+            }
+            // Record terminal authority before clearing the active reservation.
+            phase5_execution_status.telemetry_suppressed_poll_count =
+                phase5_telemetry_suppressed_poll_count.load();
+            phase5_execution_status.active = false;
+            phase5_trajectory_active = false;
+            phase5_active_trajectory_id.clear();
+        }
+    }
+    RCLCPP_INFO(
+        rclcpp::get_logger("phase5_joint_trajectory"),
+        "trajectory_id=%s terminal_status=%s",
+        trajectory_id.c_str(), terminal_status);
+}
+
+static void execute_phase5_joint_trajectory_worker(
+    vector<jaka_driver::phase5::JointSample> resampled,
+    const int64_t start_time_unix_ns,
+    const string trajectory_id,
+    const uint8_t servo_step_num)
+{
+    // accepted=true is returned only after this driver has successfully entered
+    // servo mode. This worker owns disabling servo mode on every terminal path.
+    const bool servo_mode_enabled = true;
+    if (phase5_trajectory_cancel_requested.load())
+    {
+        finish_phase5_trajectory(trajectory_id, servo_mode_enabled, "CANCELLED_BEFORE_START");
+        return;
+    }
+
+    const auto absolute_start = chrono::system_clock::time_point(
+        chrono::nanoseconds(start_time_unix_ns));
+    while (chrono::system_clock::now() < absolute_start)
+    {
+        if (phase5_trajectory_cancel_requested.load())
+        {
+            finish_phase5_trajectory(trajectory_id, servo_mode_enabled, "CANCELLED_BEFORE_START");
+            return;
+        }
+        this_thread::sleep_for(chrono::milliseconds(2));
+    }
+
+    // The common absolute wall clock is a host-timed release authority only.
+    // Once released, steady_clock prevents wall-clock adjustments from changing
+    // the configured interpolation cadence. This is not controller hard real-time sync.
+    const auto steady_start = chrono::steady_clock::now();
+    const double command_period_ms =
+        jaka_driver::phase5::servo_command_period_s(servo_step_num) * 1000.0;
+    vector<double> abs_lateness_ms;
+    vector<double> abs_jitter_ms;
+    vector<double> servo_j_call_duration_ms;
+    abs_lateness_ms.reserve(resampled.size());
+    if (resampled.size() > 1U) abs_jitter_ms.reserve(resampled.size() - 1U);
+    servo_j_call_duration_ms.reserve(resampled.size());
+    chrono::steady_clock::time_point previous_dispatch;
+    double previous_sample_time_s = 0.0;
+    bool have_previous_dispatch = false;
+    uint64_t missed_cycle_count = 0U;
+    uint64_t servo_j_overrun_count = 0U;
+    {
+        lock_guard<mutex> lock(phase5_trajectory_mutex);
+        if (phase5_active_trajectory_id == trajectory_id)
+        {
+            phase5_execution_status.state = "RUNNING";
+            phase5_execution_status.active = true;
+        }
+    }
+    for (size_t sample_index = 0; sample_index < resampled.size(); ++sample_index)
+    {
+        const auto &sample = resampled[sample_index];
+        const auto sample_offset = chrono::nanoseconds(
+            static_cast<int64_t>(llround(sample.time_from_start_s * 1e9)));
+        this_thread::sleep_until(steady_start + sample_offset);
+        if (phase5_trajectory_cancel_requested.load())
+        {
+            store_phase5_dispatch_timing(
+                trajectory_id, abs_lateness_ms, abs_jitter_ms,
+                servo_j_call_duration_ms, missed_cycle_count, servo_j_overrun_count);
+            finish_phase5_trajectory(trajectory_id, servo_mode_enabled, "CANCELLED");
+            return;
+        }
+        const auto dispatch_time = chrono::steady_clock::now();
+        const double lateness_ms = abs(chrono::duration<double, milli>(
+            dispatch_time - (steady_start + sample_offset)).count());
+        abs_lateness_ms.push_back(lateness_ms);
+        if (lateness_ms >= command_period_ms)
+        {
+            ++missed_cycle_count;
+        }
+        if (have_previous_dispatch)
+        {
+            const double actual_interval_ms = chrono::duration<double, milli>(
+                dispatch_time - previous_dispatch).count();
+            const double scheduled_interval_ms =
+                (sample.time_from_start_s - previous_sample_time_s) * 1000.0;
+            abs_jitter_ms.push_back(abs(actual_interval_ms - scheduled_interval_ms));
+        }
+        previous_dispatch = dispatch_time;
+        previous_sample_time_s = sample.time_from_start_s;
+        have_previous_dispatch = true;
+        JointValue joint_pose;
+        for (size_t joint = 0; joint < 6U; ++joint)
+        {
+            joint_pose.jVal[joint] = sample.positions_rad[joint];
+        }
+        const int64_t dispatch_wall_unix_ns = host_wall_clock_now_ns();
+        {
+            lock_guard<mutex> lock(phase5_trajectory_mutex);
+            if (phase5_active_trajectory_id == trajectory_id)
+            {
+                if (sample_index == 0U)
+                {
+                    phase5_execution_status.first_dispatch_unix_ns =
+                        dispatch_wall_unix_ns;
+                }
+                phase5_execution_status.last_dispatch_unix_ns =
+                    dispatch_wall_unix_ns;
+            }
+        }
+        const auto servo_call_start = chrono::steady_clock::now();
+        const int servo_ret = robot.servo_j(
+            &joint_pose, MoveMode::ABS, static_cast<int>(servo_step_num));
+        const auto servo_call_end = chrono::steady_clock::now();
+        const int64_t servo_return_wall_unix_ns = host_wall_clock_now_ns();
+        {
+            lock_guard<mutex> lock(phase5_trajectory_mutex);
+            if (phase5_active_trajectory_id == trajectory_id)
+            {
+                if (sample_index == 0U)
+                {
+                    phase5_execution_status.first_servo_return_unix_ns =
+                        servo_return_wall_unix_ns;
+                }
+                phase5_execution_status.last_servo_return_unix_ns =
+                    servo_return_wall_unix_ns;
+            }
+        }
+        const double servo_call_duration_ms = chrono::duration<double, milli>(
+            servo_call_end - servo_call_start).count();
+        servo_j_call_duration_ms.push_back(servo_call_duration_ms);
+        if (servo_call_duration_ms >= command_period_ms)
+        {
+            ++servo_j_overrun_count;
+        }
+        if (servo_ret != 0)
+        {
+            robot.motion_abort();
+            store_phase5_dispatch_timing(
+                trajectory_id, abs_lateness_ms, abs_jitter_ms,
+                servo_j_call_duration_ms, missed_cycle_count, servo_j_overrun_count);
+            finish_phase5_trajectory(trajectory_id, servo_mode_enabled, "SERVO_STREAM_FAILED");
+            return;
+        }
+        {
+            lock_guard<mutex> lock(phase5_trajectory_mutex);
+            if (phase5_active_trajectory_id == trajectory_id)
+            {
+                phase5_execution_status.sample_index = static_cast<int64_t>(sample_index);
+                phase5_execution_status.commanded_sample_valid = true;
+                phase5_execution_status.commanded_time_from_start_s =
+                    sample.time_from_start_s;
+                phase5_execution_status.commanded_joints_rad = sample.positions_rad;
+                phase5_execution_status.elapsed_s = min(
+                    sample.time_from_start_s, phase5_execution_status.duration_s);
+                phase5_execution_status.progress_0_to_1 =
+                    phase5_execution_status.duration_s > 0.0
+                    ? min(max(
+                        phase5_execution_status.elapsed_s /
+                        phase5_execution_status.duration_s, 0.0), 1.0)
+                    : 0.0;
+            }
+        }
+    }
+    store_phase5_dispatch_timing(
+        trajectory_id, abs_lateness_ms, abs_jitter_ms,
+        servo_j_call_duration_ms, missed_cycle_count, servo_j_overrun_count);
+    this_thread::sleep_for(chrono::duration<double, milli>(command_period_ms));
+    finish_phase5_trajectory(trajectory_id, servo_mode_enabled, "COMPLETED");
+}
+
+bool execute_joint_trajectory_callback(
+    const shared_ptr<jaka_msgs::srv::ExecuteJointTrajectory::Request> request,
+    shared_ptr<jaka_msgs::srv::ExecuteJointTrajectory::Response> response)
+{
+    response->accepted = false;
+    response->ret = 0;
+    response->trajectory_id = request->trajectory_id;
+    if (request->trajectory_id.empty() || request->trajectory_id.size() > 128U ||
+        all_of(
+            request->trajectory_id.begin(), request->trajectory_id.end(),
+            [](const unsigned char character) {
+                return isprint(character) != 0 && isspace(character) == 0;
+            }) == false)
+    {
+        response->message =
+            "trajectory_id must contain 1..128 printable non-whitespace characters";
+        return true;
+    }
+
+    auto validation = jaka_driver::phase5::validate_trajectory(
+        request->time_from_start_s,
+        request->joint_positions_rad_flat,
+        request->start_time_unix_ns,
+        host_wall_clock_now_ns());
+    if (!validation.ok)
+    {
+        response->message = "rejected: " + validation.message;
+        return true;
+    }
+    if (request->servo_step_num < 1U || request->servo_step_num > 4U)
+    {
+        response->message = "rejected: servo_step_num must be within [1, 4]";
+        return true;
+    }
+    const double command_period_s =
+        jaka_driver::phase5::servo_command_period_s(request->servo_step_num);
+    auto generated = jaka_driver::phase5::resample_quintic_hermite(
+        validation.samples, request->servo_step_num);
+    if (!generated.ok || generated.samples.size() < 2U)
+    {
+        response->message = "rejected: " + generated.message;
+        return true;
+    }
+    Phase5ServoFilterConfig filter_config;
+    filter_config.mode = request->servo_filter_mode;
+    filter_config.legacy_max_buf = request->servo_filter_legacy_max_buf;
+    filter_config.legacy_kp = request->servo_filter_legacy_kp;
+    filter_config.lpf_cutoff_hz = request->servo_filter_lpf_cutoff_hz;
+    filter_config.nlf_max_velocity_deg_s = request->servo_filter_nlf_max_velocity_deg_s;
+    filter_config.nlf_max_acceleration_deg_s2 =
+        request->servo_filter_nlf_max_acceleration_deg_s2;
+    filter_config.nlf_max_jerk_deg_s3 = request->servo_filter_nlf_max_jerk_deg_s3;
+    string filter_validation_message;
+    if (!validate_phase5_filter(filter_config, filter_validation_message))
+    {
+        response->message = "rejected: " + filter_validation_message;
+        return true;
+    }
+    const auto stream_guard = jaka_driver::phase5::validate_stream_command_velocity(
+        generated.samples, command_period_s);
+    if (!stream_guard.ok)
+    {
+        response->message = "rejected: " + stream_guard.message;
+        return true;
+    }
+    {
+        lock_guard<mutex> lock(phase5_trajectory_mutex);
+        if (phase5_trajectory_active)
+        {
+            response->message = "rejected: another Phase-5 trajectory is active";
+            return true;
+        }
+        // Recheck the common start at reservation time to close validation races.
+        if (request->start_time_unix_ns - host_wall_clock_now_ns() <
+            jaka_driver::phase5::kMinimumStartLeadNs)
+        {
+            response->message = "rejected: common start lead expired during validation";
+            return true;
+        }
+        phase5_trajectory_cancel_requested.store(false);
+        phase5_trajectory_active = true;
+        phase5_active_trajectory_id = request->trajectory_id;
+        // Gate legacy request/response telemetry before the first Phase-5 SDK
+        // preparation call and keep it gated through terminal cleanup.
+        lock_guard<mutex> telemetry_gate(phase5_telemetry_gate_mutex);
+        phase5_telemetry_suppressed_poll_count.store(0U);
+        phase5_sdk_control_window_active.store(true);
+    }
+
+    // JAKA filter lifecycle requires filter selection outside servo mode.
+    const int filter_ret = apply_phase5_filter(filter_config);
+    if (filter_ret != 0)
+    {
+        const Phase5SdkCleanupResult cleanup =
+            cleanup_phase5_sdk_control_window(false);
+        lock_guard<mutex> lock(phase5_trajectory_mutex);
+        if (phase5_active_trajectory_id == request->trajectory_id)
+        {
+            phase5_trajectory_active = false;
+            phase5_active_trajectory_id.clear();
+        }
+        phase5_trajectory_cancel_requested.store(true);
+        response->message = cleanup.baseline_restore_ret == 0
+            ? "rejected: Phase-5 servo filter configuration failed"
+            : "rejected: Phase-5 filter failed and baseline restore also failed";
+        return true;
+    }
+
+    // STOP/cancel may arrive while filter configuration is in flight. Recheck
+    // before servo-mode entry so an operator STOP can never be followed by a
+    // fresh servo enable from this preparation attempt.
+    bool cancelled_before_servo_enable = false;
+    {
+        lock_guard<mutex> lock(phase5_trajectory_mutex);
+        cancelled_before_servo_enable =
+            phase5_trajectory_cancel_requested.load() ||
+            phase5_active_trajectory_id != request->trajectory_id;
+    }
+    if (cancelled_before_servo_enable)
+    {
+        const Phase5SdkCleanupResult cleanup =
+            cleanup_phase5_sdk_control_window(false);
+        {
+            lock_guard<mutex> lock(phase5_trajectory_mutex);
+            if (phase5_active_trajectory_id == request->trajectory_id)
+            {
+                phase5_trajectory_active = false;
+                phase5_active_trajectory_id.clear();
+            }
+        }
+        response->message = cleanup.baseline_restore_ret == 0
+            ? "rejected: STOP/cancel arrived before servo-mode entry"
+            : "rejected: STOP/cancel arrived and baseline restore failed";
+        return true;
+    }
+
+    // Do not claim acceptance until filter configuration and servo-mode entry
+    // have both succeeded. Entering servo mode alone sends no joint motion.
+    const int enable_ret = robot.servo_move_enable(TRUE);
+    if (enable_ret != 0)
+    {
+        const Phase5SdkCleanupResult cleanup =
+            cleanup_phase5_sdk_control_window(false);
+        lock_guard<mutex> lock(phase5_trajectory_mutex);
+        if (phase5_active_trajectory_id == request->trajectory_id)
+        {
+            phase5_trajectory_active = false;
+            phase5_active_trajectory_id.clear();
+        }
+        phase5_trajectory_cancel_requested.store(true);
+        response->message = cleanup.baseline_restore_ret == 0
+            ? "rejected: servo mode enable failed before acceptance"
+            : "rejected: servo enable failed and baseline restore also failed";
+        return true;
+    }
+    bool cancelled_during_preparation = false;
+    {
+        lock_guard<mutex> lock(phase5_trajectory_mutex);
+        cancelled_during_preparation =
+            phase5_trajectory_cancel_requested.load() ||
+            phase5_active_trajectory_id != request->trajectory_id;
+    }
+    if (cancelled_during_preparation)
+    {
+        const Phase5SdkCleanupResult cleanup =
+            cleanup_phase5_sdk_control_window(true);
+        lock_guard<mutex> lock(phase5_trajectory_mutex);
+        if (phase5_active_trajectory_id == request->trajectory_id)
+        {
+            phase5_trajectory_active = false;
+            phase5_active_trajectory_id.clear();
+        }
+        response->message = cleanup.disable_ret == 0 && cleanup.baseline_restore_ret == 0
+            ? "rejected: STOP/cancel arrived during servo preparation"
+            : "rejected: STOP/cancel arrived and servo cleanup failed";
+        return true;
+    }
+
+    {
+        lock_guard<mutex> lock(phase5_trajectory_mutex);
+        if (phase5_active_trajectory_id == request->trajectory_id)
+        {
+            phase5_execution_status = Phase5ExecutionStatus{};
+            phase5_execution_status.trajectory_id = request->trajectory_id;
+            phase5_execution_status.state = "ARMED";
+            phase5_execution_status.active = true;
+            phase5_execution_status.start_time_unix_ns = request->start_time_unix_ns;
+            phase5_execution_status.duration_s = validation.duration_s;
+            phase5_execution_status.sample_index = -1;
+            phase5_execution_status.sample_count =
+                static_cast<uint64_t>(generated.samples.size());
+            phase5_execution_status.servo_step_num = request->servo_step_num;
+            phase5_execution_status.command_period_ms = command_period_s * 1000.0;
+            phase5_execution_status.telemetry_mode =
+                "PHASE5_SDK_EXCLUSIVE_TELEMETRY_FROZEN";
+            phase5_execution_status.stream_guard_limit_rad_s =
+                stream_guard.limit_rad_s;
+            phase5_execution_status.stream_guard_observed_max_rad_s =
+                stream_guard.observed_max_rad_s;
+            phase5_execution_status.max_abs_velocity_rad_s =
+                generated.diagnostics.max_abs_velocity_rad_s;
+            phase5_execution_status.rms_velocity_rad_s =
+                generated.diagnostics.rms_velocity_rad_s;
+            phase5_execution_status.max_abs_acceleration_rad_s2 =
+                generated.diagnostics.max_abs_acceleration_rad_s2;
+            phase5_execution_status.rms_acceleration_rad_s2 =
+                generated.diagnostics.rms_acceleration_rad_s2;
+            phase5_execution_status.max_abs_jerk_rad_s3 =
+                generated.diagnostics.max_abs_jerk_rad_s3;
+            phase5_execution_status.rms_jerk_rad_s3 =
+                generated.diagnostics.rms_jerk_rad_s3;
+            phase5_execution_status.servo_filter_mode =
+                phase5_filter_label(filter_config.mode);
+            phase5_execution_status.servo_filter_legacy_max_buf =
+                filter_config.legacy_max_buf;
+            phase5_execution_status.servo_filter_legacy_kp =
+                filter_config.legacy_kp;
+            phase5_execution_status.servo_filter_lpf_cutoff_hz =
+                filter_config.lpf_cutoff_hz;
+            phase5_execution_status.servo_filter_nlf_max_velocity_deg_s =
+                filter_config.nlf_max_velocity_deg_s;
+            phase5_execution_status.servo_filter_nlf_max_acceleration_deg_s2 =
+                filter_config.nlf_max_acceleration_deg_s2;
+            phase5_execution_status.servo_filter_nlf_max_jerk_deg_s3 =
+                filter_config.nlf_max_jerk_deg_s3;
+        }
+    }
+
+    try
+    {
+        thread(
+            execute_phase5_joint_trajectory_worker,
+            std::move(generated.samples),
+            request->start_time_unix_ns,
+            request->trajectory_id,
+            request->servo_step_num).detach();
+    }
+    catch (const exception &error)
+    {
+        phase5_trajectory_cancel_requested.store(true);
+        finish_phase5_trajectory(
+            request->trajectory_id, true, "WORKER_LAUNCH_FAILED");
+        response->message = string("rejected: worker launch failed: ") + error.what();
+        return true;
+    }
+    response->accepted = true;
+    response->ret = 1;
+    response->message =
+        "accepted: host-timed common absolute start; no hard real-time guarantee";
+    return true;
+}
+
 bool stop_move_callback([[maybe_unused]] const shared_ptr<std_srvs::srv::Empty::Request> request,
     [[maybe_unused]] shared_ptr<std_srvs::srv::Empty::Response> response)
 {
@@ -300,6 +1135,9 @@ bool stop_move_callback([[maybe_unused]] const shared_ptr<std_srvs::srv::Empty::
     jog_count = 0;
     jog_count_temp = 0;
     jog_index_last = -1;
+    // Cancel any armed/running Phase-5 stream before preserving the legacy
+    // motion_abort path below.
+    phase5_trajectory_cancel_requested.store(true);
     int ret = robot.motion_abort();
     switch(ret)
     {
@@ -623,6 +1461,53 @@ bool get_io_callback(const shared_ptr<jaka_msgs::srv::GetIO::Request> request,
     
 }
 
+bool get_frame_state_callback(
+    [[maybe_unused]] const shared_ptr<jaka_msgs::srv::GetFrameState::Request> request,
+    shared_ptr<jaka_msgs::srv::GetFrameState::Response> response)
+{
+    int tool_id = -1;
+    int user_frame_id = -1;
+    CartesianPose tool_pose{};
+    CartesianPose user_pose{};
+    Quaternion installation_quaternion{};
+    Rpy installation_rpy{};
+
+    const int tool_id_ret = robot.get_tool_id(&tool_id);
+    const int user_id_ret = robot.get_user_frame_id(&user_frame_id);
+    const int installation_ret = robot.get_installation_angle(
+        &installation_quaternion, &installation_rpy);
+    if (tool_id_ret != 0 || user_id_ret != 0 || installation_ret != 0) {
+        response->ret = 0;
+        response->message = "read-only frame-state getter failed";
+        return true;
+    }
+
+    const int tool_ret = robot.get_tool_data(tool_id, &tool_pose);
+    const int user_ret = robot.get_user_frame_data(user_frame_id, &user_pose);
+    if (tool_ret != 0 || user_ret != 0) {
+        response->ret = 0;
+        response->message = "read-only active frame-data getter failed";
+        return true;
+    }
+
+    response->ret = 1;
+    response->message = "READ ONLY frame state";
+    response->tool_id = static_cast<int16_t>(tool_id);
+    response->tool_pose = {
+        tool_pose.tran.x, tool_pose.tran.y, tool_pose.tran.z,
+        tool_pose.rpy.rx, tool_pose.rpy.ry, tool_pose.rpy.rz};
+    response->user_frame_id = static_cast<int16_t>(user_frame_id);
+    response->user_frame_pose = {
+        user_pose.tran.x, user_pose.tran.y, user_pose.tran.z,
+        user_pose.rpy.rx, user_pose.rpy.ry, user_pose.rpy.rz};
+    response->installation_rpy = {
+        installation_rpy.rx, installation_rpy.ry, installation_rpy.rz};
+    response->installation_quaternion = {
+        installation_quaternion.s, installation_quaternion.x,
+        installation_quaternion.y, installation_quaternion.z};
+    return true;
+}
+
 bool get_fk_callback(const shared_ptr<jaka_msgs::srv::GetFK::Request> request,
     shared_ptr<jaka_msgs::srv::GetFK::Response> response)
 {
@@ -883,6 +1768,22 @@ void get_conn_scoket_state(){
 
     while (rclcpp::ok())
     {
+        // Holding this gate across the legacy chain closes the transition race:
+        // once reservation sets the atomic window flag, no later normal SDK
+        // request/response telemetry call can begin until cleanup clears it.
+        unique_lock<mutex> telemetry_gate(phase5_telemetry_gate_mutex);
+        if (phase5_sdk_control_window_active.load())
+        {
+            // The Phase-5 servo stream exclusively owns the global JAKA SDK
+            // session. Keep the last genuinely observed ROS telemetry cached
+            // and stale rather than issuing or fabricating a fresh sample.
+            // STOP remains independent of this gate and calls motion_abort
+            // directly from its ROS service callback.
+            phase5_telemetry_suppressed_poll_count.fetch_add(1U);
+            telemetry_gate.unlock();
+            rclcpp::sleep_for(chrono::milliseconds(50));
+            continue;
+        }
         // int ret = robot.get_robot_status(&robot_status);
         int ret = robot.get_joint_position(&temp_joints);
 
@@ -999,6 +1900,7 @@ void get_conn_scoket_state(){
             }
 
         }
+        telemetry_gate.unlock();
         rclcpp::sleep_for(chrono::milliseconds(50)); 
     }    
 }
@@ -1018,7 +1920,6 @@ int main(int argc, char *argv[])
     // read_only=true prevents automatic power_on/enable_robot at startup.
     bool read_only = node->declare_parameter("read_only", true);
     bool auto_enable = node->declare_parameter("auto_enable", false);
-
     // Prefix for running multiple JAKA drivers in the same ROS graph.
     // Example: /left_jaka_driver or /right_jaka_driver
     string service_prefix = node->declare_parameter("service_prefix", string("/jaka_driver"));
@@ -1072,6 +1973,10 @@ int main(int argc, char *argv[])
     auto servo_p_service = node->create_service<jaka_msgs::srv::ServoMove>((service_prefix + "/servo_p"), &servo_p_callback);
     //1.6 Joint space servo mode motion
     auto servo_j_service = node->create_service<jaka_msgs::srv::ServoMove>((service_prefix + "/servo_j"), &servo_j_callback);
+    //1.6P5 Whole absolute joint trajectory with a host-timed common start.
+    auto execute_joint_trajectory_service = node->create_service<jaka_msgs::srv::ExecuteJointTrajectory>((service_prefix + "/execute_joint_trajectory"), &execute_joint_trajectory_callback);
+    //1.6P5R Read-only in-memory trajectory status; no SDK access in callback.
+    auto get_execution_status_service = node->create_service<jaka_msgs::srv::GetExecutionStatus>((service_prefix + "/get_execution_status"), &get_execution_status_callback);
     //1.7 stop motion
     auto stop_move_service = node->create_service<std_srvs::srv::Empty>((service_prefix + "/stop_move"), &stop_move_callback);
     //2.1 Setting tcp parameters
@@ -1092,6 +1997,8 @@ int main(int argc, char *argv[])
     auto get_fk_service = node->create_service<jaka_msgs::srv::GetFK>((service_prefix + "/get_fk"), &get_fk_callback);
     //2.9 Find the inverse solution
     auto get_ik_service = node->create_service<jaka_msgs::srv::GetIK>((service_prefix + "/get_ik"), &get_ik_callback);
+    //2.10 Read active Tool/User/Mounting state only; no robot state is modified.
+    auto get_frame_state_service = node->create_service<jaka_msgs::srv::GetFrameState>((service_prefix + "/get_frame_state"), &get_frame_state_callback);
 
     // //3.1 End position pose status information reporting
     tool_position_pub = node->create_publisher<geometry_msgs::msg::TwistStamped>((service_prefix + "/tool_position"), 10);

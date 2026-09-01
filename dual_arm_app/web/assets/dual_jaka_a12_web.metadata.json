@@ -1,0 +1,11 @@
+{
+  "calibration_revision": "sha256:166665d6fc9f63aab8fab9b36b6ff92884e82874c113be1cfd9f5cd185c9fc16",
+  "calibration_state": "PHYSICAL_CALIBRATED",
+  "frames": {
+    "left_base": "left_base_link",
+    "right_base": "right_base_link",
+    "world": "world"
+  },
+  "model_file": "dual_jaka_a12_web.urdf",
+  "schema_version": 1
+}

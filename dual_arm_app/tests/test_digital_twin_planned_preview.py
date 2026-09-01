@@ -15,6 +15,7 @@ REPOSITORY_ROOT = Path(__file__).resolve().parents[2]
 APP_ROOT = REPOSITORY_ROOT / "dual_arm_app"
 PLANNED_HELPER_PATH = APP_ROOT / "web/digital_twin_planned_preview.js"
 STATUS_ADAPTER_PATH = APP_ROOT / "web/digital_twin_status_adapter.js"
+SMOOTHING_PATH = APP_ROOT / "web/digital_twin_live_smoothing.js"
 DIGITAL_TWIN_PATH = APP_ROOT / "web/digital_twin.js"
 HTML_PATH = APP_ROOT / "web/index.html"
 URDF_PATH = APP_ROOT / "web/assets/dual_jaka_a12_web.urdf"
@@ -114,6 +115,11 @@ import {{
   normalizeDualArmStatusSnapshot,
 }} from "./adapter.mjs";
 import {{
+  DEFAULT_VISUAL_SMOOTHING_TAU_MS,
+  copyDualArmPose,
+  smoothDualArmPose,
+}} from "./smoothing.mjs";
+import {{
   maxAbsoluteJointDelta,
   normalizePlannedDualArmPose,
 }} from "./planned.mjs";
@@ -200,6 +206,7 @@ console.log(JSON.stringify({{
         result = _run_node_harness(
             {
                 "adapter.mjs": self.adapter,
+                "smoothing.mjs": SMOOTHING_PATH.read_text(encoding="utf-8"),
                 "planned.mjs": self.helper,
             },
             harness,
