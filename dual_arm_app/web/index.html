@@ -1572,644 +1572,729 @@
         grid-template-columns: 1fr;
       }
     }
-    /* HMI presentation layer. Theme selection changes CSS tokens only. */
+    /* HMI V2 — Precision Industrial Control Desk. Presentation only. */
     :root {
       color-scheme: light;
-      --bg: #e9edf0;
+      --bg: #edf0f2;
       --panel: #ffffff;
-      --panel2: #f2f5f7;
-      --line: #c5cfd7;
-      --text: #22323e;
-      --muted: #536775;
-      --blue: #2165ad;
-      --green: #187348;
-      --orange: #9a520a;
-      --red: #bd3036;
-      --hmi-selection: #e8f1fc;
-      --hmi-button: #e5ebf0;
-      --hmi-button-hover: #d5e0e9;
-      --hmi-success: #176b44;
-      --hmi-success-bg: #edf7f0;
-      --hmi-warning: #865009;
-      --hmi-warning-bg: #fff5e4;
-      --hmi-error: #ac2632;
-      --hmi-error-bg: #fff0f0;
-      --hmi-lab: #236d70;
-      --hmi-lab-bg: #edf5f5;
-      --hmi-preview: #6844a0;
-      --hmi-instrument: #0b1120;
-      --hmi-instrument-text: #dce6ee;
-      --hmi-instrument-line: #344556;
-      --hmi-chart: #020617;
-      --hmi-font: Ubuntu, "Noto Sans Thai", "Leelawadee UI", Tahoma, system-ui, sans-serif;
-      --hmi-mono: ui-monospace, "Ubuntu Mono", "Noto Sans Mono", Consolas, monospace;
+      --panel2: #f2f5f6;
+      --line: #d3dade;
+      --line-strong: #95a2ab;
+      --text: #17232c;
+      --muted: #5c6c77;
+      --blue: #176b9b;
+      --blue-deep: #124f73;
+      --action: #124f73;
+      --blue-soft: #e7f1f6;
+      --green: #267452;
+      --orange: #a95a08;
+      --red: #ba2732;
+      --graphite: #1b252d;
+      --graphite-2: #25313a;
+      --graphite-3: #111a21;
+      --steel: #dce3e7;
+      --work-surface: #ffffff;
+      --work-surface-alt: #f4f6f7;
+      --toolbar: #e8edef;
+      --instrument: #0b1120;
+      --instrument-line: #43515e;
+      --instrument-text: #eaf0f4;
+      --success: #216d4a;
+      --success-bg: #e8f4ed;
+      --warning: #95500a;
+      --warning-bg: #fff1da;
+      --error: #aa2630;
+      --error-bg: #fbeaec;
+      --lab: #19777d;
+      --lab-soft: #e4f1f1;
+      --preview: #6943a4;
+      --focus: #1680b9;
+      --font-ui: Ubuntu, "Noto Sans Thai", "Segoe UI", Tahoma, system-ui, sans-serif;
+      --font-mono: "Ubuntu Mono", ui-monospace, "Noto Sans Mono", Consolas, monospace;
+      --radius: 5px;
     }
 
-    :root[data-hmi-theme="dark"],
-    .hmi-technical-workspace {
+    :root[data-hmi-theme="dark"] {
       color-scheme: dark;
-      --bg: #141c24;
-      --panel: #1c2731;
-      --panel2: #16212b;
-      --line: #3d505f;
-      --text: #e2eaf0;
-      --muted: #a4b5c2;
-      --blue: #80b9f1;
-      --hmi-selection: #213c57;
-      --hmi-button: #304251;
-      --hmi-button-hover: #3d5467;
-      --hmi-success: #82d4aa;
-      --hmi-success-bg: #18392d;
-      --hmi-warning: #f2c16b;
-      --hmi-warning-bg: #3b2c19;
-      --hmi-error: #ffabb0;
-      --hmi-error-bg: #40252b;
-      --hmi-lab: #83ccca;
-      --hmi-lab-bg: #1b3339;
-      --hmi-preview: #c4b5fd;
+      --bg: #1b1d1f;
+      --panel: #26292b;
+      --panel2: #222527;
+      --line: #454b4f;
+      --line-strong: #667681;
+      --text: #edf2f5;
+      --muted: #9eabb4;
+      --blue: #72b7da;
+      --blue-deep: #8bc8e5;
+      --action: #245c7b;
+      --blue-soft: #203743;
+      --steel: #34393d;
+      --work-surface: #26292b;
+      --work-surface-alt: #222527;
+      --toolbar: #303538;
+      --success: #82cea5;
+      --success-bg: #193529;
+      --warning: #efb568;
+      --warning-bg: #392a18;
+      --error: #ffabb1;
+      --error-bg: #41252b;
+      --lab: #77c8cb;
+      --lab-soft: #193438;
+      --preview: #c3b5fc;
+      --focus: #7cc9ee;
     }
 
+    * { scrollbar-width: thin; scrollbar-color: var(--line-strong) var(--panel2); }
+    *::-webkit-scrollbar { width: 10px; height: 10px; }
+    *::-webkit-scrollbar-track { background: var(--panel2); }
+    *::-webkit-scrollbar-thumb { background: var(--line-strong); border: 2px solid var(--panel2); }
+    *::-webkit-scrollbar-thumb:hover { background: var(--blue); }
     [hidden] { display: none !important; }
-
+    html { scroll-behavior: smooth; background: var(--bg); }
     body {
-      max-width: 1680px;
-      margin: 0 auto;
-      padding: 20px 28px 36px;
-      font-family: var(--hmi-font);
+      max-width: none;
+      margin: 0;
+      padding: 0 0 36px;
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--font-ui);
       font-size: 14px;
       line-height: 1.5;
     }
+    h1, h2, h3, h4 { color: var(--text); line-height: 1.28; }
+    h2 { font-size: 18px; }
+    h3 { font-size: 16px; }
+    h4 { font-size: 13px; }
+    .small { color: var(--muted); line-height: 1.5; }
+    :focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; }
 
-    h1, h2, h3, h4 { color: var(--text); line-height: 1.3; }
-    h2 { font-size: 19px; }
-    h4 { margin: 0 0 10px; }
-    .small { line-height: 1.55; }
-    .panel { border: 1px solid var(--line); border-radius: 5px; padding: 18px; margin-bottom: 18px; }
-    .row > *, .two-grid > *, .top-grid > * { min-width: 0; }
-    input, select, textarea, button { max-width: 100%; font-family: inherit; }
+    /* Command shell: deliberately unlike the old panel-first page. */
+    .hmi-command-header {
+      width: 100%;
+      min-height: 70px;
+      margin: 0;
+      padding: 12px clamp(14px, 2vw, 30px);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+      color: #edf3f6;
+      background: var(--graphite);
+      border-top: 4px solid #0d1419;
+      border-bottom: 1px solid #50606b;
+    }
+    .hmi-command-identity { min-width: 0; }
+    .hmi-command-header h1 {
+      margin: 0;
+      color: #f7fafb;
+      font-size: 21px;
+      font-weight: 700;
+      letter-spacing: .01em;
+    }
+    .hmi-command-header p { margin: 3px 0 0; color: #aebbc3; font-size: 12px; }
+    .hmi-theme-control {
+      display: grid;
+      grid-template-columns: auto 92px;
+      align-items: center;
+      gap: 9px;
+      color: #c4cdd2;
+      font: 500 12px/1.3 var(--font-ui);
+    }
+    .hmi-theme-control select {
+      width: 92px;
+      min-height: 34px;
+      padding: 5px 8px;
+      border: 1px solid #61717c;
+      border-radius: 4px;
+      background: #10181e;
+      color: #f2f6f8;
+    }
+    .hmi-section-nav {
+      width: 100%;
+      display: flex;
+      align-items: stretch;
+      gap: 0;
+      overflow-x: auto;
+      background: #303c45;
+      border-bottom: 2px solid #11191f;
+      scrollbar-width: thin;
+    }
+    .hmi-section-nav a {
+      flex: 0 0 auto;
+      min-height: 42px;
+      padding: 11px 18px 8px;
+      color: #dce4e8;
+      border-bottom: 3px solid transparent;
+      font: 600 13px/1.3 var(--font-ui);
+      text-decoration: none;
+    }
+    .hmi-section-nav a:hover,
+    .hmi-section-nav a:focus-visible { color: #ffffff; background: #3b4953; border-bottom-color: #76b9da; }
+    .hmi-section-nav a[data-motion="true"] { border-bottom-color: #b86917; color: #ffd79a; }
+    .hmi-technical-workspace a[data-lab="true"] { color: #a7dadd; }
+
+    body > .hmi-technical-workspace,
+    body > section[aria-labelledby="digitalTwinTitle"],
+    body > #digitalTwinExperimentPanel,
+    body > .hmi-utility-bay {
+      width: min(1800px, calc(100% - 28px));
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    /* Quiet work surfaces; spacing separates tasks from optional detail. */
+    .panel {
+      margin-bottom: 14px;
+      padding: 14px;
+      background: var(--work-surface);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: none;
+    }
+    body > section[aria-labelledby="digitalTwinTitle"] {
+      margin-top: 14px;
+      padding: 0 14px 16px;
+      background: var(--work-surface);
+      border: 1px solid var(--line);
+      border-top: 0;
+      border-radius: 0 0 3px 3px;
+    }
+    #digitalTwinTitle {
+      margin: 0 -14px 12px;
+      padding: 12px 14px;
+      color: var(--text);
+      background: var(--work-surface-alt);
+      border-bottom: 1px solid var(--line);
+      font: 600 15px/1.3 var(--font-ui);
+    }
+
+    button, input, select, textarea { max-width: 100%; font-family: var(--font-ui); }
     button {
       min-height: 40px;
-      border: 1px solid var(--line);
+      padding: 7px 11px;
+      border: 1px solid var(--line-strong);
       border-radius: 4px;
-      padding: 8px 12px;
-      background: var(--hmi-button);
+      background: var(--toolbar);
       color: var(--text);
-      font-size: 13px;
-      font-weight: 600;
-      line-height: 1.4;
+      font-size: 12px;
+      font-weight: 650;
+      line-height: 1.25;
+      cursor: pointer;
+      box-shadow: none;
     }
-    button:hover { background: var(--hmi-button-hover); }
+    button:hover { background: var(--steel); border-color: var(--blue); }
     button.active,
     .digital-twin-frame-buttons button[aria-pressed="true"],
     .digital-twin-mode-buttons button[aria-pressed="true"] {
-      border-color: var(--blue);
-      background: var(--hmi-selection);
-      color: var(--blue);
-      box-shadow: inset 0 -2px var(--blue);
-    }
-    button.green, button.orange, button.stop, .digital-twin-primary-action {
+      background: var(--action);
+      border-color: var(--action);
       color: #ffffff;
-      border-color: transparent;
-      box-shadow: none;
     }
-    button.green, .digital-twin-primary-action { background: var(--green); }
-    button.orange { background: var(--orange); }
-    button.stop { background: var(--red); }
-    button.green:hover, .digital-twin-primary-action:hover { background: var(--green); filter: brightness(0.92); }
-    button.orange:hover { background: var(--orange); filter: brightness(0.92); }
-    button.stop:hover { background: var(--red); filter: brightness(0.92); }
+    button.green:not(:disabled), .digital-twin-primary-action:not(:disabled) {
+      background: var(--action);
+      border-color: var(--action);
+      color: #ffffff;
+    }
+    button.orange:not(:disabled) { background: var(--orange); border-color: var(--orange); color: #ffffff; }
+    button.stop:not(:disabled) { background: var(--red); border-color: #8d1620; color: #ffffff; font-weight: 800; }
+    button.stop:not(:disabled):hover { background: #971d27; border-color: #76151d; }
     button:disabled, button:disabled:hover {
       background: var(--panel2);
       border-color: var(--line);
       color: var(--muted);
-      box-shadow: none;
-      filter: none;
-      opacity: 0.65;
+      opacity: .62;
       cursor: not-allowed;
     }
     input, select, textarea {
-      border: 1px solid var(--line);
+      min-height: 35px;
+      padding: 6px 8px;
+      border: 1px solid var(--line-strong);
       border-radius: 4px;
-      background: var(--panel);
+      background: var(--work-surface);
       color: var(--text);
       accent-color: var(--blue);
     }
-    input:not([type="checkbox"]):not([type="range"]), select, textarea { min-height: 38px; }
-    textarea { padding: 8px; }
-    input::placeholder, textarea::placeholder { color: var(--muted); opacity: 1; }
+    input[readonly] { background: var(--work-surface-alt); color: var(--muted); }
     input[type="number"], input.num, pre, td, dd,
-    .digital-twin-readout strong, .digital-twin-phase5-status-card strong,
-    .digital-twin-operator-status strong, .experiment-state-grid strong,
-    .experiment-exp1-status strong {
-      font-family: var(--hmi-mono);
+    .digital-twin-status, .digital-twin-readout strong,
+    .digital-twin-operator-status strong, .digital-twin-phase5-status-card strong,
+    .experiment-state-grid strong, .experiment-sample-readout strong,
+    .experiment-exp1-status strong, #programCycleProgress {
+      font-family: var(--font-mono);
       font-variant-numeric: tabular-nums;
     }
-    :focus-visible { outline: 3px solid var(--blue); outline-offset: 3px; }
-    .digital-twin-switch input:focus-visible + .digital-twin-switch-slider {
-      outline: 3px solid var(--blue);
-      outline-offset: 3px;
-    }
-    th, td { border-color: var(--line); }
-    th { background: var(--panel2); color: var(--muted); }
-    td { background: var(--panel); }
-    pre { background: var(--panel2); border-radius: 4px; }
-    .wp-row, .sequence-box, .jog-section { border-color: var(--line); border-radius: 4px; }
-    .seq-row { border-color: var(--line); flex-wrap: wrap; }
+    table { border-collapse: collapse; }
+    th, td { border-color: var(--line); border-radius: 0; }
+    th { background: var(--graphite-2); color: #dce5ea; font: 700 11px/1.25 var(--font-mono); }
+    td { background: var(--work-surface); color: var(--text); }
 
-    .hmi-command-header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 16px;
-      padding: 0 0 18px;
-      margin-bottom: 16px;
-      border-bottom: 2px solid var(--line);
-    }
-    .hmi-command-header h1 { margin: 0; font-size: 23px; font-weight: 700; letter-spacing: -0.025em; }
-    .hmi-command-header p { margin: 4px 0 0; color: var(--muted); font-size: 13px; }
-    .hmi-theme-control { display: flex; align-items: center; gap: 8px; color: var(--muted); font-size: 12px; }
-    .hmi-theme-control select { width: 86px; }
-    .hmi-technical-workspace {
-      margin-bottom: 18px;
-      border: 1px solid var(--line);
-      border-radius: 5px;
-      background: var(--bg);
-      color: var(--text);
-    }
-    .hmi-technical-workspace > summary { padding: 12px 16px; cursor: pointer; font-weight: 600; }
-    .hmi-technical-workspace[open] > summary { border-bottom: 1px solid var(--line); }
-    .hmi-technical-workspace .top-grid { padding: 12px; gap: 12px; }
-    .hmi-technical-workspace .panel { padding: 12px; margin: 0; }
-    .hmi-technical-workspace h2 { font-size: 17px; }
-    .hmi-technical-workspace h3 { font-size: 14px; }
-
-    section[aria-labelledby="digitalTwinTitle"] { border-top: 3px solid var(--blue); padding: 20px; }
-    #digitalTwinTitle { font-size: 23px; letter-spacing: -0.02em; margin-bottom: 16px; }
+    /* The 3D window geometry is intentionally preserved. */
     .digital-twin-sticky-viewer {
       position: sticky;
       top: 8px;
       z-index: 20;
       padding: 8px;
-      border-color: var(--hmi-instrument-line);
+      border: 1px solid var(--instrument-line);
       border-radius: 4px;
-      background: var(--hmi-instrument);
+      background: var(--instrument);
     }
-    .digital-twin-viewer, .experiment-viewer {
-      background: var(--hmi-instrument);
-      border-color: var(--hmi-instrument-line);
-      border-radius: 3px;
+    .digital-twin-viewer {
+      width: 100%;
+      height: clamp(340px, 54vh, 640px);
+      min-height: 320px;
+      overflow: hidden;
+      border-color: var(--instrument-line);
+      background: var(--instrument);
     }
-    .digital-twin-viewer { height: clamp(340px, 52vh, 620px); }
-    .digital-twin-status { color: var(--hmi-instrument-text); font-family: var(--hmi-mono); }
-    .digital-twin-status[data-state="ready"] { color: #6ee7b7; }
-    .digital-twin-status[data-state="error"] { color: #fca5a5; }
-    .experiment-series-canvas, .experiment-exp1-error-canvas {
-      background: var(--hmi-chart);
-      border-color: var(--hmi-instrument-line);
-      border-radius: 3px;
-      box-shadow: none;
-    }
-    .hmi-grasp-bridge {
-      display: grid;
-      grid-template-columns: auto minmax(16px, 1fr) auto minmax(16px, 1fr) auto;
+    .digital-twin-status { color: var(--instrument-text); }
+    .digital-twin-status[data-state="ready"] { color: #70deb0; }
+    .digital-twin-status[data-state="error"] { color: #ff9fa7; }
+
+
+    .digital-twin-workflow-guide {
+      margin: 16px 0;
+      display: flex;
       align-items: center;
-      gap: 12px;
-      max-width: 560px;
-      margin: 14px auto;
-      color: var(--muted);
-      font: 600 11px/1.5 var(--hmi-mono);
-      letter-spacing: 0.08em;
-      user-select: none;
-      pointer-events: none;
+      flex-wrap: wrap;
+      gap: 8px 20px;
+      padding: 10px 0;
+      border: 0;
+      border-bottom: 1px solid var(--line);
+      background: transparent;
     }
-    .hmi-grasp-bridge i { height: 8px; border: solid var(--line); border-width: 0 1px 1px; }
-    .hmi-grasp-center { padding: 3px 12px; border: 1px solid var(--line); }
-    .digital-twin-live-mirror-quick,
-    .digital-twin-angle-unit-control,
-    .digital-twin-center-path-library,
-    .digital-twin-grasp-editor-card,
-    .digital-twin-approach-pose-panel,
-    .digital-twin-phase5-progress-row {
-      background: var(--panel2);
-      border-color: var(--line);
-      border-radius: 4px;
-    }
-    .digital-twin-live-mirror-quick-copy strong,
-    .digital-twin-operator-status strong { color: var(--text); }
-    .digital-twin-live-mirror-quick-copy span, .digital-twin-meta span { color: var(--muted); }
-    .digital-twin-live-mirror-quick[data-state="on"] { border-color: var(--hmi-success); }
-    .digital-twin-live-mirror-quick[data-state="partial"],
-    .digital-twin-live-mirror-quick[data-state="error"] { border-color: var(--hmi-warning); }
-    .digital-twin-operator-alignment {
-      background: var(--hmi-warning-bg);
-      border-color: var(--hmi-warning);
-      border-radius: 4px;
-    }
-    .digital-twin-workflow-guide { gap: 0; border: 1px solid var(--line); border-radius: 4px; }
     .digital-twin-workflow-guide span {
-      text-align: left;
+      padding: 0;
       border: 0;
       border-radius: 0;
-      padding: 12px 16px;
-      background: var(--panel2);
+      background: transparent;
+      color: var(--muted);
+      font: 500 13px/1.4 var(--font-ui);
+    }
+    .digital-twin-workflow-guide span + span::before { content: "→"; margin-right: 16px; color: var(--line-strong); }
+
+    /* Three work stages, separated by space and a single rule. */
+    .digital-twin-workflow-stage {
+      position: relative;
+      margin-top: 24px;
+      padding: 18px 14px;
+      border: 0;
+      border-top: 2px solid var(--line);
+      border-radius: 0;
+      background: var(--work-surface);
+      box-shadow: none;
+      scroll-margin-top: 12px;
+    }
+    .digital-twin-stage-kicker {
+      display: block;
+      margin: 0 0 4px;
+      padding: 0;
+      background: transparent;
+      color: var(--blue-deep);
+      border: 0;
+      font: 600 11px/1.4 var(--font-ui);
+      letter-spacing: .06em;
+    }
+    .digital-twin-workflow-stage > h3 {
+      margin: 0 0 14px;
+      padding: 0;
+      background: transparent;
+      color: var(--text);
+      border: 0;
+      font-size: 21px;
+      font-weight: 500;
+    }
+    .hmi-stage-intent { display: block; margin: -9px 0 14px; color: var(--muted); font: 400 14px/1.4 var(--font-ui); }
+    .digital-twin-phase5-panel { border-top-color: var(--warning); }
+    .digital-twin-phase5-panel .digital-twin-stage-kicker { background: transparent; color: var(--warning); }
+    .digital-twin-phase5-panel > h3 { background: transparent; color: var(--text); }
+    .digital-twin-phase5-safety-notice {
+      margin: 10px 0;
+      padding: 9px 11px;
+      border: 1px solid var(--warning);
+      border-left: 5px solid var(--warning);
+      border-radius: 0;
+      background: var(--warning-bg);
       color: var(--text);
     }
-    .digital-twin-workflow-guide span + span { border-left: 1px solid var(--line); }
-    .digital-twin-workflow-stage {
-      padding: 20px;
-      margin-top: 20px;
+
+    /* Readiness stays visible; numeric diagnostics use subdued surfaces. */
+    .digital-twin-operator-status,
+    .digital-twin-meta,
+    .digital-twin-phase5-progress-row {
+      margin: 9px 0;
+      padding: 0;
       border: 1px solid var(--line);
-      border-left: 4px solid var(--blue);
-      border-radius: 4px;
-      background: var(--panel);
+      border-radius: 0;
+      background: var(--work-surface-alt);
     }
-    .digital-twin-stage-kicker { color: var(--blue); font-family: var(--hmi-mono); letter-spacing: 0.12em; }
-    .digital-twin-workflow-stage h3 { font-size: 21px; }
-    .digital-twin-phase5-panel { border-left-color: var(--hmi-warning); }
-    .digital-twin-phase5-panel .digital-twin-stage-kicker { color: var(--hmi-warning); }
-    .digital-twin-operator-status, .digital-twin-meta span,
-    .digital-twin-mirror-panel, .digital-twin-approach-waypoint-card,
-    .digital-twin-phase5-status-card { border-radius: 4px; }
-    .digital-twin-phase5-status-card strong { font-size: 13px; }
+    .digital-twin-operator-status { gap: 0; }
+    .digital-twin-operator-status > span,
+    .digital-twin-operator-status > strong,
+    .digital-twin-meta span {
+      min-height: 35px;
+      padding: 8px 10px;
+      border-right: 0;
+      display: inline-flex;
+      align-items: center;
+    }
+    .digital-twin-operator-status > :last-child { border-right: 0; }
+    .digital-twin-readout {
+      gap: 8px 16px;
+      border: 0;
+    }
+    .digital-twin-readout span {
+      min-height: 40px;
+      padding: 7px 0;
+      border: 0;
+      border-bottom: 1px solid var(--line);
+      background: transparent;
+      color: var(--muted);
+      font-size: 12px;
+    }
+    .digital-twin-readout strong { display: block; margin-top: 2px; color: var(--text); }
+    .digital-twin-locked-summary { background: var(--success-bg); border-left: 4px solid var(--success); color: var(--success); }
+    .digital-twin-phase5-blockers {
+      border-radius: 0;
+      background: var(--success-bg);
+      border: 1px solid var(--success);
+      border-left: 5px solid var(--success);
+      color: var(--success);
+    }
+    .digital-twin-phase5-blockers[data-blocked="true"] { background: var(--error-bg); border-color: var(--error); color: var(--error); }
+
+    /* Flat editors and toolbars. */
+    .digital-twin-grasp-editor-card,
+    .digital-twin-approach-pose-panel,
+    .digital-twin-mirror-panel,
+    .digital-twin-object-trajectory-panel,
+    .digital-twin-global-plan-panel,
+    .digital-twin-planned-panel,
+    .digital-twin-trajectory-panel,
+    .digital-twin-validation-panel:not(.digital-twin-phase5-panel) {
+      border: 1px solid var(--line);
+      border-radius: 4px;
+      background: var(--work-surface-alt);
+      box-shadow: none;
+    }
+    .digital-twin-grasp-editor-card h4,
+    .digital-twin-approach-pose-panel h4 {
+      margin: 0 0 10px;
+      padding: 0;
+      background: transparent;
+      border: 0;
+      color: var(--text);
+      font: 600 14px/1.4 var(--font-ui);
+    }
+    .digital-twin-center-path-library {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 8px;
+      margin: 16px 0;
+      padding: 14px;
+      border: 1px solid var(--line);
+      border-radius: 5px;
+      background: var(--blue-soft);
+    }
+    .digital-twin-center-path-library > strong {
+      flex-basis: 100%;
+      color: var(--text);
+      font: 600 15px/1.4 var(--font-ui);
+    }
+    .digital-twin-center-path-library select,
+    .digital-twin-center-path-library input { min-width: 170px; min-height: 40px; }
+    .digital-twin-center-path-library button { min-height: 40px; padding: 5px 9px; }
+    #digitalTwinCenterPathStatus { font-family: var(--font-mono); font-size: 11px; }
+
+    .digital-twin-object-waypoint-panel { max-width: 100%; overflow: visible; }
+    .hmi-waypoint-sheet { max-width: 100%; overflow-x: auto; margin: 14px 0; padding: 0 8px 8px; border: 1px solid var(--line); border-radius: 5px; }
+    .hmi-waypoint-sheet input { border-color: transparent; border-bottom-color: var(--line); border-radius: 0; background: transparent; }
+    .hmi-waypoint-sheet input:hover { border-color: var(--line-strong); }
+    .digital-twin-object-waypoint-grid,
+    .digital-twin-object-waypoint-row {
+      min-width: 1160px;
+      grid-template-columns: minmax(100px, 1.2fr) repeat(6, minmax(64px, .7fr)) repeat(2, minmax(155px, 1.4fr)) repeat(3, minmax(100px, 1fr));
+      gap: 4px;
+      margin-top: 0;
+      padding: 7px 0;
+      border-bottom: 1px solid var(--line);
+      font-size: 11px;
+    }
+    #digitalTwinObjectWaypointList { min-width: 1160px; }
+    .digital-twin-object-waypoint-grid[aria-hidden="true"] { background: var(--work-surface-alt); color: var(--muted); }
+    .digital-twin-object-waypoint-row:hover { background: var(--blue-soft); outline: 1px solid var(--blue); outline-offset: -1px; }
+    .digital-twin-waypoint-drag-handle { border-radius: 1px; }
+
+    /* Technical drawers: compact rows with explicit disclosure headers. */
     .digital-twin-operator-details {
-      background: var(--panel2);
-      border-color: var(--line);
-      border-radius: 4px;
+      margin-top: 12px;
+      border: 0;
+      border-top: 1px solid var(--line);
+      border-radius: 0;
+      background: transparent;
     }
-    .digital-twin-operator-details > summary { color: var(--muted); font-size: 13px; }
-    .digital-twin-operator-details[open] > summary { color: var(--text); border-bottom: 1px solid var(--line); margin-bottom: 12px; }
-    .digital-twin-operator-details > summary:hover { background: var(--hmi-button); }
-    .digital-twin-planned-panel, .digital-twin-trajectory-panel,
-    .digital-twin-object-trajectory-panel, .digital-twin-global-plan-panel {
-      background: var(--panel2);
-      border-color: var(--line);
-      border-radius: 4px;
+    .digital-twin-operator-details > summary {
+      min-height: 42px;
+      padding: 12px 4px;
+      background: transparent;
+      color: var(--muted);
+      border: 0;
+      font: 500 13px/1.4 var(--font-ui);
+      cursor: pointer;
     }
-    .digital-twin-warning, .digital-twin-validation-notice,
+    .digital-twin-operator-details > summary:hover { background: var(--work-surface-alt); color: var(--blue-deep); }
+    .digital-twin-operator-details[open] > summary { color: var(--blue-deep); }
+    .hmi-inline-details { margin-top: 6px; color: var(--muted); }
+    .hmi-inline-details > summary { min-height: 40px; padding: 9px 0; cursor: pointer; }
+    .digital-twin-operator-details > :not(summary) { margin-left: 10px; margin-right: 10px; }
+    .digital-twin-operator-details > :last-child { margin-bottom: 10px; }
+
+    .digital-twin-live-mirror-quick,
+    .digital-twin-angle-unit-control {
+      border-radius: 1px;
+      border-color: var(--line);
+      background: var(--toolbar);
+    }
+    .digital-twin-live-mirror-quick-copy strong { color: var(--text); }
+    .digital-twin-live-mirror-quick-copy span { color: var(--muted); }
+    .digital-twin-live-mirror-quick[data-state="on"] { border-left: 5px solid var(--success); }
+    .digital-twin-live-mirror-quick[data-state="partial"],
+    .digital-twin-live-mirror-quick[data-state="error"] { border-left: 5px solid var(--warning); }
+    .digital-twin-operator-alignment { border-radius: 0; background: var(--warning-bg); border-color: var(--warning); }
+
+    .digital-twin-phase5-status-grid { display: flex; flex-wrap: wrap; gap: 6px 20px; margin: 12px 0; }
+    .digital-twin-phase5-status-card { flex: 1 1 170px; padding: 5px 0; gap: 3px; border: 0; border-radius: 0; background: transparent; }
+    .digital-twin-phase5-status-card strong { font-size: 13px; }
+    .digital-twin-phase5-status-card-wide { grid-column: auto; }
+
+    /* Real-motion desk. STOP visually outranks all motion submission. */
+    .digital-twin-phase5-actions {
+      gap: 7px;
+      padding: 10px 0 0;
+      border-top: 1px solid var(--line);
+    }
+    .digital-twin-phase5-actions button { min-height: 48px; flex: 1 1 160px; }
+    #digitalTwinPhase5MoveToInitial:not(:disabled),
+    #digitalTwinPhase5Prepare:not(:disabled) {
+      background: var(--orange);
+      border-color: #7f4104;
+      color: #ffffff;
+      font-weight: 800;
+    }
+    #digitalTwinPhase5MoveToInitial:disabled,
+    #digitalTwinPhase5Prepare:disabled { border-style: dashed; border-color: var(--warning); }
+    #digitalTwinPhase5Stop {
+      min-height: 50px;
+      border: 2px solid #79131b;
+      font-weight: 900;
+      letter-spacing: .02em;
+    }
+    #digitalTwinPhase5Stop:not(:disabled) { box-shadow: inset 0 0 0 1px #ff7a83; }
+
+    /* Always-dark service console. */
+    .hmi-technical-workspace {
+      margin-top: 14px;
+      margin-bottom: 14px;
+      color-scheme: dark;
+      --panel: #172129;
+      --panel2: #10181e;
+      --line: #40515d;
+      --line-strong: #667985;
+      --text: #eaf0f3;
+      --muted: #99a9b3;
+      --toolbar: #24323c;
+      --work-surface: #172129;
+      --work-surface-alt: #10181e;
+      --blue: #72b9dc;
+      --blue-deep: #17658d;
+      border: 1px solid #4a5d69;
+      border-radius: 1px;
+      background: #10181e;
+    }
+    .hmi-technical-workspace > summary {
+      min-height: 44px;
+      padding: 12px 13px;
+      background: var(--bg);
+      color: var(--muted);
+      font: 500 13px/1.4 var(--font-ui);
+      cursor: pointer;
+    }
+    .hmi-technical-workspace:not([open]) { --muted: #5c6c77; }
+    :root[data-hmi-theme="dark"] .hmi-technical-workspace:not([open]) { --muted: #aab3ba; }
+    .hmi-technical-workspace[open] > summary { background: #202d36; color: #e9eff2; border-bottom: 1px solid #4a5d69; }
+    .hmi-technical-workspace .top-grid { padding: 0; gap: 0; grid-template-columns: minmax(0, 1.12fr) minmax(0, .88fr); }
+    .hmi-technical-workspace .panel {
+      margin: 0;
+      padding: 12px;
+      border: 0;
+      border-right: 1px solid #40515d;
+      border-radius: 0;
+      background: #172129;
+      color: #eaf0f3;
+    }
+    .hmi-technical-workspace .panel:last-child { border-right: 0; }
+    .hmi-technical-workspace h2 {
+      margin: -12px -12px 11px;
+      padding: 8px 11px;
+      background: #0d151a;
+      border-bottom: 1px solid #40515d;
+      color: #dce7ec;
+      font: 800 11px/1.3 var(--font-mono);
+      letter-spacing: .05em;
+      text-transform: uppercase;
+    }
+    .hmi-technical-workspace h3 { color: #b9cbd4; font: 700 11px/1.3 var(--font-mono); text-transform: uppercase; }
+    .hmi-technical-workspace input,
+    .hmi-technical-workspace select { background: #0e171d; border-color: #536571; color: #eef3f5; }
+    .hmi-technical-workspace button { min-height: 34px; background: #293943; border-color: #596b76; color: #edf2f4; font-size: 11px; }
+    .hmi-technical-workspace button:hover { background: #354956; border-color: #72b9dc; }
+    .hmi-technical-workspace button.stop:not(:disabled) { background: #a8202a; border-color: #6e1017; }
+    .hmi-technical-workspace .two-grid,
+    .hmi-technical-workspace .jog-grid { grid-template-columns: repeat(2, minmax(0,1fr)); }
+    .hmi-technical-workspace .direct-inputs { grid-template-columns: repeat(3, minmax(0,1fr)); }
+    .hmi-technical-workspace table { table-layout: fixed; font-family: var(--font-mono); font-size: 11px; }
+    .hmi-technical-workspace th { background: #0d151a; }
+    .hmi-technical-workspace td { background: #111c23; color: #e9eff2; }
+    .hmi-technical-workspace .jog-section { background: #10181e; border-radius: 1px; }
+
+    /* Experiment = analysis lab, not another operator station. */
+    #digitalTwinExperimentPanel {
+      margin-top: 14px;
+      padding: 0 13px 13px;
+      background: var(--work-surface);
+      border: 1px solid var(--line);
+      border-left: 3px solid var(--lab);
+      border-radius: 1px;
+    }
+    #digitalTwinExperimentPanel > summary {
+      margin: 0 -13px;
+      min-height: 44px;
+      padding: 12px 13px;
+      background: var(--work-surface-alt);
+      color: var(--lab);
+      border: 0;
+      font: 500 13px/1.4 var(--font-ui);
+      cursor: pointer;
+    }
+    #digitalTwinExperimentPanel[open] > summary { margin-bottom: 12px; }
+    .experiment-notice { border-radius: 0; border-color: var(--lab); background: var(--lab-soft); color: var(--lab); }
+    .experiment-exp1 { border-radius: 1px; border-color: var(--line); background: var(--work-surface-alt); }
+    .experiment-exp1-card,
+    .experiment-exp1-status span,
+    .experiment-state-grid span,
+    .experiment-sample-readout span,
+    .experiment-sample-controls,
+    .experiment-series-panel,
+    .experiment-exp1-table-wrap,
+    .experiment-exp1-chart { border-radius: 1px; border-color: var(--line); box-shadow: none; background: var(--work-surface); }
+    .experiment-viewer, .experiment-series-canvas, .experiment-exp1-error-canvas { background: #020617; border-color: var(--instrument-line); border-radius: 1px; }
+    .experiment-legend { padding: 8px; background: #0b1120; color: #dfe8ed; border-radius: 0; }
+
+    /* Utility Bay: visibly subordinate to the central coordinated workflow. */
+    .hmi-utility-bay {
+      margin-top: 14px;
+      padding: 0 12px 12px;
+      border: 1px solid var(--line);
+      border-radius: 5px;
+      background: var(--work-surface-alt);
+    }
+    .hmi-utility-bay-header {
+      margin: 0 -12px;
+      min-height: 44px;
+      padding: 12px;
+      background: var(--work-surface-alt);
+      color: var(--muted);
+      font: 500 13px/1.4 var(--font-ui);
+      cursor: pointer;
+    }
+    .hmi-utility-bay[open] > summary { margin-bottom: 12px; }
+    .hmi-utility-bay:not([open]), #digitalTwinExperimentPanel:not([open]) { padding-bottom: 0; }
+    .hmi-utility-bay > .panel,
+    .hmi-utility-bay > .two-grid .panel { margin-bottom: 10px; background: var(--work-surface); }
+    .hmi-utility-bay h2 {
+      margin: -14px -14px 10px;
+      padding: 8px 11px;
+      background: var(--toolbar);
+      border-bottom: 1px solid var(--line);
+      color: var(--text);
+      font: 800 11px/1.3 var(--font-mono);
+      letter-spacing: .04em;
+      text-transform: uppercase;
+    }
+    .sequence-box, .wp-row, .jog-section { border-radius: 1px; border-color: var(--line); background: var(--work-surface-alt); }
+    .seq-row { border-color: var(--line); }
+    pre { border-radius: 1px; border-color: var(--line); background: #111a21; color: #e8eff2; }
+
+    .digital-twin-warning,
+    .digital-twin-validation-notice,
     .digital-twin-object-preview-notice,
-    .digital-twin-operator-alignment strong[data-state="warning"],
-    .digital-twin-operator-calibration-warning { color: var(--hmi-warning); }
-    .digital-twin-phase5-safety-notice { background: var(--hmi-warning-bg); border-color: var(--hmi-warning); border-radius: 3px; }
+    .digital-twin-operator-calibration-warning { color: var(--warning); }
     .digital-twin-object-trajectory-notice,
-    .digital-twin-operator-alignment strong[data-state="ok"] { color: var(--hmi-success); }
-    .digital-twin-locked-summary, .digital-twin-phase5-blockers {
-      color: var(--hmi-success);
-      background: var(--hmi-success-bg);
-      border-color: var(--hmi-success);
-      border-radius: 4px;
-    }
-    .digital-twin-phase5-blockers[data-blocked="true"] {
-      color: var(--hmi-error);
-      background: var(--hmi-error-bg);
-      border-color: var(--hmi-error);
-    }
+    .digital-twin-operator-alignment strong[data-state="ok"] { color: var(--success); }
     .digital-twin-concise-failure:not(:empty):not([data-empty="true"]),
     #digitalTwinMirrorError:not(:empty), #digitalTwinLastFetchError:not(:empty),
     #digitalTwinPlannedError:not(:empty), #digitalTwinTrajectoryError:not(:empty),
     #digitalTwinValidationError:not(:empty), #digitalTwinObjectPreviewError:not(:empty),
     #digitalTwinObjectTrajectoryError:not(:empty), #digitalTwinObjectWaypointError,
     #digitalTwinGlobalPlanError, .digital-twin-phase3-warning,
-    #experimentMessage[data-error="true"] { color: var(--hmi-error); }
-    #digitalTwinCenterPathStatus, .digital-twin-planned-notice { color: var(--blue); }
-    .digital-twin-trajectory-notice { color: var(--hmi-preview); }
-    .digital-twin-phase5-actions { gap: 10px; padding-top: 12px; }
-    .digital-twin-phase5-actions button { min-height: 46px; }
-
-    /* Experimental results stay a separate workspace; trace pigments stay on dark instruments. */
-    .experiment-panel { background: var(--panel); border: 1px solid var(--line); border-left: 4px solid var(--hmi-lab); }
-    .experiment-panel > summary { font-size: 17px; color: var(--hmi-lab); }
-    .experiment-panel[open] > summary { border-bottom: 1px solid var(--line); padding-bottom: 14px; }
-    .experiment-notice { color: var(--hmi-lab); background: var(--hmi-lab-bg); border-color: var(--hmi-lab); }
-    .experiment-exp1 { background: var(--panel2); border-color: var(--line); border-radius: 4px; padding: 16px; }
-    .experiment-exp1-header h3, .experiment-exp1-card h4 { color: var(--hmi-lab); }
-    .experiment-exp1-card, .experiment-exp1-status span,
-    .experiment-state-grid span, .experiment-sample-readout span,
-    .experiment-sample-controls, .experiment-series-panel,
-    .experiment-exp1-table-wrap, .experiment-exp1-chart,
-    .experiment-series-panel .experiment-view-controls {
-      background: var(--panel);
-      border-color: var(--line);
-      border-radius: 4px;
-      box-shadow: none;
-    }
-    .experiment-exp1-status span, .experiment-exp1-card dt,
-    .experiment-sample-readout span { color: var(--muted); }
-    .experiment-exp1-status strong, .experiment-exp1-card dd,
-    .experiment-sample-readout strong, .experiment-exp1-chart h4,
-    .experiment-sample-controls > label,
-    .experiment-series-panel .experiment-view-controls label { color: var(--text); }
-    .experiment-legend { padding: 10px; background: var(--hmi-instrument); color: var(--hmi-instrument-text); border-radius: 3px; }
-    .experiment-exp1-table th, .experiment-exp1-table td { border-color: var(--line); }
-    .digital-twin-object-waypoint-grid, .digital-twin-object-waypoint-row {
-      grid-template-columns: minmax(90px, 1.2fr) repeat(6, minmax(54px, 0.7fr)) repeat(2, minmax(130px, 1.3fr)) repeat(3, minmax(80px, 1fr));
-      font-size: 12px;
-    }
-    .digital-twin-object-waypoint-grid > *, .digital-twin-object-waypoint-row > * { min-width: 0; }
-    .digital-twin-object-waypoint-grid button, .digital-twin-object-waypoint-row button { min-width: 0; padding: 8px 6px; }
-    .digital-twin-angle-unit-control { flex-wrap: wrap; }
-    .digital-twin-readout, .digital-twin-meta { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+    #experimentMessage[data-error="true"] { color: var(--error); }
+    #digitalTwinCenterPathStatus, .digital-twin-planned-notice { color: var(--blue-deep); }
+    .digital-twin-trajectory-notice { color: var(--preview); }
 
     @media (max-width: 1200px) {
-      body { padding: 18px; }
-      .digital-twin-object-waypoint-grid, .digital-twin-object-waypoint-row { grid-template-columns: repeat(3, minmax(0, 1fr)); }
-      .digital-twin-object-waypoint-row { padding: 12px 0; border-bottom: 1px solid var(--line); }
-      .digital-twin-approach-pose-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
-      .digital-twin-object-pose-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
-      .digital-twin-readout, .digital-twin-meta { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      body > .hmi-technical-workspace,
+      body > section[aria-labelledby="digitalTwinTitle"],
+      body > #digitalTwinExperimentPanel,
+      body > .hmi-utility-bay { width: calc(100% - 20px); }
+      .hmi-technical-workspace .top-grid { grid-template-columns: 1fr; }
+      .hmi-technical-workspace .panel { border-right: 0; border-bottom: 1px solid #40515d; }
+      .digital-twin-readout, .digital-twin-meta { grid-template-columns: repeat(2, minmax(0,1fr)); }
+      .experiment-inspection-grid, .experiment-exp1-detail-grid { grid-template-columns: 1fr; }
     }
     @media (max-width: 900px) {
-      .hmi-command-header { align-items: flex-start; }
       .digital-twin-grasp-editors, .digital-twin-approach-pose-columns { grid-template-columns: 1fr; }
-      .digital-twin-workflow-guide { grid-template-columns: 1fr; }
-      .digital-twin-workflow-guide span + span { border-left: 0; border-top: 1px solid var(--line); }
-      .digital-twin-phase5-diagnostics .digital-twin-readout { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .hmi-technical-workspace .two-grid, .hmi-technical-workspace .jog-grid { grid-template-columns: 1fr; }
+      .experiment-exp1-cards { grid-template-columns: 1fr; }
     }
     @media (max-width: 700px) {
-      body { padding: 12px; }
-      .hmi-command-header { flex-wrap: wrap; gap: 12px; }
-      .hmi-command-header h1 { font-size: 21px; }
-      .panel, section[aria-labelledby="digitalTwinTitle"] { padding: 12px; }
-      .digital-twin-workflow-stage { padding: 14px 10px; }
-      .digital-twin-viewer { height: clamp(260px, 42vh, 380px); }
-      .digital-twin-sticky-viewer { padding: 5px; }
-      .digital-twin-live-mirror-quick { gap: 10px; padding: 10px; }
-      .digital-twin-readout, .digital-twin-meta,
-      .digital-twin-phase5-diagnostics .digital-twin-readout { grid-template-columns: 1fr; }
-      .digital-twin-object-waypoint-grid, .digital-twin-object-waypoint-row,
-      .digital-twin-object-pose-grid, .digital-twin-grasp-editor-card .digital-twin-object-pose-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-      .digital-twin-approach-waypoint-header { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-      input.wide { min-width: 0; width: 100%; }
-      .experiment-exp1, .experiment-sample-controls, .experiment-series-panel, .experiment-exp1-chart { padding: 10px; }
-      .experiment-library-controls select { min-width: 0; }
-      .experiment-exp1-card dl { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
-      .row, .digital-twin-operator-status, .digital-twin-operator-alignment,
-      .digital-twin-center-path-library, .digital-twin-warning, .experiment-notice { overflow-wrap: anywhere; }
-    }
-    @media (max-width: 420px) {
-      body { padding: 8px; }
-      .hmi-technical-workspace .top-grid, .hmi-technical-workspace .panel { padding: 8px; }
-      .hmi-grasp-bridge { gap: 6px; font-size: 10px; letter-spacing: 0.02em; }
-      .hmi-grasp-center { padding: 3px 6px; }
-      .digital-twin-operator-details > :not(summary) { margin-left: 8px; margin-right: 8px; }
-      .digital-twin-phase5-blockers { flex-wrap: wrap; }
-      .digital-twin-approach-pose-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-    }
-    @media (prefers-reduced-motion: reduce) {
-      *, *::before, *::after { animation: none !important; transition: none !important; scroll-behavior: auto !important; }
-    }
-    /* Final HMI overrides: operator surfaces, instrument framing, and compact controls. */
-    :root {
-      color-scheme: light;
-      --bg: #edf1f3;
-      --panel: #ffffff;
-      --panel2: #f5f7f8;
-      --line: #c7d0d7;
-      --text: #18252f;
-      --muted: #657887;
-      --blue: #176895;
-      --green: #187348;
-      --orange: #99500b;
-      --red: #b92530;
-      --hmi-selection: #e8f2f8;
-      --hmi-button: #e9eef1;
-      --hmi-button-hover: #dce5eb;
-      --hmi-warning: #92500b;
-      --hmi-warning-bg: #fff3df;
-      --hmi-instrument: #101b26;
-      --hmi-instrument-line: #43515e;
-      --hmi-instrument-text: #edf2f5;
-      --hmi-font: Ubuntu, "Noto Sans Thai", "Segoe UI", sans-serif;
-      --hmi-mono: "Ubuntu Mono", ui-monospace, monospace;
-      --hmi-motion: #99500b;
-      --hmi-motion-hover: #7c4008;
-      --hmi-stop-hover: #971c25;
-    }
-
-    :root[data-hmi-theme="dark"] {
-      color-scheme: dark;
-      --bg: #151c22;
-      --panel: #202a33;
-      --panel2: #16212a;
-      --line: #43515e;
-      --text: #edf2f5;
-      --muted: #9baab5;
-      --blue: #70b7de;
-      --hmi-selection: #203e50;
-      --hmi-button: #2c3b47;
-      --hmi-button-hover: #394d5b;
-      --hmi-warning: #f0b669;
-      --hmi-warning-bg: #362819;
-    }
-
-    body { max-width: 1800px; line-height: 1.55; }
-    h1, h2, h3, h4 { line-height: 1.4; }
-    button, input, select, textarea { font-family: var(--hmi-font); }
-    button { white-space: normal; overflow-wrap: anywhere; }
-    button:hover { filter: none; }
-    button.green:hover, button.orange:hover, button.stop:hover,
-    .digital-twin-primary-action:hover { filter: none; }
-    input[type="number"], input.num, pre, td, dd,
-    .digital-twin-status, .digital-twin-stage-kicker,
-    .digital-twin-readout strong, .digital-twin-operator-status strong,
-    .digital-twin-phase5-status-card strong, .digital-twin-phase5-progress-row strong,
-    .experiment-state-grid strong, .experiment-sample-readout strong,
-    .experiment-exp1-status strong, .wp-time, #programCycleProgress {
-      font-family: var(--hmi-mono);
-      font-variant-numeric: tabular-nums;
-    }
-    input[readonly] { background: var(--panel2); }
-    input:disabled, select:disabled, textarea:disabled,
-    button:disabled, button:disabled:hover {
-      background: var(--panel2);
-      color: var(--muted);
-      border-color: var(--line);
-      opacity: 0.7;
-      cursor: not-allowed;
-      filter: none;
-      box-shadow: none;
-    }
-    [hidden] { display: none !important; }
-    :focus-visible { outline: 3px solid var(--blue); outline-offset: 3px; }
-    .digital-twin-switch input:focus-visible + .digital-twin-switch-slider {
-      outline: 3px solid var(--blue);
-      outline-offset: 3px;
-    }
-    summary { line-height: 1.55; overflow-wrap: anywhere; }
-    summary::marker { color: var(--muted); }
-    .hmi-command-header { border-bottom-width: 1px; }
-    .hmi-command-header h1 { font-size: 22px; letter-spacing: 0; }
-    .hmi-theme-control { flex-wrap: wrap; }
-
-    /* A local dark palette keeps manual controls independent of Appearance. */
-    .hmi-technical-workspace {
-      color-scheme: dark;
-      --bg: #101b26;
-      --panel: #202a33;
-      --panel2: #16212a;
-      --line: #43515e;
-      --text: #edf2f5;
-      --muted: #9baab5;
-      --blue: #70b7de;
-      --green: #187348;
-      --orange: #99500b;
-      --red: #b92530;
-      --hmi-selection: #203e50;
-      --hmi-button: #2c3b47;
-      --hmi-button-hover: #394d5b;
-      --hmi-warning: #f0b669;
-      --hmi-warning-bg: #362819;
-      background: var(--bg);
-      border-color: var(--line);
-      color: var(--text);
-    }
-    .hmi-technical-workspace > summary { font-size: 13px; }
-    .hmi-technical-workspace .panel { container-type: inline-size; }
-    .hmi-technical-workspace .top-grid { grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr); }
-    .hmi-technical-workspace .two-grid,
-    .hmi-technical-workspace .jog-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-    .hmi-technical-workspace .direct-inputs { grid-template-columns: repeat(3, minmax(0, 1fr)); }
-    .hmi-technical-workspace .direct-inputs input { width: 100%; min-width: 0; padding: 7px 4px; }
-    .hmi-technical-workspace .direct-inputs > *,
-    .hmi-technical-workspace .jog-grid > * { min-width: 0; }
-    .hmi-technical-workspace button { min-width: 0; min-height: 36px; padding: 7px 9px; }
-    .hmi-technical-workspace button.stop { min-height: 42px; }
-    .hmi-technical-workspace .jog-row { grid-template-columns: 40px minmax(0, 1fr) minmax(0, 1fr); }
-    .hmi-technical-workspace table { table-layout: fixed; font-size: 12px; }
-    .hmi-technical-workspace th, .hmi-technical-workspace td { padding: 6px 3px; overflow-wrap: anywhere; }
-    @container (max-width: 540px) {
-      .hmi-technical-workspace .two-grid,
-      .hmi-technical-workspace .jog-grid { grid-template-columns: minmax(0, 1fr); }
-    }
-
-    section[aria-labelledby="digitalTwinTitle"] { border-top: 3px solid var(--hmi-instrument-line); }
-    #digitalTwinTitle { font-size: 22px; letter-spacing: 0; }
-    .digital-twin-sticky-viewer { background: var(--hmi-instrument); border-radius: 4px; }
-    .digital-twin-viewer { background: var(--hmi-instrument); height: clamp(340px, 54vh, 640px); }
-    .digital-twin-status { padding: 3px 5px; overflow-wrap: anywhere; }
-    .hmi-grasp-bridge { max-width: 660px; gap: 14px; margin: 16px auto; color: var(--muted); }
-    .hmi-grasp-bridge i { height: 10px; border-color: var(--line); }
-    .hmi-grasp-center { background: var(--panel2); border-radius: 2px; letter-spacing: 0.12em; }
-    .digital-twin-workflow-guide span { color: var(--blue); }
-    .digital-twin-workflow-guide span:last-child { color: var(--hmi-warning); background: var(--hmi-warning-bg); }
-    .digital-twin-workflow-stage { border-color: var(--line); border-left-color: var(--blue); background: var(--panel); }
-    .digital-twin-workflow-stage h3 { font-size: 20px; }
-    .digital-twin-primary-action:not(:disabled),
-    .digital-twin-primary-action:not(:disabled):hover {
-      background: var(--hmi-selection);
-      border-color: var(--blue);
-      color: var(--blue);
-      box-shadow: none;
-    }
-    .digital-twin-primary-action:not(:disabled):hover { background: var(--hmi-button-hover); }
-    .digital-twin-object-preview-panel, .digital-twin-object-waypoint-panel,
-    .digital-twin-validation-panel:not(.digital-twin-phase5-panel) {
-      border-color: var(--line);
-      background: var(--panel2);
-      border-radius: 4px;
-    }
-    .digital-twin-object-relative-poses { border-top-color: var(--line); }
-    .digital-twin-operator-details { border-color: var(--line); background: var(--panel2); }
-    .digital-twin-operator-details:not([open]) { padding: 0; }
-    .digital-twin-operator-details > summary { font-weight: 600; }
-    .digital-twin-trajectory-scrubber-time { background: var(--panel2); color: var(--hmi-preview); font-family: var(--hmi-mono); }
-
-    /* Motion emphasis is tied to the existing motion actions, not generic buttons. */
-    .digital-twin-phase5-panel { border-color: var(--line); border-left-color: var(--hmi-warning); }
-    .digital-twin-phase5-panel > h3,
-    .digital-twin-phase5-panel > .small { color: var(--hmi-warning); }
-    .digital-twin-phase5-actions { border-top: 1px solid var(--line); padding-top: 12px; }
-    #digitalTwinPhase5Prepare:not(:disabled),
-    #digitalTwinPhase5MoveToInitial:not(:disabled) {
-      background: var(--hmi-motion);
-      border-color: var(--hmi-motion);
-      color: #ffffff;
-      box-shadow: none;
-    }
-    #digitalTwinPhase5Prepare:not(:disabled):hover,
-    #digitalTwinPhase5MoveToInitial:not(:disabled):hover { background: var(--hmi-motion-hover); }
-    button.stop:not(:disabled) { background: var(--red); color: #ffffff; }
-    button.stop:not(:disabled):hover { background: var(--hmi-stop-hover); }
-    #digitalTwinPhase5Stop {
-      min-height: 50px;
-      border: 2px solid var(--red);
-      font-weight: 800;
-    }
-    #digitalTwinPhase5Stop:not(:disabled) { outline: 1px solid var(--red); outline-offset: 2px; }
-    #digitalTwinPhase5Stop:focus-visible { outline: 3px solid var(--blue); outline-offset: 4px; }
-    .digital-twin-phase5-blockers:not([data-blocked="false"]):not([data-blocked="true"]) {
-      background: var(--panel2); color: var(--text); border-color: var(--line);
-    }
-    .digital-twin-phase5-progress { border-radius: 3px; accent-color: var(--blue); }
-    .digital-twin-phase5-progress::-webkit-progress-bar { background: var(--panel2); border-radius: 3px; }
-    .digital-twin-phase5-progress::-webkit-progress-value { background: var(--blue); border-radius: 3px; }
-    .digital-twin-phase5-progress::-moz-progress-bar { background: var(--blue); border-radius: 3px; }
-
-    /* Preserve chart pigments and their existing dark canvas backgrounds. */
-    .experiment-panel { border-left-color: var(--hmi-instrument-line); border-radius: 4px; }
-    .experiment-panel > summary { color: var(--text); font-size: 16px; font-weight: 600; }
-    .experiment-viewer { background: #0b1120; }
-    .experiment-legend { background: #0b1120; }
-    .experiment-series-canvas, .experiment-exp1-error-canvas { background: #020617; }
-    .experiment-notice { border-radius: 3px; }
-    .experiment-exp1-cards { grid-template-columns: repeat(3, minmax(0, 1fr)); }
-    .experiment-inspection-grid { grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.65fr); }
-    .experiment-exp1-detail-grid { grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr); }
-
-    /* One scrolling coordinate sheet keeps every original column label aligned. */
-    .digital-twin-object-waypoint-panel { min-width: 0; max-width: 100%; overflow-x: auto; }
-    .digital-twin-object-waypoint-grid, .digital-twin-object-waypoint-row {
-      grid-template-columns: minmax(100px, 1.2fr) repeat(6, minmax(64px, 0.7fr)) repeat(2, minmax(155px, 1.4fr)) repeat(3, minmax(100px, 1fr));
-      min-width: 1160px;
-      padding: 8px 0;
-    }
-    #digitalTwinObjectWaypointList { min-width: 1160px; }
-    .digital-twin-object-waypoint-grid[aria-hidden="true"] { border-bottom: 1px solid var(--line); color: var(--muted); }
-    .digital-twin-object-waypoint-row { border-bottom: 1px solid var(--line); }
-    .digital-twin-object-waypoint-row:hover { outline-color: var(--blue); background: var(--hmi-selection); }
-    .digital-twin-waypoint-profile-control { grid-template-columns: minmax(0, 1fr) 52px auto; }
-    .digital-twin-waypoint-profile-control > * { min-width: 0; }
-    .digital-twin-approach-pose-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
-    .wp-row > *, .seq-row > *, .experiment-exp1-cards > *,
-    .experiment-exp1-detail-grid > *, .digital-twin-phase5-progress-row > * { min-width: 0; }
-    .wp-name, .seq-row, .experiment-notice { overflow-wrap: anywhere; }
-    body > .panel:not(section), body > .two-grid > .panel { background: var(--panel2); }
-    body > .panel:not(section) h2, body > .two-grid h2 { font-size: 17px; }
-    pre { max-width: 100%; tab-size: 2; }
-
-    @media (max-width: 1250px) {
-      .experiment-inspection-grid, .experiment-exp1-detail-grid { grid-template-columns: minmax(0, 1fr); }
-    }
-    @media (max-width: 1200px) {
-      .hmi-technical-workspace .top-grid { grid-template-columns: minmax(0, 1fr); }
-    }
-    @media (max-width: 900px) {
-      .experiment-exp1-cards { grid-template-columns: minmax(0, 1fr); }
-    }
-    @media (max-width: 700px) {
-      body { padding: 10px; }
-      .hmi-command-header h1, #digitalTwinTitle { font-size: 20px; }
-      .hmi-technical-workspace .two-grid,
-      .hmi-technical-workspace .jog-grid { grid-template-columns: minmax(0, 1fr); }
+      .hmi-command-header { min-height: 0; padding: 10px 12px; flex-wrap: wrap; }
+      .hmi-command-header h1 { font-size: 18px; }
+      .hmi-theme-control { margin-left: auto; }
+      .hmi-section-nav { flex-wrap: wrap; }
+      .hmi-section-nav a { padding: 11px 10px 8px; font-size: 12px; }
+      body > .hmi-technical-workspace,
+      body > section[aria-labelledby="digitalTwinTitle"],
+      body > #digitalTwinExperimentPanel,
+      body > .hmi-utility-bay { width: calc(100% - 12px); }
+      body > section[aria-labelledby="digitalTwinTitle"] { padding-left: 9px; padding-right: 9px; }
+      #digitalTwinTitle { margin-left: -9px; margin-right: -9px; }
       .digital-twin-viewer { min-height: 260px; height: clamp(260px, 42vh, 380px); }
+      .digital-twin-sticky-viewer { padding: 5px; }
+      .digital-twin-workflow-stage { padding-left: 9px; padding-right: 9px; }
+      .digital-twin-readout, .digital-twin-meta { grid-template-columns: 1fr; }
+      .digital-twin-operator-status > span,
+      .digital-twin-operator-status > strong { flex: 1 1 100%; border-right: 0; border-bottom: 1px solid var(--line); }
       .digital-twin-phase5-actions button { flex: 1 1 100%; }
-      .digital-twin-workflow-stage h3 { font-size: 18px; }
       .digital-twin-center-path-library input,
-      .digital-twin-center-path-library select { min-width: 0; width: 100%; }
-      .digital-twin-phase5-blockers { flex-wrap: wrap; }
-      .digital-twin-object-pose-grid label { min-width: 0; }
-      .digital-twin-approach-pose-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-      .wp-row { grid-template-columns: minmax(0, 1fr); }
-      .seq-row { align-items: flex-start; }
+      .digital-twin-center-path-library select { width: 100%; min-width: 0; }
+      .digital-twin-approach-pose-grid { grid-template-columns: repeat(2, minmax(0,1fr)); }
+      .hmi-utility-bay > .two-grid { grid-template-columns: 1fr; }
+      .wp-row { grid-template-columns: 1fr; }
     }
     @media (max-width: 420px) {
-      body { padding: 8px; }
-      .hmi-grasp-bridge { gap: 5px; font-size: 10px; letter-spacing: 0; }
-      .hmi-grasp-center { padding: 3px 6px; }
-      .hmi-technical-workspace .direct-inputs { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-      .digital-twin-operator-details > :not(summary) { margin-left: 8px; margin-right: 8px; }
+      .hmi-command-header { display: grid; grid-template-columns: 1fr; }
+      .hmi-theme-control { margin-left: 0; justify-self: stretch; grid-template-columns: 1fr 88px; }
+      .digital-twin-workflow-guide { gap: 6px 10px; }
+      .digital-twin-workflow-guide span { font-size: 12px; }
+      .digital-twin-workflow-guide span + span::before { margin-right: 6px; }
+      .hmi-technical-workspace .direct-inputs { grid-template-columns: repeat(2, minmax(0,1fr)); }
+      .digital-twin-approach-pose-grid { grid-template-columns: repeat(2, minmax(0,1fr)); }
     }
     @media (prefers-reduced-motion: reduce) {
       *, *::before, *::after { animation: none !important; transition: none !important; scroll-behavior: auto !important; }
+    }
+    @media (forced-colors: active) {
+      * { scrollbar-color: auto; }
+      .hmi-section-nav a, .digital-twin-workflow-stage, .hmi-technical-workspace, #digitalTwinExperimentPanel { forced-color-adjust: auto; }
     }
   </style>
 
@@ -2227,9 +2312,9 @@
 
 <body>
   <header class="hmi-command-header">
-    <div>
+    <div class="hmi-command-identity">
       <h1>Dual JAKA A12 Control</h1>
-      <p>Dual-arm workcell · Coordinated grasp, preview &amp; execution</p>
+      <p>Set the grasp. Build the path. Check and run.</p>
     </div>
     <label class="hmi-theme-control" for="hmiAppearance">
       Appearance
@@ -2240,8 +2325,17 @@
     </label>
   </header>
 
+  <nav class="hmi-section-nav" aria-label="Workcell sections">
+    <a href="#digitalTwinViewer">Digital Twin</a>
+    <a href="#digitalTwinOperatorGraspStage">1 Setup</a>
+    <a href="#digitalTwinOperatorWaypointStage">2 Path</a>
+    <a href="#digitalTwinPhase5ExecutionSection" data-motion="true">3 Run</a>
+    <a href="#hmiTechnicalWorkspace">Advanced / Tools</a>
+  </nav>
+
   <details id="hmiTechnicalWorkspace" class="hmi-technical-workspace">
-    <summary>Technical Workspace · Direct Move &amp; Manual Jog</summary>
+    <summary>Maintenance / Service · Technical Workspace</summary>
+    <p class="small" style="padding: 0 13px;">Direct Move and Jog can move the robots. For recorded results, open <a href="#digitalTwinExperimentPanel" data-lab="true">Analysis / Experiments</a>.</p>
   <div class="top-grid">
     <div class="panel">
       <h2>Live Position / Direct Move</h2>
@@ -2295,7 +2389,6 @@
           <div class="direct-inputs" id="rightJointInputs"></div>
         </div>
       </div>
-
 
       <h3>Direct TCP Move</h3>
       <div class="small">
@@ -2405,17 +2498,6 @@
       </div>
     </div>
 
-    <div class="hmi-grasp-bridge" aria-hidden="true">
-      <span>LEFT ARM</span><i></i><span class="hmi-grasp-center">CENTER</span><i></i><span>RIGHT ARM</span>
-    </div>
-
-    <div class="row" aria-label="Digital Twin viewer controls">
-      <button id="digitalTwinResetCamera" type="button">Reset Camera</button>
-      <button id="digitalTwinFitModel" type="button">Fit Model</button>
-      <button id="digitalTwinToggleGrid" type="button">Toggle Grid</button>
-      <button id="digitalTwinToggleAxes" type="button">Toggle Axes</button>
-    </div>
-
     <div id="digitalTwinLiveMirrorQuick" class="digital-twin-live-mirror-quick" aria-label="Live Mirror quick control">
       <div class="digital-twin-live-mirror-quick-copy">
         <strong>Live Mirror</strong>
@@ -2446,17 +2528,22 @@
       <span>3. Preview &amp; Execute</span>
     </nav>
 
+    <details class="digital-twin-operator-details" aria-label="Viewer diagnostics">
+      <summary>View options &amp; robot diagnostics</summary>
     <div class="digital-twin-angle-unit-control" aria-label="Global operator rotation unit">
       <label for="digitalTwinRotationUnit"><strong>Rotation Unit</strong></label>
       <select id="digitalTwinRotationUnit">
         <option value="degrees" selected>Degrees (°)</option>
         <option value="radians">Radians (rad)</option>
       </select>
-      <span class="small">Applies to operator-facing pose rotations; canonical planning remains radians.</span>
+      <span class="small">Units for grasp and waypoint rotation values.</span>
     </div>
-
-    <details class="digital-twin-operator-details" aria-label="Viewer diagnostics">
-      <summary>Viewer / Robot Diagnostics</summary>
+      <div class="row" aria-label="Digital Twin viewer controls">
+      <button id="digitalTwinResetCamera" type="button">Reset Camera</button>
+      <button id="digitalTwinFitModel" type="button">Fit Model</button>
+      <button id="digitalTwinToggleGrid" type="button">Toggle Grid</button>
+      <button id="digitalTwinToggleAxes" type="button">Toggle Axes</button>
+    </div>
 
     <div class="digital-twin-meta" aria-label="Digital Twin read-only state">
       <span>Mode: <strong id="digitalTwinOperatingMode">STATIC MODEL</strong></span>
@@ -2602,6 +2689,7 @@
     >
       <span class="digital-twin-stage-kicker">STEP 1</span>
       <h3>Grasp Setup</h3>
+      <p class="hmi-stage-intent">Set the grasp</p>
       <p id="digitalTwinOperatorGraspInstruction" class="small">
         Set both grasp poses, then lock the grasp.
       </p>
@@ -2625,6 +2713,10 @@
           snapshots the displayed robot pose once, and does not lock automatically.
         </span>
       </div>
+      <p class="small hmi-task-hint">Choose a frame, enable its handle, then drag it in the Digital Twin. Lock when both grasp positions are set.</p>
+      <div class="row" aria-label="Visual grasp editing"><button id="digitalTwinObjectDragToggle" type="button" aria-pressed="false">
+          Enable Selected Frame Gizmo — OFFLINE
+        </button></div>
       <div id="digitalTwinGraspUnlockedEditor" aria-label="Rigid grasp configuration editor">
         <div class="row digital-twin-frame-buttons" aria-label="Select item to edit">
           <span>Select:</span>
@@ -2637,6 +2729,9 @@
           <button id="digitalTwinGraspGizmoTranslate" type="button" aria-pressed="true">Move</button>
           <button id="digitalTwinGraspGizmoRotate" type="button" aria-pressed="false">Rotate</button>
         </div>
+        <div class="row"><button id="digitalTwinLockGraspConfiguration" class="digital-twin-primary-action" type="button" disabled>Lock Grasp</button></div>
+        <details class="digital-twin-operator-details">
+          <summary>Precise values · left and right grasp</summary>
         <div class="digital-twin-grasp-editors">
           <div class="digital-twin-grasp-editor-card" aria-labelledby="digitalTwinLeftGraspEditorTitle">
             <h4 id="digitalTwinLeftGraspEditorTitle">Left Arm Grasp</h4>
@@ -2663,69 +2758,28 @@
             <button id="digitalTwinApplyRightGrasp" type="button">Apply Right Pose</button>
           </div>
         </div>
-        <button id="digitalTwinLockGraspConfiguration" class="digital-twin-primary-action" type="button" disabled>Lock Grasp</button>
+        </details>
+
       </div>
       <details class="digital-twin-operator-details" aria-label="Grasp diagnostics">
-        <summary>Grasp Diagnostics</summary>
-        <div class="digital-twin-readout">
-          <span>Grasp State: <strong id="digitalTwinGraspConfigurationState">GRASP_UNLOCKED</strong></span>
-          <span>Draft Source: <strong id="digitalTwinGraspDraftSource">UNAVAILABLE</strong></span>
-          <span>Revision: <strong id="digitalTwinGraspRevision">UNAVAILABLE</strong></span>
-          <span>Lock Generation: <strong id="digitalTwinGraspLockGeneration">0</strong></span>
-          <span>Selected Frame: <strong id="digitalTwinGraspSelectedFrame">CENTER</strong></span>
-          <span>Gizmo Mode: <strong id="digitalTwinGraspGizmoMode">TRANSLATE</strong></span>
-          <span>Planner Integration: <strong id="digitalTwinGraspPlannerIntegration">LOADING</strong></span>
-          <span>World Calibration Revision: <strong id="digitalTwinGraspWorldCalibrationRevision">UNAVAILABLE</strong></span>
-          <span>Frame Alignment: <strong id="digitalTwinGraspAlignmentStatus">NOT CHECKED</strong></span>
-          <span>Error: <strong id="digitalTwinGraspConfigurationError">NONE</strong></span>
-        </div>
-        <label for="digitalTwinGraspSelectedFrameControl">Internal frame selection</label>
-        <select id="digitalTwinGraspSelectedFrameControl">
-          <option value="CENTER" selected>Center</option>
-          <option value="LEFT_GRASP">Left Grasp</option>
-          <option value="RIGHT_GRASP">Right Grasp</option>
-        </select>
-      </details>
-      <div class="digital-twin-object-pose-grid" aria-label="Center pose controls">
-        <label for="digitalTwinObjectX">Center X [m]
-          <input id="digitalTwinObjectX" type="number" min="-3" max="3" step="0.01" value="0" />
-        </label>
-        <label for="digitalTwinObjectY">Center Y [m]
-          <input id="digitalTwinObjectY" type="number" min="-3" max="3" step="0.01" value="0" />
-        </label>
-        <label for="digitalTwinObjectZ">Center Z [m]
-          <input id="digitalTwinObjectZ" type="number" min="-3" max="3" step="0.01" value="1.2" />
-        </label>
-        <label for="digitalTwinObjectRoll"><span data-digital-twin-rotation-label="Roll">Roll [deg]</span>
-          <input id="digitalTwinObjectRoll" type="number" min="-6.283185" max="6.283185" step="0.01" value="0"  />
-        </label>
-        <label for="digitalTwinObjectPitch"><span data-digital-twin-rotation-label="Pitch">Pitch [deg]</span>
-          <input id="digitalTwinObjectPitch" type="number" min="-6.283185" max="6.283185" step="0.01" value="0"  />
-        </label>
-        <label for="digitalTwinObjectYaw"><span data-digital-twin-rotation-label="Yaw">Yaw [deg]</span>
-          <input id="digitalTwinObjectYaw" type="number" min="-6.283185" max="6.283185" step="0.01" value="0"  />
-        </label>
-      </div>
-      <div class="small"><strong>Center orientation is editable after Lock Grasp and is stored per W waypoint.</strong></div>
-      <div class="row" aria-label="Center preview pose actions">
-        <button id="digitalTwinApplyObjectPose" type="button">Apply Center Pose</button>
+        <summary>Grasp tools &amp; diagnostics</summary>
+        <div class="row" aria-label="Center preview pose actions">
+
         <button id="digitalTwinResetObjectPreview" type="button" disabled>Reset Frames to Current Robot Pose</button>
-        <button id="digitalTwinObjectDragToggle" type="button" aria-pressed="false">
-          Enable Selected Frame Gizmo — OFFLINE
-        </button>
+
       </div>
-      <div class="digital-twin-readout" aria-label="Center 6D gizmo state">
+        <div class="digital-twin-object-visibility" aria-label="Planning frame visibility">
+        <label><input id="digitalTwinShowObjectFrame" type="checkbox" checked /> Show Center Frame</label>
+        <label><input id="digitalTwinShowGraspFrames" type="checkbox" checked /> Show Grasp Frames</label>
+      </div>
+        <div class="digital-twin-readout" aria-label="Center 6D gizmo state">
         <span>Selected Frame Gizmo: <strong id="digitalTwinObjectDragState">DISABLED</strong></span>
         <span>Center: <strong>TRANSLATE / ROTATE FOR LOCKED W WAYPOINTS</strong></span>
         <span>Grasp Frames: <strong>TRANSLATE / ROTATE WHILE UNLOCKED; SCALE DISABLED</strong></span>
         <span>Owner: <strong id="digitalTwinObjectDragOwnership">NONE</strong></span>
         <span>Error: <strong id="digitalTwinObjectDragError">NONE</strong></span>
       </div>
-      <div class="digital-twin-object-visibility" aria-label="Planning frame visibility">
-        <label><input id="digitalTwinShowObjectFrame" type="checkbox" checked /> Show Center Frame</label>
-        <label><input id="digitalTwinShowGraspFrames" type="checkbox" checked /> Show Grasp Frames</label>
-      </div>
-      <details class="digital-twin-operator-details" aria-label="Read-only object and grasp relative poses">
+        <details class="digital-twin-operator-details" aria-label="Read-only object and grasp relative poses">
         <summary>Relative Pose Diagnostics</summary>
         <div class="small">
           Translation: meters · Orientation: <span data-digital-twin-rotation-label="operator selected">operator selected [deg]</span>
@@ -2760,15 +2814,62 @@
           <span><span data-digital-twin-rotation-label="rz">rz [deg]</span>: <strong id="digitalTwinLeftTRightRz">UNAVAILABLE</strong></span>
         </div>
       </details>
+        <div class="digital-twin-readout">
+          <span>Grasp State: <strong id="digitalTwinGraspConfigurationState">GRASP_UNLOCKED</strong></span>
+          <span>Draft Source: <strong id="digitalTwinGraspDraftSource">UNAVAILABLE</strong></span>
+          <span>Revision: <strong id="digitalTwinGraspRevision">UNAVAILABLE</strong></span>
+          <span>Lock Generation: <strong id="digitalTwinGraspLockGeneration">0</strong></span>
+          <span>Selected Frame: <strong id="digitalTwinGraspSelectedFrame">CENTER</strong></span>
+          <span>Gizmo Mode: <strong id="digitalTwinGraspGizmoMode">TRANSLATE</strong></span>
+          <span>Planner Integration: <strong id="digitalTwinGraspPlannerIntegration">LOADING</strong></span>
+          <span>World Calibration Revision: <strong id="digitalTwinGraspWorldCalibrationRevision">UNAVAILABLE</strong></span>
+          <span>Frame Alignment: <strong id="digitalTwinGraspAlignmentStatus">NOT CHECKED</strong></span>
+          <span>Error: <strong id="digitalTwinGraspConfigurationError">NONE</strong></span>
+        </div>
+        <label for="digitalTwinGraspSelectedFrameControl">Internal frame selection</label>
+        <select id="digitalTwinGraspSelectedFrameControl">
+          <option value="CENTER" selected>Center</option>
+          <option value="LEFT_GRASP">Left Grasp</option>
+          <option value="RIGHT_GRASP">Right Grasp</option>
+        </select>
+      </details>
+
+      <details class="digital-twin-operator-details">
+        <summary>Precise values · center position and rotation</summary>
+        <div class="digital-twin-object-pose-grid" aria-label="Center pose controls">
+        <label for="digitalTwinObjectX">Center X [m]
+          <input id="digitalTwinObjectX" type="number" min="-3" max="3" step="0.01" value="0" />
+        </label>
+        <label for="digitalTwinObjectY">Center Y [m]
+          <input id="digitalTwinObjectY" type="number" min="-3" max="3" step="0.01" value="0" />
+        </label>
+        <label for="digitalTwinObjectZ">Center Z [m]
+          <input id="digitalTwinObjectZ" type="number" min="-3" max="3" step="0.01" value="1.2" />
+        </label>
+        <label for="digitalTwinObjectRoll"><span data-digital-twin-rotation-label="Roll">Roll [deg]</span>
+          <input id="digitalTwinObjectRoll" type="number" min="-6.283185" max="6.283185" step="0.01" value="0"  />
+        </label>
+        <label for="digitalTwinObjectPitch"><span data-digital-twin-rotation-label="Pitch">Pitch [deg]</span>
+          <input id="digitalTwinObjectPitch" type="number" min="-6.283185" max="6.283185" step="0.01" value="0"  />
+        </label>
+        <label for="digitalTwinObjectYaw"><span data-digital-twin-rotation-label="Yaw">Yaw [deg]</span>
+          <input id="digitalTwinObjectYaw" type="number" min="-6.283185" max="6.283185" step="0.01" value="0"  />
+        </label>
+      </div>
+        <div class="small"><strong>Center orientation is editable after Lock Grasp and is stored per W waypoint.</strong></div>
+        <div class="row"><button id="digitalTwinApplyObjectPose" type="button">Apply Center Pose</button></div>
+      </details>
+
       <div class="digital-twin-object-preview-notice">
-        <strong>Independent Approach Waypoints — PRE-RIGID</strong><br />
-        While the grasp is unlocked, move Left/Right grasp frames independently and save approach targets.
-        After the final approach target is prepared, set the Final Grasp and Lock. Center waypoints remain rigid-only.<br />
-        <span class="small">A-last → Final Grasp is an implicit pre-rigid segment and uses one Segment Duration before W0.</span>
+        <strong>Approach waypoints · before the grasp</strong><br />
+        Before locking, position each arm and save its approach targets. Then set the final grasp and lock it.
+        <details class="hmi-inline-details"><summary>Approach timing details</summary>
+          Center waypoints remain rigid-only. A-last → Final Grasp is an implicit pre-rigid segment and uses one Segment Duration before W0.
+        </details>
       </div>
       <div class="digital-twin-operator-status" aria-label="Independent approach waypoint status">
         <span>Approach Waypoints: <strong id="digitalTwinApproachWaypointCount">0</strong></span>
-        <span>Semantic: <strong>INDEPENDENT LEFT/RIGHT — BEFORE RIGID GRASP</strong></span>
+        <span>Both arms can approach independently before locking.</span>
       </div>
       <div id="digitalTwinApproachWaypointList" aria-label="Independent Left Right approach waypoint list"></div>
       <div class="row" aria-label="Independent approach waypoint controls">
@@ -2787,14 +2888,13 @@
     >
       <span class="digital-twin-stage-kicker">STEP 2</span>
       <h3>Center Waypoints</h3>
+      <p class="hmi-stage-intent">Build the path</p>
       <div class="small">
-        Move and/or rotate the Center, then save its current 6D pose. Both arms follow the locked grasp
-        rigidly, so every Center waypoint may have its own XYZ + Roll/Pitch/Yaw orientation.
+        Load a saved path or move the Center and save each waypoint. Both arms keep the locked grasp as the Center moves and rotates.
       </div>
       <div class="digital-twin-operator-status" aria-label="Center waypoint status">
         <span>Waypoint State: <strong id="digitalTwinObjectWaypointState">EMPTY</strong></span>
         <span>Center Waypoints: <strong id="digitalTwinObjectWaypointCount">0</strong></span>
-        <span>Hover Frame Ghost: <strong id="digitalTwinObjectWaypointHoverPreview">NONE</strong></span>
         <span>Error: <strong id="digitalTwinObjectWaypointError">NONE</strong></span>
       </div>
       <div class="digital-twin-center-path-library" aria-label="Persistent Center Path Library">
@@ -2816,20 +2916,18 @@
         <button id="digitalTwinCenterWaypointMove" type="button" aria-pressed="true">Move Center</button>
         <button id="digitalTwinCenterWaypointRotate" type="button" aria-pressed="false">Rotate Center</button>
         <button id="digitalTwinCenterWaypointGizmoToggle" type="button" aria-pressed="false">Enable Center Gizmo</button>
-        <span class="small">Available after Lock Grasp; A0/A1 remain independent pre-rigid targets.</span>
+        <span class="small">Available after Lock Grasp. Approach waypoints stay independent.</span>
       </div>
+      <p class="small">Move the Center to add a point, or edit coordinates below. Scroll the sheet for all columns.</p>
+      <p class="small">Speed and acceleration are relative planning scales, not manufacturer limits or acceleration safety certification.</p>
+      <div class="hmi-waypoint-sheet" role="region" aria-label="Waypoint coordinate editor — scroll horizontally for all columns" tabindex="0">
       <div class="digital-twin-object-waypoint-grid" aria-hidden="true">
         <strong>Identifier</strong><strong>X [m]</strong><strong>Y [m]</strong><strong>Z [m]</strong>
         <strong data-digital-twin-rotation-label="Roll">Roll [deg]</strong><strong data-digital-twin-rotation-label="Pitch">Pitch [deg]</strong><strong data-digital-twin-rotation-label="Yaw">Yaw [deg]</strong>
         <strong>Speed %</strong><strong>Acceleration %</strong>
         <strong>Center</strong><strong>Duplicate</strong><strong>Delete</strong>
       </div>
-      <div class="small">
-        Hover any waypoint row to preview its Center, Left, and Right Frame Ghosts in the Digital Twin.<br />
-        <strong>Wn profile applies to Wn → Wn+1.</strong> 100% is the existing baseline;
-        lower values only slow/stretch. These are relative planning scales, not manufacturer
-        hard limits or Phase-4 acceleration certification. The final waypoint has no outgoing segment.
-      </div>
+
       <div id="digitalTwinObjectWaypointList" aria-label="Ordered Center Waypoint rows"></div>
       <div class="digital-twin-object-waypoint-grid" aria-label="Add Center Waypoint">
         <input id="digitalTwinObjectWaypointNewId" value="W0" aria-label="New Center Waypoint identifier" />
@@ -2845,8 +2943,17 @@
         <button id="digitalTwinObjectWaypointAddCurrent" class="digital-twin-primary-action" type="button">Save Current Center as Waypoint</button>
         <button id="digitalTwinObjectWaypointClear" type="button">Clear</button>
       </div>
+      </div>
       <details class="digital-twin-operator-details">
-        <summary>Waypoint Details</summary>
+        <summary>Waypoint details &amp; demo path</summary>
+        <div class="small">every Center waypoint may have its own XYZ + Roll/Pitch/Yaw orientation; legacy paths use the stored fallback orientation.</div>
+      <div class="small">
+        Hover any waypoint row to preview its Center, Left, and Right Frame Ghosts in the Digital Twin.<br />
+        <strong>Wn profile applies to Wn → Wn+1.</strong> 100% is the existing baseline;
+        lower values only slow/stretch. These are relative planning scales, not manufacturer
+        hard limits or Phase-4 acceleration certification. The final waypoint has no outgoing segment.
+      </div>
+        <div class="small">Hover preview: <strong id="digitalTwinObjectWaypointHoverPreview">NONE</strong></div>
         <div class="digital-twin-readout" aria-label="Object waypoint diagnostics">
           <span><span data-digital-twin-rotation-label="Fallback Orientation RPY">Fallback Orientation RPY [deg]</span>: <strong id="digitalTwinObjectWaypointOrientation">0, 0, 0</strong></span>
           <span>Orientation Source: <strong id="digitalTwinObjectWaypointOrientationSource">PER-WAYPOINT 6D CENTER POSE / LEGACY FALLBACK</strong></span>
@@ -3350,7 +3457,8 @@
     >
       <span class="digital-twin-stage-kicker">STEP 3</span>
       <h3>Preview &amp; Execute</h3>
-      <div class="small">Phase 5 Execution — REAL ROBOT COMMAND</div>
+      <p class="hmi-stage-intent">Check &amp; run</p>
+      <p class="small">Replan, check the frozen preview, then move to the starting position before Execute.</p>
       <div class="digital-twin-operator-status" aria-label="Planning and validation readiness">
         <span>Planning: <strong id="digitalTwinOperatorPlanStatus">LOCK GRASP TO CONTINUE</strong></span>
         <span>Validation: <strong id="digitalTwinOperatorValidationStatus">NOT VALIDATED</strong></span>
@@ -3366,25 +3474,19 @@
         confirmation required. Clear the workspace and keep STOP / E-stop ready.
       </div>
       <div class="digital-twin-phase5-status-grid" aria-label="Phase 5 execution gate status">
-        <span class="digital-twin-phase5-status-card">
-          Frozen Artifact
-          <strong id="digitalTwinPhase5ArtifactStatus">NOT FROZEN</strong>
-        </span>
-        <span class="digital-twin-phase5-status-card digital-twin-phase5-status-card-wide">
-          Frozen Ghost / Interlock
+
+        <span class="digital-twin-phase5-status-card digital-twin-phase5-status-card-wide" aria-label="Frozen Ghost / Interlock">
+          Verified preview
           <strong id="digitalTwinPhase5PreviewStatus">NOT LOADED</strong>
           <strong id="digitalTwinPhase5PreviewInterlock">BLOCKED — VERIFIED GHOST REQUIRED</strong>
         </span>
-        <span class="digital-twin-phase5-status-card">
-          Phase 4 Gate
-          <strong id="digitalTwinPhase5GateStatus">BLOCKED</strong>
-        </span>
-        <span class="digital-twin-phase5-status-card">
-          Robot Safe State
+
+        <span class="digital-twin-phase5-status-card" aria-label="Robot Safe State">
+          Robot readiness
           <strong id="digitalTwinPhase5SafeState">BLOCKED</strong>
         </span>
-        <span class="digital-twin-phase5-status-card">
-          Start Match
+        <span class="digital-twin-phase5-status-card" aria-label="Start Match">
+          Starting position
           <strong id="digitalTwinPhase5StartMatch">BLOCKED</strong>
         </span>
         <span class="digital-twin-phase5-status-card">
@@ -3395,10 +3497,7 @@
           Execution Result
           <strong id="digitalTwinPhase5CombinedResult">IDLE</strong>
         </span>
-        <span class="digital-twin-phase5-status-card digital-twin-phase5-status-card-wide">
-          Last Operator Action
-          <strong id="digitalTwinPhase5OperatorAction">READY FOR OPERATOR</strong>
-        </span>
+
       </div>
       <div class="digital-twin-phase5-progress-row" aria-label="Phase 5 common execution progress">
         <span>Common timeline <strong id="digitalTwinPhase5CommonTimeline">0.000 / 0.000 s</strong></span>
@@ -3425,8 +3524,8 @@
         <button id="digitalTwinPhase5MoveToInitial" class="stop" type="button" disabled>
           Move to Initial — REAL MOTION
         </button>
-        <button id="digitalTwinPhase5Stop" class="stop" type="button" onclick="stopBoth()">
-          STOP BOTH — EXISTING STOP PATH
+        <button id="digitalTwinPhase5Stop" class="stop" type="button" onclick="stopBoth()" title="STOP BOTH — EXISTING STOP PATH">
+          STOP BOTH
         </button>
         <button id="digitalTwinPhase5Prepare" class="digital-twin-primary-action" type="button" disabled>
           Execute — REAL MOTION
@@ -3445,7 +3544,21 @@
         class="digital-twin-operator-details digital-twin-phase5-diagnostics"
         aria-label="Phase 5 execution diagnostics"
       >
-        <summary>Execution diagnostics and raw feedback</summary>
+        <summary>Execution details &amp; diagnostics</summary>
+        <div class="digital-twin-phase5-status-grid">
+        <span class="digital-twin-phase5-status-card">
+          Frozen Artifact
+          <strong id="digitalTwinPhase5ArtifactStatus">NOT FROZEN</strong>
+        </span>
+        <span class="digital-twin-phase5-status-card">
+          Phase 4 Gate
+          <strong id="digitalTwinPhase5GateStatus">BLOCKED</strong>
+        </span>
+        <span class="digital-twin-phase5-status-card digital-twin-phase5-status-card-wide">
+          Last Operator Action
+          <strong id="digitalTwinPhase5OperatorAction">READY FOR OPERATOR</strong>
+        </span>
+        </div>
         <div class="digital-twin-readout">
           <span>Artifact Fingerprint: <strong id="digitalTwinPhase5ArtifactFingerprint">NONE</strong></span>
           <span>Artifact Generation: <strong id="digitalTwinPhase5ArtifactGeneration">NONE</strong></span>
@@ -3487,7 +3600,7 @@
       class="digital-twin-operator-details digital-twin-phase5-diagnostics"
       aria-label="Phase 6 monitoring — read only"
     >
-      <summary>Phase 6 Monitoring — READ ONLY</summary>
+      <summary>Motion tracking · read only</summary>
       <div class="digital-twin-validation-notice">
         P6.1 Joint Tracking Error — monitoring only. No threshold, fault, or coordinated STOP is enabled yet.
       </div>
@@ -3512,7 +3625,7 @@
   </section>
 
   <details id="digitalTwinExperimentPanel" class="panel experiment-panel">
-    <summary>Experimental Validation — EXP-0 / EXP-1 / EXP-2</summary>
+    <summary>Analysis / Experiments</summary>
     <div class="experiment-notice">
       Recorder and Run Library controls are observational and send no robot command.
       Actual paths are reconstructed from recorded encoder/model joints through offline URDF FK;
@@ -3779,6 +3892,9 @@
     </div>
   </details>
 
+  <details class="hmi-utility-bay" aria-label="Utility Bay">
+    <summary class="hmi-utility-bay-header">Legacy utilities · Utility Bay</summary>
+
   <div class="panel">
     <h2>Waypoint Manager</h2>
 
@@ -3837,6 +3953,7 @@
       <pre id="status" class="statusbox" style="margin-top: 10px;">loading...</pre>
     </div>
   </div>
+  </details>
 
 <script>
 let side = "both";
