@@ -3,6 +3,7 @@
 from pathlib import Path
 import json
 import subprocess
+import tempfile
 import unittest
 from unittest.mock import patch
 
@@ -63,6 +64,32 @@ class CenterPathStoreTests(unittest.TestCase):
             self.assertTrue(deleted["ok"])
             mocked_unlink.assert_called_once()
 
+    def test_create_new_path_never_changes_existing_saved_paths(self):
+        with tempfile.TemporaryDirectory() as directory:
+            store = CenterPathStore(Path(directory))
+            first = sample_path()
+            second = json.loads(json.dumps(first))
+            second["waypoints"][0]["translation_m"][0] = 0.4
+            third = json.loads(json.dumps(first))
+            third["waypoints"][0]["translation_m"][0] = 0.7
+
+            store.save("First", first, overwrite=False)
+            store.save("Second", second, overwrite=False)
+            first_before = (Path(directory) / "First.json").read_bytes()
+            second_before = (Path(directory) / "Second.json").read_bytes()
+
+            store.save("Third", third, overwrite=False)
+            self.assertEqual((Path(directory) / "First.json").read_bytes(), first_before)
+            self.assertEqual((Path(directory) / "Second.json").read_bytes(), second_before)
+            self.assertEqual(
+                {item["name"] for item in store.list()["paths"]},
+                {"First", "Second", "Third"},
+            )
+
+            with self.assertRaises(CenterPathStoreError):
+                store.save("First", third, overwrite=False)
+            self.assertEqual((Path(directory) / "First.json").read_bytes(), first_before)
+
     def test_delete_is_scoped_to_saved_path_file(self):
         source = STORE_SOURCE.read_text(encoding="utf-8")
         self.assertIn("path.unlink()", source)
@@ -112,6 +139,35 @@ class CenterPathApiTests(unittest.TestCase):
             "window.confirm", "saveAs: true", "saveAs: false",
         ):
             self.assertIn(token, self.controller)
+
+    def test_save_defaults_fail_closed_and_controller_uses_explicit_save_intent(self):
+        self.assertIn("overwrite: bool = False", self.backend)
+        self.assertIn("def save_center_path(self, name, path_payload, overwrite=False):", self.backend)
+        self.assertIn("resolveCenterPathSaveIntent(", self.controller)
+        self.assertIn("saveIntent.overwrite", self.controller)
+        self.assertNotIn("centerPathLibraryState.loadedName || typedName", self.controller)
+
+    def test_save_intent_never_overwrites_when_user_types_a_new_name(self):
+        script = r'''import {resolveCenterPathSaveIntent} from "./dual_arm_app/web/digital_twin_center_path_library.js";
+const cases = [
+  resolveCenterPathSaveIntent("Test3", "Test1", false),
+  resolveCenterPathSaveIntent("Test1", "Test1", false),
+  resolveCenterPathSaveIntent("Existing", null, false),
+  resolveCenterPathSaveIntent("Test1", "Test1", true),
+  resolveCenterPathSaveIntent("  New Path  ", "Test1", false),
+];
+console.log(JSON.stringify(cases));
+'''
+        result = subprocess.run(
+            ["node", "--input-type=module", "-e", script],
+            cwd=ROOT, capture_output=True, text=True, check=True,
+        )
+        cases = json.loads(result.stdout.strip())
+        self.assertEqual(cases[0], {"name": "Test3", "overwrite": False, "createsNew": True})
+        self.assertEqual(cases[1], {"name": "Test1", "overwrite": True, "createsNew": False})
+        self.assertEqual(cases[2], {"name": "Existing", "overwrite": False, "createsNew": True})
+        self.assertEqual(cases[3], {"name": "Test1", "overwrite": False, "createsNew": True})
+        self.assertEqual(cases[4], {"name": "New Path", "overwrite": False, "createsNew": True})
 
     def test_browser_api_module_uses_only_path_library_routes(self):
         module = (WEB / "digital_twin_center_path_library.js").read_text(encoding="utf-8")

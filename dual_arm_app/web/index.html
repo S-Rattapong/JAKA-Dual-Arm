@@ -1198,6 +1198,379 @@
         padding: 5px;
       }
     }
+
+    .experiment-panel {
+      border-color: #14b8a6;
+      background: rgba(13, 148, 136, 0.08);
+    }
+
+    .experiment-panel > summary {
+      cursor: pointer;
+      font-size: 22px;
+      font-weight: 800;
+      color: #ccfbf1;
+    }
+
+    .experiment-notice {
+      margin: 12px 0;
+      padding: 10px 12px;
+      border-left: 4px solid #2dd4bf;
+      background: rgba(15, 23, 42, 0.72);
+      color: #99f6e4;
+      line-height: 1.45;
+    }
+
+    .experiment-form-grid,
+    .experiment-state-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(150px, 1fr));
+      gap: 9px;
+      margin: 12px 0;
+    }
+
+    .experiment-form-grid label,
+    .experiment-state-grid span {
+      display: flex;
+      min-width: 0;
+      flex-direction: column;
+      gap: 5px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .experiment-form-grid .experiment-notes-field {
+      grid-column: span 2;
+    }
+
+    .experiment-form-grid textarea {
+      min-height: 72px;
+      resize: vertical;
+    }
+
+    .experiment-state-grid span {
+      padding: 9px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--panel2);
+    }
+
+    .experiment-state-grid strong {
+      color: var(--text);
+      overflow-wrap: anywhere;
+    }
+
+    .experiment-library-controls,
+    .experiment-view-controls,
+    .experiment-visibility-controls {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      align-items: center;
+      margin: 10px 0;
+    }
+
+    .experiment-library-controls select {
+      flex: 1 1 300px;
+      min-width: 220px;
+    }
+
+    .experiment-viewer {
+      position: relative;
+      width: 100%;
+      height: clamp(340px, 52vh, 620px);
+      min-height: 300px;
+      overflow: hidden;
+      border: 1px solid #0f766e;
+      border-radius: 10px;
+      background: #07111f;
+    }
+
+    .experiment-viewer canvas {
+      display: block;
+    }
+
+    .experiment-inspection-grid {
+      display: grid;
+      grid-template-columns: minmax(430px, 0.9fr) minmax(620px, 1.65fr);
+      gap: 18px;
+      margin-top: 18px;
+      align-items: stretch;
+    }
+
+    .experiment-sample-controls,
+    .experiment-series-panel {
+      min-width: 0;
+      padding: 16px;
+      border: 1px solid #334155;
+      border-radius: 12px;
+      background: linear-gradient(180deg, rgba(15, 23, 42, 0.96), rgba(8, 15, 30, 0.96));
+      box-shadow: inset 0 1px 0 rgba(148, 163, 184, 0.04);
+    }
+
+    .experiment-sample-controls > label {
+      display: block;
+      margin-bottom: 10px;
+      color: #e2e8f0;
+      font-size: 15px;
+    }
+
+    .experiment-sample-controls input[type="range"] {
+      width: 100%;
+      margin: 2px 0 14px;
+      accent-color: #2dd4bf;
+    }
+
+    .experiment-sample-readout {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .experiment-sample-readout span {
+      display: flex;
+      min-width: 0;
+      min-height: 72px;
+      flex-direction: column;
+      gap: 5px;
+      padding: 10px 11px;
+      border: 1px solid rgba(71, 85, 105, 0.68);
+      border-radius: 9px;
+      background: rgba(2, 6, 23, 0.48);
+      color: #94a3b8;
+      line-height: 1.35;
+    }
+
+    .experiment-sample-readout strong {
+      display: block;
+      color: #f8fafc;
+      font-size: 12.5px;
+      font-weight: 650;
+      line-height: 1.4;
+      overflow-wrap: anywhere;
+      word-break: normal;
+    }
+
+    .experiment-sample-readout .experiment-sample-wide {
+      grid-column: 1 / -1;
+      min-height: auto;
+    }
+
+    .experiment-series-panel .experiment-view-controls {
+      margin-top: 0;
+      margin-bottom: 12px;
+      padding: 9px 10px;
+      border: 1px solid rgba(51, 65, 85, 0.72);
+      border-radius: 9px;
+      background: rgba(2, 6, 23, 0.42);
+    }
+
+    .experiment-series-panel .experiment-view-controls label {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      color: #cbd5e1;
+    }
+
+    .experiment-series-canvas {
+      display: block;
+      width: 100%;
+      height: 300px;
+      border: 1px solid #334155;
+      border-radius: 9px;
+      background: #020617;
+      box-shadow: inset 0 0 0 1px rgba(15, 23, 42, 0.8);
+    }
+
+    .experiment-series-panel .experiment-legend {
+      margin-top: 10px;
+      padding-top: 9px;
+      border-top: 1px solid rgba(51, 65, 85, 0.58);
+      line-height: 1.45;
+    }
+
+    .experiment-exp1 {
+      margin: 20px 0 18px;
+      padding: 18px;
+      border: 1px solid rgba(45, 212, 191, 0.55);
+      border-radius: 14px;
+      background: linear-gradient(145deg, rgba(15, 23, 42, 0.94), rgba(6, 78, 59, 0.18));
+    }
+
+    .experiment-exp1-header {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+    }
+
+    .experiment-exp1-header h3 {
+      margin: 0;
+      color: #ccfbf1;
+    }
+
+    .experiment-exp1-status {
+      display: grid;
+      grid-template-columns: minmax(130px, 0.35fr) minmax(260px, 1.65fr);
+      gap: 9px;
+      margin: 12px 0;
+    }
+
+    .experiment-exp1-status span,
+    .experiment-exp1-card {
+      padding: 10px 12px;
+      border: 1px solid rgba(71, 85, 105, 0.72);
+      border-radius: 9px;
+      background: rgba(2, 6, 23, 0.52);
+    }
+
+    .experiment-exp1-status span {
+      display: flex;
+      min-width: 0;
+      flex-direction: column;
+      gap: 5px;
+      color: #94a3b8;
+      font-size: 12px;
+    }
+
+    .experiment-exp1-status strong {
+      color: #f8fafc;
+      overflow-wrap: anywhere;
+    }
+
+    .experiment-exp1-cards {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(210px, 1fr));
+      gap: 10px;
+      margin: 12px 0 16px;
+    }
+
+    .experiment-exp1-card h4 {
+      margin: 0 0 9px;
+      color: #5eead4;
+    }
+
+    .experiment-exp1-card dl {
+      display: grid;
+      grid-template-columns: auto 1fr;
+      gap: 5px 10px;
+      margin: 0;
+      font-size: 12px;
+    }
+
+    .experiment-exp1-card dt { color: #94a3b8; }
+    .experiment-exp1-card dd {
+      min-width: 0;
+      margin: 0;
+      color: #f8fafc;
+      text-align: right;
+      overflow-wrap: anywhere;
+    }
+
+    .experiment-exp1-detail-grid {
+      display: grid;
+      grid-template-columns: minmax(540px, 1.1fr) minmax(420px, 0.9fr);
+      gap: 14px;
+      align-items: stretch;
+    }
+
+    .experiment-exp1-table-wrap {
+      min-width: 0;
+      overflow-x: auto;
+      border: 1px solid #334155;
+      border-radius: 9px;
+      background: rgba(2, 6, 23, 0.48);
+    }
+
+    .experiment-exp1-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-variant-numeric: tabular-nums;
+      font-size: 12px;
+    }
+
+    .experiment-exp1-table th,
+    .experiment-exp1-table td {
+      padding: 7px 9px;
+      border-bottom: 1px solid rgba(51, 65, 85, 0.62);
+      text-align: right;
+      white-space: nowrap;
+    }
+
+    .experiment-exp1-table th:first-child,
+    .experiment-exp1-table td:first-child { text-align: left; }
+    .experiment-exp1-table thead { color: #99f6e4; }
+    .experiment-exp1-table tbody tr:last-child td { border-bottom: 0; }
+
+    .experiment-exp1-chart {
+      min-width: 0;
+      padding: 12px;
+      border: 1px solid #334155;
+      border-radius: 9px;
+      background: rgba(2, 6, 23, 0.48);
+    }
+
+    .experiment-exp1-chart h4 {
+      margin: 0 0 8px;
+      color: #e2e8f0;
+    }
+
+    .experiment-exp1-error-canvas {
+      display: block;
+      width: 100%;
+      height: 300px;
+      border-radius: 7px;
+      background: #020617;
+    }
+
+    .experiment-legend {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px 14px;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    #experimentMessage[data-error="true"] {
+      color: #fca5a5;
+    }
+
+    @media (max-width: 1250px) {
+      .experiment-inspection-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .experiment-exp1-detail-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .experiment-series-canvas {
+        height: 320px;
+      }
+    }
+
+    @media (max-width: 900px) {
+      .experiment-form-grid,
+      .experiment-state-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .experiment-form-grid .experiment-notes-field {
+        grid-column: auto;
+      }
+
+      .experiment-sample-readout {
+        grid-template-columns: 1fr;
+      }
+
+      .experiment-sample-readout .experiment-sample-wide {
+        grid-column: auto;
+      }
+
+      .experiment-exp1-status,
+      .experiment-exp1-cards {
+        grid-template-columns: 1fr;
+      }
+    }
   </style>
 
   <script type="importmap">
@@ -1770,8 +2143,8 @@
           <option value="">No saved paths yet</option>
         </select>
         <input id="digitalTwinCenterPathName" type="text" maxlength="80" placeholder="Path name" aria-label="Center path name" />
-        <button id="digitalTwinCenterPathSave" type="button">Save</button>
-        <button id="digitalTwinCenterPathSaveAs" type="button">Save As</button>
+        <button id="digitalTwinCenterPathSave" type="button" title="Overwrites only the path currently loaded with the exact same name; a different name creates a new path">Save</button>
+        <button id="digitalTwinCenterPathSaveAs" type="button" title="Always creates a new path; an existing name is never overwritten">Save As</button>
         <button id="digitalTwinCenterPathLoad" type="button">Load</button>
         <button id="digitalTwinCenterPathRename" type="button">Rename</button>
         <button id="digitalTwinCenterPathDelete" type="button">Delete</button>
@@ -2478,6 +2851,274 @@
       Live Mirror / preview visualization is read-only. Phase 5 Execute above is an explicit real-robot command and requires operator confirmation.
     </div>
   </section>
+
+  <details id="digitalTwinExperimentPanel" class="panel experiment-panel" open>
+    <summary>Experimental Validation — EXP-0 / EXP-1 / EXP-2</summary>
+    <div class="experiment-notice">
+      Recorder and Run Library controls are observational and send no robot command.
+      Actual paths are reconstructed from recorded encoder/model joints through offline URDF FK;
+      they are not external metrology. Raw samples remain authoritative and alignment is analysis-only.
+    </div>
+
+    <h3>Recorder</h3>
+    <div class="experiment-form-grid" aria-label="Experimental run metadata">
+      <label for="experimentLabel">Display label
+        <input id="experimentLabel" type="text" maxlength="160" placeholder="Experimental validation run" />
+      </label>
+      <label for="experimentPathType">Path type
+        <select id="experimentPathType">
+          <option value="LINEAR">LINEAR</option>
+          <option value="CURVED">CURVED</option>
+          <option value="COMPLEX">COMPLEX</option>
+          <option value="CUSTOM" selected>CUSTOM</option>
+        </select>
+      </label>
+      <label for="experimentFixtureCondition">Fixture condition
+        <select id="experimentFixtureCondition">
+          <option value="NONE" selected>NONE</option>
+          <option value="CLEARANCE">CLEARANCE</option>
+          <option value="RIGID">RIGID</option>
+          <option value="OTHER">OTHER</option>
+        </select>
+      </label>
+      <label class="experiment-notes-field" for="experimentNotes">Notes
+        <textarea id="experimentNotes" maxlength="4000" placeholder="Operator notes and fixture context"></textarea>
+      </label>
+    </div>
+    <div class="row" aria-label="Experiment recorder controls">
+      <button id="experimentArmRecorder" class="digital-twin-primary-action" type="button">Arm Recorder — NO MOTION</button>
+      <button id="experimentDisarmRecorder" type="button">Disarm — NO MOTION</button>
+      <button id="experimentRefreshRecorder" type="button">Refresh Recorder State</button>
+    </div>
+    <div class="experiment-state-grid" aria-label="Experiment recorder state">
+      <span>Recorder State<strong id="experimentRecorderState">IDLE</strong></span>
+      <span>Run ID / Armed Artifact<strong id="experimentArmedArtifact">NONE / NONE</strong></span>
+      <span>Active Trajectory<strong id="experimentActiveTrajectory">NONE</strong></span>
+      <span>Sample Counts<strong id="experimentSampleCounts">NONE</strong></span>
+      <span>Left Torque<strong id="experimentLeftTorqueAvailability">UNAVAILABLE</strong></span>
+      <span>Right Torque<strong id="experimentRightTorqueAvailability">UNAVAILABLE</strong></span>
+      <span>Recorder Error<strong id="experimentRecorderError">NONE</strong></span>
+      <span>Authority<strong>OBSERVATIONAL ONLY</strong></span>
+    </div>
+
+    <h3>Run Library</h3>
+    <div class="experiment-library-controls" aria-label="Experimental Run Library controls">
+      <select id="experimentRunSelect" aria-label="Experimental run selector">
+        <option value="">No runs loaded</option>
+      </select>
+      <button id="experimentRefreshRuns" type="button">Refresh</button>
+      <button id="experimentLoadRun" type="button">Load</button>
+      <button id="experimentRelabelRun" type="button">Relabel</button>
+      <button id="experimentDeleteRun" class="stop" type="button">Delete</button>
+      <button id="experimentExportRun" type="button">Export JSON</button>
+    </div>
+    <div id="experimentMessage" class="small" role="status">Run Library not loaded.</div>
+
+    <section class="experiment-exp1" aria-labelledby="experimentExp1Heading">
+      <div class="experiment-exp1-header">
+        <h3 id="experimentExp1Heading">EXP-1 Trajectory Tracking Accuracy</h3>
+        <button id="experimentExp1Analyze" class="digital-twin-primary-action" type="button">Analyze/Reanalyze Selected Run — NO MOTION</button>
+      </div>
+      <div class="experiment-notice">
+        Signed error is Actual joint [rad] − receive-time-interpolated Planned joint [rad].
+        Only persisted INTERPOLATED rows with finite six-joint vectors contribute. This is offline
+        analysis only—not Phase6 timing, fault, STOP, or safety authority. Commanded snapshots remain
+        visible below but are asynchronous and excluded from the primary metric. Encoder/FK evidence
+        is not external metrology.
+      </div>
+      <div class="experiment-exp1-status" aria-label="EXP-1 status and Actual source semantics">
+        <span>Status<strong id="experimentExp1Status">NOT ANALYZED</strong></span>
+        <span>Actual Source Semantics<strong id="experimentExp1ActualSource">UNAVAILABLE</strong></span>
+      </div>
+      <div class="experiment-exp1-cards" aria-label="EXP-1 summary metrics">
+        <article class="experiment-exp1-card">
+          <h4>Combined · 12 joints</h4>
+          <dl>
+            <dt>RMSE [rad]</dt><dd id="experimentExp1CombinedRmse">N/A</dd>
+            <dt>MAE [rad]</dt><dd id="experimentExp1CombinedMae">N/A</dd>
+            <dt>Max |Error| [rad]</dt><dd id="experimentExp1CombinedMax">N/A</dd>
+            <dt>Worst joint</dt><dd id="experimentExp1CombinedWorst">N/A</dd>
+            <dt>Usable coverage</dt><dd id="experimentExp1CombinedCoverage">0 / 0 rows</dd>
+          </dl>
+        </article>
+        <article class="experiment-exp1-card">
+          <h4>Left · J1–J6</h4>
+          <dl>
+            <dt>RMSE [rad]</dt><dd id="experimentExp1LeftRmse">N/A</dd>
+            <dt>MAE [rad]</dt><dd id="experimentExp1LeftMae">N/A</dd>
+            <dt>Max |Error| [rad]</dt><dd id="experimentExp1LeftMax">N/A</dd>
+            <dt>Worst joint</dt><dd id="experimentExp1LeftWorst">N/A</dd>
+            <dt>Usable coverage</dt><dd id="experimentExp1LeftCoverage">0 / 0 rows</dd>
+          </dl>
+        </article>
+        <article class="experiment-exp1-card">
+          <h4>Right · J1–J6</h4>
+          <dl>
+            <dt>RMSE [rad]</dt><dd id="experimentExp1RightRmse">N/A</dd>
+            <dt>MAE [rad]</dt><dd id="experimentExp1RightMae">N/A</dd>
+            <dt>Max |Error| [rad]</dt><dd id="experimentExp1RightMax">N/A</dd>
+            <dt>Worst joint</dt><dd id="experimentExp1RightWorst">N/A</dd>
+            <dt>Usable coverage</dt><dd id="experimentExp1RightCoverage">0 / 0 rows</dd>
+          </dl>
+        </article>
+      </div>
+      <div class="experiment-exp1-detail-grid">
+        <div class="experiment-exp1-table-wrap">
+          <table class="experiment-exp1-table" aria-label="EXP-1 per-joint metrics">
+            <thead><tr><th>Joint</th><th>Bias [rad]</th><th>MAE [rad]</th><th>RMSE [rad]</th><th>Max |Error| [rad]</th><th>Samples</th></tr></thead>
+            <tbody id="experimentExp1JointRows"></tbody>
+          </table>
+        </div>
+        <div class="experiment-exp1-chart">
+          <h4>Selected joint tracking error vs time</h4>
+          <canvas id="experimentExp1ErrorSeries" class="experiment-exp1-error-canvas" width="760" height="300" aria-label="Receive-time-aligned selected joint tracking error in radians"></canvas>
+          <div class="experiment-legend">
+            <span>Uses the existing Arm and Joint selectors below</span>
+            <span>Error = Actual − interpolated Planned</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="experiment-exp1 experiment-exp2" aria-labelledby="experimentExp2Heading">
+      <div class="experiment-exp1-header">
+        <h3 id="experimentExp2Heading">EXP-2 Rigid-Grasp Preservation</h3>
+        <button id="experimentExp2Analyze" class="digital-twin-primary-action" type="button">Analyze/Reanalyze Selected Run — NO MOTION</button>
+      </div>
+      <div class="experiment-notice">
+        Relative pose is derived offline from synchronized recorded Actual joints and the calibrated Web URDF.
+        Reference is L_T_R = inverse(O_T_L) × O_T_R from the locked grasp. Translation is reported in mm;
+        orientation uses the rotation-angle of R_refᵀR_actual (not Euler subtraction). Center-from-Left and
+        Center-from-Right remain distinct and are never averaged. Encoder+URDF evidence is model-based,
+        not external metrology and not Phase6 timing/fault/safety authority.
+      </div>
+      <div class="experiment-exp1-status" aria-label="EXP-2 status and source semantics">
+        <span>Status<strong id="experimentExp2Status">NOT ANALYZED</strong></span>
+        <span>Actual/FK Source<strong id="experimentExp2ActualSource">UNAVAILABLE</strong></span>
+        <span>Coverage<strong id="experimentExp2Coverage">0 / 0 synchronized samples</strong></span>
+      </div>
+      <div class="experiment-exp1-cards" aria-label="EXP-2 rigid-grasp summary metrics">
+        <article class="experiment-exp1-card">
+          <h4>Relative Translation</h4>
+          <dl>
+            <dt>Magnitude RMS [mm]</dt><dd id="experimentExp2TranslationRms">N/A</dd>
+            <dt>Magnitude Max [mm]</dt><dd id="experimentExp2TranslationMax">N/A</dd>
+            <dt>Worst time [s]</dt><dd id="experimentExp2TranslationWorstTime">N/A</dd>
+          </dl>
+        </article>
+        <article class="experiment-exp1-card">
+          <h4>Relative Orientation</h4>
+          <dl>
+            <dt>RMS [deg]</dt><dd id="experimentExp2OrientationRms">N/A</dd>
+            <dt>Max [deg]</dt><dd id="experimentExp2OrientationMax">N/A</dd>
+            <dt>Worst time [s]</dt><dd id="experimentExp2OrientationWorstTime">N/A</dd>
+          </dl>
+        </article>
+        <article class="experiment-exp1-card">
+          <h4>Center Consistency · Left vs Right</h4>
+          <dl>
+            <dt>Translation RMS [mm]</dt><dd id="experimentExp2CenterTranslationRms">N/A</dd>
+            <dt>Translation Max [mm]</dt><dd id="experimentExp2CenterTranslationMax">N/A</dd>
+            <dt>Orientation RMS [deg]</dt><dd id="experimentExp2CenterOrientationRms">N/A</dd>
+            <dt>Orientation Max [deg]</dt><dd id="experimentExp2CenterOrientationMax">N/A</dd>
+          </dl>
+        </article>
+      </div>
+      <div class="experiment-exp1-detail-grid">
+        <div class="experiment-exp1-table-wrap">
+          <table class="experiment-exp1-table" aria-label="EXP-2 relative translation axis metrics">
+            <thead><tr><th>Axis</th><th>Mean [mm]</th><th>MAE [mm]</th><th>RMSE [mm]</th><th>Max |Error| [mm]</th></tr></thead>
+            <tbody id="experimentExp2AxisRows"></tbody>
+          </table>
+        </div>
+        <div class="experiment-exp1-chart">
+          <div class="experiment-view-controls" aria-label="EXP-2 relative-pose series selector">
+            <label for="experimentExp2Series">Series
+              <select id="experimentExp2Series">
+                <option value="translation_magnitude">Relative translation magnitude</option>
+                <option value="translation_x">Relative translation X</option>
+                <option value="translation_y">Relative translation Y</option>
+                <option value="translation_z">Relative translation Z</option>
+                <option value="orientation">Relative orientation</option>
+                <option value="center_translation">Center translation disagreement</option>
+                <option value="center_orientation">Center orientation disagreement</option>
+              </select>
+            </label>
+          </div>
+          <canvas id="experimentExp2SeriesCanvas" class="experiment-exp1-error-canvas" width="760" height="300" aria-label="EXP-2 synchronized rigid-grasp error time series"></canvas>
+          <div class="experiment-legend">
+            <span>Translation series shown in mm</span>
+            <span>Orientation series shown in deg</span>
+            <span>Common receive-time interpolation is analysis-only</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <h3>Experimental 3D Path Viewer</h3>
+    <div class="experiment-visibility-controls" aria-label="Experimental path visibility toggles">
+      <strong>Visibility:</strong>
+      <label><input id="experimentTogglePlanned" type="checkbox" checked /> Planned</label>
+      <label><input id="experimentToggleActual" type="checkbox" checked /> Actual</label>
+      <label><input id="experimentToggleLeft" type="checkbox" checked /> Left</label>
+      <label><input id="experimentToggleRight" type="checkbox" checked /> Right</label>
+      <label><input id="experimentToggleCenter" type="checkbox" checked /> Center</label>
+    </div>
+    <div class="experiment-view-controls" aria-label="Experimental path view presets">
+      <strong>View:</strong>
+      <button id="experimentView3D" type="button">3D</button>
+      <button id="experimentViewTopXY" type="button">Top XY</button>
+      <button id="experimentViewFrontXZ" type="button">Front XZ</button>
+      <button id="experimentViewSideYZ" type="button">Side YZ</button>
+      <button id="experimentFitAll" type="button">Fit All</button>
+    </div>
+    <div id="experimentPathViewer" class="experiment-viewer" aria-label="Recorded planned and actual FK path viewer"></div>
+    <div class="experiment-legend" aria-label="Experimental path legend">
+      <span>Planned Left — cyan</span><span>Planned Right — blue</span>
+      <span>Planned Center — white</span><span>Actual Left — green</span>
+      <span>Actual Right — orange</span><span>Center-from-Left — magenta</span>
+      <span>Center-from-Right — red</span>
+    </div>
+
+    <div class="experiment-inspection-grid">
+      <div class="experiment-sample-controls">
+        <label for="experimentSampleSlider"><strong>Selected sample / time</strong></label>
+        <input id="experimentSampleSlider" type="range" min="0" max="0" step="1" value="0" />
+        <div class="digital-twin-readout experiment-sample-readout">
+          <span>Sample<strong id="experimentSelectedSample">0 / 0</strong></span>
+          <span>Time<strong id="experimentSelectedTime">N/A</strong></span>
+          <span>Planned Left<strong id="experimentSelectedPlannedLeft">UNAVAILABLE</strong></span>
+          <span>Planned Right<strong id="experimentSelectedPlannedRight">UNAVAILABLE</strong></span>
+          <span>Planned Center<strong id="experimentSelectedPlannedCenter">UNAVAILABLE</strong></span>
+          <span>Actual Left FK<strong id="experimentSelectedActualLeft">UNAVAILABLE</strong></span>
+          <span>Actual Right FK<strong id="experimentSelectedActualRight">UNAVAILABLE</strong></span>
+          <span>Center-from-Left<strong id="experimentSelectedCenterLeft">UNAVAILABLE</strong></span>
+          <span>Center-from-Right<strong id="experimentSelectedCenterRight">UNAVAILABLE</strong></span>
+          <span class="experiment-sample-wide">Selected Torque<strong id="experimentSelectedTorque">MISSING / MISSING</strong></span>
+          <span class="experiment-sample-wide">EXP-2 Relative Pose<strong id="experimentRelativeErrorSeries">MODEL-BASED ANALYSIS NOT LOADED</strong></span>
+        </div>
+      </div>
+      <div class="experiment-series-panel">
+        <div class="experiment-view-controls" aria-label="Joint and torque series controls">
+          <label for="experimentSeriesSide">Arm
+            <select id="experimentSeriesSide"><option value="left">Left</option><option value="right">Right</option></select>
+          </label>
+          <label for="experimentSeriesJoint">Joint
+            <select id="experimentSeriesJoint">
+              <option value="0">J1</option><option value="1">J2</option><option value="2">J3</option>
+              <option value="3">J4</option><option value="4">J5</option><option value="5">J6</option>
+            </select>
+          </label>
+          <label><input id="experimentTorqueToggle" type="checkbox" checked /> Torque when present</label>
+        </div>
+        <canvas id="experimentJointSeries" class="experiment-series-canvas" width="900" height="300" aria-label="Linked joint tracking and torque time series"></canvas>
+        <div class="experiment-legend">
+          <span>Planned joint</span><span>Commanded joint</span><span>Actual joint</span>
+          <span>Torque [N·m] when present</span><span>EXP-2 relative pose is shown in its dedicated panel</span>
+        </div>
+      </div>
+    </div>
+  </details>
 
   <div class="panel">
     <h2>Waypoint Manager</h2>
@@ -3723,10 +4364,11 @@ init();
 </script>
 
 
-<script type="module" src="/web-assets/digital_twin.js?v=phase6-p6-1-joint-tracking-v1"></script>
+<script type="module" src="/web-assets/digital_twin.js?v=phase6-p6-1-joint-tracking-v1-center-path-safe-save-v2"></script>
 <script type="module" src="/web-assets/digital_twin_live_source.js?v=feature5-live-mirror-switch-v1"></script>
 <script type="module" src="/web-assets/digital_twin_robot_status_source.js"></script>
 <script type="module" src="/web-assets/digital_twin_tcp_source.js"></script>
+<script type="module" src="/web-assets/digital_twin_experiment.js?v=exp2-v1"></script>
 
 </body>
 </html>

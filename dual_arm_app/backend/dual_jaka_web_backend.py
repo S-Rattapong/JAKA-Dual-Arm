@@ -5,7 +5,7 @@ import re
 import threading
 import time
 from pathlib import Path
-from typing import Optional, Dict, Any
+from typing import Optional, Dict, Any, Literal
 
 import yaml
 import rclpy
@@ -27,6 +27,7 @@ except ImportError:
 
 from std_srvs.srv import Empty
 from sensor_msgs.msg import JointState
+from std_msgs.msg import Float64MultiArray
 from jaka_msgs.msg import RobotMsg
 from jaka_msgs.srv import (
     Move,
@@ -321,13 +322,20 @@ except ImportError:
 
 try:
     from dual_arm_app.backend.phase5_execution_coordinator import (
+        ACTIVE_STATES as PHASE5_ACTIVE_STATES,
         Phase5ExecutionCoordinator,
     )
 except ImportError:
     try:
-        from .phase5_execution_coordinator import Phase5ExecutionCoordinator
+        from .phase5_execution_coordinator import (
+            ACTIVE_STATES as PHASE5_ACTIVE_STATES,
+            Phase5ExecutionCoordinator,
+        )
     except ImportError:
-        from phase5_execution_coordinator import Phase5ExecutionCoordinator
+        from phase5_execution_coordinator import (
+            ACTIVE_STATES as PHASE5_ACTIVE_STATES,
+            Phase5ExecutionCoordinator,
+        )
 
 try:
     from dual_arm_app.backend.phase5_execution_feedback import (
@@ -374,6 +382,29 @@ except ImportError:
             evaluate_actual_start_match,
             fresh_actual_joint_state,
             normalize_phase5_motion_settings,
+        )
+
+try:
+    from dual_arm_app.backend.experimental_infrastructure import (
+        ExperimentError,
+        ExperimentRecorder,
+        ExperimentRunStore,
+        TorqueCache,
+    )
+except ImportError:
+    try:
+        from .experimental_infrastructure import (
+            ExperimentError,
+            ExperimentRecorder,
+            ExperimentRunStore,
+            TorqueCache,
+        )
+    except ImportError:
+        from experimental_infrastructure import (
+            ExperimentError,
+            ExperimentRecorder,
+            ExperimentRunStore,
+            TorqueCache,
         )
 
 
@@ -460,7 +491,7 @@ class DigitalTwinObjectGlobalPlanRequest(BaseModel):
 class DigitalTwinCenterPathSaveRequest(BaseModel):
     name: str
     path: Dict[str, Any]
-    overwrite: bool = True
+    overwrite: bool = False
 
 
 class DigitalTwinCenterPathNameRequest(BaseModel):
@@ -499,6 +530,18 @@ class DigitalTwinPhase4UnifiedValidationRequest(BaseModel):
 
 class DigitalTwinPhase5ExecuteRequest(BaseModel):
     operator_confirmed: bool = Field(..., strict=True)
+
+
+class ExperimentArmRequest(BaseModel):
+    label: str = ""
+    path_type: Literal["LINEAR", "CURVED", "COMPLEX", "CUSTOM"] = "CUSTOM"
+    fixture_condition: Literal["NONE", "CLEARANCE", "RIGID", "OTHER"] = "NONE"
+    notes: str = ""
+    plan_snapshot: Any = None
+
+
+class ExperimentRelabelRequest(BaseModel):
+    label: str
 
 
 class StopRequest(BaseModel):
@@ -679,6 +722,21 @@ class DualJakaWebNode(Node):
         self.phase5_recovery_initial_lock = threading.Lock()
         self.phase5_recovery_initial = None
         self.rigid_grasp_configuration = AuthoritativeRigidGraspState()
+        self.experiment_store = ExperimentRunStore(
+            Path(__file__).resolve().parents[1] / "experiment_runs"
+        )
+        actual_stale_ms = (
+            self.phase5_motion_settings.get("actual_feedback_max_age_ms", 500)
+            if self.phase5_motion_settings is not None else 500
+        )
+        # Existing driver torque telemetry is lower-rate than Port10000 joint
+        # feedback; keep a separate freshness window and report staleness
+        # explicitly instead of fabricating high-rate torque during Phase5.
+        self.experiment_torque_cache = TorqueCache(stale_after_ms=1500)
+        self.experiment_recorder = ExperimentRecorder(
+            self.experiment_store,
+            actual_stale_after_ms=int(actual_stale_ms),
+        )
 
         self.active_jog: Optional[Dict[str, Any]] = None
         self.active_sequence: Optional[Dict[str, Any]] = None
@@ -700,6 +758,18 @@ class DualJakaWebNode(Node):
         self.create_subscription(JointState, f"{cfg['right']['prefix']}/joint_position", self.right_joint_cb, 10)
         self.create_subscription(RobotMsg, f"{cfg['left']['prefix']}/robot_states", self.left_state_cb, 10)
         self.create_subscription(RobotMsg, f"{cfg['right']['prefix']}/robot_states", self.right_state_cb, 10)
+        self.create_subscription(
+            Float64MultiArray,
+            f"{cfg['left']['prefix']}/joint_torque_raw",
+            self.left_torque_cb,
+            10,
+        )
+        self.create_subscription(
+            Float64MultiArray,
+            f"{cfg['right']['prefix']}/joint_torque_raw",
+            self.right_torque_cb,
+            10,
+        )
 
         self.left_jog = self.create_client(Move, f"{cfg['left']['prefix']}/jog")
         self.right_jog = self.create_client(Move, f"{cfg['right']['prefix']}/jog")
@@ -776,6 +846,12 @@ class DualJakaWebNode(Node):
 
     def right_joint_cb(self, msg):
         self._update_digital_twin_joint_cache("right", msg)
+
+    def left_torque_cb(self, msg):
+        self.experiment_torque_cache.update("left", getattr(msg, "data", None))
+
+    def right_torque_cb(self, msg):
+        self.experiment_torque_cache.update("right", getattr(msg, "data", None))
 
     def _update_digital_twin_joint_cache(self, side, msg):
         received_at_ms = wall_clock_ms()
@@ -1524,6 +1600,17 @@ class DualJakaWebNode(Node):
             and not result.get("legacy_conflicts")
             and execution_state not in {"PREPARING", "ARMED", "RUNNING", "ABORT_REQUESTED"}
         )
+        try:
+            self.experiment_recorder.observe(
+                result,
+                monitoring_actual_joints,
+                self.experiment_torque_cache.snapshot(),
+            )
+        except Exception as error:
+            # Experiment persistence is observational: it must never change
+            # Phase5 status, terminal authority, or accepted robot execution.
+            self.experiment_recorder.record_error(error)
+        result["experiment_recorder"] = self.experiment_recorder.state()
         return result
 
     def phase5_driver_execution_feedback(self, trajectory_id):
@@ -1601,7 +1688,111 @@ class DualJakaWebNode(Node):
                 # never mutate or retroactively cancel that accepted execution.
                 with self.phase5_recovery_initial_lock:
                     self.phase5_recovery_initial = None
+            try:
+                self.experiment_recorder.bind_execution(execution)
+            except Exception as error:
+                # The paired driver submission is already accepted. Recorder
+                # failure is reported separately and can never alter result.
+                self.experiment_recorder.record_error(error)
         return result
+
+    def arm_experiment_recorder(self, request_payload):
+        """Arm observational storage against the current artifact/report identity."""
+        artifact, artifact_generation, artifact_reason = self._phase5_artifact_snapshot()
+        if artifact is None:
+            raise ExperimentError(
+                f"Current frozen artifact required: {artifact_reason}"
+            )
+        gate = self.phase4_execution_gate_state(artifact.plan_fingerprint)
+        if gate.get("execution_ready") is not True:
+            raise ExperimentError(
+                "Current matching Phase4 execution gate must be PASS before arming"
+            )
+        with self.phase4_unified_validation_lock:
+            report = (
+                json.loads(json.dumps(self.phase4_unified_validation_report))
+                if self.phase4_unified_validation_report is not None else None
+            )
+            validation_generation = int(self.phase4_unified_validation_generation)
+        current_artifact, current_generation, _reason = self._phase5_artifact_snapshot()
+        if (
+            current_artifact is not artifact
+            or int(current_generation) != int(artifact_generation)
+            or validation_generation != int(artifact_generation)
+        ):
+            raise ExperimentError(
+                "Current artifact or Phase4 PASS changed while arming; refresh and retry"
+            )
+        locked = self.rigid_grasp_configuration.locked_snapshot()
+        if (
+            locked is None
+            or locked.content_revision != artifact.grasp_content_revision
+            or locked.lock_generation != artifact.grasp_lock_generation
+            or locked.lock_revision != artifact.grasp_lock_revision
+        ):
+            raise ExperimentError(
+                "Current locked grasp does not match the frozen artifact"
+            )
+        return self.experiment_recorder.arm(
+            artifact=artifact,
+            artifact_generation=artifact_generation,
+            phase4_report=report,
+            phase4_generation=validation_generation,
+            metadata=request_payload,
+            plan_snapshot=request_payload.get("plan_snapshot"),
+            motion_configuration=self.phase5_motion_settings or {
+                "valid": False,
+                "error": self.phase5_motion_configuration_error,
+            },
+            robot_configuration=self.cfg,
+            grasp_snapshot=locked.as_payload() if locked is not None else None,
+        )
+
+    def experiment_recorder_state(self):
+        return self.experiment_recorder.state()
+
+    def disarm_experiment_recorder(self):
+        return self.experiment_recorder.disarm()
+
+    def list_experiment_runs(self):
+        return {
+            "ok": True,
+            "runs": self.experiment_store.list_runs(),
+            "recorder": self.experiment_recorder.state(),
+        }
+
+    def load_experiment_run(self, run_id):
+        return {"ok": True, "run": self.experiment_store.load(run_id)}
+
+    def analyze_experiment_run_exp1(self, run_id):
+        """Analyze persisted EXP-0 evidence only; never contact either robot."""
+        return {
+            "ok": True,
+            "run_id": run_id,
+            "exp1_analysis": self.experiment_store.analyze_exp1(run_id),
+        }
+
+    def analyze_experiment_run_exp2(self, run_id):
+        """Compute model-based rigid-grasp metrics from persisted evidence only."""
+        return {
+            "ok": True,
+            "run_id": run_id,
+            "exp2_analysis": self.experiment_store.analyze_exp2(run_id),
+        }
+
+    def relabel_experiment_run(self, run_id, label):
+        return {
+            "ok": True,
+            "manifest": self.experiment_store.relabel(run_id, label),
+        }
+
+    def delete_experiment_run(self, run_id):
+        active_run_id = self.experiment_recorder.state().get("run_id")
+        active_state = self.experiment_recorder.state().get("state")
+        if run_id == active_run_id and active_state in {"ARMED", "RECORDING"}:
+            raise ExperimentError("Cannot delete an armed or recording run")
+        self.experiment_store.delete(run_id)
+        return {"ok": True, "deleted_run_id": run_id}
 
     def phase5_execution_artifact_state(self):
         """Return a copy-safe P5.1-P5.3 artifact snapshot; never execute it."""
@@ -2933,7 +3124,7 @@ class DualJakaWebNode(Node):
         except Exception as error:
             return {"ok": False, "error": str(error), "paths": []}
 
-    def save_center_path(self, name, path_payload, overwrite=True):
+    def save_center_path(self, name, path_payload, overwrite=False):
         try:
             return self.center_path_store.save(name, path_payload, overwrite=bool(overwrite))
         except Exception as error:
@@ -3661,6 +3852,7 @@ _D33_MOTION_KEYWORDS = (
 )
 
 _D33_NO_MOTION_PATHS = (
+    "/api/experiments",
     "/api/status",
     "/api/robot/activity",
     "/api/waypoints",
@@ -3899,6 +4091,85 @@ def api_digital_twin_phase5_replan_from_current():
 def api_digital_twin_phase5_move_to_initial():
     """Explicit real recovery motion to frozen artifact sample zero."""
     return node.phase5_move_to_initial()
+
+
+@app.get("/api/experiments")
+def api_experiment_runs():
+    """List persisted observational runs; never command either robot."""
+    return node.list_experiment_runs()
+
+
+@app.get("/api/experiments/recorder")
+def api_experiment_recorder_state():
+    return node.experiment_recorder_state()
+
+
+@app.post("/api/experiments/arm")
+def api_experiment_arm(req: ExperimentArmRequest):
+    payload = req.model_dump() if hasattr(req, "model_dump") else req.dict()
+    try:
+        return node.arm_experiment_recorder(payload)
+    except ExperimentError as error:
+        raise HTTPException(status_code=422, detail=str(error)) from error
+
+
+@app.post("/api/experiments/disarm")
+def api_experiment_disarm():
+    try:
+        return node.disarm_experiment_recorder()
+    except ExperimentError as error:
+        raise HTTPException(status_code=409, detail=str(error)) from error
+
+
+@app.get("/api/experiments/{run_id}")
+def api_experiment_load(run_id: str):
+    try:
+        return node.load_experiment_run(run_id)
+    except ExperimentError as error:
+        raise HTTPException(status_code=404, detail=str(error)) from error
+
+
+@app.get("/api/experiments/{run_id}/export")
+def api_experiment_export(run_id: str):
+    """Export one complete machine-readable run as JSON."""
+    try:
+        return node.load_experiment_run(run_id)
+    except ExperimentError as error:
+        raise HTTPException(status_code=404, detail=str(error)) from error
+
+
+@app.post("/api/experiments/{run_id}/exp1-analysis")
+def api_experiment_exp1_analysis(run_id: str):
+    """Compute and persist EXP-1 from recorded files; no motion or live reads."""
+    try:
+        return node.analyze_experiment_run_exp1(run_id)
+    except ExperimentError as error:
+        raise HTTPException(status_code=422, detail=str(error)) from error
+
+
+@app.post("/api/experiments/{run_id}/exp2-analysis")
+def api_experiment_exp2_analysis(run_id: str):
+    """Compute/persist offline EXP-2 rigid-grasp metrics; no motion/live reads."""
+    try:
+        return node.analyze_experiment_run_exp2(run_id)
+    except ExperimentError as error:
+        raise HTTPException(status_code=422, detail=str(error)) from error
+
+
+@app.patch("/api/experiments/{run_id}")
+def api_experiment_relabel(run_id: str, req: ExperimentRelabelRequest):
+    try:
+        return node.relabel_experiment_run(run_id, req.label)
+    except ExperimentError as error:
+        raise HTTPException(status_code=422, detail=str(error)) from error
+
+
+@app.delete("/api/experiments/{run_id}")
+def api_experiment_delete(run_id: str):
+    try:
+        return node.delete_experiment_run(run_id)
+    except ExperimentError as error:
+        raise HTTPException(status_code=409, detail=str(error)) from error
 
 
 @app.get("/api/digital-twin/center-paths")

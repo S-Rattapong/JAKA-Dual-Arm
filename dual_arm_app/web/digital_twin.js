@@ -81,8 +81,9 @@ import {
   listCenterPaths,
   loadCenterPath,
   renameCenterPath,
+  resolveCenterPathSaveIntent,
   saveCenterPath,
-} from "./digital_twin_center_path_library.js";
+} from "./digital_twin_center_path_library.js?v=center-path-safe-save-v2";
 import {
   matrix4ElementsToWorldPose,
 } from "./digital_twin_phase1_state.js";
@@ -5351,9 +5352,12 @@ async function refreshCenterPathLibrary(fetchImpl = fetch) {
 async function saveCurrentCenterPath({saveAs = false, fetchImpl = fetch} = {}) {
   const nameInput = document.getElementById("digitalTwinCenterPathName");
   const typedName = nameInput ? nameInput.value.trim() : "";
-  const name = saveAs
-    ? typedName
-    : (centerPathLibraryState.loadedName || typedName);
+  const saveIntent = resolveCenterPathSaveIntent(
+    typedName,
+    centerPathLibraryState.loadedName,
+    saveAs,
+  );
+  const name = saveIntent.name;
   if (!name) {
     centerPathLibraryState.error = "Enter a path name first";
     updateCenterPathLibraryUi();
@@ -5366,16 +5370,23 @@ async function saveCurrentCenterPath({saveAs = false, fetchImpl = fetch} = {}) {
   }
   let succeeded = false;
   centerPathLibraryState.requestInFlight = true;
-  centerPathLibraryState.status = saveAs ? "SAVING NEW PATH…" : "SAVING PATH…";
+  centerPathLibraryState.status = saveIntent.overwrite
+    ? "SAVING CHANGES…"
+    : "SAVING NEW PATH…";
   centerPathLibraryState.error = null;
   updateCenterPathLibraryUi();
   try {
-    const response = await saveCenterPath(name, currentCenterPathPayload(), !saveAs, fetchImpl);
+    const response = await saveCenterPath(
+      name,
+      currentCenterPathPayload(),
+      saveIntent.overwrite,
+      fetchImpl,
+    );
     centerPathLibraryState.loadedName = response.name;
     centerPathLibraryState.selectedName = response.name;
     centerPathLibraryState.dirty = false;
     if (nameInput) nameInput.value = response.name;
-    centerPathLibraryState.status = "SAVED";
+    centerPathLibraryState.status = saveIntent.overwrite ? "SAVED CHANGES" : "SAVED NEW PATH";
     succeeded = true;
   } catch (error) {
     centerPathLibraryState.error = error && error.message ? error.message : "Path save failed";

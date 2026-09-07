@@ -149,6 +149,10 @@ def _mocked_backend_import():
         "std_srvs.srv": _module("std_srvs.srv", Empty=dummy),
         "sensor_msgs": _module("sensor_msgs"),
         "sensor_msgs.msg": _module("sensor_msgs.msg", JointState=dummy),
+        "std_msgs": _module("std_msgs"),
+        "std_msgs.msg": _module(
+            "std_msgs.msg", Float64MultiArray=dummy
+        ),
         "jaka_msgs": _module("jaka_msgs"),
         "jaka_msgs.msg": _module("jaka_msgs.msg", RobotMsg=dummy),
         "jaka_msgs.srv": _module(
@@ -163,6 +167,7 @@ def _mocked_backend_import():
     }
     fake_modules["std_srvs"].srv = fake_modules["std_srvs.srv"]
     fake_modules["sensor_msgs"].msg = fake_modules["sensor_msgs.msg"]
+    fake_modules["std_msgs"].msg = fake_modules["std_msgs.msg"]
     fake_modules["jaka_msgs"].msg = fake_modules["jaka_msgs.msg"]
     fake_modules["jaka_msgs"].srv = fake_modules["jaka_msgs.srv"]
 

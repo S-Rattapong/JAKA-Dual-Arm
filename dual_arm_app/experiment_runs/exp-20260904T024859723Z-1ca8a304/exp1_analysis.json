@@ -1,0 +1,246 @@
+{
+  "actual_source_semantics": {
+    "description": "Existing visualization Actual selection: fresh dual Port10000 when available, otherwise cached ROS JointState; no SDK call",
+    "external_metrology": false,
+    "observed_sources": []
+  },
+  "alignment_reference": "EXP-0 aligned.json using recorded Actual receive timestamps",
+  "arms": {
+    "left": {
+      "joints": [
+        {
+          "joint": "Left J1",
+          "joint_index": 0,
+          "mae_rad": null,
+          "max_abs_error_location": {
+            "observation_index": null,
+            "time_from_start_s": null
+          },
+          "max_abs_error_rad": null,
+          "mean_signed_error_rad": null,
+          "rmse_rad": null,
+          "sample_count": 0,
+          "side": "left"
+        },
+        {
+          "joint": "Left J2",
+          "joint_index": 1,
+          "mae_rad": null,
+          "max_abs_error_location": {
+            "observation_index": null,
+            "time_from_start_s": null
+          },
+          "max_abs_error_rad": null,
+          "mean_signed_error_rad": null,
+          "rmse_rad": null,
+          "sample_count": 0,
+          "side": "left"
+        },
+        {
+          "joint": "Left J3",
+          "joint_index": 2,
+          "mae_rad": null,
+          "max_abs_error_location": {
+            "observation_index": null,
+            "time_from_start_s": null
+          },
+          "max_abs_error_rad": null,
+          "mean_signed_error_rad": null,
+          "rmse_rad": null,
+          "sample_count": 0,
+          "side": "left"
+        },
+        {
+          "joint": "Left J4",
+          "joint_index": 3,
+          "mae_rad": null,
+          "max_abs_error_location": {
+            "observation_index": null,
+            "time_from_start_s": null
+          },
+          "max_abs_error_rad": null,
+          "mean_signed_error_rad": null,
+          "rmse_rad": null,
+          "sample_count": 0,
+          "side": "left"
+        },
+        {
+          "joint": "Left J5",
+          "joint_index": 4,
+          "mae_rad": null,
+          "max_abs_error_location": {
+            "observation_index": null,
+            "time_from_start_s": null
+          },
+          "max_abs_error_rad": null,
+          "mean_signed_error_rad": null,
+          "rmse_rad": null,
+          "sample_count": 0,
+          "side": "left"
+        },
+        {
+          "joint": "Left J6",
+          "joint_index": 5,
+          "mae_rad": null,
+          "max_abs_error_location": {
+            "observation_index": null,
+            "time_from_start_s": null
+          },
+          "max_abs_error_rad": null,
+          "mean_signed_error_rad": null,
+          "rmse_rad": null,
+          "sample_count": 0,
+          "side": "left"
+        }
+      ],
+      "status": "UNAVAILABLE",
+      "summary": {
+        "mae_rad": null,
+        "max_abs_error_rad": null,
+        "rmse_rad": null,
+        "sample_count": 0,
+        "scalar_value_count": 0,
+        "worst_joint_by_max_error": null,
+        "worst_joint_by_rmse": null
+      }
+    },
+    "right": {
+      "joints": [
+        {
+          "joint": "Right J1",
+          "joint_index": 0,
+          "mae_rad": null,
+          "max_abs_error_location": {
+            "observation_index": null,
+            "time_from_start_s": null
+          },
+          "max_abs_error_rad": null,
+          "mean_signed_error_rad": null,
+          "rmse_rad": null,
+          "sample_count": 0,
+          "side": "right"
+        },
+        {
+          "joint": "Right J2",
+          "joint_index": 1,
+          "mae_rad": null,
+          "max_abs_error_location": {
+            "observation_index": null,
+            "time_from_start_s": null
+          },
+          "max_abs_error_rad": null,
+          "mean_signed_error_rad": null,
+          "rmse_rad": null,
+          "sample_count": 0,
+          "side": "right"
+        },
+        {
+          "joint": "Right J3",
+          "joint_index": 2,
+          "mae_rad": null,
+          "max_abs_error_location": {
+            "observation_index": null,
+            "time_from_start_s": null
+          },
+          "max_abs_error_rad": null,
+          "mean_signed_error_rad": null,
+          "rmse_rad": null,
+          "sample_count": 0,
+          "side": "right"
+        },
+        {
+          "joint": "Right J4",
+          "joint_index": 3,
+          "mae_rad": null,
+          "max_abs_error_location": {
+            "observation_index": null,
+            "time_from_start_s": null
+          },
+          "max_abs_error_rad": null,
+          "mean_signed_error_rad": null,
+          "rmse_rad": null,
+          "sample_count": 0,
+          "side": "right"
+        },
+        {
+          "joint": "Right J5",
+          "joint_index": 4,
+          "mae_rad": null,
+          "max_abs_error_location": {
+            "observation_index": null,
+            "time_from_start_s": null
+          },
+          "max_abs_error_rad": null,
+          "mean_signed_error_rad": null,
+          "rmse_rad": null,
+          "sample_count": 0,
+          "side": "right"
+        },
+        {
+          "joint": "Right J6",
+          "joint_index": 5,
+          "mae_rad": null,
+          "max_abs_error_location": {
+            "observation_index": null,
+            "time_from_start_s": null
+          },
+          "max_abs_error_rad": null,
+          "mean_signed_error_rad": null,
+          "rmse_rad": null,
+          "sample_count": 0,
+          "side": "right"
+        }
+      ],
+      "status": "UNAVAILABLE",
+      "summary": {
+        "mae_rad": null,
+        "max_abs_error_rad": null,
+        "rmse_rad": null,
+        "sample_count": 0,
+        "scalar_value_count": 0,
+        "worst_joint_by_max_error": null,
+        "worst_joint_by_rmse": null
+      }
+    }
+  },
+  "combined": {
+    "mae_rad": null,
+    "max_abs_error_rad": null,
+    "rmse_rad": null,
+    "sample_count": 0,
+    "scalar_value_count": 0,
+    "status": "UNAVAILABLE",
+    "worst_joint_by_max_error": null,
+    "worst_joint_by_rmse": null
+  },
+  "commanded_snapshot_role": "DISPLAY ONLY \u2014 excluded from primary EXP-1 metrics",
+  "coverage": {
+    "sides": {
+      "left": {
+        "skipped_rows": 0,
+        "skipped_status_counts": {},
+        "total_aligned_rows": 0,
+        "usable_fraction": null,
+        "usable_rows": 0
+      },
+      "right": {
+        "skipped_rows": 0,
+        "skipped_status_counts": {},
+        "total_aligned_rows": 0,
+        "usable_fraction": null,
+        "usable_rows": 0
+      }
+    },
+    "skipped_rows": 0,
+    "skipped_status_counts": {},
+    "total_aligned_rows": 0,
+    "usable_rows": 0
+  },
+  "error_definition": "actual_joint_rad - interpolated_planned_joint_rad",
+  "error_samples": [],
+  "experiment": "EXP-1 Trajectory Tracking Accuracy",
+  "run_id": "exp-20260904T024859723Z-1ca8a304",
+  "schema_version": "jaka-dual-arm-exp1-trajectory-tracking/v1",
+  "semantic": "ANALYSIS ONLY \u2014 NOT PHASE6 TIMING, FAULT, OR SAFETY AUTHORITY",
+  "status": "UNAVAILABLE"
+}

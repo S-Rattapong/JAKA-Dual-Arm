@@ -1,0 +1,23 @@
+<robot name="exp2_simple_dual">
+  <link name="world"/>
+  <link name="left_base"/>
+  <link name="left_J6"/>
+  <link name="right_base"/>
+  <link name="right_mid"/>
+  <link name="right_J6"/>
+  <joint name="left_fixed" type="fixed">
+    <origin xyz="0 0 0" rpy="0 0 0"/><parent link="world"/><child link="left_base"/>
+  </joint>
+  <joint name="left_joint_1" type="revolute">
+    <origin xyz="0 0 0" rpy="0 0 0"/><parent link="left_base"/><child link="left_J6"/><axis xyz="0 0 1"/>
+  </joint>
+  <joint name="right_fixed" type="fixed">
+    <origin xyz="1 0 0" rpy="0 0 0"/><parent link="world"/><child link="right_base"/>
+  </joint>
+  <joint name="right_joint_1" type="prismatic">
+    <origin xyz="0 0 0" rpy="0 0 0"/><parent link="right_base"/><child link="right_mid"/><axis xyz="1 0 0"/>
+  </joint>
+  <joint name="right_joint_2" type="revolute">
+    <origin xyz="0 0 0" rpy="0 0 0"/><parent link="right_mid"/><child link="right_J6"/><axis xyz="0 0 1"/>
+  </joint>
+</robot>

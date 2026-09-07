@@ -1,0 +1,57 @@
+{
+  "schema_version": 1,
+  "calibration_state": "MODEL_DEFAULT",
+  "physical_calibration": "NOT_CALIBRATED",
+  "frames": {
+    "world": "world",
+    "left_base": "left_base_link",
+    "right_base": "right_base_link"
+  },
+  "units": {
+    "translation": "meter",
+    "rotation": "radian"
+  },
+  "rotation_convention": "RPY_EXTRINSIC_XYZ__R_EQ_RZ_RY_RX",
+  "transforms": {
+    "world_to_left_base": {
+      "translation_m": [
+        0.0,
+        0.075,
+        1.2
+      ],
+      "rotation_rpy_rad": [
+        1.570796326795,
+        0.0,
+        3.14159265359
+      ]
+    },
+    "world_to_right_base": {
+      "translation_m": [
+        0.0,
+        -0.075,
+        1.2
+      ],
+      "rotation_rpy_rad": [
+        -1.570796326795,
+        0.0,
+        3.14159265359
+      ]
+    }
+  },
+  "source": {
+    "method": "MODEL_DEFAULT_MIGRATION",
+    "description": "Migrated from the existing dual-arm model defaults; not measured physical calibration."
+  },
+  "provenance": {
+    "status": "MIGRATED_MODEL_DEFAULT",
+    "verification_status": "NOT_PHYSICALLY_VERIFIED"
+  },
+  "tcp_tool_contract": {
+    "status": "UNVERIFIED",
+    "planning_tip_frames": {
+      "left": "left_J6",
+      "right": "right_J6"
+    }
+  },
+  "revision": "sha256:062d7796d37d66a5a585c58db04510194da0d3d9dad7664f20eb833802f4ec28"
+}

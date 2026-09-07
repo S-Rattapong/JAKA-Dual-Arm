@@ -1,0 +1,116 @@
+{
+  "actual_source_semantics": "Existing visualization Actual selection: fresh dual Port10000 when available, otherwise cached ROS JointState; no SDK call",
+  "aligned_semantic": "ANALYSIS ONLY \u2014 NOT PHASE6 TIMING OR FAULT AUTHORITY",
+  "artifact_fingerprint": "sha256:13397359908450f85863682b0d4ab30ccf2981616901d1a177122608d15fd1dc",
+  "artifact_generation": 3,
+  "calibration_revision": "sha256:166665d6fc9f63aab8fab9b36b6ff92884e82874c113be1cfd9f5cd185c9fc16",
+  "created_at": "2026-09-04T02:48:59.723Z",
+  "fixture_condition": "NONE",
+  "grasp_content_revision": "sha256:00f7e4fe7ed0d070800e738de64ae7c3ef11c0e51c635b07fc682bfe1f87df66",
+  "grasp_lock_generation": 1,
+  "grasp_lock_revision": "sha256:53027cc0fa0fd6e51742abde3b7fb4abe3ce73cd08a48299f9d3d3b7c1d4301c",
+  "label": "",
+  "locked_grasp": {
+    "content_revision": "sha256:00f7e4fe7ed0d070800e738de64ae7c3ef11c0e51c635b07fc682bfe1f87df66",
+    "left": {
+      "rpy_rad": [
+        3.1364223802333338,
+        0.0003272269621039691,
+        -1.5766989282154649
+      ],
+      "translation_m": [
+        0.005501587530623332,
+        0.1481249051954807,
+        -0.0009706013375592737
+      ]
+    },
+    "lock_generation": 1,
+    "lock_revision": "sha256:53027cc0fa0fd6e51742abde3b7fb4abe3ce73cd08a48299f9d3d3b7c1d4301c",
+    "right": {
+      "rpy_rad": [
+        3.1354132557573977,
+        0.0011694194184533153,
+        1.5966542569813158
+      ],
+      "translation_m": [
+        -0.005501587530623332,
+        -0.1481249051954807,
+        0.0009706013375592459
+      ]
+    }
+  },
+  "model_calibration_revision": "sha256:166665d6fc9f63aab8fab9b36b6ff92884e82874c113be1cfd9f5cd185c9fc16",
+  "notes": "",
+  "path_type": "CUSTOM",
+  "phase5_motion_configuration": {
+    "actual_feedback_max_age_ms": 500,
+    "recovery_joint_acc_rad_s2": 0.2,
+    "recovery_joint_vel_rad_s": 0.1,
+    "servo_filter": {
+      "legacy_kp": 0.03,
+      "legacy_max_buf": 15,
+      "lpf_cutoff_hz": 0.0,
+      "mode": "LEGACY_FORESIGHT",
+      "nlf_max_acceleration_deg_s2": 0.0,
+      "nlf_max_jerk_deg_s3": 0.0,
+      "nlf_max_velocity_deg_s": 0.0
+    },
+    "servo_step_num": 3,
+    "start_match_threshold_rad": 0.01,
+    "valid": true
+  },
+  "plan_fingerprint": "fa8986c1c2c5c841bcf675865ab772012db10321b6caaca2eaa9a4ba7dcc2d8b",
+  "raw_semantic": "AUTHORITATIVE RECORDED EVIDENCE",
+  "recording_semantic": "OBSERVATIONAL ONLY \u2014 NO MOTION AUTHORITY",
+  "result": {
+    "sample_counts": {
+      "actual_left": 0,
+      "actual_right": 0,
+      "commanded_left": 0,
+      "commanded_right": 0,
+      "observations": 0,
+      "planned": 7,
+      "torque_left": 0,
+      "torque_right": 0
+    },
+    "status": "DISARMED_BEFORE_EXECUTION"
+  },
+  "robot_configuration_revision": "sha256:0b9d39b5c94ac6d12f6f2810a0bb2cb866e849034f4b7f0cfd20483a3d036208",
+  "run_id": "exp-20260904T024859723Z-1ca8a304",
+  "schema_version": "jaka-dual-arm-experiment-run/v1",
+  "speed_acceleration_profile": [
+    {
+      "acceleration_percent": 100,
+      "identifier": "W0",
+      "speed_percent": 12.3
+    },
+    {
+      "acceleration_percent": 100,
+      "identifier": "W1",
+      "speed_percent": 43.2
+    },
+    {
+      "acceleration_percent": 100,
+      "identifier": "W2",
+      "speed_percent": 100
+    },
+    {
+      "acceleration_percent": 100,
+      "identifier": "W3",
+      "speed_percent": 100
+    }
+  ],
+  "state": "DISARMED",
+  "trajectory_name": "Object_Global_Plan",
+  "units": {
+    "joint_position": "radian",
+    "joint_torque": "newton_meter",
+    "rotation": "radian",
+    "time": "second",
+    "translation": "meter",
+    "wall_time": "unix_epoch_millisecond"
+  },
+  "updated_at": "2026-09-04T02:49:22.128Z",
+  "validation_generation": 3,
+  "validation_report_version": "PHASE4C_UNIFIED_VALIDATION_V3_GRASP_CALIBRATION_IDENTITY"
+}

@@ -1,0 +1,57 @@
+{
+  "schema_version": 1,
+  "calibration_state": "PHYSICAL_CALIBRATED",
+  "physical_calibration": "CALIBRATED",
+  "frames": {
+    "world": "world",
+    "left_base": "left_base_link",
+    "right_base": "right_base_link"
+  },
+  "units": {
+    "translation": "meter",
+    "rotation": "radian"
+  },
+  "rotation_convention": "RPY_EXTRINSIC_XYZ__R_EQ_RZ_RY_RX",
+  "transforms": {
+    "world_to_left_base": {
+      "translation_m": [
+        -0.7596239842607274,
+        0.11058694383387384,
+        0.13651014459880412
+      ],
+      "rotation_rpy_rad": [
+        1.574439006095868,
+        0.0015787065831678235,
+        3.1411559532164106
+      ]
+    },
+    "world_to_right_base": {
+      "translation_m": [
+        -0.7627012046262431,
+        -0.07178515589567372,
+        0.13452249878565917
+      ],
+      "rotation_rpy_rad": [
+        -1.5711124814852797,
+        0.007331140961250616,
+        -3.1411551591076234
+      ]
+    }
+  },
+  "source": {
+    "method": "THREE_POINT_VIRTUAL_J6_TOUCH",
+    "description": "Three-point physical World calibration using virtual J6 positions at repeatable rigid-tool contacts for Origin, +X and +Y; full base pose is solved from measured physical directions without a Web setter."
+  },
+  "provenance": {
+    "status": "PHYSICAL_TOUCH_CALIBRATION",
+    "verification_status": "PHYSICALLY_CALIBRATED_SINGLE_PASS_NOT_REPEATABILITY_VERIFIED"
+  },
+  "tcp_tool_contract": {
+    "status": "TOOL0_J6_KINEMATICALLY_VERIFIED",
+    "planning_tip_frames": {
+      "left": "left_J6",
+      "right": "right_J6"
+    }
+  },
+  "revision": "sha256:166665d6fc9f63aab8fab9b36b6ff92884e82874c113be1cfd9f5cd185c9fc16"
+}

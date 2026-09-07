@@ -32,6 +32,20 @@ export async function listCenterPaths(fetchImpl = fetch) {
   return requestJson(LIST_ENDPOINT, {method: "GET"}, fetchImpl);
 }
 
+export function resolveCenterPathSaveIntent(typedName, loadedName, saveAs = false) {
+  const name = String(typedName || "").trim();
+  const loaded = String(loadedName || "").trim();
+  const overwrite = Boolean(name)
+    && !saveAs
+    && Boolean(loaded)
+    && name === loaded;
+  return {
+    name,
+    overwrite,
+    createsNew: Boolean(name) && !overwrite,
+  };
+}
+
 export async function saveCenterPath(name, path, overwrite = true, fetchImpl = fetch) {
   return requestJson(
     SAVE_ENDPOINT,
