@@ -1,7 +1,8 @@
 <!doctype html>
-<html>
+<html lang="en">
 <head>
   <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Dual JAKA A12 Control</title>
 
   <style>
@@ -1571,6 +1572,645 @@
         grid-template-columns: 1fr;
       }
     }
+    /* HMI presentation layer. Theme selection changes CSS tokens only. */
+    :root {
+      color-scheme: light;
+      --bg: #e9edf0;
+      --panel: #ffffff;
+      --panel2: #f2f5f7;
+      --line: #c5cfd7;
+      --text: #22323e;
+      --muted: #536775;
+      --blue: #2165ad;
+      --green: #187348;
+      --orange: #9a520a;
+      --red: #bd3036;
+      --hmi-selection: #e8f1fc;
+      --hmi-button: #e5ebf0;
+      --hmi-button-hover: #d5e0e9;
+      --hmi-success: #176b44;
+      --hmi-success-bg: #edf7f0;
+      --hmi-warning: #865009;
+      --hmi-warning-bg: #fff5e4;
+      --hmi-error: #ac2632;
+      --hmi-error-bg: #fff0f0;
+      --hmi-lab: #236d70;
+      --hmi-lab-bg: #edf5f5;
+      --hmi-preview: #6844a0;
+      --hmi-instrument: #0b1120;
+      --hmi-instrument-text: #dce6ee;
+      --hmi-instrument-line: #344556;
+      --hmi-chart: #020617;
+      --hmi-font: Ubuntu, "Noto Sans Thai", "Leelawadee UI", Tahoma, system-ui, sans-serif;
+      --hmi-mono: ui-monospace, "Ubuntu Mono", "Noto Sans Mono", Consolas, monospace;
+    }
+
+    :root[data-hmi-theme="dark"],
+    .hmi-technical-workspace {
+      color-scheme: dark;
+      --bg: #141c24;
+      --panel: #1c2731;
+      --panel2: #16212b;
+      --line: #3d505f;
+      --text: #e2eaf0;
+      --muted: #a4b5c2;
+      --blue: #80b9f1;
+      --hmi-selection: #213c57;
+      --hmi-button: #304251;
+      --hmi-button-hover: #3d5467;
+      --hmi-success: #82d4aa;
+      --hmi-success-bg: #18392d;
+      --hmi-warning: #f2c16b;
+      --hmi-warning-bg: #3b2c19;
+      --hmi-error: #ffabb0;
+      --hmi-error-bg: #40252b;
+      --hmi-lab: #83ccca;
+      --hmi-lab-bg: #1b3339;
+      --hmi-preview: #c4b5fd;
+    }
+
+    [hidden] { display: none !important; }
+
+    body {
+      max-width: 1680px;
+      margin: 0 auto;
+      padding: 20px 28px 36px;
+      font-family: var(--hmi-font);
+      font-size: 14px;
+      line-height: 1.5;
+    }
+
+    h1, h2, h3, h4 { color: var(--text); line-height: 1.3; }
+    h2 { font-size: 19px; }
+    h4 { margin: 0 0 10px; }
+    .small { line-height: 1.55; }
+    .panel { border: 1px solid var(--line); border-radius: 5px; padding: 18px; margin-bottom: 18px; }
+    .row > *, .two-grid > *, .top-grid > * { min-width: 0; }
+    input, select, textarea, button { max-width: 100%; font-family: inherit; }
+    button {
+      min-height: 40px;
+      border: 1px solid var(--line);
+      border-radius: 4px;
+      padding: 8px 12px;
+      background: var(--hmi-button);
+      color: var(--text);
+      font-size: 13px;
+      font-weight: 600;
+      line-height: 1.4;
+    }
+    button:hover { background: var(--hmi-button-hover); }
+    button.active,
+    .digital-twin-frame-buttons button[aria-pressed="true"],
+    .digital-twin-mode-buttons button[aria-pressed="true"] {
+      border-color: var(--blue);
+      background: var(--hmi-selection);
+      color: var(--blue);
+      box-shadow: inset 0 -2px var(--blue);
+    }
+    button.green, button.orange, button.stop, .digital-twin-primary-action {
+      color: #ffffff;
+      border-color: transparent;
+      box-shadow: none;
+    }
+    button.green, .digital-twin-primary-action { background: var(--green); }
+    button.orange { background: var(--orange); }
+    button.stop { background: var(--red); }
+    button.green:hover, .digital-twin-primary-action:hover { background: var(--green); filter: brightness(0.92); }
+    button.orange:hover { background: var(--orange); filter: brightness(0.92); }
+    button.stop:hover { background: var(--red); filter: brightness(0.92); }
+    button:disabled, button:disabled:hover {
+      background: var(--panel2);
+      border-color: var(--line);
+      color: var(--muted);
+      box-shadow: none;
+      filter: none;
+      opacity: 0.65;
+      cursor: not-allowed;
+    }
+    input, select, textarea {
+      border: 1px solid var(--line);
+      border-radius: 4px;
+      background: var(--panel);
+      color: var(--text);
+      accent-color: var(--blue);
+    }
+    input:not([type="checkbox"]):not([type="range"]), select, textarea { min-height: 38px; }
+    textarea { padding: 8px; }
+    input::placeholder, textarea::placeholder { color: var(--muted); opacity: 1; }
+    input[type="number"], input.num, pre, td, dd,
+    .digital-twin-readout strong, .digital-twin-phase5-status-card strong,
+    .digital-twin-operator-status strong, .experiment-state-grid strong,
+    .experiment-exp1-status strong {
+      font-family: var(--hmi-mono);
+      font-variant-numeric: tabular-nums;
+    }
+    :focus-visible { outline: 3px solid var(--blue); outline-offset: 3px; }
+    .digital-twin-switch input:focus-visible + .digital-twin-switch-slider {
+      outline: 3px solid var(--blue);
+      outline-offset: 3px;
+    }
+    th, td { border-color: var(--line); }
+    th { background: var(--panel2); color: var(--muted); }
+    td { background: var(--panel); }
+    pre { background: var(--panel2); border-radius: 4px; }
+    .wp-row, .sequence-box, .jog-section { border-color: var(--line); border-radius: 4px; }
+    .seq-row { border-color: var(--line); flex-wrap: wrap; }
+
+    .hmi-command-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      padding: 0 0 18px;
+      margin-bottom: 16px;
+      border-bottom: 2px solid var(--line);
+    }
+    .hmi-command-header h1 { margin: 0; font-size: 23px; font-weight: 700; letter-spacing: -0.025em; }
+    .hmi-command-header p { margin: 4px 0 0; color: var(--muted); font-size: 13px; }
+    .hmi-theme-control { display: flex; align-items: center; gap: 8px; color: var(--muted); font-size: 12px; }
+    .hmi-theme-control select { width: 86px; }
+    .hmi-technical-workspace {
+      margin-bottom: 18px;
+      border: 1px solid var(--line);
+      border-radius: 5px;
+      background: var(--bg);
+      color: var(--text);
+    }
+    .hmi-technical-workspace > summary { padding: 12px 16px; cursor: pointer; font-weight: 600; }
+    .hmi-technical-workspace[open] > summary { border-bottom: 1px solid var(--line); }
+    .hmi-technical-workspace .top-grid { padding: 12px; gap: 12px; }
+    .hmi-technical-workspace .panel { padding: 12px; margin: 0; }
+    .hmi-technical-workspace h2 { font-size: 17px; }
+    .hmi-technical-workspace h3 { font-size: 14px; }
+
+    section[aria-labelledby="digitalTwinTitle"] { border-top: 3px solid var(--blue); padding: 20px; }
+    #digitalTwinTitle { font-size: 23px; letter-spacing: -0.02em; margin-bottom: 16px; }
+    .digital-twin-sticky-viewer {
+      position: relative;
+      top: auto;
+      z-index: auto;
+      padding: 8px;
+      border-color: var(--hmi-instrument-line);
+      border-radius: 4px;
+      background: var(--hmi-instrument);
+    }
+    .digital-twin-viewer, .experiment-viewer {
+      background: var(--hmi-instrument);
+      border-color: var(--hmi-instrument-line);
+      border-radius: 3px;
+    }
+    .digital-twin-viewer { height: clamp(340px, 52vh, 620px); }
+    .digital-twin-status { color: var(--hmi-instrument-text); font-family: var(--hmi-mono); }
+    .digital-twin-status[data-state="ready"] { color: #6ee7b7; }
+    .digital-twin-status[data-state="error"] { color: #fca5a5; }
+    .experiment-series-canvas, .experiment-exp1-error-canvas {
+      background: var(--hmi-chart);
+      border-color: var(--hmi-instrument-line);
+      border-radius: 3px;
+      box-shadow: none;
+    }
+    .hmi-grasp-bridge {
+      display: grid;
+      grid-template-columns: auto minmax(16px, 1fr) auto minmax(16px, 1fr) auto;
+      align-items: center;
+      gap: 12px;
+      max-width: 560px;
+      margin: 14px auto;
+      color: var(--muted);
+      font: 600 11px/1.5 var(--hmi-mono);
+      letter-spacing: 0.08em;
+      user-select: none;
+      pointer-events: none;
+    }
+    .hmi-grasp-bridge i { height: 8px; border: solid var(--line); border-width: 0 1px 1px; }
+    .hmi-grasp-center { padding: 3px 12px; border: 1px solid var(--line); }
+    .digital-twin-live-mirror-quick,
+    .digital-twin-angle-unit-control,
+    .digital-twin-center-path-library,
+    .digital-twin-grasp-editor-card,
+    .digital-twin-approach-pose-panel,
+    .digital-twin-phase5-progress-row {
+      background: var(--panel2);
+      border-color: var(--line);
+      border-radius: 4px;
+    }
+    .digital-twin-live-mirror-quick-copy strong,
+    .digital-twin-operator-status strong { color: var(--text); }
+    .digital-twin-live-mirror-quick-copy span, .digital-twin-meta span { color: var(--muted); }
+    .digital-twin-live-mirror-quick[data-state="on"] { border-color: var(--hmi-success); }
+    .digital-twin-live-mirror-quick[data-state="partial"],
+    .digital-twin-live-mirror-quick[data-state="error"] { border-color: var(--hmi-warning); }
+    .digital-twin-operator-alignment {
+      background: var(--hmi-warning-bg);
+      border-color: var(--hmi-warning);
+      border-radius: 4px;
+    }
+    .digital-twin-workflow-guide { gap: 0; border: 1px solid var(--line); border-radius: 4px; }
+    .digital-twin-workflow-guide span {
+      text-align: left;
+      border: 0;
+      border-radius: 0;
+      padding: 12px 16px;
+      background: var(--panel2);
+      color: var(--text);
+    }
+    .digital-twin-workflow-guide span + span { border-left: 1px solid var(--line); }
+    .digital-twin-workflow-stage {
+      padding: 20px;
+      margin-top: 20px;
+      border: 1px solid var(--line);
+      border-left: 4px solid var(--blue);
+      border-radius: 4px;
+      background: var(--panel);
+    }
+    .digital-twin-stage-kicker { color: var(--blue); font-family: var(--hmi-mono); letter-spacing: 0.12em; }
+    .digital-twin-workflow-stage h3 { font-size: 21px; }
+    .digital-twin-phase5-panel { border-left-color: var(--hmi-warning); }
+    .digital-twin-phase5-panel .digital-twin-stage-kicker { color: var(--hmi-warning); }
+    .digital-twin-operator-status, .digital-twin-meta span,
+    .digital-twin-mirror-panel, .digital-twin-approach-waypoint-card,
+    .digital-twin-phase5-status-card { border-radius: 4px; }
+    .digital-twin-phase5-status-card strong { font-size: 13px; }
+    .digital-twin-operator-details {
+      background: var(--panel2);
+      border-color: var(--line);
+      border-radius: 4px;
+    }
+    .digital-twin-operator-details > summary { color: var(--muted); font-size: 13px; }
+    .digital-twin-operator-details[open] > summary { color: var(--text); border-bottom: 1px solid var(--line); margin-bottom: 12px; }
+    .digital-twin-operator-details > summary:hover { background: var(--hmi-button); }
+    .digital-twin-planned-panel, .digital-twin-trajectory-panel,
+    .digital-twin-object-trajectory-panel, .digital-twin-global-plan-panel {
+      background: var(--panel2);
+      border-color: var(--line);
+      border-radius: 4px;
+    }
+    .digital-twin-warning, .digital-twin-validation-notice,
+    .digital-twin-object-preview-notice,
+    .digital-twin-operator-alignment strong[data-state="warning"],
+    .digital-twin-operator-calibration-warning { color: var(--hmi-warning); }
+    .digital-twin-phase5-safety-notice { background: var(--hmi-warning-bg); border-color: var(--hmi-warning); border-radius: 3px; }
+    .digital-twin-object-trajectory-notice,
+    .digital-twin-operator-alignment strong[data-state="ok"] { color: var(--hmi-success); }
+    .digital-twin-locked-summary, .digital-twin-phase5-blockers {
+      color: var(--hmi-success);
+      background: var(--hmi-success-bg);
+      border-color: var(--hmi-success);
+      border-radius: 4px;
+    }
+    .digital-twin-phase5-blockers[data-blocked="true"] {
+      color: var(--hmi-error);
+      background: var(--hmi-error-bg);
+      border-color: var(--hmi-error);
+    }
+    .digital-twin-concise-failure:not(:empty):not([data-empty="true"]),
+    #digitalTwinMirrorError:not(:empty), #digitalTwinLastFetchError:not(:empty),
+    #digitalTwinPlannedError:not(:empty), #digitalTwinTrajectoryError:not(:empty),
+    #digitalTwinValidationError:not(:empty), #digitalTwinObjectPreviewError:not(:empty),
+    #digitalTwinObjectTrajectoryError:not(:empty), #digitalTwinObjectWaypointError,
+    #digitalTwinGlobalPlanError, .digital-twin-phase3-warning,
+    #experimentMessage[data-error="true"] { color: var(--hmi-error); }
+    #digitalTwinCenterPathStatus, .digital-twin-planned-notice { color: var(--blue); }
+    .digital-twin-trajectory-notice { color: var(--hmi-preview); }
+    .digital-twin-phase5-actions { gap: 10px; padding-top: 12px; }
+    .digital-twin-phase5-actions button { min-height: 46px; }
+
+    /* Experimental results stay a separate workspace; trace pigments stay on dark instruments. */
+    .experiment-panel { background: var(--panel); border: 1px solid var(--line); border-left: 4px solid var(--hmi-lab); }
+    .experiment-panel > summary { font-size: 17px; color: var(--hmi-lab); }
+    .experiment-panel[open] > summary { border-bottom: 1px solid var(--line); padding-bottom: 14px; }
+    .experiment-notice { color: var(--hmi-lab); background: var(--hmi-lab-bg); border-color: var(--hmi-lab); }
+    .experiment-exp1 { background: var(--panel2); border-color: var(--line); border-radius: 4px; padding: 16px; }
+    .experiment-exp1-header h3, .experiment-exp1-card h4 { color: var(--hmi-lab); }
+    .experiment-exp1-card, .experiment-exp1-status span,
+    .experiment-state-grid span, .experiment-sample-readout span,
+    .experiment-sample-controls, .experiment-series-panel,
+    .experiment-exp1-table-wrap, .experiment-exp1-chart,
+    .experiment-series-panel .experiment-view-controls {
+      background: var(--panel);
+      border-color: var(--line);
+      border-radius: 4px;
+      box-shadow: none;
+    }
+    .experiment-exp1-status span, .experiment-exp1-card dt,
+    .experiment-sample-readout span { color: var(--muted); }
+    .experiment-exp1-status strong, .experiment-exp1-card dd,
+    .experiment-sample-readout strong, .experiment-exp1-chart h4,
+    .experiment-sample-controls > label,
+    .experiment-series-panel .experiment-view-controls label { color: var(--text); }
+    .experiment-legend { padding: 10px; background: var(--hmi-instrument); color: var(--hmi-instrument-text); border-radius: 3px; }
+    .experiment-exp1-table th, .experiment-exp1-table td { border-color: var(--line); }
+    .digital-twin-object-waypoint-grid, .digital-twin-object-waypoint-row {
+      grid-template-columns: minmax(90px, 1.2fr) repeat(6, minmax(54px, 0.7fr)) repeat(2, minmax(130px, 1.3fr)) repeat(3, minmax(80px, 1fr));
+      font-size: 12px;
+    }
+    .digital-twin-object-waypoint-grid > *, .digital-twin-object-waypoint-row > * { min-width: 0; }
+    .digital-twin-object-waypoint-grid button, .digital-twin-object-waypoint-row button { min-width: 0; padding: 8px 6px; }
+    .digital-twin-angle-unit-control { flex-wrap: wrap; }
+    .digital-twin-readout, .digital-twin-meta { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+
+    @media (max-width: 1200px) {
+      body { padding: 18px; }
+      .digital-twin-object-waypoint-grid, .digital-twin-object-waypoint-row { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+      .digital-twin-object-waypoint-row { padding: 12px 0; border-bottom: 1px solid var(--line); }
+      .digital-twin-approach-pose-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+      .digital-twin-object-pose-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+      .digital-twin-readout, .digital-twin-meta { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    }
+    @media (max-width: 900px) {
+      .hmi-command-header { align-items: flex-start; }
+      .digital-twin-grasp-editors, .digital-twin-approach-pose-columns { grid-template-columns: 1fr; }
+      .digital-twin-workflow-guide { grid-template-columns: 1fr; }
+      .digital-twin-workflow-guide span + span { border-left: 0; border-top: 1px solid var(--line); }
+      .digital-twin-phase5-diagnostics .digital-twin-readout { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    }
+    @media (max-width: 700px) {
+      body { padding: 12px; }
+      .hmi-command-header { flex-wrap: wrap; gap: 12px; }
+      .hmi-command-header h1 { font-size: 21px; }
+      .panel, section[aria-labelledby="digitalTwinTitle"] { padding: 12px; }
+      .digital-twin-workflow-stage { padding: 14px 10px; }
+      .digital-twin-viewer { height: clamp(260px, 42vh, 380px); }
+      .digital-twin-sticky-viewer { padding: 5px; }
+      .digital-twin-live-mirror-quick { gap: 10px; padding: 10px; }
+      .digital-twin-readout, .digital-twin-meta,
+      .digital-twin-phase5-diagnostics .digital-twin-readout { grid-template-columns: 1fr; }
+      .digital-twin-object-waypoint-grid, .digital-twin-object-waypoint-row,
+      .digital-twin-object-pose-grid, .digital-twin-grasp-editor-card .digital-twin-object-pose-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .digital-twin-approach-waypoint-header { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      input.wide { min-width: 0; width: 100%; }
+      .experiment-exp1, .experiment-sample-controls, .experiment-series-panel, .experiment-exp1-chart { padding: 10px; }
+      .experiment-library-controls select { min-width: 0; }
+      .experiment-exp1-card dl { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
+      .row, .digital-twin-operator-status, .digital-twin-operator-alignment,
+      .digital-twin-center-path-library, .digital-twin-warning, .experiment-notice { overflow-wrap: anywhere; }
+    }
+    @media (max-width: 420px) {
+      body { padding: 8px; }
+      .hmi-technical-workspace .top-grid, .hmi-technical-workspace .panel { padding: 8px; }
+      .hmi-grasp-bridge { gap: 6px; font-size: 10px; letter-spacing: 0.02em; }
+      .hmi-grasp-center { padding: 3px 6px; }
+      .digital-twin-operator-details > :not(summary) { margin-left: 8px; margin-right: 8px; }
+      .digital-twin-phase5-blockers { flex-wrap: wrap; }
+      .digital-twin-approach-pose-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { animation: none !important; transition: none !important; scroll-behavior: auto !important; }
+    }
+    /* Final HMI overrides: operator surfaces, instrument framing, and compact controls. */
+    :root {
+      color-scheme: light;
+      --bg: #edf1f3;
+      --panel: #ffffff;
+      --panel2: #f5f7f8;
+      --line: #c7d0d7;
+      --text: #18252f;
+      --muted: #657887;
+      --blue: #176895;
+      --green: #187348;
+      --orange: #99500b;
+      --red: #b92530;
+      --hmi-selection: #e8f2f8;
+      --hmi-button: #e9eef1;
+      --hmi-button-hover: #dce5eb;
+      --hmi-warning: #92500b;
+      --hmi-warning-bg: #fff3df;
+      --hmi-instrument: #101b26;
+      --hmi-instrument-line: #43515e;
+      --hmi-instrument-text: #edf2f5;
+      --hmi-font: Ubuntu, "Noto Sans Thai", "Segoe UI", sans-serif;
+      --hmi-mono: "Ubuntu Mono", ui-monospace, monospace;
+      --hmi-motion: #99500b;
+      --hmi-motion-hover: #7c4008;
+      --hmi-stop-hover: #971c25;
+    }
+
+    :root[data-hmi-theme="dark"] {
+      color-scheme: dark;
+      --bg: #151c22;
+      --panel: #202a33;
+      --panel2: #16212a;
+      --line: #43515e;
+      --text: #edf2f5;
+      --muted: #9baab5;
+      --blue: #70b7de;
+      --hmi-selection: #203e50;
+      --hmi-button: #2c3b47;
+      --hmi-button-hover: #394d5b;
+      --hmi-warning: #f0b669;
+      --hmi-warning-bg: #362819;
+    }
+
+    body { max-width: 1800px; line-height: 1.55; }
+    h1, h2, h3, h4 { line-height: 1.4; }
+    button, input, select, textarea { font-family: var(--hmi-font); }
+    button { white-space: normal; overflow-wrap: anywhere; }
+    button:hover { filter: none; }
+    button.green:hover, button.orange:hover, button.stop:hover,
+    .digital-twin-primary-action:hover { filter: none; }
+    input[type="number"], input.num, pre, td, dd,
+    .digital-twin-status, .digital-twin-stage-kicker,
+    .digital-twin-readout strong, .digital-twin-operator-status strong,
+    .digital-twin-phase5-status-card strong, .digital-twin-phase5-progress-row strong,
+    .experiment-state-grid strong, .experiment-sample-readout strong,
+    .experiment-exp1-status strong, .wp-time, #programCycleProgress {
+      font-family: var(--hmi-mono);
+      font-variant-numeric: tabular-nums;
+    }
+    input[readonly] { background: var(--panel2); }
+    input:disabled, select:disabled, textarea:disabled,
+    button:disabled, button:disabled:hover {
+      background: var(--panel2);
+      color: var(--muted);
+      border-color: var(--line);
+      opacity: 0.7;
+      cursor: not-allowed;
+      filter: none;
+      box-shadow: none;
+    }
+    [hidden] { display: none !important; }
+    :focus-visible { outline: 3px solid var(--blue); outline-offset: 3px; }
+    .digital-twin-switch input:focus-visible + .digital-twin-switch-slider {
+      outline: 3px solid var(--blue);
+      outline-offset: 3px;
+    }
+    summary { line-height: 1.55; overflow-wrap: anywhere; }
+    summary::marker { color: var(--muted); }
+    .hmi-command-header { border-bottom-width: 1px; }
+    .hmi-command-header h1 { font-size: 22px; letter-spacing: 0; }
+    .hmi-theme-control { flex-wrap: wrap; }
+
+    /* A local dark palette keeps manual controls independent of Appearance. */
+    .hmi-technical-workspace {
+      color-scheme: dark;
+      --bg: #101b26;
+      --panel: #202a33;
+      --panel2: #16212a;
+      --line: #43515e;
+      --text: #edf2f5;
+      --muted: #9baab5;
+      --blue: #70b7de;
+      --green: #187348;
+      --orange: #99500b;
+      --red: #b92530;
+      --hmi-selection: #203e50;
+      --hmi-button: #2c3b47;
+      --hmi-button-hover: #394d5b;
+      --hmi-warning: #f0b669;
+      --hmi-warning-bg: #362819;
+      background: var(--bg);
+      border-color: var(--line);
+      color: var(--text);
+    }
+    .hmi-technical-workspace > summary { font-size: 13px; }
+    .hmi-technical-workspace .panel { container-type: inline-size; }
+    .hmi-technical-workspace .top-grid { grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr); }
+    .hmi-technical-workspace .two-grid,
+    .hmi-technical-workspace .jog-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .hmi-technical-workspace .direct-inputs { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    .hmi-technical-workspace .direct-inputs input { width: 100%; min-width: 0; padding: 7px 4px; }
+    .hmi-technical-workspace .direct-inputs > *,
+    .hmi-technical-workspace .jog-grid > * { min-width: 0; }
+    .hmi-technical-workspace button { min-width: 0; min-height: 36px; padding: 7px 9px; }
+    .hmi-technical-workspace button.stop { min-height: 42px; }
+    .hmi-technical-workspace .jog-row { grid-template-columns: 40px minmax(0, 1fr) minmax(0, 1fr); }
+    .hmi-technical-workspace table { table-layout: fixed; font-size: 12px; }
+    .hmi-technical-workspace th, .hmi-technical-workspace td { padding: 6px 3px; overflow-wrap: anywhere; }
+    @container (max-width: 540px) {
+      .hmi-technical-workspace .two-grid,
+      .hmi-technical-workspace .jog-grid { grid-template-columns: minmax(0, 1fr); }
+    }
+
+    section[aria-labelledby="digitalTwinTitle"] { border-top: 3px solid var(--hmi-instrument-line); }
+    #digitalTwinTitle { font-size: 22px; letter-spacing: 0; }
+    .digital-twin-sticky-viewer { background: var(--hmi-instrument); border-radius: 4px; }
+    .digital-twin-viewer { background: var(--hmi-instrument); height: clamp(340px, 54vh, 640px); }
+    .digital-twin-status { padding: 3px 5px; overflow-wrap: anywhere; }
+    .hmi-grasp-bridge { max-width: 660px; gap: 14px; margin: 16px auto; color: var(--muted); }
+    .hmi-grasp-bridge i { height: 10px; border-color: var(--line); }
+    .hmi-grasp-center { background: var(--panel2); border-radius: 2px; letter-spacing: 0.12em; }
+    .digital-twin-workflow-guide span { color: var(--blue); }
+    .digital-twin-workflow-guide span:last-child { color: var(--hmi-warning); background: var(--hmi-warning-bg); }
+    .digital-twin-workflow-stage { border-color: var(--line); border-left-color: var(--blue); background: var(--panel); }
+    .digital-twin-workflow-stage h3 { font-size: 20px; }
+    .digital-twin-primary-action:not(:disabled),
+    .digital-twin-primary-action:not(:disabled):hover {
+      background: var(--hmi-selection);
+      border-color: var(--blue);
+      color: var(--blue);
+      box-shadow: none;
+    }
+    .digital-twin-primary-action:not(:disabled):hover { background: var(--hmi-button-hover); }
+    .digital-twin-object-preview-panel, .digital-twin-object-waypoint-panel,
+    .digital-twin-validation-panel:not(.digital-twin-phase5-panel) {
+      border-color: var(--line);
+      background: var(--panel2);
+      border-radius: 4px;
+    }
+    .digital-twin-object-relative-poses { border-top-color: var(--line); }
+    .digital-twin-operator-details { border-color: var(--line); background: var(--panel2); }
+    .digital-twin-operator-details:not([open]) { padding: 0; }
+    .digital-twin-operator-details > summary { font-weight: 600; }
+    .digital-twin-trajectory-scrubber-time { background: var(--panel2); color: var(--hmi-preview); font-family: var(--hmi-mono); }
+
+    /* Motion emphasis is tied to the existing motion actions, not generic buttons. */
+    .digital-twin-phase5-panel { border-color: var(--line); border-left-color: var(--hmi-warning); }
+    .digital-twin-phase5-panel > h3,
+    .digital-twin-phase5-panel > .small { color: var(--hmi-warning); }
+    .digital-twin-phase5-actions { border-top: 1px solid var(--line); padding-top: 12px; }
+    #digitalTwinPhase5Prepare:not(:disabled),
+    #digitalTwinPhase5MoveToInitial:not(:disabled) {
+      background: var(--hmi-motion);
+      border-color: var(--hmi-motion);
+      color: #ffffff;
+      box-shadow: none;
+    }
+    #digitalTwinPhase5Prepare:not(:disabled):hover,
+    #digitalTwinPhase5MoveToInitial:not(:disabled):hover { background: var(--hmi-motion-hover); }
+    button.stop:not(:disabled) { background: var(--red); color: #ffffff; }
+    button.stop:not(:disabled):hover { background: var(--hmi-stop-hover); }
+    #digitalTwinPhase5Stop {
+      min-height: 50px;
+      border: 2px solid var(--red);
+      font-weight: 800;
+    }
+    #digitalTwinPhase5Stop:not(:disabled) { outline: 1px solid var(--red); outline-offset: 2px; }
+    #digitalTwinPhase5Stop:focus-visible { outline: 3px solid var(--blue); outline-offset: 4px; }
+    .digital-twin-phase5-blockers:not([data-blocked="false"]):not([data-blocked="true"]) {
+      background: var(--panel2); color: var(--text); border-color: var(--line);
+    }
+    .digital-twin-phase5-progress { border-radius: 3px; accent-color: var(--blue); }
+    .digital-twin-phase5-progress::-webkit-progress-bar { background: var(--panel2); border-radius: 3px; }
+    .digital-twin-phase5-progress::-webkit-progress-value { background: var(--blue); border-radius: 3px; }
+    .digital-twin-phase5-progress::-moz-progress-bar { background: var(--blue); border-radius: 3px; }
+
+    /* Preserve chart pigments and their existing dark canvas backgrounds. */
+    .experiment-panel { border-left-color: var(--hmi-instrument-line); border-radius: 4px; }
+    .experiment-panel > summary { color: var(--text); font-size: 16px; font-weight: 600; }
+    .experiment-viewer { background: #0b1120; }
+    .experiment-legend { background: #0b1120; }
+    .experiment-series-canvas, .experiment-exp1-error-canvas { background: #020617; }
+    .experiment-notice { border-radius: 3px; }
+    .experiment-exp1-cards { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    .experiment-inspection-grid { grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.65fr); }
+    .experiment-exp1-detail-grid { grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr); }
+
+    /* One scrolling coordinate sheet keeps every original column label aligned. */
+    .digital-twin-object-waypoint-panel { min-width: 0; max-width: 100%; overflow-x: auto; }
+    .digital-twin-object-waypoint-grid, .digital-twin-object-waypoint-row {
+      grid-template-columns: minmax(100px, 1.2fr) repeat(6, minmax(64px, 0.7fr)) repeat(2, minmax(155px, 1.4fr)) repeat(3, minmax(100px, 1fr));
+      min-width: 1160px;
+      padding: 8px 0;
+    }
+    #digitalTwinObjectWaypointList { min-width: 1160px; }
+    .digital-twin-object-waypoint-grid[aria-hidden="true"] { border-bottom: 1px solid var(--line); color: var(--muted); }
+    .digital-twin-object-waypoint-row { border-bottom: 1px solid var(--line); }
+    .digital-twin-object-waypoint-row:hover { outline-color: var(--blue); background: var(--hmi-selection); }
+    .digital-twin-waypoint-profile-control { grid-template-columns: minmax(0, 1fr) 52px auto; }
+    .digital-twin-waypoint-profile-control > * { min-width: 0; }
+    .digital-twin-approach-pose-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    .wp-row > *, .seq-row > *, .experiment-exp1-cards > *,
+    .experiment-exp1-detail-grid > *, .digital-twin-phase5-progress-row > * { min-width: 0; }
+    .wp-name, .seq-row, .experiment-notice { overflow-wrap: anywhere; }
+    body > .panel:not(section), body > .two-grid > .panel { background: var(--panel2); }
+    body > .panel:not(section) h2, body > .two-grid h2 { font-size: 17px; }
+    pre { max-width: 100%; tab-size: 2; }
+
+    @media (max-width: 1250px) {
+      .experiment-inspection-grid, .experiment-exp1-detail-grid { grid-template-columns: minmax(0, 1fr); }
+    }
+    @media (max-width: 1200px) {
+      .hmi-technical-workspace .top-grid { grid-template-columns: minmax(0, 1fr); }
+    }
+    @media (max-width: 900px) {
+      .experiment-exp1-cards { grid-template-columns: minmax(0, 1fr); }
+    }
+    @media (max-width: 700px) {
+      body { padding: 10px; }
+      .hmi-command-header h1, #digitalTwinTitle { font-size: 20px; }
+      .hmi-technical-workspace .two-grid,
+      .hmi-technical-workspace .jog-grid { grid-template-columns: minmax(0, 1fr); }
+      .digital-twin-viewer { min-height: 260px; height: clamp(260px, 42vh, 380px); }
+      .digital-twin-phase5-actions button { flex: 1 1 100%; }
+      .digital-twin-workflow-stage h3 { font-size: 18px; }
+      .digital-twin-center-path-library input,
+      .digital-twin-center-path-library select { min-width: 0; width: 100%; }
+      .digital-twin-phase5-blockers { flex-wrap: wrap; }
+      .digital-twin-object-pose-grid label { min-width: 0; }
+      .digital-twin-approach-pose-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .wp-row { grid-template-columns: minmax(0, 1fr); }
+      .seq-row { align-items: flex-start; }
+    }
+    @media (max-width: 420px) {
+      body { padding: 8px; }
+      .hmi-grasp-bridge { gap: 5px; font-size: 10px; letter-spacing: 0; }
+      .hmi-grasp-center { padding: 3px 6px; }
+      .hmi-technical-workspace .direct-inputs { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .digital-twin-operator-details > :not(summary) { margin-left: 8px; margin-right: 8px; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { animation: none !important; transition: none !important; scroll-behavior: auto !important; }
+    }
   </style>
 
   <script type="importmap">
@@ -1586,8 +2226,22 @@
 </head>
 
 <body>
-  <h1>Dual JAKA A12 Control</h1>
+  <header class="hmi-command-header">
+    <div>
+      <h1>Dual JAKA A12 Control</h1>
+      <p>Dual-arm workcell · Coordinated grasp, preview &amp; execution</p>
+    </div>
+    <label class="hmi-theme-control" for="hmiAppearance">
+      Appearance
+      <select id="hmiAppearance" onchange="document.documentElement.dataset.hmiTheme = this.value">
+        <option value="light" selected>Light</option>
+        <option value="dark">Dark</option>
+      </select>
+    </label>
+  </header>
 
+  <details id="hmiTechnicalWorkspace" class="hmi-technical-workspace">
+    <summary>Technical Workspace · Direct Move &amp; Manual Jog</summary>
   <div class="top-grid">
     <div class="panel">
       <h2>Live Position / Direct Move</h2>
@@ -1735,6 +2389,8 @@
     </div>
   </div>
 
+  </details>
+
   <section class="panel" aria-labelledby="digitalTwinTitle">
     <h2 id="digitalTwinTitle">Dual-Arm Digital Twin</h2>
 
@@ -1747,6 +2403,10 @@
       <div id="digitalTwinStatus" class="digital-twin-status" role="status">
         INITIALIZING STATIC MODEL
       </div>
+    </div>
+
+    <div class="hmi-grasp-bridge" aria-hidden="true">
+      <span>LEFT ARM</span><i></i><span class="hmi-grasp-center">CENTER</span><i></i><span>RIGHT ARM</span>
     </div>
 
     <div class="row" aria-label="Digital Twin viewer controls">
@@ -2826,7 +3486,6 @@
       id="digitalTwinPhase6Monitoring"
       class="digital-twin-operator-details digital-twin-phase5-diagnostics"
       aria-label="Phase 6 monitoring — read only"
-      open
     >
       <summary>Phase 6 Monitoring — READ ONLY</summary>
       <div class="digital-twin-validation-notice">
@@ -2852,7 +3511,7 @@
     </div>
   </section>
 
-  <details id="digitalTwinExperimentPanel" class="panel experiment-panel" open>
+  <details id="digitalTwinExperimentPanel" class="panel experiment-panel">
     <summary>Experimental Validation — EXP-0 / EXP-1 / EXP-2</summary>
     <div class="experiment-notice">
       Recorder and Run Library controls are observational and send no robot command.
