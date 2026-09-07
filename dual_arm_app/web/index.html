@@ -2155,6 +2155,120 @@
     .hmi-technical-workspace th { background: #0d151a; }
     .hmi-technical-workspace td { background: #111c23; color: #e9eff2; }
     .hmi-technical-workspace .jog-section { background: #10181e; border-radius: 1px; }
+    .hmi-technical-workspace .jog-speed-controls {
+      display: grid;
+      gap: 12px;
+      margin: 14px 0 12px;
+    }
+    .hmi-technical-workspace .jog-speed-group {
+      padding: 10px 12px 12px;
+      border: 1px solid #40515d;
+      background: #10181e;
+    }
+    .hmi-technical-workspace .jog-speed-group-heading {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 12px;
+      padding-bottom: 8px;
+      margin-bottom: 4px;
+      border-bottom: 1px solid #33434d;
+    }
+    .hmi-technical-workspace .jog-speed-group-heading strong {
+      color: #e5eef2;
+      font: 700 13px/1.3 var(--font-ui);
+    }
+    .hmi-technical-workspace .jog-speed-group-heading span,
+    .hmi-technical-workspace .jog-speed-note {
+      color: #91a3ad;
+      font-size: 11px;
+      line-height: 1.4;
+    }
+    .hmi-technical-workspace .jog-speed-row {
+      display: grid;
+      grid-template-columns: 92px minmax(180px, 1fr) 58px 76px;
+      align-items: center;
+      gap: 10px;
+      min-height: 46px;
+      margin: 4px 0;
+    }
+    .hmi-technical-workspace .jog-speed-name {
+      color: #d7e2e7;
+      font-weight: 650;
+    }
+    .hmi-technical-workspace input.jog-speed-slider {
+      width: 100%;
+      min-width: 0;
+      height: 32px;
+      padding: 0;
+      border: 0;
+      background: transparent;
+      accent-color: #72b9dc;
+      cursor: pointer;
+    }
+    .hmi-technical-workspace input.jog-speed-slider::-webkit-slider-runnable-track {
+      height: 7px;
+      border-radius: 999px;
+      background: #344852;
+    }
+    .hmi-technical-workspace input.jog-speed-slider::-webkit-slider-thumb {
+      width: 20px;
+      height: 20px;
+      margin-top: -6px;
+      border-radius: 50%;
+      background: #8bc8e5;
+      border: 2px solid #e8f4fa;
+      -webkit-appearance: none;
+    }
+    .hmi-technical-workspace input.jog-speed-slider::-moz-range-track {
+      height: 7px;
+      border-radius: 999px;
+      background: #344852;
+    }
+    .hmi-technical-workspace input.jog-speed-slider::-moz-range-progress {
+      height: 7px;
+      border-radius: 999px;
+      background: #4c9dc5;
+    }
+    .hmi-technical-workspace input.jog-speed-slider::-moz-range-thumb {
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background: #8bc8e5;
+      border: 2px solid #e8f4fa;
+    }
+    .hmi-technical-workspace .jog-speed-percent {
+      min-width: 58px;
+      color: #ffffff;
+      font: 700 13px/1.3 var(--font-mono);
+      text-align: right;
+    }
+    .hmi-technical-workspace input.jog-speed-raw {
+      width: 76px;
+      min-width: 76px;
+      text-align: right;
+      font-family: var(--font-mono);
+    }
+    .hmi-technical-workspace .jog-speed-note {
+      padding: 0 2px;
+    }
+    .hmi-technical-workspace .jog-row {
+      grid-template-columns: 54px minmax(0, 1fr) minmax(0, 1fr);
+      gap: 10px;
+      margin: 8px 0;
+    }
+    .hmi-technical-workspace .jog-label {
+      color: #9eb7c5;
+      font-size: 14px;
+      font-weight: 800;
+    }
+    .hmi-technical-workspace .jog-row button {
+      min-height: 48px;
+      padding: 7px 12px 10px;
+      font-size: 22px;
+      font-weight: 900;
+      line-height: 1;
+    }
 
     /* Experiment = analysis lab, not another operator station. */
     #digitalTwinExperimentPanel {
@@ -2253,6 +2367,7 @@
     @media (max-width: 900px) {
       .digital-twin-grasp-editors, .digital-twin-approach-pose-columns { grid-template-columns: 1fr; }
       .hmi-technical-workspace .two-grid, .hmi-technical-workspace .jog-grid { grid-template-columns: 1fr; }
+      .hmi-technical-workspace .jog-speed-row { grid-template-columns: 82px minmax(140px, 1fr) 54px 72px; }
       .experiment-exp1-cards { grid-template-columns: 1fr; }
     }
     @media (max-width: 700px) {
@@ -2287,6 +2402,13 @@
       .digital-twin-workflow-guide span { font-size: 12px; }
       .digital-twin-workflow-guide span + span::before { margin-right: 6px; }
       .hmi-technical-workspace .direct-inputs { grid-template-columns: repeat(2, minmax(0,1fr)); }
+      .hmi-technical-workspace .jog-speed-group-heading { align-items: flex-start; flex-direction: column; gap: 2px; }
+      .hmi-technical-workspace .jog-speed-row {
+        grid-template-columns: 1fr 58px 72px;
+        gap: 7px;
+        padding: 6px 0;
+      }
+      .hmi-technical-workspace .jog-speed-name { grid-column: 1 / -1; }
       .digital-twin-approach-pose-grid { grid-template-columns: repeat(2, minmax(0,1fr)); }
     }
     @media (prefers-reduced-motion: reduce) {
@@ -2446,20 +2568,56 @@
         </select>
       </div>
 
-      <div class="row">
-        <label>Linear:</label>
-        <input id="linearSpeed" type="number" value="5" step="1" min="1" max="50" class="num" />
-        <label>Rotate:</label>
-        <input id="rotateSpeed" type="number" value="2" step="0.5" min="0.5" max="20" class="num" />
-        <label>Joint:</label>
-        <input id="jointSpeed" type="number" value="0.03" step="0.01" min="0.005" max="0.2" class="num" />
-      </div>
+      <div class="jog-speed-controls" aria-label="Jog and move speed controls">
+        <section class="jog-speed-group" aria-labelledby="jogSpeedHeading">
+          <div class="jog-speed-group-heading">
+            <strong id="jogSpeedHeading">Jog Speed</strong>
+            <span>Hold-to-move controls</span>
+          </div>
 
-      <div class="row">
-        <label>Move vel:</label>
-        <input id="moveVel" type="number" value="2.0" step="0.1" min="0.02" max="3.0" class="num" />
-        <label>Move acc:</label>
-        <input id="moveAcc" type="number" value="1.2" step="0.1" min="0.04" max="3.0" class="num" />
+          <div class="jog-speed-row">
+            <label class="jog-speed-name" for="linearSpeedPercent">Linear</label>
+            <input id="linearSpeedPercent" class="jog-speed-slider" type="range" min="0" max="100" step="1" value="0" data-speed-target="linearSpeed" />
+            <output id="linearSpeedPercentValue" class="jog-speed-percent" for="linearSpeedPercent">--%</output>
+            <input id="linearSpeed" type="number" value="5" step="1" min="1" max="50" class="num jog-speed-raw" aria-label="Linear jog controller value" />
+          </div>
+
+          <div class="jog-speed-row">
+            <label class="jog-speed-name" for="rotateSpeedPercent">Rotation</label>
+            <input id="rotateSpeedPercent" class="jog-speed-slider" type="range" min="0" max="100" step="1" value="0" data-speed-target="rotateSpeed" />
+            <output id="rotateSpeedPercentValue" class="jog-speed-percent" for="rotateSpeedPercent">--%</output>
+            <input id="rotateSpeed" type="number" value="2" step="0.5" min="0.5" max="20" class="num jog-speed-raw" aria-label="Rotation jog controller value" />
+          </div>
+
+          <div class="jog-speed-row">
+            <label class="jog-speed-name" for="jointSpeedPercent">Joint</label>
+            <input id="jointSpeedPercent" class="jog-speed-slider" type="range" min="0" max="100" step="1" value="0" data-speed-target="jointSpeed" />
+            <output id="jointSpeedPercentValue" class="jog-speed-percent" for="jointSpeedPercent">--%</output>
+            <input id="jointSpeed" type="number" value="0.03" step="0.01" min="0.005" max="0.2" class="num jog-speed-raw" aria-label="Joint jog controller value" />
+          </div>
+        </section>
+
+        <section class="jog-speed-group" aria-labelledby="moveSpeedHeading">
+          <div class="jog-speed-group-heading">
+            <strong id="moveSpeedHeading">Point-to-Point Move</strong>
+            <span>Home, waypoint, and direct move settings</span>
+          </div>
+
+          <div class="jog-speed-row">
+            <label class="jog-speed-name" for="moveVelPercent">Velocity</label>
+            <input id="moveVelPercent" class="jog-speed-slider" type="range" min="0" max="100" step="1" value="0" data-speed-target="moveVel" />
+            <output id="moveVelPercentValue" class="jog-speed-percent" for="moveVelPercent">--%</output>
+            <input id="moveVel" type="number" value="2.0" step="0.1" min="0.02" max="3.0" class="num jog-speed-raw" aria-label="Move velocity controller value" />
+          </div>
+
+          <div class="jog-speed-row">
+            <label class="jog-speed-name" for="moveAccPercent">Acceleration</label>
+            <input id="moveAccPercent" class="jog-speed-slider" type="range" min="0" max="100" step="1" value="0" data-speed-target="moveAcc" />
+            <output id="moveAccPercentValue" class="jog-speed-percent" for="moveAccPercent">--%</output>
+            <input id="moveAcc" type="number" value="1.2" step="0.1" min="0.04" max="3.0" class="num jog-speed-raw" aria-label="Move acceleration controller value" />
+          </div>
+        </section>
+        <div class="jog-speed-note">0% = minimum configured value · 100% = current configured maximum. The numeric field remains the controller value used by the existing motion logic.</div>
       </div>
 
       <div class="row">
@@ -4003,6 +4161,58 @@ function setCoord(v) {
   buildButtons();
 }
 
+const JOG_SPEED_UI = [
+  ["linearSpeedPercent", "linearSpeed", "linearSpeedPercentValue"],
+  ["rotateSpeedPercent", "rotateSpeed", "rotateSpeedPercentValue"],
+  ["jointSpeedPercent", "jointSpeed", "jointSpeedPercentValue"],
+  ["moveVelPercent", "moveVel", "moveVelPercentValue"],
+  ["moveAccPercent", "moveAcc", "moveAccPercentValue"],
+];
+
+function clampNumber(value, min, max) {
+  return Math.min(max, Math.max(min, value));
+}
+
+function speedInputDecimals(input) {
+  const stepText = String(input.step || "1");
+  const decimal = stepText.indexOf(".");
+  return decimal < 0 ? 0 : stepText.length - decimal - 1;
+}
+
+function syncSpeedPercentToController(slider, input, output) {
+  const percent = clampNumber(Number(slider.value), 0, 100);
+  const min = Number(input.min);
+  const max = Number(input.max);
+  const step = Number(input.step) || 1;
+  let value = min + ((max - min) * percent / 100);
+  value = min + Math.round((value - min) / step) * step;
+  value = clampNumber(value, min, max);
+  input.value = value.toFixed(speedInputDecimals(input));
+  output.textContent = `${Math.round(percent)}%`;
+}
+
+function syncControllerToSpeedPercent(slider, input, output) {
+  const min = Number(input.min);
+  const max = Number(input.max);
+  const value = clampNumber(Number(input.value), min, max);
+  const percent = max > min ? ((value - min) / (max - min)) * 100 : 0;
+  slider.value = String(Math.round(percent));
+  output.textContent = `${Math.round(percent)}%`;
+}
+
+function initJogSpeedControls() {
+  JOG_SPEED_UI.forEach(([sliderId, inputId, outputId]) => {
+    const slider = $(sliderId);
+    const input = $(inputId);
+    const output = $(outputId);
+    if (!slider || !input || !output) return;
+    syncControllerToSpeedPercent(slider, input, output);
+    slider.addEventListener("input", () => syncSpeedPercentToController(slider, input, output));
+    input.addEventListener("input", () => syncControllerToSpeedPercent(slider, input, output));
+    input.addEventListener("change", () => syncControllerToSpeedPercent(slider, input, output));
+  });
+}
+
 function speedFor(axis, jogCoord) {
   axis = axis.toLowerCase();
   if (jogCoord === "joint") return parseFloat($("jointSpeed").value);
@@ -4963,6 +5173,7 @@ function init() {
   setSide("both");
   setCoord("base");
   buildButtons();
+  initJogSpeedControls();
   renderSequence();
   updateProgramLoopControls();
   updateProgramLoopProgress(null);
