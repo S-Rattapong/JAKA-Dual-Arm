@@ -1795,6 +1795,54 @@
       background: var(--work-surface);
     }
     .digital-twin-operator-pane .digital-twin-workflow-stage { scroll-margin-top: 292px; }
+    .operator-live-position {
+      margin: 0 0 10px;
+      padding: 8px 9px 9px;
+      border: 1px solid var(--line);
+      border-left: 3px solid var(--blue-deep);
+      background: var(--work-surface-alt);
+    }
+    .operator-live-position-heading {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 8px;
+      margin-bottom: 6px;
+      color: var(--text);
+    }
+    .operator-live-position-heading strong {
+      font: 800 11px/1.2 var(--font-mono);
+      letter-spacing: .06em;
+      text-transform: uppercase;
+    }
+    .operator-live-position-heading span { color: var(--muted); font-size: 10px; }
+    .operator-live-position-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(min(330px, 100%), 1fr));
+      gap: 8px;
+    }
+    .operator-live-position-card { min-width: 0; }
+    .operator-live-position-card h3 {
+      margin: 0 0 4px;
+      color: var(--muted);
+      font: 700 10px/1.2 var(--font-mono);
+      letter-spacing: .04em;
+      text-transform: uppercase;
+    }
+    .operator-live-position table {
+      width: 100%;
+      table-layout: fixed;
+      font: 700 9px/1.2 var(--font-mono);
+    }
+    .operator-live-position th,
+    .operator-live-position td {
+      padding: 3px 2px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .operator-live-position th { background: var(--toolbar); color: var(--muted); }
+    .operator-live-position td { background: var(--work-surface); color: var(--text); }
     .digital-twin-viewer-pane {
       min-width: 0;
       padding: 10px;
@@ -2442,62 +2490,6 @@
     .hmi-technical-workspace th { background: #0d151a; }
     .hmi-technical-workspace td { background: #111c23; color: #e9eff2; }
 
-    /* Direct Move uses the opposite edge so it never competes with the JOG drawer. */
-    .hmi-direct-sidebar {
-      position: fixed;
-      z-index: 119;
-      top: clamp(132px, 18vh, 190px);
-      left: 0;
-      width: 44px;
-      max-height: calc(100dvh - clamp(148px, 20vh, 206px));
-      margin: 0;
-      overflow: hidden;
-      border-left: 0;
-      border-radius: 0 4px 4px 0;
-      box-shadow: 4px 7px 18px rgba(9, 16, 21, .22);
-    }
-    .hmi-direct-sidebar > summary {
-      min-height: 116px;
-      padding: 12px 10px;
-      display: grid;
-      place-items: center;
-      color: #dce7ec;
-      background: #202d36;
-      border-right: 3px solid #72b9dc;
-      font: 800 11px/1.2 var(--font-mono);
-      letter-spacing: .1em;
-      text-transform: uppercase;
-      writing-mode: vertical-rl;
-      transform: rotate(180deg);
-      cursor: pointer;
-      list-style: none;
-    }
-    .hmi-direct-sidebar > summary::-webkit-details-marker { display: none; }
-    .hmi-direct-sidebar[open] {
-      width: min(820px, calc(100vw - 64px));
-      overflow-x: hidden;
-      overflow-y: auto;
-      scrollbar-gutter: stable;
-    }
-    .hmi-direct-sidebar[open] > summary {
-      position: sticky;
-      top: 0;
-      z-index: 2;
-      min-height: 40px;
-      padding: 10px 12px;
-      place-items: center start;
-      writing-mode: horizontal-tb;
-      transform: none;
-      border-right: 0;
-      border-bottom: 1px solid #4a5d69;
-    }
-    .hmi-direct-sidebar[open] > summary::after {
-      content: " · CLOSE";
-      color: #8fa4af;
-      font-weight: 600;
-      letter-spacing: .06em;
-    }
-
     /* Non-modal service drawer: a narrow JOG rail until the operator opens it. */
     .hmi-jog-sidebar {
       position: fixed;
@@ -2535,7 +2527,7 @@
     }
     .hmi-jog-sidebar > summary::-webkit-details-marker { display: none; }
     .hmi-jog-sidebar[open] {
-      width: clamp(390px, 34vw, 540px);
+      width: clamp(520px, 42vw, 760px);
       overflow-x: hidden;
       overflow-y: auto;
       scrollbar-gutter: stable;
@@ -2696,6 +2688,20 @@
       font-weight: 900;
       line-height: 1;
     }
+    .hmi-jog-sidebar .hmi-direct-controls {
+      margin: 18px 0 0;
+      padding: 12px;
+      border: 1px solid #40515d;
+      background: #10181e;
+    }
+    .hmi-jog-sidebar .hmi-direct-controls .hmi-direct-warning {
+      margin: 0 0 12px;
+      color: #b4c2ca;
+      line-height: 1.4;
+    }
+    .hmi-jog-sidebar .hmi-direct-controls .row { margin-top: 8px; margin-bottom: 10px; }
+    .hmi-jog-sidebar .hmi-direct-controls .two-grid { gap: 10px; }
+    .hmi-jog-sidebar .hmi-direct-controls .direct-inputs { gap: 7px; }
 
     /* Experiment = analysis lab, not another operator station. */
     #digitalTwinExperimentPanel {
@@ -2841,7 +2847,6 @@
       .hmi-jog-sidebar .jog-grid { grid-template-columns: 1fr; }
       .hmi-jog-sidebar .jog-speed-row { grid-template-columns: minmax(64px, 82px) minmax(0, 1fr) 58px 76px; }
       .experiment-exp1-cards { grid-template-columns: 1fr; }
-      .hmi-direct-sidebar,
       .hmi-jog-sidebar {
         position: static;
         width: calc(100% - 20px);
@@ -2850,10 +2855,7 @@
         border: 1px solid #536571;
         box-shadow: none;
       }
-      .hmi-direct-sidebar:not([open]),
       .hmi-jog-sidebar:not([open]) { width: calc(100% - 20px); min-height: 0; }
-      .hmi-direct-sidebar:not([open]) > summary,
-      .hmi-direct-sidebar[open] > summary,
       .hmi-jog-sidebar:not([open]) > summary,
       .hmi-jog-sidebar[open] > summary {
         position: static;
@@ -2865,7 +2867,6 @@
         writing-mode: horizontal-tb;
         transform: none;
       }
-      .hmi-direct-sidebar[open],
       .hmi-jog-sidebar[open] { width: calc(100% - 20px); overflow: visible; }
     }
     @media (max-width: 700px) {
@@ -2883,6 +2884,7 @@
       .digital-twin-sticky-viewer { padding: 5px; }
       .digital-twin-workflow-stage { padding-left: 9px; padding-right: 9px; }
       .digital-twin-readout, .digital-twin-meta { grid-template-columns: 1fr; }
+      .operator-live-position-grid { grid-template-columns: 1fr; }
       .digital-twin-operator-status > span,
       .digital-twin-operator-status > strong { flex: 1 1 100%; border-right: 0; border-bottom: 1px solid var(--line); }
       .digital-twin-phase5-actions button { flex: 1 1 100%; }
@@ -2927,7 +2929,7 @@
     @media (forced-colors: active) {
       * { scrollbar-color: auto; }
       .hmi-section-nav a, .digital-twin-workflow-stage, .hmi-technical-workspace,
-      #digitalTwinExperimentPanel, .system-control-panel, .digital-twin-split-divider, .hmi-direct-sidebar, .hmi-jog-sidebar { forced-color-adjust: auto; }
+      #digitalTwinExperimentPanel, .system-control-panel, .digital-twin-split-divider, .hmi-jog-sidebar { forced-color-adjust: auto; }
     }
   </style>
 
@@ -3026,99 +3028,10 @@
     <a href="#digitalTwinOperatorGraspStage">1 Setup</a>
     <a href="#digitalTwinOperatorWaypointStage">2 Path</a>
     <a href="#digitalTwinPhase5ExecutionSection" data-motion="true">3 Run</a>
-    <a href="#hmiTechnicalWorkspace">Advanced / Tools</a>
+    <a href="#hmiJogSidebar">Jog / Direct</a>
   </nav>
 
-  <details id="hmiTechnicalWorkspace" class="hmi-technical-workspace hmi-direct-sidebar" name="service-drawer">
-    <summary title="Open Live Position / Direct Move tools">DIRECT</summary>
-    <p class="small" style="padding: 0 13px;">Direct Move can move the robots. For recorded results, open <a href="#digitalTwinExperimentPanel" data-lab="true">Analysis / Experiments</a>.</p>
-  <div class="top-grid">
-    <div class="panel">
-      <h2>Live Position / Direct Move</h2>
-
-      <div class="two-grid">
-        <div>
-          <h3>Left Robot</h3>
-          <table>
-            <tr><th>J1°</th><th>J2°</th><th>J3°</th><th>J4°</th><th>J5°</th><th>J6°</th></tr>
-            <tr id="leftJointRow"><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td></tr>
-            <tr><th>X</th><th>Y</th><th>Z</th><th>Rx</th><th>Ry</th><th>Rz</th></tr>
-            <tr id="leftTcpRow"><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td></tr>
-          </table>
-        </div>
-
-        <div>
-          <h3>Right Robot</h3>
-          <table>
-            <tr><th>J1°</th><th>J2°</th><th>J3°</th><th>J4°</th><th>J5°</th><th>J6°</th></tr>
-            <tr id="rightJointRow"><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td></tr>
-            <tr><th>X</th><th>Y</th><th>Z</th><th>Rx</th><th>Ry</th><th>Rz</th></tr>
-            <tr id="rightTcpRow"><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td></tr>
-          </table>
-        </div>
-      </div>
-
-      <h3>Direct Joint Move</h3>
-      <div class="small">กรอกค่า Joint เป็นองศา แล้วกด Confirm เพื่อสั่งหุ่นเคลื่อนที่</div>
-
-      <div class="row">
-        <label>Target side:
-          <select id="directSide">
-            <option value="both">Both</option>
-            <option value="left">Left</option>
-            <option value="right">Right</option>
-          </select>
-        </label>
-
-        <button onclick="fillJointInputsFromCurrent()">Fill Current</button>
-        <button class="orange" onclick="sendDirectJointMove()">Confirm Joint Move</button>
-        <button class="stop" onclick="stopBoth()">STOP BOTH</button>
-      </div>
-
-      <div class="two-grid">
-        <div>
-          <h3>Left Target (deg)</h3>
-          <div class="direct-inputs" id="leftJointInputs"></div>
-        </div>
-        <div>
-          <h3>Right Target (deg)</h3>
-          <div class="direct-inputs" id="rightJointInputs"></div>
-        </div>
-      </div>
-
-      <h3>Direct TCP Move</h3>
-      <div class="small">
-        Safe TCP Move ใช้หลักการ TCP → IK → Joint Move ดังนั้นความเร็วจะอิงจาก Move vel / Move acc ด้านบน ไม่ใช้ linear_move โดยตรง
-      </div>
-
-      <div class="row">
-        <label>Target side:
-          <select id="directTcpSide">
-            <option value="both">Both</option>
-            <option value="left">Left</option>
-            <option value="right">Right</option>
-          </select>
-        </label>
-    <button onclick="fillTcpInputsFromCurrent()">Fill Current TCP</button>
-        <button class="orange" onclick="sendDirectTcpMove()">Confirm Safe TCP Move</button>
-        <button class="stop" onclick="stopBoth()">STOP BOTH</button>
-      </div>
-
-      <div class="two-grid">
-        <div>
-          <h3>Left TCP Target</h3>
-          <div class="direct-inputs" id="leftTcpInputs"></div>
-        </div>
-        <div>
-          <h3>Right TCP Target</h3>
-          <div class="direct-inputs" id="rightTcpInputs"></div>
-        </div>
-      </div>
-    </div>
-  </div>
-  </details>
-
-  <details id="hmiJogSidebar" class="hmi-jog-sidebar" name="service-drawer">
+  <details id="hmiJogSidebar" class="hmi-jog-sidebar">
     <summary>JOG</summary>
     <div class="panel">
       <h2>Dual JAKA A12 Manual Jog</h2>
@@ -3215,6 +3128,69 @@
           <div id="tcpButtons"></div>
         </div>
       </div>
+
+
+      <section id="hmiTechnicalWorkspace" class="hmi-technical-workspace hmi-direct-controls" aria-label="Direct move controls">
+        <h2>Direct Move</h2>
+        <div class="small hmi-direct-warning">Direct Move can move the robots. Use the same Point-to-Point Move velocity and acceleration settings above.</div>
+
+      <h3>Direct Joint Move</h3>
+      <div class="small">กรอกค่า Joint เป็นองศา แล้วกด Confirm เพื่อสั่งหุ่นเคลื่อนที่</div>
+
+      <div class="row">
+        <label>Target side:
+          <select id="directSide">
+            <option value="both">Both</option>
+            <option value="left">Left</option>
+            <option value="right">Right</option>
+          </select>
+        </label>
+
+        <button onclick="fillJointInputsFromCurrent()">Fill Current</button>
+        <button class="orange" onclick="sendDirectJointMove()">Confirm Joint Move</button>
+        <button class="stop" onclick="stopBoth()">STOP BOTH</button>
+      </div>
+
+      <div class="two-grid">
+        <div>
+          <h3>Left Target (deg)</h3>
+          <div class="direct-inputs" id="leftJointInputs"></div>
+        </div>
+        <div>
+          <h3>Right Target (deg)</h3>
+          <div class="direct-inputs" id="rightJointInputs"></div>
+        </div>
+      </div>
+
+      <h3>Direct TCP Move</h3>
+      <div class="small">
+        Safe TCP Move ใช้หลักการ TCP → IK → Joint Move ดังนั้นความเร็วจะอิงจาก Move vel / Move acc ด้านบน ไม่ใช้ linear_move โดยตรง
+      </div>
+
+      <div class="row">
+        <label>Target side:
+          <select id="directTcpSide">
+            <option value="both">Both</option>
+            <option value="left">Left</option>
+            <option value="right">Right</option>
+          </select>
+        </label>
+    <button onclick="fillTcpInputsFromCurrent()">Fill Current TCP</button>
+        <button class="orange" onclick="sendDirectTcpMove()">Confirm Safe TCP Move</button>
+        <button class="stop" onclick="stopBoth()">STOP BOTH</button>
+      </div>
+
+      <div class="two-grid">
+        <div>
+          <h3>Left TCP Target</h3>
+          <div class="direct-inputs" id="leftTcpInputs"></div>
+        </div>
+        <div>
+          <h3>Right TCP Target</h3>
+          <div class="direct-inputs" id="rightTcpInputs"></div>
+        </div>
+      </div>
+      </section>
     </div>
   </details>
 
@@ -3259,6 +3235,33 @@
     ></div>
 
     <div id="digitalTwinOperatorPane" class="digital-twin-operator-pane" aria-label="Operator workflow">
+    <section class="operator-live-position" aria-label="Live robot position">
+      <div class="operator-live-position-heading">
+        <strong>Live Position</strong>
+        <span>Joint + TCP feedback</span>
+      </div>
+      <div class="operator-live-position-grid">
+        <div class="operator-live-position-card">
+          <h3>Left Robot</h3>
+          <table>
+            <tr><th>J1°</th><th>J2°</th><th>J3°</th><th>J4°</th><th>J5°</th><th>J6°</th></tr>
+            <tr id="leftJointRow"><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td></tr>
+            <tr><th>X</th><th>Y</th><th>Z</th><th>Rx</th><th>Ry</th><th>Rz</th></tr>
+            <tr id="leftTcpRow"><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td></tr>
+          </table>
+        </div>
+        <div class="operator-live-position-card">
+          <h3>Right Robot</h3>
+          <table>
+            <tr><th>J1°</th><th>J2°</th><th>J3°</th><th>J4°</th><th>J5°</th><th>J6°</th></tr>
+            <tr id="rightJointRow"><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td></tr>
+            <tr><th>X</th><th>Y</th><th>Z</th><th>Rx</th><th>Ry</th><th>Rz</th></tr>
+            <tr id="rightTcpRow"><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td></tr>
+          </table>
+        </div>
+      </div>
+    </section>
+
     <div id="digitalTwinLiveMirrorQuick" class="digital-twin-live-mirror-quick" aria-label="Live Mirror quick control">
       <div class="digital-twin-live-mirror-quick-copy">
         <strong>Live Mirror</strong>

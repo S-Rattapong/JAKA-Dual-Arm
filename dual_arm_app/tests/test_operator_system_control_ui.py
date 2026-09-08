@@ -36,7 +36,7 @@ def test_all_existing_ids_and_inline_handlers_are_preserved():
     }
     assert (base_ids - replaced_system_action_ids).issubset(current_ids)
     assert not (replaced_system_action_ids & set(current_ids))
-    assert inline_handlers(BASE) == inline_handlers(HTML)
+    assert Counter(inline_handlers(BASE)) == Counter(inline_handlers(HTML))
     counts = Counter(current_ids)
     assert not [name for name, count in counts.items() if count != 1]
 
@@ -182,13 +182,13 @@ def test_system_control_uses_one_power_and_one_enable_toggle_per_arm():
 
 
 def test_manual_jog_moved_out_of_technical_workspace_into_side_rail():
-    tech_start = HTML.index('id="hmiTechnicalWorkspace"')
-    tech_end = HTML.index('</details>', tech_start)
     jog_start = HTML.index('id="hmiJogSidebar"')
-    split_start = HTML.index('id="digitalTwinSplitWorkspace"')
-    assert tech_end < jog_start < split_start
-    technical = HTML[tech_start:tech_end]
+    tech_start = HTML.index('id="hmiTechnicalWorkspace"', jog_start)
+    tech_end = HTML.index('</section>', tech_start)
     jog_end = HTML.index('</details>', jog_start)
+    split_start = HTML.index('id="digitalTwinSplitWorkspace"')
+    assert jog_start < tech_start < tech_end < jog_end < split_start
+    technical = HTML[tech_start:tech_end]
     jog = HTML[jog_start:jog_end]
     assert "Dual JAKA A12 Manual Jog" not in technical
     assert "Dual JAKA A12 Manual Jog" in jog
@@ -216,23 +216,28 @@ def test_top_level_surfaces_are_fluid_without_1800px_island_cap():
     assert 'transform: scale(' not in HTML
 
 
-def test_direct_move_workspace_is_left_side_drawer_not_main_page_surface():
-    tech_start = HTML.index('id="hmiTechnicalWorkspace"')
+def test_direct_controls_are_inside_jog_and_live_position_is_top_of_operator():
     jog_start = HTML.index('id="hmiJogSidebar"')
-    split_start = HTML.index('id="digitalTwinSplitWorkspace"')
-    assert tech_start < jog_start < split_start
-    technical = HTML[tech_start:HTML.index('</details>', tech_start)]
-    assert 'class="hmi-technical-workspace hmi-direct-sidebar"' in HTML
-    assert '<summary title="Open Live Position / Direct Move tools">DIRECT</summary>' in technical
-    assert "Live Position / Direct Move" in technical
-    assert "Direct Joint Move" in technical
-    assert "Direct TCP Move" in technical
-    direct_css = HTML.split('.hmi-direct-sidebar {', 1)[1].split('}', 1)[0]
-    assert 'position: fixed' in direct_css
-    assert 'left: 0' in direct_css
-    assert 'id="hmiTechnicalWorkspace" class="hmi-technical-workspace hmi-direct-sidebar" name="service-drawer"' in HTML
-    assert 'id="hmiJogSidebar" class="hmi-jog-sidebar" name="service-drawer"' in HTML
+    jog_end = HTML.index('</details>', jog_start)
+    direct = HTML.index('id="hmiTechnicalWorkspace"', jog_start)
+    split = HTML.index('id="digitalTwinSplitWorkspace"')
+    assert jog_start < direct < jog_end < split
+    jog = HTML[jog_start:jog_end]
+    assert "Direct Joint Move" in jog
+    assert "Direct TCP Move" in jog
+    assert "Live Position / Direct Move" not in jog
+    assert ".hmi-direct-sidebar" not in HTML
 
+    operator = HTML.index('id="digitalTwinOperatorPane"')
+    live = HTML.index('class="operator-live-position"', operator)
+    mirror = HTML.index('id="digitalTwinLiveMirrorQuick"', operator)
+    assert operator < live < mirror
+    live_grid_rule = HTML.split('.operator-live-position-grid {', 1)[1].split('}', 1)[0]
+    assert 'repeat(auto-fit, minmax(min(330px, 100%), 1fr))' in live_grid_rule
+    for row_id in ("leftJointRow", "leftTcpRow", "rightJointRow", "rightTcpRow"):
+        assert ids(HTML).count(row_id) == 1
+        location = HTML.index(f'id="{row_id}"')
+        assert live < location < mirror
 
 def test_camera_quick_controls_are_above_digital_twin_and_reuse_existing_ids():
     rail = HTML.index('class="digital-twin-viewer-rail"')

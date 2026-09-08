@@ -256,7 +256,7 @@ console.log(JSON.stringify({{
 
     def test_existing_controls_remain_and_no_execute_button_is_added(self) -> None:
         labels = (
-            "Live Position / Direct Move",
+            "Live Position",
             "Direct Joint Move",
             "Direct TCP Move",
             "Dual JAKA A12 Manual Jog",

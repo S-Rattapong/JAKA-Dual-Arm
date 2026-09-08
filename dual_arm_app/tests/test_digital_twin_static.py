@@ -119,7 +119,7 @@ class StaticDigitalTwinTests(unittest.TestCase):
 
     def test_existing_controls_and_new_panel_remain_in_index(self) -> None:
         preserved_labels = (
-            "Live Position / Direct Move",
+            "Live Position",
             "Direct Joint Move",
             "Direct TCP Move",
             "Dual JAKA A12 Manual Jog",
