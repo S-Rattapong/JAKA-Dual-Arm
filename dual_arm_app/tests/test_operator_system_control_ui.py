@@ -25,22 +25,26 @@ def inline_handlers(source: str) -> list[str]:
         source,
     )
 def test_all_existing_ids_and_inline_handlers_are_preserved():
-    base_ids = ids(BASE)
+    base_ids = set(ids(BASE))
     current_ids = ids(HTML)
-    assert set(base_ids).issubset(current_ids)
+    replaced_system_action_ids = {
+        "systemControlLeftPowerOn", "systemControlLeftPowerOff",
+        "systemControlLeftEnable", "systemControlLeftDisable",
+        "systemControlRightPowerOn", "systemControlRightPowerOff",
+        "systemControlRightEnable", "systemControlRightDisable",
+    }
+    assert (base_ids - replaced_system_action_ids).issubset(current_ids)
+    assert not (replaced_system_action_ids & set(current_ids))
     assert inline_handlers(BASE) == inline_handlers(HTML)
     counts = Counter(current_ids)
     assert not [name for name, count in counts.items() if count != 1]
-
 
 def test_existing_script_sources_preserved_and_system_control_added_once():
     pattern = r'<script[^>]+src="([^"]+)"'
     before = re.findall(pattern, BASE)
     after = re.findall(pattern, HTML)
-    assert all(after.count(src) == 1 for src in before)
+    assert after == before
     assert after.count("/web-assets/operator_system_control.js?v=split-system-control-v1") == 1
-    assert [src for src in after if src != "/web-assets/operator_system_control.js?v=split-system-control-v1"] == before
-
 
 def test_split_workspace_is_twin_left_55_operator_right_45_and_keyboard_accessible():
     assert '--operator-share: 45%' in HTML
@@ -84,8 +88,8 @@ def test_system_control_required_status_and_action_ids_exist():
     current = set(ids(HTML))
     assert required <= current
     for side in ("Left", "Right"):
-        for action in ("PowerOn", "PowerOff", "Enable", "Disable"):
-            assert f"systemControl{side}{action}" in current
+        assert f"systemControl{side}PowerToggle" in current
+        assert f"systemControl{side}EnableToggle" in current
 def test_system_control_js_uses_only_allowlisted_system_control_endpoints():
     endpoints = set(re.findall(r'[`"](/api/system-control[^`"$]*)', JS))
     assert endpoints == {
@@ -96,6 +100,9 @@ def test_system_control_js_uses_only_allowlisted_system_control_endpoints():
     }
     forbidden = ("/api/stop", "/api/home", "/api/jog", "/api/direct", "/phase5/execute", "Port10000")
     assert all(token not in JS for token in forbidden)
+    assert 'typeof enabled !== "boolean"' in JS
+    assert "{ enabled }" in JS
+    assert "Boolean(enabled)" not in JS
 
 
 def test_page_initialization_is_read_only_and_mutations_are_click_bound():
@@ -125,6 +132,11 @@ def test_status_polling_is_non_overlapping_fail_closed_and_snapshot_expires():
     assert "do not repeat the action until fresh status returns" in JS
     assert "const refreshed = await readStatus({ announceFailure: true, force: true })" in JS
     assert 'actual?.received_at_ms != null ? " · STALE"' in JS
+    verified = JS.split("function verifiedArmActual", 1)[1].split("function openConfirmation", 1)[0]
+    assert "STATUS_SNAPSHOT_MAX_AGE_MS" in verified
+    assert 'driver?.connection === "CONNECTED"' in verified
+    assert "actual?.fresh === true" in verified
+    assert "latestStatus?.shutdown?.safe === true" in verified
 
 
 def test_pending_confirmation_cannot_escape_and_split_uses_dynamic_bounds():
@@ -135,3 +147,68 @@ def test_pending_confirmation_cannot_escape_and_split_uses_dynamic_bounds():
     assert '(min-width: 1321px)' in JS
     assert '@media (max-width: 1320px)' in HTML
     assert 'height: min(720px, calc(100dvh - 244px))' in HTML
+
+
+
+def test_system_control_is_compact_header_content_not_workflow_content():
+    header_start = HTML.index('<header class="hmi-command-header">')
+    header_end = HTML.index('</header>', header_start)
+    panel = HTML.index('id="systemControlPanel"')
+    operator = HTML.index('id="digitalTwinOperatorPane"')
+    assert header_start < panel < header_end < operator
+    header_block = HTML[header_start:header_end]
+    assert "SYSTEM CONTROL" in header_block
+    assert "CONNECT ROBOTS" in header_block
+    assert "RESET MoveIt" in header_block
+    assert "Actual state only" not in header_block
+    assert "Runtime ownership" not in header_block
+
+
+def test_system_control_uses_one_power_and_one_enable_toggle_per_arm():
+    current = ids(HTML)
+    for side in ("Left", "Right"):
+        assert current.count(f"systemControl{side}PowerToggle") == 1
+        assert current.count(f"systemControl{side}EnableToggle") == 1
+        assert f"systemControl{side}PowerOn" not in current
+        assert f"systemControl{side}PowerOff" not in current
+        assert f"systemControl{side}Enable" not in current
+        assert f"systemControl{side}Disable" not in current
+    assert 'aria-pressed' in JS
+    assert 'POWER: UNKNOWN' in JS and 'ENABLE: UNKNOWN' in JS
+    assert 'actual.power === false' in JS
+    assert 'actual.enabled === false' in JS
+    assert 'openConfirmation(' in JS
+
+
+def test_manual_jog_moved_out_of_technical_workspace_into_side_rail():
+    tech_start = HTML.index('id="hmiTechnicalWorkspace"')
+    tech_end = HTML.index('</details>', tech_start)
+    jog_start = HTML.index('id="hmiJogSidebar"')
+    split_start = HTML.index('id="digitalTwinSplitWorkspace"')
+    assert tech_end < jog_start < split_start
+    technical = HTML[tech_start:tech_end]
+    jog_end = HTML.index('</details>', jog_start)
+    jog = HTML[jog_start:jog_end]
+    assert "Dual JAKA A12 Manual Jog" not in technical
+    assert "Dual JAKA A12 Manual Jog" in jog
+    for jog_id in (
+        "side-left", "side-right", "side-both", "coord-joint", "coord-base", "coord-tool",
+        "syncMode", "jogSpeedHeading", "linearSpeedPercent", "linearSpeedPercentValue",
+        "rotateSpeedPercent", "rotateSpeedPercentValue", "jointSpeedPercent",
+        "jointSpeedPercentValue", "moveSpeedHeading", "moveVelPercent",
+        "moveVelPercentValue", "moveAccPercent", "moveAccPercentValue", "linearSpeed",
+        "rotateSpeed", "jointSpeed", "moveVel", "moveAcc", "jointButtons", "tcpButtons",
+    ):
+        assert ids(HTML).count(jog_id) == 1
+        assert f'id="{jog_id}"' in jog
+    assert '.hmi-jog-sidebar {' in HTML
+    assert 'position: fixed' in HTML.split('.hmi-jog-sidebar {', 1)[1].split('}', 1)[0]
+
+
+def test_top_level_surfaces_are_fluid_without_1800px_island_cap():
+    assert 'min(1800px' not in HTML
+    fluid_rule = HTML.split('body > .hmi-technical-workspace,', 1)[1].split('}', 1)[0]
+    assert 'width: calc(100% - clamp(' in fluid_rule
+    assert 'max-width: 1800px' not in fluid_rule
+    assert 'zoom:' not in HTML
+    assert 'transform: scale(' not in HTML

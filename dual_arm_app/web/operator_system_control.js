@@ -37,10 +37,8 @@ const armUi = Object.fromEntries(["left", "right"].map((side) => {
     motion: byId(`systemControl${cap}Motion`),
     feedback: byId(`systemControl${cap}Feedback`),
     age: byId(`systemControl${cap}FeedbackAge`),
-    powerOn: byId(`systemControl${cap}PowerOn`),
-    powerOff: byId(`systemControl${cap}PowerOff`),
-    enable: byId(`systemControl${cap}Enable`),
-    disable: byId(`systemControl${cap}Disable`),
+    powerToggle: byId(`systemControl${cap}PowerToggle`),
+    enableToggle: byId(`systemControl${cap}EnableToggle`),
   }];
 }));
 
@@ -62,6 +60,7 @@ function setValue(element, text, tone = "unknown") {
 function setDetail(message, tone = "neutral") {
   if (!ui.detail) return;
   ui.detail.textContent = String(message || "No additional detail.");
+  ui.detail.title = ui.detail.textContent;
   ui.detail.dataset.tone = tone;
 }
 
@@ -100,12 +99,13 @@ function renderArm(side, driver, safeGate) {
   const [powerText, powerTone] = booleanState(actual.power, "ON", "OFF");
   const [enableText, enableTone] = booleanState(actual.enabled, "ENABLED", "DISABLED");
   const motion = MOTION_LABELS.get(actual.motion) || ["UNKNOWN", "unknown"];
+  const suffix = actual?.received_at_ms != null ? " · STALE" : " · UNKNOWN";
+
   if (authoritative) {
     setValue(target.power, powerText, powerTone);
     setValue(target.enabled, enableText, enableTone);
     setValue(target.motion, motion[0], motion[1]);
   } else {
-    const suffix = actual?.received_at_ms != null ? " · STALE" : " · UNKNOWN";
     setValue(target.power, `${powerText}${suffix}`, actual.power == null ? "unknown" : "warning");
     setValue(target.enabled, `${enableText}${suffix}`, actual.enabled == null ? "unknown" : "warning");
     const staleMotionTone = motion[1] === "error" ? "error" : actual.motion == null ? "unknown" : "warning";
@@ -121,12 +121,29 @@ function renderArm(side, driver, safeGate) {
     && typeof actual.power === "boolean" && typeof actual.enabled === "boolean"
     && Number.isInteger(actual.motion);
   const safe = safeGate === true && known && actual.motion === 0 && !mutationBusy;
-  target.powerOn.disabled = !(safe && actual.power === false);
-  target.powerOff.disabled = !(safe && actual.power === true && actual.enabled === false);
-  target.enable.disabled = !(safe && actual.power === true && actual.enabled === false);
-  target.disable.disabled = !(safe && actual.enabled === true);
-}
 
+  const toggleText = (kind, value, onText, offText) => {
+    if (!authoritative || typeof value !== "boolean") {
+      return `${kind}: ${actual?.received_at_ms != null ? "STALE" : "UNKNOWN"}`;
+    }
+    return `${kind}: ${value ? onText : offText}`;
+  };
+  const toggleTone = (value) => authoritative && typeof value === "boolean"
+    ? (value ? "ok" : "warning")
+    : (actual?.received_at_ms != null ? "warning" : "unknown");
+
+  target.powerToggle.textContent = toggleText("POWER", actual.power, "ON", "OFF");
+  target.powerToggle.dataset.tone = toggleTone(actual.power);
+  target.powerToggle.dataset.risk = authoritative && actual.power === true ? "true" : "false";
+  target.powerToggle.setAttribute("aria-pressed", authoritative && typeof actual.power === "boolean" ? String(actual.power) : "mixed");
+  target.powerToggle.disabled = !(safe && (actual.power === false || (actual.power === true && actual.enabled === false)));
+
+  target.enableToggle.textContent = toggleText("ENABLE", actual.enabled, "ENABLED", "DISABLED");
+  target.enableToggle.dataset.tone = toggleTone(actual.enabled);
+  target.enableToggle.dataset.risk = authoritative && actual.enabled === true ? "true" : "false";
+  target.enableToggle.setAttribute("aria-pressed", authoritative && typeof actual.enabled === "boolean" ? String(actual.enabled) : "mixed");
+  target.enableToggle.disabled = !(safe && actual.power === true && typeof actual.enabled === "boolean");
+}
 function renderSoftware(status) {
   const moveit = status?.software?.moveit || {};
   const web = status?.software?.web || {};
@@ -171,7 +188,13 @@ function renderUnavailable(message) {
     for (const key of ["connection", "power", "enabled", "motion", "feedback", "age"]) {
       setValue(armUi[side][key], "UNKNOWN", "unknown");
     }
-    for (const key of ["powerOn", "powerOff", "enable", "disable"]) armUi[side][key].disabled = true;
+    for (const key of ["powerToggle", "enableToggle"]) {
+      armUi[side][key].disabled = true;
+      armUi[side][key].dataset.tone = "unknown";
+      armUi[side][key].dataset.risk = "false";
+      armUi[side][key].setAttribute("aria-pressed", "mixed");
+      armUi[side][key].textContent = key === "powerToggle" ? "POWER: UNKNOWN" : "ENABLE: UNKNOWN";
+    }
   }
   for (const id of ["systemControlMoveItState", "systemControlMoveItSource", "systemControlWebState",
     "systemControlWebSource", "systemControlShutdownState", "systemControlSafeToClose", "systemControlShutdownReason"]) {
@@ -273,7 +296,24 @@ function stateUrl(side, control) {
 }
 
 function requestState(side, control, enabled, label) {
-  return runMutation(label, () => postJson(stateUrl(side, control), { enabled: Boolean(enabled) }));
+  if (typeof enabled !== "boolean") throw new Error("System-control state must be boolean");
+  return runMutation(label, () => postJson(stateUrl(side, control), { enabled }));
+}
+
+function verifiedArmActual(side) {
+  const driver = latestStatus?.drivers?.[side];
+  const actual = driver?.actual;
+  const snapshotFresh = latestStatusReceivedAt > 0
+    && Date.now() - latestStatusReceivedAt <= STATUS_SNAPSHOT_MAX_AGE_MS;
+  const verified = snapshotFresh
+    && latestStatus?.shutdown?.safe === true
+    && driver?.connection === "CONNECTED"
+    && actual?.fresh === true
+    && typeof actual.power === "boolean"
+    && typeof actual.enabled === "boolean"
+    && actual.motion === 0
+    && !mutationBusy;
+  return verified ? actual : null;
 }
 
 function openConfirmation(trigger, title, description, confirmLabel, action) {
@@ -346,24 +386,54 @@ ui.connect?.addEventListener("click", () => {
 
 for (const side of ["left", "right"]) {
   const name = side[0].toUpperCase() + side.slice(1);
-  armUi[side].powerOn?.addEventListener("click", () =>
-    requestState(side, "power", true, `${name} Power ON`));
-  armUi[side].enable?.addEventListener("click", () =>
-    requestState(side, "enable", true, `${name} Enable`));
-  armUi[side].powerOff?.addEventListener("click", (event) => openConfirmation(
-    event.currentTarget,
-    `Power OFF ${name} robot`,
-    `Power OFF changes controller state and is allowed only after ${name} is disabled and confirmed idle. This action does not send STOP.`,
-    "Power OFF",
-    () => requestState(side, "power", false, `${name} Power OFF`),
-  ));
-  armUi[side].disable?.addEventListener("click", (event) => openConfirmation(
-    event.currentTarget,
-    `Disable ${name} robot`,
-    `DISABLE removes servo enable from the ${name} robot. The backend will refuse it unless actual feedback is fresh and idle. This action does not send STOP.`,
-    "Disable robot",
-    () => requestState(side, "enable", false, `${name} Disable`),
-  ));
+
+  armUi[side].powerToggle?.addEventListener("click", (event) => {
+    const actual = verifiedArmActual(side);
+    if (!actual) {
+      renderUnavailable("Power state is not fresh and verified. Controls remain blocked.");
+      return;
+    }
+    if (actual.power === false) {
+      requestState(side, "power", true, `${name} Power ON`);
+      return;
+    }
+    if (actual.enabled !== false) {
+      setDetail(`${name} Power OFF is blocked until actual feedback confirms the robot is disabled and idle.`, "error");
+      renderStatus(latestStatus, latestStatusReceivedAt);
+      return;
+    }
+    openConfirmation(
+      event.currentTarget,
+      `Power OFF ${name} robot`,
+      `Power OFF is allowed only after ${name} is disabled and confirmed idle. This action does not send STOP.`,
+      "Power OFF",
+      () => requestState(side, "power", false, `${name} Power OFF`),
+    );
+  });
+
+  armUi[side].enableToggle?.addEventListener("click", (event) => {
+    const actual = verifiedArmActual(side);
+    if (!actual) {
+      renderUnavailable("Enable state is not fresh and verified. Controls remain blocked.");
+      return;
+    }
+    if (actual.enabled === false) {
+      if (actual.power !== true) {
+        setDetail(`${name} Enable is blocked until actual feedback confirms power is ON.`, "error");
+        renderStatus(latestStatus, latestStatusReceivedAt);
+        return;
+      }
+      requestState(side, "enable", true, `${name} Enable`);
+      return;
+    }
+    openConfirmation(
+      event.currentTarget,
+      `Disable ${name} robot`,
+      `DISABLE removes servo enable from the ${name} robot. The backend requires fresh idle feedback. This action does not send STOP.`,
+      "Disable robot",
+      () => requestState(side, "enable", false, `${name} Disable`),
+    );
+  });
 }
 
 ui.resetMoveIt?.addEventListener("click", (event) => openConfirmation(
