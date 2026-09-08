@@ -10,6 +10,7 @@ HTML_PATH = ROOT / "dual_arm_app/web/index.html"
 JS_PATH = ROOT / "dual_arm_app/web/operator_system_control.js"
 HTML = HTML_PATH.read_text(encoding="utf-8")
 JS = JS_PATH.read_text(encoding="utf-8")
+DIGITAL_TWIN_JS = (ROOT / "dual_arm_app/web/digital_twin.js").read_text(encoding="utf-8")
 BASE = subprocess.check_output(
     ["git", "show", "HEAD:dual_arm_app/web/index.html"], cwd=ROOT, text=True
 )
@@ -207,8 +208,42 @@ def test_manual_jog_moved_out_of_technical_workspace_into_side_rail():
 
 def test_top_level_surfaces_are_fluid_without_1800px_island_cap():
     assert 'min(1800px' not in HTML
-    fluid_rule = HTML.split('body > .hmi-technical-workspace,', 1)[1].split('}', 1)[0]
+    fluid_rule = HTML.split('body > section[aria-labelledby="digitalTwinTitle"],', 1)[1].split('}', 1)[0]
     assert 'width: calc(100% - clamp(' in fluid_rule
     assert 'max-width: 1800px' not in fluid_rule
+    assert 'body > .hmi-technical-workspace,' not in HTML
     assert 'zoom:' not in HTML
     assert 'transform: scale(' not in HTML
+
+
+def test_direct_move_workspace_is_left_side_drawer_not_main_page_surface():
+    tech_start = HTML.index('id="hmiTechnicalWorkspace"')
+    jog_start = HTML.index('id="hmiJogSidebar"')
+    split_start = HTML.index('id="digitalTwinSplitWorkspace"')
+    assert tech_start < jog_start < split_start
+    technical = HTML[tech_start:HTML.index('</details>', tech_start)]
+    assert 'class="hmi-technical-workspace hmi-direct-sidebar"' in HTML
+    assert '<summary title="Open Live Position / Direct Move tools">DIRECT</summary>' in technical
+    assert "Live Position / Direct Move" in technical
+    assert "Direct Joint Move" in technical
+    assert "Direct TCP Move" in technical
+    direct_css = HTML.split('.hmi-direct-sidebar {', 1)[1].split('}', 1)[0]
+    assert 'position: fixed' in direct_css
+    assert 'left: 0' in direct_css
+    assert 'id="hmiTechnicalWorkspace" class="hmi-technical-workspace hmi-direct-sidebar" name="service-drawer"' in HTML
+    assert 'id="hmiJogSidebar" class="hmi-jog-sidebar" name="service-drawer"' in HTML
+
+
+def test_camera_quick_controls_are_above_digital_twin_and_reuse_existing_ids():
+    rail = HTML.index('class="digital-twin-viewer-rail"')
+    reset = HTML.index('id="digitalTwinResetCamera"')
+    fit = HTML.index('id="digitalTwinFitModel"')
+    viewer = HTML.index('id="digitalTwinViewer"')
+    diagnostics = HTML.index('aria-label="Viewer diagnostics"')
+    assert rail < reset < fit < viewer < diagnostics
+    assert ids(HTML).count("digitalTwinResetCamera") == 1
+    assert ids(HTML).count("digitalTwinFitModel") == 1
+    assert ">Reset Camera</button>" in HTML
+    assert ">Fit Robots</button>" in HTML
+    assert 'digitalTwinResetCamera: resetCamera' in DIGITAL_TWIN_JS
+    assert 'digitalTwinFitModel: () => fitModel(false)' in DIGITAL_TWIN_JS
