@@ -14,6 +14,7 @@ find_package(ament_cmake REQUIRED)
 find_package(rclcpp REQUIRED)
 find_package(rclpy REQUIRED)
 find_package(std_msgs REQUIRED)
+find_package(std_srvs REQUIRED)
 find_package(geometry_msgs REQUIRED)
 find_package(sensor_msgs REQUIRED)
 find_package(jaka_msgs REQUIRED)
@@ -39,6 +40,9 @@ add_executable(servoj_demo src/servoj_demo.cpp)
 
 if(BUILD_TESTING)
   enable_testing()
+  add_executable(operator_state_policy_test test/operator_state_policy_test.cpp)
+  target_include_directories(operator_state_policy_test PRIVATE include)
+  add_test(NAME operator_state_policy_test COMMAND operator_state_policy_test)
   add_executable(phase5_joint_trajectory_test
     test/phase5_joint_trajectory_test.cpp
     src/phase5_joint_trajectory.cpp
@@ -49,6 +53,7 @@ endif()
 
 # Link libraries
 ament_target_dependencies(jaka_driver
+  std_srvs
   rclcpp
   std_msgs
   geometry_msgs

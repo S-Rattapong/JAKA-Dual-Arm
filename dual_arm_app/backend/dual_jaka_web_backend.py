@@ -25,7 +25,11 @@ except ImportError:
     except ImportError:
         from center_path_store import CenterPathStore, CenterPathStoreError
 
-from std_srvs.srv import Empty
+from std_srvs.srv import Empty, SetBool
+from dual_arm_app.backend.operator_runtime import (
+    OperatorRuntime, RuntimeRejected, DRIVERS, TERMINAL, control_robot, shutdown_decision,
+)
+from dual_arm_app.backend.operator_api import system_control_router
 from sensor_msgs.msg import JointState
 from std_msgs.msg import Float64MultiArray
 from jaka_msgs.msg import RobotMsg
@@ -305,17 +309,20 @@ except ImportError:
 
 try:
     from dual_arm_app.backend.phase5_execution_transport import (
+        PHASE5_DRIVER_CONTRACT_MARKER,
         Phase5AbsoluteStartTransport,
         Phase5ExecutionTransportError,
     )
 except ImportError:
     try:
         from .phase5_execution_transport import (
+            PHASE5_DRIVER_CONTRACT_MARKER,
             Phase5AbsoluteStartTransport,
             Phase5ExecutionTransportError,
         )
     except ImportError:
         from phase5_execution_transport import (
+            PHASE5_DRIVER_CONTRACT_MARKER,
             Phase5AbsoluteStartTransport,
             Phase5ExecutionTransportError,
         )
@@ -375,14 +382,14 @@ except ImportError:
             evaluate_actual_start_match,
             fresh_actual_joint_state,
             normalize_phase5_motion_settings,
-        )
+            )
     except ImportError:
         from phase5_motion_quality import (
             REPLAN_FROM_CURRENT_SOURCE,
             evaluate_actual_start_match,
             fresh_actual_joint_state,
             normalize_phase5_motion_settings,
-        )
+            )
 
 try:
     from dual_arm_app.backend.experimental_infrastructure import (
@@ -644,6 +651,9 @@ class DualJakaWebNode(Node):
                 reconnect_backoff_s=float(
                     port10000_cfg.get("reconnect_backoff_s", 1.0)
                 ),
+                stale_reconnect_timeout_s=float(
+                    port10000_cfg.get("stale_reconnect_timeout_s", 2.0)
+                ),
                 log_warning=lambda message: self.get_logger().warning(message),
             )
             self.port10000_actual_feedback.start()
@@ -736,7 +746,11 @@ class DualJakaWebNode(Node):
         self.experiment_recorder = ExperimentRecorder(
             self.experiment_store,
             actual_stale_after_ms=int(actual_stale_ms),
+            expected_packet_period_ms=self.port10000_expected_period_ms,
         )
+
+        if self.port10000_actual_feedback is not None:
+            self.port10000_actual_feedback.subscribe_packets(self.experiment_recorder.ingest_actual_packet)
 
         self.active_jog: Optional[Dict[str, Any]] = None
         self.active_sequence: Optional[Dict[str, Any]] = None
@@ -771,6 +785,12 @@ class DualJakaWebNode(Node):
             10,
         )
 
+        self.operator_runtime = OperatorRuntime()
+        self.operator_control_lock = threading.Lock()
+        self.operator_state_clients = {
+            (side, control): self.create_client(SetBool, f"{cfg[side]['prefix']}/robot_{control}")
+            for side in ("left", "right") for control in ("power", "enable")
+        }
         self.left_jog = self.create_client(Move, f"{cfg['left']['prefix']}/jog")
         self.right_jog = self.create_client(Move, f"{cfg['right']['prefix']}/jog")
         self.left_move = self.create_client(Move, f"{cfg['left']['prefix']}/joint_move")
@@ -808,6 +828,7 @@ class DualJakaWebNode(Node):
             request_factory=self.make_execute_joint_trajectory_request,
             wait_future_result=self.wait_future_result,
             stop_generation_getter=lambda: self.stop_generation,
+            driver_contract_checker=self.phase5_driver_contract_preflight,
             left_service_name=f"{cfg['left']['prefix']}/execute_joint_trajectory",
             right_service_name=f"{cfg['right']['prefix']}/execute_joint_trajectory",
             servo_filter_config=(
@@ -966,6 +987,86 @@ class DualJakaWebNode(Node):
             "active_sequence": to_builtin(self.active_sequence),
             "waypoints": to_builtin(self.load_waypoints()),
         }
+
+    def operator_cache(self):
+        with self.digital_twin_robot_state_cache_lock:
+            return {side: {**value, "state": dict(value["state"]) if value["state"] else None}
+                    for side, value in self.digital_twin_robot_state_cache.items()}
+
+    def operator_live_sides(self):
+        # ROS graph discovery only, no SDK calls and no additional robot sessions.
+        try:
+            names = {name for name, _namespace in self.get_node_names_and_namespaces()}
+            services = {name for name, _types in self.get_service_names_and_types()}
+            return {side for side, spec in DRIVERS.items()
+                    if spec["node"] in names or any(
+                        name.startswith(spec["prefix"] + "/") for name in services)}
+        except Exception as error:
+            raise RuntimeRejected(f"ROS graph unavailable; duplicate prevention cannot be verified: {error}") from error
+
+    def operator_execution_snapshots(self):
+        # Never call coordinator inspection/is_active here: those can request abort
+        # on peer feedback errors. Browser cleanup must be strictly observational.
+        futures, result = {}, {}
+        for side in ("left", "right"):
+            client = getattr(self, f"{side}_phase5_status")
+            try:
+                if client.service_is_ready():
+                    futures[side] = client.call_async(GetExecutionStatus.Request())
+            except Exception:
+                pass
+        deadline = time.monotonic() + 0.3
+        for side, future in futures.items():
+            response = self.wait_future_result(future, timeout=max(0.0, deadline - time.monotonic()))
+            if response is not None:
+                result[side] = {"valid": response.valid and response.ret == 1,
+                                "state": response.state, "active": response.active,
+                                "trajectory_id": response.trajectory_id}
+        return result
+
+    def operator_status(self):
+        status = self.operator_runtime.status(self.operator_cache(), self.operator_live_sides())
+        executions = self.operator_execution_snapshots()
+        local = self.phase5_execution_coordinator.passive_execution_snapshot()
+        local_active = local.get("state") == "PREPARING"
+        if local.get("state") in {"ARMED", "RUNNING", "ABORT_REQUESTED"}:
+            local_active = not all(
+                executions.get(side, {}).get("valid") is True
+                and executions[side].get("active") is False
+                and executions[side].get("state") in TERMINAL
+                and executions[side].get("trajectory_id") == local.get("trajectory_id")
+                for side in ("left", "right"))
+        with self.active_lock:
+            local_active = local_active or self.active_jog is not None or (
+                isinstance(self.active_sequence, dict)
+                and self.active_sequence.get("status") in {"running", "stop_requested"})
+            if isinstance(self.active_motion, dict):
+                sent_at = self.active_motion.get("sent_at_unix_s")
+                local_active = local_active or (isinstance(sent_at, (float, int)) and time.time() - sent_at < 2)
+        local_active = local_active or _d33_activity_snapshot().get("active", False)
+        status["execution"] = executions
+        status["shutdown"] = shutdown_decision(status, executions, local_active)
+        return status
+
+    def operator_connect(self):
+        return self.operator_runtime.connect(self.operator_cache, self.operator_live_sides)
+
+    def operator_control(self, side, control, desired):
+        with self.operator_control_lock:
+            status = self.operator_status()
+            if not status["shutdown"]["safe"]:
+                raise RuntimeRejected(
+                    "Robot state control requires confirmed idle/terminal state: "
+                    + str(status["shutdown"]["reason"])
+                )
+            return control_robot(side, control, desired, status["drivers"][side],
+                                 self.operator_state_clients[(side, control)], SetBool.Request,
+                                 self.wait_future_result)
+
+    def operator_reset_moveit(self):
+        if not self.operator_status()["shutdown"]["safe"]:
+            raise RuntimeRejected("MoveIt reset requires confirmed idle/terminal robot execution")
+        return self.operator_runtime.reset_moveit()
 
     def digital_twin_ros_joint_status(self):
         """Return only cached ROS joint feedback; retain Phase-5 authority."""
@@ -1612,6 +1713,52 @@ class DualJakaWebNode(Node):
             self.experiment_recorder.record_error(error)
         result["experiment_recorder"] = self.experiment_recorder.state()
         return result
+
+    def phase5_driver_contract_preflight(self):
+        """Read-only proof that both running drivers own the Linear-v2 contract."""
+        clients = {
+            "left": self.left_phase5_status,
+            "right": self.right_phase5_status,
+        }
+        futures = {}
+        sides = {}
+        for side, client in clients.items():
+            try:
+                if not bool(client.service_is_ready()):
+                    sides[side] = {
+                        "ok": False,
+                        "error": f"{side} /get_execution_status service unavailable",
+                    }
+                    continue
+                futures[side] = client.call_async(GetExecutionStatus.Request())
+            except Exception as error:
+                sides[side] = {"ok": False, "error": str(error)}
+
+        # Dispatch both read-only snapshots before waiting for either response.
+        deadline = time.monotonic() + 0.12
+        for side, future in futures.items():
+            remaining_s = max(0.0, deadline - time.monotonic())
+            response = self.wait_future_result(future, timeout=remaining_s)
+            if response is None:
+                sides[side] = {
+                    "ok": False,
+                    "error": f"{side} /get_execution_status timeout/no response",
+                }
+                continue
+            message = str(getattr(response, "message", "") or "")
+            valid = getattr(response, "valid", False) is True
+            marker_present = PHASE5_DRIVER_CONTRACT_MARKER in message
+            sides[side] = {
+                "ok": bool(valid and marker_present),
+                "valid": valid,
+                "marker_present": marker_present,
+                "message": message,
+            }
+        return {
+            "ok": all(sides.get(side, {}).get("ok") is True for side in ("left", "right")),
+            "expected_marker": PHASE5_DRIVER_CONTRACT_MARKER,
+            "sides": sides,
+        }
 
     def phase5_driver_execution_feedback(self, trajectory_id):
         """Read both driver memory snapshots and aggregate them fail-closed."""
@@ -3781,6 +3928,8 @@ spin_thread = threading.Thread(target=lambda: rclpy.spin(node), daemon=True)
 spin_thread.start()
 
 app = FastAPI(title="Dual JAKA A12 Web Backend")
+
+app.include_router(system_control_router(node))
 
 _BACKEND_DIR = Path(__file__).resolve().parent
 _DUAL_ARM_APP_DIR = _BACKEND_DIR.parent

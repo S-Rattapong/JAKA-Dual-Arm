@@ -13,6 +13,7 @@ from dual_arm_app.backend.experimental_infrastructure import (
     ALIGNMENT_SEMANTIC,
     ExperimentRunStore,
     SCHEMA_VERSION,
+    EXP2_URDF_PATH,
 )
 from dual_arm_app.backend.experimental_rigid_grasp import (
     CENTER_SIGN,
@@ -20,6 +21,7 @@ from dual_arm_app.backend.experimental_rigid_grasp import (
     EXP2_SEMANTIC,
     UrdfFkModel,
     analyze_rigid_grasp,
+    exp2_input_provenance,
 )
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -153,6 +155,7 @@ class Exp2PersistenceTests(unittest.TestCase):
             "coverage": {},
             "samples": [],
         }
+        analysis["input_provenance"] = exp2_input_provenance(raw, manifest, EXP2_URDF_PATH)
         self.store.write_exp2_analysis(run_id, analysis)
         loaded = self.store.load(run_id)
         self.assertEqual(loaded["exp2_analysis"], analysis)

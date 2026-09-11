@@ -302,6 +302,7 @@ class Phase5AbsoluteTransportTests(unittest.TestCase):
             },
             wait_future_result=wait_future,
             stop_generation_getter=lambda: 4,
+            driver_contract_checker=lambda: {"ok": True},
             wall_clock_ns=clock,
             left_service_name="/left_jaka_driver/execute_joint_trajectory",
             right_service_name="/right_jaka_driver/execute_joint_trajectory",
@@ -321,6 +322,48 @@ class Phase5AbsoluteTransportTests(unittest.TestCase):
         self.assertEqual(len(left.requests[0]["joints"]), 12)
         self.assertEqual(len(right.requests[0]["joints"]), 12)
         self.assertEqual(receipt.start_time_unix_ns, start_ns)
+
+    def test_driver_contract_mismatch_blocks_before_any_submission(self):
+        order = []
+        left = FakeClient("left", order)
+        right = FakeClient("right", order)
+        clock = FakeClock()
+        transport = Phase5AbsoluteStartTransport(
+            left_client=left,
+            right_client=right,
+            request_factory=lambda times, joints, start, trajectory_id, filter_config, step_num: {
+                "times": times,
+                "joints": joints,
+                "start": start,
+                "trajectory_id": trajectory_id,
+                "filter": filter_config,
+                "step_num": step_num,
+            },
+            wait_future_result=lambda future, _timeout: future,
+            stop_generation_getter=lambda: 4,
+            driver_contract_checker=lambda: {
+                "ok": False,
+                "expected_marker": "PHASE5_DRIVER_CONTRACT=LINEAR_JOINT_SPACE_V2",
+                "sides": {"left": {"ok": True}, "right": {"ok": False}},
+            },
+            wall_clock_ns=clock,
+            left_service_name="/left_jaka_driver/execute_joint_trajectory",
+            right_service_name="/right_jaka_driver/execute_joint_trajectory",
+        )
+        with self.assertRaisesRegex(
+            Phase5ExecutionTransportError, "PHASE5_DRIVER_CONTRACT_MISMATCH"
+        ):
+            transport.submit_pair(
+                common_timestamps_s=(0.0, 1.0),
+                left_positions_rad=((0.0,) * 6, (0.1,) * 6),
+                right_positions_rad=((0.0,) * 6, (-0.1,) * 6),
+                start_time_unix_ns=clock.now_ns + 2_000_000_000,
+                trajectory_id="trajectory-contract-mismatch",
+                expected_stop_generation=4,
+            )
+        self.assertEqual(order, [])
+        self.assertEqual(left.requests, [])
+        self.assertEqual(right.requests, [])
 
 
 class Phase5SourceContractTests(unittest.TestCase):
@@ -373,7 +416,12 @@ class Phase5SourceContractTests(unittest.TestCase):
             "bool jog_callback", 1
         )[0]
         self.assertIn("validate_trajectory", phase5_callback)
-        self.assertIn("resample_quintic_hermite", phase5_callback)
+        self.assertIn("resample_linear", phase5_callback)
+        self.assertNotIn("resample_quintic_hermite", phase5_callback)
+        self.assertIn("PHASE5_DRIVER_CONTRACT=LINEAR_JOINT_SPACE_V2", driver)
+        backend = (ROOT / "dual_arm_app/backend/dual_jaka_web_backend.py").read_text()
+        self.assertIn("phase5_driver_contract_preflight", backend)
+        self.assertIn("driver_contract_checker=self.phase5_driver_contract_preflight", backend)
         self.assertIn("phase5_trajectory_active", phase5_callback)
         self.assertIn("thread(", phase5_callback)
         self.assertIn("robot.servo_move_enable(TRUE)", phase5_callback)

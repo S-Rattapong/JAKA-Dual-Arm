@@ -1574,47 +1574,6 @@
     }
     /* HMI V2 — Precision Industrial Control Desk. Presentation only. */
     :root {
-      color-scheme: light;
-      --bg: #edf0f2;
-      --panel: #ffffff;
-      --panel2: #f2f5f6;
-      --line: #d3dade;
-      --line-strong: #95a2ab;
-      --text: #17232c;
-      --muted: #5c6c77;
-      --blue: #176b9b;
-      --blue-deep: #124f73;
-      --action: #124f73;
-      --blue-soft: #e7f1f6;
-      --green: #267452;
-      --orange: #a95a08;
-      --red: #ba2732;
-      --graphite: #1b252d;
-      --graphite-2: #25313a;
-      --graphite-3: #111a21;
-      --steel: #dce3e7;
-      --work-surface: #ffffff;
-      --work-surface-alt: #f4f6f7;
-      --toolbar: #e8edef;
-      --instrument: #0b1120;
-      --instrument-line: #43515e;
-      --instrument-text: #eaf0f4;
-      --success: #216d4a;
-      --success-bg: #e8f4ed;
-      --warning: #95500a;
-      --warning-bg: #fff1da;
-      --error: #aa2630;
-      --error-bg: #fbeaec;
-      --lab: #19777d;
-      --lab-soft: #e4f1f1;
-      --preview: #6943a4;
-      --focus: #1680b9;
-      --font-ui: Ubuntu, "Noto Sans Thai", "Segoe UI", Tahoma, system-ui, sans-serif;
-      --font-mono: "Ubuntu Mono", ui-monospace, "Noto Sans Mono", Consolas, monospace;
-      --radius: 5px;
-    }
-
-    :root[data-hmi-theme="dark"] {
       color-scheme: dark;
       --bg: #1b1d1f;
       --panel: #26292b;
@@ -1627,10 +1586,19 @@
       --blue-deep: #8bc8e5;
       --action: #245c7b;
       --blue-soft: #203743;
+      --green: #267452;
+      --orange: #a95a08;
+      --red: #ba2732;
+      --graphite: #1b252d;
+      --graphite-2: #25313a;
+      --graphite-3: #111a21;
       --steel: #34393d;
       --work-surface: #26292b;
       --work-surface-alt: #222527;
       --toolbar: #303538;
+      --instrument: #0b1120;
+      --instrument-line: #43515e;
+      --instrument-text: #eaf0f4;
       --success: #82cea5;
       --success-bg: #193529;
       --warning: #efb568;
@@ -1641,6 +1609,9 @@
       --lab-soft: #193438;
       --preview: #c3b5fc;
       --focus: #7cc9ee;
+      --font-ui: Ubuntu, "Noto Sans Thai", "Segoe UI", Tahoma, system-ui, sans-serif;
+      --font-mono: "Ubuntu Mono", ui-monospace, "Noto Sans Mono", Consolas, monospace;
+      --radius: 5px;
     }
 
     * { scrollbar-width: thin; scrollbar-color: var(--line-strong) var(--panel2); }
@@ -1692,24 +1663,6 @@
       letter-spacing: .01em;
     }
     .hmi-command-header p { margin: 3px 0 0; color: #aebbc3; font-size: 12px; }
-    .hmi-theme-control {
-      display: grid;
-      grid-template-columns: auto 92px;
-      align-items: center;
-      gap: 9px;
-      flex: 0 0 auto;
-      color: #c4cdd2;
-      font: 500 12px/1.3 var(--font-ui);
-    }
-    .hmi-theme-control select {
-      width: 92px;
-      min-height: 34px;
-      padding: 5px 8px;
-      border: 1px solid #61717c;
-      border-radius: 4px;
-      background: #10181e;
-      color: #f2f6f8;
-    }
     .hmi-section-nav {
       width: 100%;
       display: flex;
@@ -2454,8 +2407,7 @@
       font: 500 13px/1.4 var(--font-ui);
       cursor: pointer;
     }
-    .hmi-technical-workspace:not([open]) { --muted: #5c6c77; }
-    :root[data-hmi-theme="dark"] .hmi-technical-workspace:not([open]) { --muted: #aab3ba; }
+    .hmi-technical-workspace:not([open]) { --muted: #aab3ba; }
     .hmi-technical-workspace[open] > summary { background: #202d36; color: #e9eff2; border-bottom: 1px solid #4a5d69; }
     .hmi-technical-workspace .top-grid { padding: 0; gap: 0; grid-template-columns: minmax(0, 1fr); }
     .hmi-technical-workspace .panel {
@@ -2872,7 +2824,6 @@
     @media (max-width: 700px) {
       .hmi-command-header { min-height: 0; padding: 10px 12px; flex-wrap: wrap; }
       .hmi-command-header h1 { font-size: 18px; }
-      .hmi-theme-control { margin-left: auto; }
       .hmi-section-nav { flex-wrap: wrap; }
       .hmi-section-nav a { padding: 11px 10px 8px; font-size: 12px; }
       body > section[aria-labelledby="digitalTwinTitle"],
@@ -2906,7 +2857,6 @@
     }
     @media (max-width: 420px) {
       .hmi-command-header { display: grid; grid-template-columns: 1fr; }
-      .hmi-theme-control { margin-left: 0; justify-self: stretch; grid-template-columns: 1fr 88px; }
       .system-control-arm { grid-template-columns: 38px minmax(0, 1fr); }
       .system-control-arm .system-control-toggle { grid-column: 1 / -1; }
       .system-control-software { grid-template-columns: 1fr; }
@@ -3014,13 +2964,6 @@
       </div>
     </div>
 
-    <label class="hmi-theme-control" for="hmiAppearance">
-      Appearance
-      <select id="hmiAppearance" onchange="document.documentElement.dataset.hmiTheme = this.value">
-        <option value="light" selected>Light</option>
-        <option value="dark">Dark</option>
-      </select>
-    </label>
   </header>
 
   <nav class="hmi-section-nav" aria-label="Workcell sections">

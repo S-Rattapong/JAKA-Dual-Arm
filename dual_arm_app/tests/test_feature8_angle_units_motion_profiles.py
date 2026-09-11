@@ -291,10 +291,12 @@ class TestFeature8PlannerTiming:
     def test_global_planner_timestamps_metadata_and_spatial_architecture(self):
         baseline = run_plan(planning_payload(profiles=False))
         stretched = run_plan(planning_payload(profiles=True))
-        assert baseline["segment_durations_s"] == [1.0, 1.0]
-        assert stretched["segment_durations_s"] == [2.0, 2.0]
-        assert [sample["time_from_start_s"] for sample in baseline["object_samples"]] == [0.0, 1.0, 2.0]
-        assert [sample["time_from_start_s"] for sample in stretched["object_samples"]] == [0.0, 2.0, 4.0]
+        assert baseline["requested_segment_durations_s"] == [1.0, 1.0]
+        assert stretched["requested_segment_durations_s"] == [2.0, 2.0]
+        assert baseline["segment_durations_s"] == [1.368, 1.368]
+        assert stretched["segment_durations_s"] == [2.376, 2.376]
+        assert baseline["velocity_shaping"]["waypoint_times_s"] == [0.0, 1.368, 2.736]
+        assert stretched["velocity_shaping"]["waypoint_times_s"] == [0.0, 2.376, 4.752]
         assert stretched["common_timestamps_s"] == [
             point["time_from_start_s"] for point in stretched["global_path"]
         ]
@@ -303,9 +305,15 @@ class TestFeature8PlannerTiming:
         assert [item["to_waypoint"] for item in stretched["segment_timing"]] == ["old-b", "old-c"]
         assert stretched["waypoints"][-1]["has_outgoing_segment"] is False
         assert stretched["timing_semantic"] == RELATIVE_WAYPOINT_PROFILE_TIMING_SEMANTIC
-        assert [sample["object_pose"] for sample in baseline["object_samples"]] == [
-            sample["object_pose"] for sample in stretched["object_samples"]
+        baseline_waypoints = [
+            baseline["object_samples"][tick]["object_pose"]
+            for tick in baseline["velocity_shaping"]["waypoint_ticks"]
         ]
+        stretched_waypoints = [
+            stretched["object_samples"][tick]["object_pose"]
+            for tick in stretched["velocity_shaping"]["waypoint_ticks"]
+        ]
+        assert baseline_waypoints == stretched_waypoints
         assert baseline["graph"]["layer_count"] == stretched["graph"]["layer_count"]
 
     def test_no_derivatives_or_new_timing_dependency_and_approach_baseline_unchanged(self):

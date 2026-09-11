@@ -28,17 +28,33 @@ def inline_handlers(source: str) -> list[str]:
 def test_all_existing_ids_and_inline_handlers_are_preserved():
     base_ids = set(ids(BASE))
     current_ids = ids(HTML)
+    intentionally_removed_ui_ids = {"hmiAppearance"}
     replaced_system_action_ids = {
         "systemControlLeftPowerOn", "systemControlLeftPowerOff",
         "systemControlLeftEnable", "systemControlLeftDisable",
         "systemControlRightPowerOn", "systemControlRightPowerOff",
         "systemControlRightEnable", "systemControlRightDisable",
     }
-    assert (base_ids - replaced_system_action_ids).issubset(current_ids)
+    allowed_removed_ids = replaced_system_action_ids | intentionally_removed_ui_ids
+    assert (base_ids - allowed_removed_ids).issubset(current_ids)
     assert not (replaced_system_action_ids & set(current_ids))
-    assert Counter(inline_handlers(BASE)) == Counter(inline_handlers(HTML))
+    removed_theme_handler = 'onchange="document.documentElement.dataset.hmiTheme = this.value"'
+    expected_handlers = Counter(inline_handlers(BASE))
+    expected_handlers[removed_theme_handler] -= 1
+    if expected_handlers[removed_theme_handler] == 0:
+        del expected_handlers[removed_theme_handler]
+    assert expected_handlers == Counter(inline_handlers(HTML))
     counts = Counter(current_ids)
     assert not [name for name, count in counts.items() if count != 1]
+
+
+def test_hmi_is_dark_only_without_theme_selector():
+    assert 'color-scheme: dark' in HTML
+    assert 'color-scheme: light' not in HTML
+    assert 'id="hmiAppearance"' not in HTML
+    assert 'hmi-theme-control' not in HTML
+    assert 'data-hmi-theme' not in HTML
+    assert '<option value="light"' not in HTML
 
 def test_existing_script_sources_preserved_and_system_control_added_once():
     pattern = r'<script[^>]+src="([^"]+)"'

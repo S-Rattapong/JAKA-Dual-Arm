@@ -29,6 +29,8 @@ ABSOLUTE_COMMON_START_SEMANTIC = (
     "start_time_unix_ns; THIS IS NOT HARD REAL-TIME OR CONTROLLER-SYNCHRONIZED"
 )
 MINIMUM_ACCEPTANCE_MARGIN_NS = 200_000_000
+PHASE5_DRIVER_INTERPOLATION_MODE = "LINEAR_JOINT_SPACE"
+PHASE5_DRIVER_CONTRACT_MARKER = "PHASE5_DRIVER_CONTRACT=LINEAR_JOINT_SPACE_V2"
 
 
 class Phase5ExecutionTransportError(RuntimeError):
@@ -223,6 +225,7 @@ class Phase5AbsoluteStartTransport:
         request_factory: Callable[[Any, Any, int, str], Any],
         wait_future_result: Callable[[Any, float], Any],
         stop_generation_getter: Callable[[], int],
+        driver_contract_checker: Callable[[], Any],
         wall_clock_ns: Callable[[], int] = time.time_ns,
         left_service_name: str,
         right_service_name: str,
@@ -235,6 +238,7 @@ class Phase5AbsoluteStartTransport:
         self._request_factory = request_factory
         self._wait_future_result = wait_future_result
         self._stop_generation_getter = stop_generation_getter
+        self._driver_contract_checker = driver_contract_checker
         self._wall_clock_ns = wall_clock_ns
         self._left_service_name = str(left_service_name)
         self._right_service_name = str(right_service_name)
@@ -285,7 +289,10 @@ class Phase5AbsoluteStartTransport:
                 "service_type": "jaka_msgs/srv/ExecuteJointTrajectory",
                 "driver_servo_mode": "ABS",
                 "servo_step_num": self._servo_step_num,
+                "driver_interpolation_mode": PHASE5_DRIVER_INTERPOLATION_MODE,
                 "driver_interpolation_period_ms": self._servo_step_num * 8,
+                "driver_contract_marker": PHASE5_DRIVER_CONTRACT_MARKER,
+                "driver_contract_preflight_required": True,
                 "direct_sdk_calls_from_backend": False,
             },
             "phase5_servo_filter": {
@@ -310,6 +317,16 @@ class Phase5AbsoluteStartTransport:
         if not self._client_ready(self._right_client):
             raise Phase5ExecutionTransportError(
                 "RIGHT_EXECUTE_JOINT_TRAJECTORY_SERVICE_NOT_READY"
+            )
+        try:
+            contract = self._driver_contract_checker()
+        except Exception as error:
+            raise Phase5ExecutionTransportError(
+                f"PHASE5_DRIVER_CONTRACT_CHECK_FAILED: {error}"
+            ) from error
+        if not isinstance(contract, dict) or contract.get("ok") is not True:
+            raise Phase5ExecutionTransportError(
+                f"PHASE5_DRIVER_CONTRACT_MISMATCH: {contract!r}"
             )
 
     def submit_pair(

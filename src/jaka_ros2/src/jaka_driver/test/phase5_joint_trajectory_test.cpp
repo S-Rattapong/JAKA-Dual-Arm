@@ -67,6 +67,47 @@ std::vector<phase5::JointSample> old_linear_8ms(
   return output;
 }
 
+void test_linear_resampler_preserves_piecewise_linearity()
+{
+  const std::vector<phase5::JointSample> knots{
+    sample(0.0, 0.0), sample(0.75, 0.3), sample(1.5, 0.0)};
+  const auto generated = phase5::resample_linear(knots, 3U);
+  assert(generated.ok);
+  assert(generated.message == "linear servo stream generated");
+  assert(!generated.used_shape_preserving_fallback);
+  near(generated.samples.front().time_from_start_s, 0.0, 0.0);
+  near(generated.samples.back().time_from_start_s, 1.5, 0.0);
+  near(generated.samples.front().positions_rad[0], 0.0, 0.0);
+  near(generated.samples.back().positions_rad[0], 0.0, 0.0);
+  // 0.24 s is exactly ten 24-ms servo periods and remains on the first line.
+  const auto it = std::find_if(
+    generated.samples.begin(), generated.samples.end(),
+    [](const phase5::JointSample & value) {
+      return std::abs(value.time_from_start_s - 0.24) < 1e-12;
+    });
+  assert(it != generated.samples.end());
+  near(it->positions_rad[0], 0.3 * (0.24 / 0.75), 1e-12);
+  assert(!phase5::resample_linear(knots, 0U).ok);
+  assert(!phase5::resample_linear(knots, 5U).ok);
+}
+
+void test_linear_boundary_rest_transition_guard()
+{
+  const std::vector<phase5::JointSample> too_aggressive{
+    sample(0.0, 0.0), sample(0.96, 2.4)};
+  const auto rejected = phase5::resample_linear(too_aggressive, 3U);
+  assert(!rejected.ok);
+  assert(rejected.message == "linear servo stream diagnostics exceed reasonable bounds");
+
+  const std::vector<phase5::JointSample> moderate{
+    sample(0.0, 0.0), sample(0.96, 0.5)};
+  const auto accepted = phase5::resample_linear(moderate, 3U);
+  assert(accepted.ok);
+  assert(accepted.diagnostics.max_abs_acceleration_rad_s2 > 0.0);
+  assert(accepted.diagnostics.max_abs_acceleration_rad_s2 <
+    phase5::kMaximumAbsAccelerationRadS2);
+}
+
 void test_endpoint_and_knot_preservation()
 {
   const std::vector<phase5::JointSample> knots{
@@ -230,12 +271,30 @@ void test_conservative_stream_speed_guard()
   commands[1].positions_rad[0] = std::numeric_limits<double>::quiet_NaN();
   assert(!phase5::validate_stream_command_velocity(
     commands, phase5::servo_command_period_s(1U)).ok);
+
+  // The guard must use the scheduled interval, including a shortened final
+  // interval, instead of dividing every delta by the nominal command period.
+  std::vector<phase5::JointSample> short_interval{
+    sample(0.0, 0.0), sample(0.012, 0.05)};
+  const auto short_interval_result = phase5::validate_stream_command_velocity(
+    short_interval, phase5::servo_command_period_s(3U));
+  assert(!short_interval_result.ok);
+  assert(short_interval_result.observed_max_rad_s > short_interval_result.limit_rad_s);
+
+  std::vector<phase5::JointSample> missing_cycle{
+    sample(0.0, 0.0), sample(0.030, 0.001)};
+  const auto missing_cycle_result = phase5::validate_stream_command_velocity(
+    missing_cycle, phase5::servo_command_period_s(3U));
+  assert(!missing_cycle_result.ok);
+  assert(missing_cycle_result.message == "servo stream gap exceeds configured command period");
 }
 
 }  // namespace
 
 int main()
 {
+  test_linear_resampler_preserves_piecewise_linearity();
+  test_linear_boundary_rest_transition_guard();
   test_endpoint_and_knot_preservation();
   test_c2_continuity_and_symmetric_reversal();
   test_finite_and_smoother_than_old_linear();

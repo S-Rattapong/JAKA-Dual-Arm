@@ -142,11 +142,16 @@ def _mocked_backend_import():
         (),
         {"Request": type("GetExecutionStatusRequest", (), {})},
     )
+    set_bool = type(
+        "SetBool",
+        (),
+        {"Request": type("SetBoolRequest", (), {})},
+    )
     fake_modules = {
         "rclpy": rclpy,
         "rclpy.node": rclpy_node,
         "std_srvs": _module("std_srvs"),
-        "std_srvs.srv": _module("std_srvs.srv", Empty=dummy),
+        "std_srvs.srv": _module("std_srvs.srv", Empty=dummy, SetBool=set_bool),
         "sensor_msgs": _module("sensor_msgs"),
         "sensor_msgs.msg": _module("sensor_msgs.msg", JointState=dummy),
         "std_msgs": _module("std_msgs"),
@@ -283,7 +288,8 @@ class SelectiveScopeResetTests(unittest.TestCase):
     def test_preserved_ui_labels_and_handlers_remain(self):
         html = WEB_UI.read_text(encoding="utf-8")
         labels = (
-            "Live Position / Direct Move",
+            "Live Position",
+            "Direct Move",
             "Direct Joint Move",
             "Direct TCP Move",
             "Dual JAKA A12 Manual Jog",

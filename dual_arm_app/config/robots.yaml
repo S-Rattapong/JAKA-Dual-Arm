@@ -19,6 +19,8 @@ actual_feedback:
     freshness_threshold_ms: 400
     connect_timeout_s: 0.5
     recv_timeout_s: 0.5
+    # Force a reconnect if an ESTABLISHED socket stops delivering push packets.
+    stale_reconnect_timeout_s: 2.0
     reconnect_backoff_s: 1.0
     max_packet_bytes: 65536
 motion:

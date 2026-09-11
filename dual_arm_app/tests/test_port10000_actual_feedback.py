@@ -6,9 +6,11 @@ import json
 import math
 from pathlib import Path
 import unittest
+from unittest.mock import patch
 
 from dual_arm_app.backend.port10000_actual_feedback import (
     PORT10000_SOURCE,
+    Port10000ActualFeedback,
     Port10000StreamParser,
     extract_actual_joints_radians,
     select_visualization_joint_status,
@@ -84,6 +86,87 @@ class Port10000ParserTests(unittest.TestCase):
         self.assertEqual(result, expected)
 
 
+class _FakeFeedbackSocket:
+    def __init__(self, chunks):
+        self._chunks = iter(chunks)
+        self.timeout = None
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, _exc_type, _exc, _tb):
+        return False
+
+    def settimeout(self, timeout):
+        self.timeout = timeout
+
+    def recv(self, _size):
+        return next(self._chunks)
+
+
+def packet_without_actual_joints_bytes(sequence):
+    payload = {"sequence": sequence, "not_actual_joints": [1, 2, 3, 4, 5, 6]}
+    declared = 0
+    while True:
+        candidate = {"len": declared, **payload}
+        encoded = json.dumps(candidate, separators=(",", ":")).encode()
+        if len(encoded) == declared:
+            return encoded
+        declared = len(encoded)
+
+
+class Port10000RecoveryTests(unittest.TestCase):
+    def test_stale_stream_watchdog_boundary(self):
+        self.assertFalse(Port10000ActualFeedback._stream_stale(10.0, 11.999, 2.0))
+        self.assertTrue(Port10000ActualFeedback._stream_stale(10.0, 12.0, 2.0))
+
+    def test_continuous_invalid_frames_trigger_stale_reconnect_without_socket_timeout(self):
+        endpoints = {
+            "left": ("127.0.0.1", 10000),
+            "right": ("127.0.0.1", 10000),
+        }
+        warnings = []
+        receiver = None
+
+        def log_warning(message):
+            warnings.append(message)
+            receiver.stop()
+
+        receiver = Port10000ActualFeedback(
+            endpoints,
+            reconnect_backoff_s=0.0,
+            stale_reconnect_timeout_s=1.0,
+            log_warning=log_warning,
+        )
+        fake_socket = _FakeFeedbackSocket(
+            [
+                packet_without_actual_joints_bytes(1),
+                packet_without_actual_joints_bytes(2),
+            ]
+        )
+        with patch(
+            "dual_arm_app.backend.port10000_actual_feedback.socket.create_connection",
+            return_value=fake_socket,
+        ) as create_connection, patch(
+            "dual_arm_app.backend.port10000_actual_feedback.time.monotonic",
+            side_effect=[10.0, 10.6, 11.1],
+        ):
+            receiver._receive_loop("left")
+
+        create_connection.assert_called_once()
+        self.assertEqual(fake_socket.timeout, 0.5)
+        self.assertTrue(warnings)
+        self.assertIn("stream stale: no valid packet for 1.000 s", warnings[0])
+        snapshot = receiver.snapshot()["left"]
+        self.assertIsNone(snapshot["joint"])
+        self.assertIn("actual feedback unavailable", snapshot["error"])
+
+    def test_stale_reconnect_timeout_must_be_positive(self):
+        endpoints = {"left": ("127.0.0.1", 10000), "right": ("127.0.0.1", 10000)}
+        with self.assertRaisesRegex(ValueError, "stale_reconnect_timeout_s"):
+            Port10000ActualFeedback(endpoints, stale_reconnect_timeout_s=0.0)
+
+
 class Port10000SelectionTests(unittest.TestCase):
     @staticmethod
     def ros_status():
@@ -128,6 +211,8 @@ class Port10000IntegrationContractTests(unittest.TestCase):
     def test_backend_receiver_is_receive_only_and_sdk_free(self):
         source = RECEIVER.read_text(encoding="utf-8")
         self.assertIn("feedback_socket.recv", source)
+        self.assertIn("port10000 stream stale: no valid packet", source)
+        self.assertIn("time.monotonic()", source)
         self.assertNotIn(".send(", source)
         for forbidden in ("JAKAZuRobot", "login_in", "10001", "rclpy"):
             self.assertNotIn(forbidden, source)
@@ -152,6 +237,7 @@ class Port10000IntegrationContractTests(unittest.TestCase):
         self.assertIn("enabled: true", block)
         self.assertIn("expected_period_ms: 100", block)
         self.assertIn("freshness_threshold_ms: 400", block)
+        self.assertIn("stale_reconnect_timeout_s: 2.0", block)
         for text in (
             "left_ip: 192.168.0.1",
             "right_ip: 192.168.0.2",

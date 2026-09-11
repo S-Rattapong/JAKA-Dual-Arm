@@ -178,6 +178,11 @@ class Phase5ExecutionCoordinator:
                 )
                 self._execution["abort_requested_from_driver_feedback"] = True
 
+    def passive_execution_snapshot(self) -> dict[str, Any]:
+        """Observe local lifecycle without polling, advancing state, or requesting STOP."""
+        with self._lock:
+            return dict(self._execution)
+
     def is_active(self) -> bool:
         with self._lock:
             self._refresh_execution_state_locked(self._wall_clock_ns())

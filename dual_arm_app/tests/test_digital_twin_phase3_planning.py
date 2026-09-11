@@ -369,7 +369,9 @@ class BackendPlanningContractTests(unittest.TestCase):
         )
         self.assertFalse(result["candidate_pruning_applied"])
         self.assertGreaterEqual(result["planning_elapsed_s"], 0.0)
-        self.assertEqual(result["object_sample_count"], 3)
+        self.assertEqual(result["coarse_object_sample_count"], 3)
+        self.assertGreater(result["object_sample_count"], 3)
+        self.assertTrue(result["velocity_shaping"]["enabled"])
         self.assertEqual(len(result["object_samples"]), len(result["global_path"]))
         self.assertEqual(
             [item["time_from_start_s"] for item in result["object_samples"]],

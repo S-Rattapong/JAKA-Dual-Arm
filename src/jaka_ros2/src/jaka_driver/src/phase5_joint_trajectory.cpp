@@ -333,6 +333,113 @@ static void apply_shape_preserving_fallback(QuinticHermiteTrajectory & trajector
   trajectory.message = "C2 shape-preserving quintic fallback built";
 }
 
+ResampleResult resample_linear(
+  const std::vector<JointSample> & samples,
+  const std::uint8_t servo_step_num)
+{
+  ResampleResult result;
+  const double command_period_s = servo_command_period_s(servo_step_num);
+  if (!std::isfinite(command_period_s)) {
+    result.message = "servo_step_num must be within [1, 4]";
+    return result;
+  }
+  if (samples.size() < 2U || samples.front().time_from_start_s != 0.0 ||
+    samples.back().time_from_start_s <= 0.0)
+  {
+    result.message = "linear input must contain at least two increasing knots from zero";
+    return result;
+  }
+  for (std::size_t index = 0U; index < samples.size(); ++index) {
+    if (!std::isfinite(samples[index].time_from_start_s) ||
+      !finite_array(samples[index].positions_rad) ||
+      (index > 0U &&
+      samples[index].time_from_start_s <= samples[index - 1U].time_from_start_s))
+    {
+      result.message = "linear input contains invalid knots";
+      return result;
+    }
+  }
+
+  const double duration_s = samples.back().time_from_start_s;
+  const std::size_t full_cycles = static_cast<std::size_t>(
+    std::floor(duration_s / command_period_s));
+  result.samples.reserve(full_cycles + 2U);
+  for (std::size_t cycle = 0U; cycle <= full_cycles; ++cycle) {
+    const double time_s = std::min(
+      duration_s, static_cast<double>(cycle) * command_period_s);
+    auto upper = std::upper_bound(
+      samples.begin(), samples.end(), time_s,
+      [](const double value, const JointSample & knot) {
+        return value < knot.time_from_start_s;
+      });
+    std::size_t lower_index = upper == samples.begin() ? 0U :
+      static_cast<std::size_t>(std::distance(samples.begin(), upper) - 1);
+    lower_index = std::min(lower_index, samples.size() - 2U);
+    const auto & lower = samples[lower_index];
+    const auto & upper_knot = samples[lower_index + 1U];
+    const double alpha = (time_s - lower.time_from_start_s) /
+      (upper_knot.time_from_start_s - lower.time_from_start_s);
+    JointSample value;
+    value.time_from_start_s = time_s;
+    for (std::size_t joint = 0U; joint < 6U; ++joint) {
+      value.positions_rad[joint] = lower.positions_rad[joint] + alpha *
+        (upper_knot.positions_rad[joint] - lower.positions_rad[joint]);
+    }
+    result.samples.push_back(value);
+  }
+  if (result.samples.empty() ||
+    std::abs(result.samples.back().time_from_start_s - duration_s) > 1e-12)
+  {
+    result.samples.push_back(samples.back());
+  } else {
+    result.samples.back() = samples.back();
+  }
+  result.samples.front() = samples.front();
+  result.samples.back() = samples.back();
+  result.diagnostics = compute_motion_diagnostics(result.samples);
+  // Piecewise-linear commands begin and end at a hold. Account explicitly for
+  // the implied rest -> first-slope and last-slope -> rest transitions; the
+  // interior finite differences alone report zero acceleration on a constant slope.
+  for (const bool at_start : {true, false}) {
+    const std::size_t lower_index = at_start ? 0U : result.samples.size() - 2U;
+    const std::size_t upper_index = lower_index + 1U;
+    const double dt = result.samples[upper_index].time_from_start_s -
+      result.samples[lower_index].time_from_start_s;
+    if (!(dt > 0.0) || !std::isfinite(dt)) {
+      result.message = "linear servo stream has an invalid boundary interval";
+      result.samples.clear();
+      return result;
+    }
+    for (std::size_t joint = 0U; joint < 6U; ++joint) {
+      const double boundary_velocity = std::abs(
+        result.samples[upper_index].positions_rad[joint] -
+        result.samples[lower_index].positions_rad[joint]) / dt;
+      const double boundary_acceleration = boundary_velocity / dt;
+      const double boundary_jerk = boundary_acceleration / dt;
+      result.diagnostics.max_abs_velocity_rad_s = std::max(
+        result.diagnostics.max_abs_velocity_rad_s, boundary_velocity);
+      result.diagnostics.max_abs_acceleration_rad_s2 = std::max(
+        result.diagnostics.max_abs_acceleration_rad_s2, boundary_acceleration);
+      result.diagnostics.max_abs_jerk_rad_s3 = std::max(
+        result.diagnostics.max_abs_jerk_rad_s3, boundary_jerk);
+    }
+  }
+  if (!std::isfinite(result.diagnostics.max_abs_velocity_rad_s) ||
+    !std::isfinite(result.diagnostics.max_abs_acceleration_rad_s2) ||
+    !std::isfinite(result.diagnostics.max_abs_jerk_rad_s3) ||
+    result.diagnostics.max_abs_velocity_rad_s > kMaximumAbsVelocityRadS ||
+    result.diagnostics.max_abs_acceleration_rad_s2 > kMaximumAbsAccelerationRadS2 ||
+    result.diagnostics.max_abs_jerk_rad_s3 > kMaximumAbsJerkRadS3)
+  {
+    result.message = "linear servo stream diagnostics exceed reasonable bounds";
+    result.samples.clear();
+    return result;
+  }
+  result.ok = true;
+  result.message = "linear servo stream generated";
+  return result;
+}
+
 ResampleResult resample_quintic_hermite(
   const std::vector<JointSample> & samples,
   const std::uint8_t servo_step_num)
@@ -483,10 +590,20 @@ StreamGuardResult validate_stream_command_velocity(
     if (index == 0U) {
       continue;
     }
+    const double actual_interval_s =
+      samples[index].time_from_start_s - samples[index - 1U].time_from_start_s;
+    if (!(actual_interval_s > 0.0) || !std::isfinite(actual_interval_s)) {
+      result.message = "servo stream contains a non-increasing command timeline";
+      return result;
+    }
+    if (actual_interval_s > command_period_s + 1e-9) {
+      result.message = "servo stream gap exceeds configured command period";
+      return result;
+    }
     for (std::size_t joint = 0U; joint < 6U; ++joint) {
       const double command_velocity = std::abs(
         samples[index].positions_rad[joint] -
-        samples[index - 1U].positions_rad[joint]) / command_period_s;
+        samples[index - 1U].positions_rad[joint]) / actual_interval_s;
       if (!std::isfinite(command_velocity)) {
         result.message = "servo stream guard generated a nonfinite velocity";
         return result;

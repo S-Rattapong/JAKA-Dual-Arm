@@ -33,6 +33,7 @@
 #include "jaka_driver/jktypes.h"
 #include "jaka_driver/conversion.h"
 #include "jaka_driver/phase5_joint_trajectory.hpp"
+#include "jaka_driver/operator_state_policy.hpp"
 
 #include <action_msgs/msg/goal_status_array.hpp>
 #include <control_msgs/action/follow_joint_trajectory.hpp>
@@ -75,11 +76,14 @@ bool phase5_trajectory_active = false;
 string phase5_active_trajectory_id;
 constexpr int32_t kPhase5LegacyForesightMaxBuf = 15;
 constexpr double kPhase5LegacyForesightKp = 0.03;
+constexpr const char * kPhase5ExecutionContractMarker =
+    "PHASE5_DRIVER_CONTRACT=LINEAR_JOINT_SPACE_V2";
 struct Phase5ExecutionStatus
 {
     bool valid = true;
     int64_t ret = 1;
-    string message = "read-only in-memory Phase-5 execution status";
+    string message = string("read-only in-memory Phase-5 execution status; ") +
+        kPhase5ExecutionContractMarker;
     string trajectory_id;
     string state = "IDLE";
     bool active = false;
@@ -912,7 +916,11 @@ bool execute_joint_trajectory_callback(
     }
     const double command_period_s =
         jaka_driver::phase5::servo_command_period_s(request->servo_step_num);
-    auto generated = jaka_driver::phase5::resample_quintic_hermite(
+    // Preserve the planner's rigid-grasp knots without independently bending
+    // each arm through a C2 quintic path between them. The stream remains
+    // continuous at the configured servo cadence; controller-side foresight
+    // filtering remains configured separately.
+    auto generated = jaka_driver::phase5::resample_linear(
         validation.samples, request->servo_step_num);
     if (!generated.ok || generated.samples.size() < 2U)
     {
@@ -1123,8 +1131,9 @@ bool execute_joint_trajectory_callback(
     }
     response->accepted = true;
     response->ret = 1;
-    response->message =
-        "accepted: host-timed common absolute start; no hard real-time guarantee";
+    response->message = string(
+        "accepted: host-timed common absolute start; no hard real-time guarantee; ") +
+        kPhase5ExecutionContractMarker;
     return true;
 }
 
@@ -1672,6 +1681,75 @@ void joint_position_callback(const rclcpp::Publisher<sensor_msgs::msg::JointStat
     joint_position_pub->publish(joint_position);
 }
 
+// Uses only the existing SDK session; the gate also serializes both controls.
+void operator_state_control(jaka_driver::operator_state::Control control, bool desired,
+                            std_srvs::srv::SetBool::Response& response)
+{
+    using namespace jaka_driver::operator_state;
+    response.success = false;
+    // Close the reservation race as well as the active SDK-window race.
+    // Phase-5 reservation uses the same lock order: trajectory -> telemetry.
+    if (phase5_sdk_control_window_active.load()) {
+        response.message = "Phase5 owns the SDK control window";
+        return;
+    }
+    unique_lock<mutex> trajectory_gate(phase5_trajectory_mutex);
+    if (phase5_trajectory_active || phase5_sdk_control_window_active.load()) {
+        response.message = "Phase5 trajectory is reserved or owns the SDK control window";
+        return;
+    }
+    lock_guard<mutex> telemetry_gate(phase5_telemetry_gate_mutex);
+    if (phase5_trajectory_active || phase5_sdk_control_window_active.load()) {
+        response.message = "Phase5 trajectory is reserved or owns the SDK control window";
+        return;
+    }
+    RobotStatus_simple status{};
+    const int status_ret = robot.get_robot_status_simple(&status);
+    State state{status_ret == 0 && (status.powered_on == 0 || status.powered_on == 1)
+                && (status.enabled == 0 || status.enabled == 1),
+                status.powered_on == 1, status.enabled == 1, false, false};
+    auto decision = evaluate(control, desired, state, false);
+    // Only off/disable transitions require extra idle reads. Never abort/stop.
+    if (!desired && state.valid &&
+        ((control == Control::Power && state.powered && !state.enabled) ||
+         (control == Control::Enable && state.enabled))) {
+        BOOL in_pos = false;
+        BOOL drag = true;
+        ProgramState program{};
+        const int pos_ret = robot.is_in_pos(&in_pos);
+        const int program_ret = robot.get_program_state(&program);
+        const int drag_ret = robot.is_in_drag_mode(&drag);
+        state.idle_known = pos_ret == 0 && program_ret == 0 && drag_ret == 0;
+        state.idle = in_pos && program == PROGRAM_IDLE && !drag && status.errcode == 0;
+        decision = evaluate(control, desired, state, false);
+    }
+    response.message = decision.message;
+    if (!decision.allowed) return;
+    if (!decision.change) {
+        response.success = true;
+        return;
+    }
+    const int ret = control == Control::Power
+        ? (desired ? robot.power_on() : robot.power_off())
+        : (desired ? robot.enable_robot() : robot.disable_robot());
+    response.success = ret == 0;
+    response.message = ret == 0
+        ? "SDK accepted transition; verify fresh RobotMsg for actual state"
+        : "SDK rejected transition, error code " + to_string(ret);
+}
+
+void robot_power_callback(const shared_ptr<std_srvs::srv::SetBool::Request> request,
+                          shared_ptr<std_srvs::srv::SetBool::Response> response)
+{
+    operator_state_control(jaka_driver::operator_state::Control::Power, request->data, *response);
+}
+
+void robot_enable_callback(const shared_ptr<std_srvs::srv::SetBool::Request> request,
+                           shared_ptr<std_srvs::srv::SetBool::Response> response)
+{
+    operator_state_control(jaka_driver::operator_state::Control::Enable, request->data, *response);
+}
+
 void robot_states_callback(const rclcpp::Publisher<jaka_msgs::msg::RobotMsg>::SharedPtr& robot_states_pub)
 {
     jaka_msgs::msg::RobotMsg robot_states;
@@ -1960,6 +2038,9 @@ int main(int argc, char *argv[])
             "SAFE READ-ONLY STARTUP: skipped robot.power_on(), robot.enable_robot(), and servo_speed_foresight()."
         );
     }
+
+    auto robot_power_service = node->create_service<std_srvs::srv::SetBool>(service_prefix + "/robot_power", &robot_power_callback);
+    auto robot_enable_service = node->create_service<std_srvs::srv::SetBool>(service_prefix + "/robot_enable", &robot_enable_callback);
 
     //1.1 Linear motion (in customized user coordinate system)
     auto linear_move_service = node->create_service<jaka_msgs::srv::Move>((service_prefix + "/linear_move"), &linear_move_callback);

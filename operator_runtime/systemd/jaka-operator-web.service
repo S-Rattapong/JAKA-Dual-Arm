@@ -1,0 +1,13 @@
+[Unit]
+Description=JAKA operator web
+
+[Service]
+Type=simple
+WorkingDirectory=%h/jaka_ws
+ExecStart=%h/jaka_ws/operator_runtime/06_operator_web_backend.sh
+Environment=ROS_DOMAIN_ID=1
+Restart=no
+KillMode=control-group
+TimeoutStopSec=30
+StandardOutput=journal
+StandardError=journal

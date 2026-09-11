@@ -52,6 +52,15 @@ from dual_arm_app.backend.object_trajectory_ik import (
     graph_edge_between,
     joint_delta_rad,
 )
+from dual_arm_app.backend.waypoint_velocity_shaping import (
+    DEFAULT_CADENCE_S,
+    DEFAULT_DESIRED_RAMP_S,
+    VELOCITY_SHAPING_PROFILE,
+    VELOCITY_SHAPING_SCOPE,
+    VELOCITY_SHAPING_SEMANTIC,
+    WaypointVelocityShapingError,
+    retime_selected_waypoint_polyline,
+)
 
 
 WEB_OPTIMALITY_SCOPE = "Exact optimum over generated layered candidate graph"
@@ -1033,6 +1042,7 @@ def planning_unavailable_result(
         "plan_only": True,
         "optimality_scope": WEB_OPTIMALITY_SCOPE,
         "core_optimality_scope": GLOBAL_GRAPH_OPTIMALITY_SCOPE,
+        "optimality_path_scope": "COARSE_CANDIDATE_GRAPH_ONLY",
         "candidate_attempts_per_arm": candidate_attempts_per_arm,
         "candidate_exploration_profile": (
             WEB_GLOBAL_CANDIDATE_EXPLORATION_PROFILE
@@ -1372,6 +1382,185 @@ def plan_object_global(
         for point in global_result.selected_path
     ]
     approach_duration_s = float(approach_summary.get("duration_s", 0.0) or 0.0)
+    coarse_global_path = [dict(point) for point in global_path]
+    coarse_object_samples = [dict(sample) for sample in object_samples]
+    coarse_duration_s = trajectory.duration_s
+    coarse_segment_durations_s = list(request["segment_durations_s"])
+    shaping_disabled_reason = None
+    shaping_result = None
+    if approach_trajectory is not None:
+        shaping_disabled_reason = (
+            "Independent Approach is outside the focused rigid USER-waypoint "
+            "velocity-shaping scope; the entire coarse rigid path and existing "
+            "Approach path were preserved unchanged"
+        )
+    elif global_result.completed:
+        try:
+            shaping_result = retime_selected_waypoint_polyline(
+                [point["combined"] for point in coarse_global_path],
+                trajectory,
+                grasp_model,
+                cadence_s=DEFAULT_CADENCE_S,
+                desired_ramp_s=DEFAULT_DESIRED_RAMP_S,
+            )
+        except WaypointVelocityShapingError as error:
+            raise ObjectGlobalPlanInputError(
+                f"velocity shaping: {error}"
+            ) from error
+    else:
+        shaping_disabled_reason = "Coarse global DP did not produce a complete path"
+
+    if shaping_result is not None:
+        global_path = [
+            {
+                "sample_index": sample.sample_index,
+                "time_from_start_s": sample.time_from_start_s,
+                "left": list(sample.combined_joint_positions_rad[:6]),
+                "right": list(sample.combined_joint_positions_rad[6:]),
+                "combined": list(sample.combined_joint_positions_rad),
+                "graph_node_id": None,
+                "graph_node_index": None,
+                "edge_cost_rad2": None,
+                "cumulative_cost_rad2": None,
+                "retimed_from_coarse_lower_sample_index": (
+                    sample.coarse_lower_sample_index
+                ),
+                "retimed_from_coarse_upper_sample_index": (
+                    sample.coarse_upper_sample_index
+                ),
+                "retimed_coarse_fraction": sample.coarse_fraction,
+                "user_segment_index": sample.user_segment_index,
+                "local_segment_tick": sample.local_tick,
+                "shared_scalar_progress": sample.progress,
+            }
+            for sample in shaping_result.joint_samples
+        ]
+        object_samples = [
+            {
+                "sample_index": sample.sample_index,
+                "time_from_start_s": sample.time_from_start_s,
+                "object_pose": _transform_payload(
+                    sample.world_T_object,
+                    rpy_rad=_matrix_rpy(sample.world_T_object),
+                ),
+                "left_target": _transform_payload(sample.world_T_left),
+                "right_target": _transform_payload(sample.world_T_right),
+            }
+            for sample in shaping_result.object_samples
+        ]
+        rigid_duration_s = shaping_result.duration_s
+        final_segment_durations_s = list(
+            shaping_result.effective_segment_durations_s
+        )
+        if len(final_segment_durations_s) > 1:
+            final_segment_durations_s[-1] = (
+                rigid_duration_s - sum(final_segment_durations_s[:-1])
+            )
+        for timing, shape, effective_duration_s in zip(
+            segment_timing,
+            shaping_result.segment_shapes,
+            final_segment_durations_s,
+        ):
+            timing["requested_duration_s"] = timing["duration_s"]
+            timing["duration_s"] = effective_duration_s
+            timing["effective_duration_s"] = effective_duration_s
+            timing["base_ticks"] = shape.base_ticks
+            timing["reference_duration_s"] = shape.reference_duration_s
+            timing["reference_total_ticks"] = shape.total_ticks
+            timing["total_ticks"] = shape.effective_total_ticks
+            timing["edge_ticks"] = list(shape.edge_ticks)
+    else:
+        rigid_duration_s = trajectory.duration_s
+        final_segment_durations_s = list(request["segment_durations_s"])
+        for timing in segment_timing:
+            timing["requested_duration_s"] = timing["duration_s"]
+            timing["effective_duration_s"] = timing["duration_s"]
+
+    if shaping_result is not None:
+        velocity_shaping = {
+            "profile": VELOCITY_SHAPING_PROFILE,
+            "enabled": True,
+            "status": "APPLIED",
+            "disabled_reason": None,
+            "cadence_s": DEFAULT_CADENCE_S,
+            "desired_ramp_s": DEFAULT_DESIRED_RAMP_S,
+            "requested_ramp_s": shaping_result.diagnostics["requested_ramp_s"],
+            "effective_ramp_s": shaping_result.diagnostics["effective_ramp_s"],
+            "adaptive_ramp_iteration_count": shaping_result.diagnostics[
+                "adaptive_ramp_iteration_count"
+            ],
+            "adaptive_ramp_increased": shaping_result.diagnostics[
+                "adaptive_ramp_increased"
+            ],
+            "scope": VELOCITY_SHAPING_SCOPE,
+            "requested_segment_durations_s": coarse_segment_durations_s,
+            "reference_segment_durations_s": [
+                shape.reference_duration_s
+                for shape in shaping_result.segment_shapes
+            ],
+            "effective_segment_durations_s": final_segment_durations_s,
+            "waypoint_ticks": list(shaping_result.waypoint_ticks),
+            "waypoint_times_s": [
+                tick * DEFAULT_CADENCE_S for tick in shaping_result.waypoint_ticks
+            ],
+            "coarse_joint_sample_count": len(coarse_global_path),
+            "coarse_object_sample_count": len(coarse_object_samples),
+            "dense_joint_sample_count": len(global_path),
+            "dense_object_sample_count": len(object_samples),
+            "no_dwell": (
+                shaping_result.diagnostics["repeated_dense_transition_count"] == 0
+            ),
+            "cadence_shaped_execution": True,
+            "independent_left_right_smoothing": False,
+            "coarse_polyline_preserved": shaping_result.diagnostics[
+                "coarse_polyline_preserved"
+            ],
+            "waypoint_speed_gate_passed": shaping_result.diagnostics[
+                "waypoint_speed_gate_passed"
+            ],
+            "dense_ik_resolved": False,
+            "analytic_segment_endpoint_progress_velocity": 0.0,
+            "analytic_segment_endpoint_progress_acceleration": 0.0,
+            "analytic_segment_endpoint_progress_jerk": 0.0,
+            "semantic": VELOCITY_SHAPING_SEMANTIC,
+            "diagnostics": shaping_result.diagnostics,
+        }
+    else:
+        elapsed = 0.0
+        waypoint_times = [0.0]
+        for duration in final_segment_durations_s:
+            elapsed += duration
+            waypoint_times.append(elapsed)
+        velocity_shaping = {
+            "profile": VELOCITY_SHAPING_PROFILE,
+            "enabled": False,
+            "status": "DISABLED",
+            "disabled_reason": shaping_disabled_reason,
+            "cadence_s": DEFAULT_CADENCE_S,
+            "desired_ramp_s": DEFAULT_DESIRED_RAMP_S,
+            "requested_ramp_s": DEFAULT_DESIRED_RAMP_S,
+            "effective_ramp_s": None,
+            "adaptive_ramp_iteration_count": 0,
+            "adaptive_ramp_increased": False,
+            "scope": VELOCITY_SHAPING_SCOPE,
+            "requested_segment_durations_s": coarse_segment_durations_s,
+            "reference_segment_durations_s": None,
+            "effective_segment_durations_s": final_segment_durations_s,
+            "waypoint_ticks": None,
+            "waypoint_times_s": waypoint_times,
+            "coarse_joint_sample_count": len(coarse_global_path),
+            "coarse_object_sample_count": len(coarse_object_samples),
+            "dense_joint_sample_count": len(global_path),
+            "dense_object_sample_count": len(object_samples),
+            "no_dwell": True,
+            "cadence_shaped_execution": False,
+            "independent_left_right_smoothing": False,
+            "coarse_polyline_preserved": True,
+            "waypoint_speed_gate_passed": None,
+            "dense_ik_resolved": False,
+            "semantic": VELOCITY_SHAPING_SEMANTIC,
+            "diagnostics": None,
+        }
     if approach_path:
         combined_path = [dict(point) for point in approach_path[:-1]]
         for point in global_path:
@@ -1409,7 +1598,7 @@ def plan_object_global(
         approach_samples = []
         combined_path = [dict(point) for point in global_path]
         combined_object_samples = [{**sample, "phase": "RIGID"} for sample in object_samples]
-    combined_duration_s = approach_duration_s + trajectory.duration_s
+    combined_duration_s = approach_duration_s + rigid_duration_s
     rigid_first_selected = (
         global_result.selected_path[0].combined_joint_positions_rad
         if global_result.selected_path
@@ -1467,10 +1656,17 @@ def plan_object_global(
         "plan_only": True,
         "trajectory_name": trajectory.name,
         "object_waypoint_count": len(trajectory.waypoints),
-        "object_sample_count": trajectory.sample_count,
-        "duration_s": trajectory.duration_s,
+        "object_sample_count": len(object_samples),
+        "duration_s": rigid_duration_s,
         "segment_duration_s": request["segment_duration_s"],
-        "segment_durations_s": list(request["segment_durations_s"]),
+        "segment_durations_s": final_segment_durations_s,
+        "requested_segment_durations_s": coarse_segment_durations_s,
+        "coarse_duration_s": coarse_duration_s,
+        "coarse_segment_durations_s": coarse_segment_durations_s,
+        "coarse_object_sample_count": len(coarse_object_samples),
+        "coarse_object_samples": coarse_object_samples,
+        "coarse_global_path": coarse_global_path,
+        "velocity_shaping": velocity_shaping,
         "segment_timing": segment_timing,
         "timing_semantic": RELATIVE_WAYPOINT_PROFILE_TIMING_SEMANTIC,
         "fixed_orientation_rpy_rad": list(request["fixed_orientation_rpy_rad"]),
@@ -1559,6 +1755,7 @@ def plan_object_global(
         "global_path": global_path,
         "global": {
             "completed": global_result.completed,
+            "path_scope": "COARSE_SELECTED_GRAPH_PATH",
             "total_cost_rad2": global_result.cumulative_raw_displacement_cost_rad2,
             "maximum_raw_single_joint_transition": _maximum_path_transition(
                 global_result.selected_path
@@ -1584,6 +1781,7 @@ def plan_object_global(
         },
         "graph": {
             "completed": graph.completed,
+            "path_scope": "COARSE_CANDIDATE_GRAPH_ONLY",
             "layer_count": len(graph.layers),
             "requested_layer_count": graph.requested_layer_count,
             "node_counts_per_layer": [len(layer.nodes) for layer in graph.layers],
@@ -1605,6 +1803,7 @@ def plan_object_global(
         "failure": _phase3_planning_failure_payload(global_result, graph),
         "optimality_scope": WEB_OPTIMALITY_SCOPE,
         "core_optimality_scope": GLOBAL_GRAPH_OPTIMALITY_SCOPE,
+        "optimality_path_scope": "COARSE_CANDIDATE_GRAPH_ONLY",
         "warnings": list(PLAN_ONLY_WARNINGS),
         "units": {
             "translation": "meter",

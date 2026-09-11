@@ -104,6 +104,10 @@ MotionDiagnostics compute_motion_diagnostics(
 
 double servo_command_period_s(std::uint8_t servo_step_num);
 
+ResampleResult resample_linear(
+  const std::vector<JointSample> & samples,
+  std::uint8_t servo_step_num);
+
 ResampleResult resample_quintic_hermite(
   const std::vector<JointSample> & samples,
   std::uint8_t servo_step_num);

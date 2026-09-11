@@ -2,6 +2,13 @@
 
 This module has no ROS, robot SDK, motion client, or execution authority.  Raw
 samples are authoritative; alignment is explicitly analysis-only.
+
+New raw runs add actual_packet_schema=port10000-packets/v2, per-arm
+actual_packets and actual_packet_policy without removing v1 observations.
+Full evidence is persisted on disarm/terminal close, never periodically during
+acquisition. A process crash before close loses the in-memory packet stream.
+Store locking serializes in-process writers, including multiple store handles;
+external processes must not mutate a live store outside this API.
 """
 
 from __future__ import annotations
@@ -42,12 +49,13 @@ try:
         EXP2_SCHEMA_VERSION,
         EXP2_SEMANTIC,
         analyze_rigid_grasp,
+        exp2_input_provenance,
     )
 except ImportError:
     try:
-        from .experimental_rigid_grasp import EXP2_SCHEMA_VERSION, EXP2_SEMANTIC, analyze_rigid_grasp
+        from .experimental_rigid_grasp import EXP2_SCHEMA_VERSION, EXP2_SEMANTIC, analyze_rigid_grasp, exp2_input_provenance
     except ImportError:
-        from experimental_rigid_grasp import EXP2_SCHEMA_VERSION, EXP2_SEMANTIC, analyze_rigid_grasp
+        from experimental_rigid_grasp import EXP2_SCHEMA_VERSION, EXP2_SEMANTIC, analyze_rigid_grasp, exp2_input_provenance
 
 
 SCHEMA_VERSION = "jaka-dual-arm-experiment-run/v1"
@@ -186,10 +194,15 @@ class TorqueCache:
 class ExperimentRunStore:
     """Contained JSON/CSV persistence with immutable server-generated run IDs."""
 
+    # All in-process handles to the same run root share compare/write exclusion.
+    _root_locks: dict[Path, Any] = {}
+    _root_locks_guard = threading.Lock()
+
     def __init__(self, root: str | Path):
         self.root = Path(root).resolve()
         self.root.mkdir(parents=True, exist_ok=True)
-        self._lock = threading.Lock()
+        with self._root_locks_guard:
+            self._lock = self._root_locks.setdefault(self.root, threading.RLock())
 
     def generate_run_id(self, *, now: datetime | None = None) -> str:
         current = now or datetime.now(timezone.utc)
@@ -283,10 +296,14 @@ class ExperimentRunStore:
             if exp1_analysis is not None:
                 self._write_json(run_dir / "exp1_analysis.json", exp1_analysis)
             if exp2_analysis is not None:
-                self._write_json(run_dir / "exp2_analysis.json", exp2_analysis)
+                self.write_exp2_analysis(run_id, exp2_analysis)
             self._write_csv(run_dir, raw)
 
     def load(self, run_id: str) -> dict[str, Any]:
+        with self._lock:
+            return self._load_locked(run_id)
+
+    def _load_locked(self, run_id: str) -> dict[str, Any]:
         run_dir = self._run_dir(run_id, require_exists=True)
         try:
             manifest = json.loads((run_dir / "manifest.json").read_text(encoding="utf-8"))
@@ -333,6 +350,10 @@ class ExperimentRunStore:
             ):
                 raise ExperimentError("Corrupt EXP-2 analysis identity or schema")
             result["exp2_analysis"] = exp2_analysis
+            result["exp2_analysis_freshness"] = {
+                "status": "CURRENT" if exp2_analysis.get("input_provenance") == exp2_input_provenance(raw, manifest, EXP2_URDF_PATH) else "STALE",
+                "reason": "Compared raw, manifest, analyzer, URDF and interpolation policy; missing provenance is stale",
+            }
         return result
 
     def write_exp1_analysis(self, run_id: str, analysis: Mapping[str, Any]) -> None:
@@ -367,6 +388,9 @@ class ExperimentRunStore:
             raise ExperimentError("EXP-2 analysis identity or schema mismatch")
         checked = _json_copy(analysis)
         with self._lock:
+            current = self.load(run_id)
+            if checked.get("input_provenance") != exp2_input_provenance(current["raw"], current["manifest"], EXP2_URDF_PATH):
+                raise ExperimentError("Stale EXP-2 input provenance; reanalyze current evidence")
             self._write_json(run_dir / "exp2_analysis.json", checked)
 
     def analyze_exp2(self, run_id: str) -> dict[str, Any]:
@@ -579,8 +603,13 @@ def align_planned_to_actual(raw: Mapping[str, Any]) -> dict[str, Any]:
 class ExperimentRecorder:
     """Single armed/active observational recorder bound after Phase5 acceptance."""
 
-    def __init__(self, store: ExperimentRunStore, *, actual_stale_after_ms: int = 500, wall_time_ms: Callable[[], int] = lambda: time.time_ns() // 1_000_000):
+    def __init__(self, store: ExperimentRunStore, *, actual_stale_after_ms: int = 500, expected_packet_period_ms: int = 100, wall_time_ms: Callable[[], int] = lambda: time.time_ns() // 1_000_000):
         self.store = store
+        if expected_packet_period_ms <= 0:
+            raise ValueError("expected_packet_period_ms must be positive")
+        self.expected_packet_period_ms = int(expected_packet_period_ms)
+        # Never held during persistence, analysis, or status observation work.
+        self._packet_lock = threading.Lock()
         if isinstance(actual_stale_after_ms, bool) or int(actual_stale_after_ms) < 0:
             raise ValueError("actual_stale_after_ms must be non-negative")
         self.actual_stale_after_ms = int(actual_stale_after_ms)
@@ -589,7 +618,6 @@ class ExperimentRecorder:
         self._manifest: dict[str, Any] | None = None
         self._raw: dict[str, Any] | None = None
         self._last_signature: str | None = None
-        self._last_persist_ms: int | None = None
         self._error: str | None = None
 
     def arm(self, *, artifact: Any, artifact_generation: int, phase4_report: Any, phase4_generation: int, metadata: Mapping[str, Any], plan_snapshot: Any = None, motion_configuration: Any = None, robot_configuration: Any = None, grasp_snapshot: Any = None) -> dict[str, Any]:
@@ -647,7 +675,7 @@ class ExperimentRecorder:
             "locked_grasp": _json_copy(grasp_snapshot), "trajectory_name": artifact.trajectory_name,
             "path_type": path_type, "fixture_condition": fixture, "notes": notes,
             "speed_acceleration_profile": speed_acc, "phase5_motion_configuration": _json_copy(motion_configuration or {}),
-            "actual_source_semantics": "Existing visualization Actual selection: fresh dual Port10000 when available, otherwise cached ROS JointState; no SDK call",
+            "actual_source_semantics": "EXP2: direct Port10000 packets; v2 preserves same-frame controller-reported joint_position plus joint_actual_position and host receive timestamps; host timing is not controller acquisition time; observations retain visualization-selected actual, command, torque and execution evidence",
             "recording_semantic": "OBSERVATIONAL ONLY — NO MOTION AUTHORITY",
             "raw_semantic": "AUTHORITATIVE RECORDED EVIDENCE",
             "aligned_semantic": ALIGNMENT_SEMANTIC,
@@ -657,18 +685,35 @@ class ExperimentRecorder:
         with self._lock:
             if self._manifest and self._manifest.get("state") in {"ARMED", "RECORDING"}:
                 raise ExperimentError("An experiment recorder is already armed")
+            raw["actual_packet_schema"] = "port10000-packets/v2"
+            raw["actual_packets"] = {"left": [], "right": []}
+            raw["actual_packet_semantics"] = {
+                "actual_joints_rad": "joint_actual_position first six degrees converted once to radians; joints_rad is alias",
+                "controller_joint_position_rad": "same-frame controller-reported joint_position; not necessarily original Phase5 command or external truth",
+                "controller_position_raw": "same-frame position; controller-native raw units/meaning unverified",
+                "controller_actual_position_raw": "same-frame actual_position; controller-native raw units/meaning unverified",
+                "received_at_ms": "host wall-clock receive/parse time, not controller acquisition time",
+                "received_monotonic_ns": "host monotonic receive/parse timestamp, not controller clock",
+                "packet_sequence_index": "per-side receiver-object lifetime counter; not controller sequence",
+                "field_validation": "VALID, MISSING or INVALID for each controller source field",
+            }
+            raw["actual_packet_policy"] = {"expected_period_ms": self.expected_packet_period_ms,
+                                           "max_interpolation_span_ms": 2.5 * self.expected_packet_period_ms}
             self.store.create(manifest, raw)
-            self._manifest, self._raw = manifest, raw
-            self._last_signature, self._last_persist_ms, self._error = None, now_ms, None
+            with self._packet_lock:
+                self._manifest, self._raw = manifest, raw
+            self._last_signature, self._error = None, None
         return self.state()
 
     def disarm(self) -> dict[str, Any]:
         with self._lock:
             if self._manifest is None or self._manifest.get("state") != "ARMED":
                 raise ExperimentError("Only an unbound ARMED recorder may be disarmed")
-            self._manifest["state"] = "DISARMED"
+            with self._packet_lock:
+                self._manifest["state"] = "DISARMED"
             self._manifest["updated_at"] = _utc_iso()
             self._manifest["result"]["status"] = "DISARMED_BEFORE_EXECUTION"
+            self._update_counts()
             self.store.update(self._manifest["run_id"], self._manifest, self._raw or {})
         return self.state()
 
@@ -688,12 +733,41 @@ class ExperimentRecorder:
             trajectory_id = execution.get("trajectory_id")
             if not isinstance(trajectory_id, str) or not trajectory_id:
                 raise ExperimentError("Accepted execution is missing trajectory_id")
-            self._manifest["state"] = "RECORDING"
-            self._manifest["active_trajectory_id"] = trajectory_id
-            self._manifest["recording_started_at"] = _utc_iso()
-            self._raw["execution"] = {key: deepcopy(execution.get(key)) for key in ("trajectory_id", "start_time_unix_ns", "duration_s", "artifact_fingerprint", "plan_fingerprint", "artifact_generation")}
-            self.store.update(self._manifest["run_id"], self._manifest, self._raw)
-            self._last_persist_ms = self._wall_time_ms()
+            with self._packet_lock:
+                self._manifest["state"] = "RECORDING"
+                self._manifest["active_trajectory_id"] = trajectory_id
+                self._manifest["recording_started_at"] = _utc_iso()
+                self._raw["execution"] = {key: deepcopy(execution.get(key)) for key in ("trajectory_id", "start_time_unix_ns", "duration_s", "artifact_fingerprint", "plan_fingerprint", "artifact_generation")}
+                for side in ("left", "right"):
+                    self._raw["actual_packets"][side] = [p for p in self._raw["actual_packets"][side] if self._packet_in_execution(p)]
+
+    def _packet_in_execution(self, packet: Mapping[str, Any]) -> bool:
+        execution = self._raw["execution"]
+        start = execution.get("start_time_unix_ns")
+        if not isinstance(start, int) or start <= 0:
+            return True  # Preserve unbound evidence until accepted timing arrives.
+        elapsed = (packet["received_at_ms"] - start / 1e6) / 1000.0
+        duration = execution.get("duration_s")
+        return elapsed >= 0 and (not isinstance(duration, (int, float)) or elapsed <= duration)
+
+    def ingest_actual_packet(self, packet: Mapping[str, Any]) -> None:
+        """Memory-only acquisition, independent of status polling and disk locks."""
+        side = packet.get("side")
+        if side not in ("left", "right"):
+            raise ExperimentError("Invalid actual packet side")
+        checked = {"side": side, "joints_rad": _vector(packet.get("actual_joints_rad", packet.get("joints_rad")), 6, "packet.joints_rad"),
+                   "received_at_ms": _finite(packet.get("received_at_ms"), "packet.received_at_ms"),
+                   "source": packet.get("source"), "mapping": packet.get("mapping")}
+        checked["actual_joints_rad"] = list(checked["joints_rad"])
+        for key in ("controller_joint_position_rad", "controller_position_raw", "controller_actual_position_raw",
+                    "packet_length_bytes", "packet_sequence_index", "received_monotonic_ns", "field_validation",
+                    "controller_joint_position_mapping", "controller_pose_semantic", "tracking_semantic"):
+            checked[key] = deepcopy(packet.get(key))
+        with self._packet_lock:
+            if self._manifest is None or self._manifest.get("state") not in {"ARMED", "RECORDING"}:
+                return
+            if self._packet_in_execution(checked):
+                self._raw["actual_packets"][side].append(checked)
 
     def record_error(self, error: Any) -> None:
         with self._lock:
@@ -774,25 +848,24 @@ class ExperimentRecorder:
                 self._update_counts()
             if feedback.get("authoritative") is True and feedback.get("terminal") is True and feedback.get("combined_state") in TERMINAL_STATES:
                 self._close(feedback)
-            elif self._last_persist_ms is None or capture_ms - self._last_persist_ms >= 1000:
-                # Persist at a bounded cadence so observational disk I/O cannot
-                # dominate the existing 100 ms Phase5 status-poll path.
-                self.store.update(self._manifest["run_id"], self._manifest, self._raw)
-                self._last_persist_ms = capture_ms
 
     def _update_counts(self) -> None:
         observations = self._raw["observations"]
         counts = self._manifest["result"]["sample_counts"]
         counts["observations"] = len(observations)
+        with self._packet_lock:
+            for side in ("left", "right"):
+                counts[f"actual_packets_{side}"] = len(self._raw["actual_packets"][side])
         for kind in ("commanded", "actual", "torque"):
             for side in ("left", "right"):
                 counts[f"{kind}_{side}"] = sum(1 for sample in observations if sample[kind][side].get("valid") is True)
 
     def _close(self, feedback: Mapping[str, Any]) -> None:
+        with self._packet_lock:
+            self._manifest["state"] = "CLOSED"
         self._update_counts()
         now = _utc_iso()
         result = {"status": feedback.get("combined_state"), "combined_state": feedback.get("combined_state"), "reason": feedback.get("reason"), "trajectory_id": feedback.get("trajectory_id"), "duration_s": (feedback.get("common_timeline") or {}).get("duration_s"), "recording_started_at": self._manifest.get("recording_started_at"), "recording_ended_at": now, "raw_observation_count": len(self._raw["observations"]), "sample_counts": deepcopy(self._manifest["result"]["sample_counts"]), "torque_availability": {side: self._manifest["result"]["sample_counts"][f"torque_{side}"] > 0 for side in ("left", "right")}}
-        self._manifest["state"] = "CLOSED"
         self._manifest["updated_at"] = now
         self._manifest["result"] = result
         self._raw["result"] = deepcopy(result)
@@ -818,6 +891,10 @@ class ExperimentRecorder:
             self.store.write_exp2_analysis(
                 self._manifest["run_id"], exp2_analysis
             )
+        except ExperimentError as error:
+            # A stale compare/write failure must never be replaced by a newly
+            # stamped fallback derived from the same obsolete snapshot.
+            self._error = str(error)
         except Exception as error:  # defensive isolation from motion/recording path
             # Persist an explicit derived-analysis failure record without
             # poisoning recorder completion or motion authority.
@@ -831,6 +908,7 @@ class ExperimentRecorder:
                         "status": "UNAVAILABLE",
                         "semantic": EXP2_SEMANTIC,
                         "error": f"Derived EXP-2 analysis failed: {error}",
+                        "input_provenance": exp2_input_provenance(self._raw, self._manifest, EXP2_URDF_PATH),
                         "coverage": {},
                         "samples": [],
                     },
@@ -842,7 +920,10 @@ class ExperimentRecorder:
         with self._lock:
             manifest = deepcopy(self._manifest)
             error = self._error
+            with self._packet_lock:
+                packet_counts = {f"actual_packets_{side}": len(self._raw["actual_packets"][side]) for side in ("left", "right")} if self._raw else {}
         counts = deepcopy((manifest or {}).get("result", {}).get("sample_counts", {}))
+        counts.update(packet_counts)
         return {
             "ok": error is None,
             "schema_version": SCHEMA_VERSION,

@@ -259,6 +259,34 @@ class Phase5FeedbackAggregationTests(unittest.TestCase):
         coordinator.inspection_state()
         self.assertEqual(calls, [])
 
+    def test_passive_snapshot_has_no_feedback_or_abort_side_effects(self):
+        feedback_calls = []
+        abort_calls = []
+        coordinator = Phase5ExecutionCoordinator(
+            artifact_snapshot_getter=lambda: (None, 0, "test"),
+            phase4_gate_getter=lambda _fingerprint: {},
+            transport=SimpleNamespace(
+                inspection_state=lambda: {"robot_connection": {"both_ready": True}}
+            ),
+            safe_state_checker=lambda _side: (True, "ok"),
+            start_match_checker=lambda _artifact: {"match": False, "reason": "NO_ARTIFACT"},
+            legacy_conflict_getter=lambda: [],
+            stop_generation_getter=lambda: 0,
+            abort_callback=lambda: abort_calls.append("STOP_BOTH"),
+            feedback_getter=lambda trajectory_id: feedback_calls.append(trajectory_id) or {},
+        )
+        coordinator._execution = {
+            "state": "RUNNING", "trajectory_id": "p5-current", "reason": None,
+            "start_time_unix_ns": 1_900_000_000_000_000_000, "duration_s": 2.0,
+        }
+
+        snapshot = coordinator.passive_execution_snapshot()
+        snapshot["state"] = "MUTATED"
+
+        self.assertEqual(coordinator._execution["state"], "RUNNING")
+        self.assertEqual(feedback_calls, [])
+        self.assertEqual(abort_calls, [])
+
     def test_partial_driver_failure_requests_peer_stop_once(self):
         abort_calls = []
         coordinator = Phase5ExecutionCoordinator(
