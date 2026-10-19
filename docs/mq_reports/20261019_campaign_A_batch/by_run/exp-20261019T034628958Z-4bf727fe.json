@@ -1,0 +1,183 @@
+{
+  "run_id": "exp-20261019T034628958Z-4bf727fe",
+  "label": "CA_PATH_A_LOW_R01",
+  "mq_screening_status": "BLOCKED",
+  "checks": [
+    {
+      "name": "run_ids_equal",
+      "passed": true,
+      "details": "exp-20261019T034628958Z-4bf727fe"
+    },
+    {
+      "name": "run_closed_completed",
+      "passed": true,
+      "details": {
+        "state": "CLOSED",
+        "execution": "COMPLETED"
+      }
+    },
+    {
+      "name": "v3_packet_schema",
+      "passed": true,
+      "details": "port10000-packets/v2"
+    },
+    {
+      "name": "provenance_raw_sha256",
+      "passed": true,
+      "details": {
+        "recorded": "23d59c259b9b713d476b537eb6110513ed117a2269b764a6931dcf5fad3944fe",
+        "current": "23d59c259b9b713d476b537eb6110513ed117a2269b764a6931dcf5fad3944fe"
+      }
+    },
+    {
+      "name": "provenance_manifest_sha256",
+      "passed": true,
+      "details": {
+        "recorded": "bd8f92c367b0eca2942b319de1ccc779ba07a23eaab1fe06eadf9bb829baf589",
+        "current": "bd8f92c367b0eca2942b319de1ccc779ba07a23eaab1fe06eadf9bb829baf589"
+      }
+    },
+    {
+      "name": "provenance_urdf_sha256",
+      "passed": true,
+      "details": {
+        "recorded": "6883f9e096f7858dc5c53f163583f194de8953d6e2f0f425aff9fd786189c4a3",
+        "current": "6883f9e096f7858dc5c53f163583f194de8953d6e2f0f425aff9fd786189c4a3"
+      }
+    },
+    {
+      "name": "analyzer_version",
+      "passed": true,
+      "details": "exp2-same-frame-phase/v3"
+    },
+    {
+      "name": "bounded_interpolation_policy",
+      "passed": true,
+      "details": 250.0
+    },
+    {
+      "name": "positive_duration",
+      "passed": true,
+      "details": 45.024
+    },
+    {
+      "name": "left_packet_quantity",
+      "passed": true,
+      "details": {
+        "packets": 422,
+        "duration_s": 45.024,
+        "min_nominal_hz": 8
+      }
+    },
+    {
+      "name": "left_joint_field_coverage",
+      "passed": true,
+      "details": {
+        "valid": 422,
+        "packets": 422
+      }
+    },
+    {
+      "name": "left_timestamps_monotonic",
+      "passed": true,
+      "details": {
+        "wall_timestamps": 422,
+        "monotonic_timestamps": 422,
+        "same_wall_millisecond_pairs": 1,
+        "max_monotonic_gap_ms": 331.518791
+      }
+    },
+    {
+      "name": "left_sequence_monotonic",
+      "passed": true,
+      "details": {
+        "sequences": 422
+      }
+    },
+    {
+      "name": "left_receive_gap_bounded",
+      "passed": false,
+      "details": {
+        "max_monotonic_gap_ms": 331.518791,
+        "threshold_ms": 250
+      }
+    },
+    {
+      "name": "right_packet_quantity",
+      "passed": true,
+      "details": {
+        "packets": 429,
+        "duration_s": 45.024,
+        "min_nominal_hz": 8
+      }
+    },
+    {
+      "name": "right_joint_field_coverage",
+      "passed": true,
+      "details": {
+        "valid": 429,
+        "packets": 429
+      }
+    },
+    {
+      "name": "right_timestamps_monotonic",
+      "passed": true,
+      "details": {
+        "wall_timestamps": 429,
+        "monotonic_timestamps": 429,
+        "same_wall_millisecond_pairs": 2,
+        "max_monotonic_gap_ms": 288.961625
+      }
+    },
+    {
+      "name": "right_sequence_monotonic",
+      "passed": true,
+      "details": {
+        "sequences": 429
+      }
+    },
+    {
+      "name": "right_receive_gap_bounded",
+      "passed": false,
+      "details": {
+        "max_monotonic_gap_ms": 288.961625,
+        "threshold_ms": 250
+      }
+    },
+    {
+      "name": "phase_match_status",
+      "passed": true,
+      "details": "PARTIAL"
+    },
+    {
+      "name": "phase_coverage",
+      "passed": false,
+      "details": {
+        "fraction": 0.9352791878172588,
+        "usable": 737,
+        "candidate": 788,
+        "minimum_fraction": 0.95
+      }
+    },
+    {
+      "name": "same_packet_tracking_available",
+      "passed": true,
+      "details": "AVAILABLE"
+    },
+    {
+      "name": "left_tracking_usable",
+      "passed": true,
+      "details": {
+        "joint_sample_count": 2532
+      }
+    },
+    {
+      "name": "right_tracking_usable",
+      "passed": true,
+      "details": {
+        "joint_sample_count": 2574
+      }
+    }
+  ],
+  "note": "SCREENING ONLY; do not call an originally BLOCKED run passed. Raw remains immutable."
+}

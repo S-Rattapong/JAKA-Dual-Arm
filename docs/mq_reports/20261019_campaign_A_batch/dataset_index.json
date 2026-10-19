@@ -1,0 +1,328 @@
+{
+  "schema": "jaka-campaign-a-v1",
+  "acquisition_date": "2026-10-19",
+  "baseline_code_commit": "ac514b53a2619193aa4b87a4dc62de361b659f47",
+  "data_policy": "Raw evidence immutable; MQ failures documented; 20 runs retained",
+  "runs": [
+    {
+      "run_id": "exp-20261019T032001346Z-8675eceb",
+      "label": "CA_PATH_A_NOM_R01",
+      "speed": "NOM",
+      "files": {
+        "aligned.json": "2a7bea4fb26d57ec8efc60c65c049fdee571f61ab3f0a99fcae8afffd267d3c1",
+        "exp1_analysis.json": "abbb3f563b269e4163d5ee973d43b97f08dfb579529fcea6e6ae3d58a5dd6183",
+        "exp2_analysis.json": "071e09b0c9d9d5186b6d50c57a61c31b8c62501e1f52fd4e03115053a5e8633e",
+        "manifest.json": "efa91a370db9565e63143d47e8f52b98f993b8f1b647f404737792ff7d788e31",
+        "observed.csv": "01794818bf28c9b1bb30457580ec088bf309343353fd2a6e4a01bec05ce6a2d8",
+        "planned.csv": "2a71043f54ca667931644eb92eadd33fb7227f590c1568b3f0d2746c1dc58697",
+        "raw.json": "e2e5f0d64cb33ddcb8478902b04906b9a9b0d5df54edc292c87a7176c5a72c52"
+      },
+      "result": "COMPLETED",
+      "phase4_fingerprint": "9e794126fabde6e04dd21d6c3aebbe0269b88b1c0ac020d5af23e0ac10fd5f39"
+    },
+    {
+      "run_id": "exp-20261019T032754138Z-cd3be80e",
+      "label": "CA_PATH_A_NOM_R02",
+      "speed": "NOM",
+      "files": {
+        "aligned.json": "ae386a5911378f7129e15caea199e63f8b5563bd0a06c84f170cf2273c1ee543",
+        "exp1_analysis.json": "2a350f424134a2671505d635b672c3ea7679b4cc6663ee048a813805d85dc204",
+        "exp2_analysis.json": "4a041d88d20f2d63ac54538efc73b2ab6f99570327149d85147bd51f5a7ba0f4",
+        "manifest.json": "c4e3768c124f98cf0d12dbb24565172b16ae5fce1a154a462fa97a0712006f9b",
+        "observed.csv": "5e2d37468c2ded86b729618adaace71833c5521d7a23ad30fcf6bac30678fa0d",
+        "planned.csv": "2a71043f54ca667931644eb92eadd33fb7227f590c1568b3f0d2746c1dc58697",
+        "raw.json": "56ac49d92b1e796ea1003ecc7d74012c8abbcbaac17666f5ad53a0db3ed689c0"
+      },
+      "result": "COMPLETED",
+      "phase4_fingerprint": "9e794126fabde6e04dd21d6c3aebbe0269b88b1c0ac020d5af23e0ac10fd5f39"
+    },
+    {
+      "run_id": "exp-20261019T032837716Z-d61dca4d",
+      "label": "CA_PATH_A_NOM_R03",
+      "speed": "NOM",
+      "files": {
+        "aligned.json": "f24efaa6292d88b5b42ace2d39ab2bca927b91915f5d824f2c4343e5ec96d914",
+        "exp1_analysis.json": "b53c0f58b10d6527249a59c0b6479841d71a24bf281391c69fce63c7116ecb03",
+        "exp2_analysis.json": "e4bac6e58d843bd679f72981061e4d20e1ab5b074881d02f72009fb33a7f5a10",
+        "manifest.json": "7307e737383ae664c82d2e01ace6056a27751df43d971367ee4268876ddd758d",
+        "observed.csv": "547aed5a6267cf968eadb9f732a1113fdfed6375681c816803070c192cd03e39",
+        "planned.csv": "2a71043f54ca667931644eb92eadd33fb7227f590c1568b3f0d2746c1dc58697",
+        "raw.json": "f3d193734c0d712ca32bd842e1260333f04f71d0a698893ec06b0313035cf8a7"
+      },
+      "result": "COMPLETED",
+      "phase4_fingerprint": "9e794126fabde6e04dd21d6c3aebbe0269b88b1c0ac020d5af23e0ac10fd5f39"
+    },
+    {
+      "run_id": "exp-20261019T032954494Z-773c7bf6",
+      "label": "CA_PATH_A_NOM_R04",
+      "speed": "NOM",
+      "files": {
+        "aligned.json": "a3362862a4de563da4068562f1897945720626fd68f3c3f9d9c49b208d6fc7dd",
+        "exp1_analysis.json": "4b385510419bcc9fab00fbdadd89a7db023abcf0d35ded88dcdee3881e728dc9",
+        "exp2_analysis.json": "d6cec38a5888e34ebb8bcc34d691b5e792faf430bc0b9a36c051d601cec2bb3c",
+        "manifest.json": "ecd04f3759d561e43bfb125088725ee5289cc66e3cadb204c3a40a99e2f2ade3",
+        "observed.csv": "5fca84084ac870a2fef563bec0186ee096c503ba48bed49e717af6d5f7202337",
+        "planned.csv": "2a71043f54ca667931644eb92eadd33fb7227f590c1568b3f0d2746c1dc58697",
+        "raw.json": "e1ce79370e403e33ffa7ff70c5c5cde4590e1751190601571ed7a33b9a33fa9f"
+      },
+      "result": "COMPLETED",
+      "phase4_fingerprint": "9e794126fabde6e04dd21d6c3aebbe0269b88b1c0ac020d5af23e0ac10fd5f39"
+    },
+    {
+      "run_id": "exp-20261019T033053718Z-f7e920e0",
+      "label": "CA_PATH_A_NOM_R05",
+      "speed": "NOM",
+      "files": {
+        "aligned.json": "7802de42e99376fe4520cb76819c223e02e909ffc7d886f70ca6c5a1a1c7e0a8",
+        "exp1_analysis.json": "19a0d9f7f7aaf3ed993e888fec36a4afc1e12a4f460ff2a33afe6cde13cbc9b0",
+        "exp2_analysis.json": "4578ef430275e958ac8288847c82f39755443e7704b8b78ef241e2e12cc6e737",
+        "manifest.json": "3813202db5f4dfb3069256951b27efc941e3ebd00650c08b3a49413b4b8db417",
+        "observed.csv": "ad4077a495eed0f25df4aa6ecfdd2bc961ac10feae6836f28c6b25aa3029fabb",
+        "planned.csv": "2a71043f54ca667931644eb92eadd33fb7227f590c1568b3f0d2746c1dc58697",
+        "raw.json": "dac6abe34c708893d1e2cb07ad29d35c07a3909c896a6e5ef3a224674601b202"
+      },
+      "result": "COMPLETED",
+      "phase4_fingerprint": "9e794126fabde6e04dd21d6c3aebbe0269b88b1c0ac020d5af23e0ac10fd5f39"
+    },
+    {
+      "run_id": "exp-20261019T033152871Z-17201bc3",
+      "label": "CA_PATH_A_NOM_R06",
+      "speed": "NOM",
+      "files": {
+        "aligned.json": "a6fd3015de324e1bac246ce578c3d4ed745484472f1de49f8bd7d48092771e85",
+        "exp1_analysis.json": "35e3882ce0306261ce8997f58b53d05ac50fd259449c963d1dc836731a287e44",
+        "exp2_analysis.json": "90c945d3529482960d8b17eda6ca978684402eaac366eae7ec1812ce16db8898",
+        "manifest.json": "a4ab9a5ba1488193777125d74857634280bb8c3b1a81dcab29280f7fa67ebb9c",
+        "observed.csv": "025ccec71694d26cf2556f4124a93592756907b5a66a9abf55a01a9d493edadb",
+        "planned.csv": "2a71043f54ca667931644eb92eadd33fb7227f590c1568b3f0d2746c1dc58697",
+        "raw.json": "c34cbe0b4a1511ecf60b71fbe8d73702dad5b1f3d771db406cd981a618dd7e4a"
+      },
+      "result": "COMPLETED",
+      "phase4_fingerprint": "9e794126fabde6e04dd21d6c3aebbe0269b88b1c0ac020d5af23e0ac10fd5f39"
+    },
+    {
+      "run_id": "exp-20261019T033307395Z-a8bee8ac",
+      "label": "CA_PATH_A_NOM_R07",
+      "speed": "NOM",
+      "files": {
+        "aligned.json": "9a9854bbe3c279d5a85905fea710248cf6142449d4a1caea3c081cec5c27edc7",
+        "exp1_analysis.json": "af948ccbebba76dddcd66abf5c198c1be6a5a7d62062e3127034a4b45f8bc1e0",
+        "exp2_analysis.json": "651ada6ecc59f1cc982611b6fa78b6a0038e248893fafa2c7b295c47ea0cc73b",
+        "manifest.json": "528c9bdf8abf7121e98883b0fba55db2906eac4c23015d245c5b6c9a6f870467",
+        "observed.csv": "d3bb2595b539f16b6b1a6cba02edcbcdc5828f676320e7d0cc8f85a699bd8029",
+        "planned.csv": "2a71043f54ca667931644eb92eadd33fb7227f590c1568b3f0d2746c1dc58697",
+        "raw.json": "c941bd7cb0539d7244de810ad4b3286931e6b040326959b5fceb57e23383d957"
+      },
+      "result": "COMPLETED",
+      "phase4_fingerprint": "9e794126fabde6e04dd21d6c3aebbe0269b88b1c0ac020d5af23e0ac10fd5f39"
+    },
+    {
+      "run_id": "exp-20261019T033410987Z-d3f2dad0",
+      "label": "CA_PATH_A_NOM_R08",
+      "speed": "NOM",
+      "files": {
+        "aligned.json": "e3c45a4db91f9b66a2f7d2e2e05cb5ec6317798a5ba392c15fe2693b720b30e3",
+        "exp1_analysis.json": "d20f5e07d5d9d48a57072970a0780eab818e021ea763aa4e1d24d51aa764f573",
+        "exp2_analysis.json": "bb830309b4ec7a4e776f86e7dff2deedecea5fcf94292c5eb0ada20b4f0ce2a3",
+        "manifest.json": "de2976312065852a755afe3e05587f25d63ac14a60abc91acef4669790edbf86",
+        "observed.csv": "3c197f50a380b9d21213e4138c341c2db69682ed9331f1a96e4ac8502aca4825",
+        "planned.csv": "2a71043f54ca667931644eb92eadd33fb7227f590c1568b3f0d2746c1dc58697",
+        "raw.json": "6617e6e1569bd6a260a2feb7c3f3f1d9d723a7163d9148dd7f763192700e1f75"
+      },
+      "result": "COMPLETED",
+      "phase4_fingerprint": "9e794126fabde6e04dd21d6c3aebbe0269b88b1c0ac020d5af23e0ac10fd5f39"
+    },
+    {
+      "run_id": "exp-20261019T033449712Z-d97507e0",
+      "label": "CA_PATH_A_NOM_R09",
+      "speed": "NOM",
+      "files": {
+        "aligned.json": "052626d7a2e2a6e56d1800dce05cb6f8d39b4651ed03a0f570d459ce70cce099",
+        "exp1_analysis.json": "126886bb50fbcc8b8b420c981ee6b4c280c2e7d3ea0537ecfd4263160151a0db",
+        "exp2_analysis.json": "68592d4b89ac9fb0d55aa6b6b8b65be8c946e82928ad0cab4741254f6f38ab64",
+        "manifest.json": "5a7d67c71cffa3b519a8deb97359b92a663c866adf7862f019d2abb2a33b0151",
+        "observed.csv": "8b6750114b0a93fadfcb5283942088486687ba176f7f44e2ca7d0645a4834562",
+        "planned.csv": "2a71043f54ca667931644eb92eadd33fb7227f590c1568b3f0d2746c1dc58697",
+        "raw.json": "a9fe07bacd464d92c077efa2872b8e9f887029368b879286e18523b188b7fd77"
+      },
+      "result": "COMPLETED",
+      "phase4_fingerprint": "9e794126fabde6e04dd21d6c3aebbe0269b88b1c0ac020d5af23e0ac10fd5f39"
+    },
+    {
+      "run_id": "exp-20261019T033610101Z-3f2afc8d",
+      "label": "CA_PATH_A_NOM_R10",
+      "speed": "NOM",
+      "files": {
+        "aligned.json": "baab473239993403482302df8aee4ed934a4461ad1e775f208c9456705e44db0",
+        "exp1_analysis.json": "abe0cc869c8a58463fb861d6438b137415a7d8d06f95f683c3f51f78ca8bc1f3",
+        "exp2_analysis.json": "394fd5a1038d8cb1f6de039afadadba5f92894680dabcd662a9c6a1bb5333809",
+        "manifest.json": "80bbab055620337b396cf60e253974345ec34909c6def5e6c43d451293f9cd15",
+        "observed.csv": "c71b36a721e6911d726f966b979bd39f24888d649fe9254e97f33e3b07acdc45",
+        "planned.csv": "2a71043f54ca667931644eb92eadd33fb7227f590c1568b3f0d2746c1dc58697",
+        "raw.json": "259d52855d4d4cc6643591fe3d23ea50229823eac7f0c1a0f4e6e9587ab266be"
+      },
+      "result": "COMPLETED",
+      "phase4_fingerprint": "9e794126fabde6e04dd21d6c3aebbe0269b88b1c0ac020d5af23e0ac10fd5f39"
+    },
+    {
+      "run_id": "exp-20261019T034628958Z-4bf727fe",
+      "label": "CA_PATH_A_LOW_R01",
+      "speed": "LOW",
+      "files": {
+        "aligned.json": "d3043d96d5c05e8c93d8ee9019addaf1f59b1106206e213b84608c95f9a04f75",
+        "exp1_analysis.json": "40776a89a734455a8dd955c3269f2a36d8cba12ca58529807f9e305c42af5247",
+        "exp2_analysis.json": "9b9eacff36d26e5c6791cbec5902f8830ae7d3c9300f0ce8de8d2a69ac73c78d",
+        "manifest.json": "e94fa0049a0e27f5213bb45f96e9d4e851f78b9cfeb48e145e752339c5cfd8ef",
+        "observed.csv": "f47a3525b0225b67ac240c89f0fee61c8ba104ac1b81714cf421d47e8168ce14",
+        "planned.csv": "73af93b8eb7b1b24fa7a606833ae1ff4dbeff8bec954d43f766e12f42e2818d1",
+        "raw.json": "d86772b3e8c5d7f875cac592a7f6327aaac9d24d89c7f2f8f3d4370892c5b569"
+      },
+      "result": "COMPLETED",
+      "phase4_fingerprint": "a2a3dd1c01ace8dc8afd821f1916db2f176c1a1fe613c6bbdff9320f3ee56a90"
+    },
+    {
+      "run_id": "exp-20261019T034809504Z-a1a96bd8",
+      "label": "CA_PATH_A_LOW_R02",
+      "speed": "LOW",
+      "files": {
+        "aligned.json": "0d517abed89ed08b3dd5c63c33b390f79f9e573dab6a0f3b7b098d25e81c583e",
+        "exp1_analysis.json": "0947a200d3ecdf3ba9f15617d1dbdfceb82dac1e44932f19de054c0bedbe4212",
+        "exp2_analysis.json": "d42c944d90a0e3c76785e0571f2c672cd31624a8428ec22ba14cf74f3ab7e724",
+        "manifest.json": "5699a0c211795cf05ed22508e3deeacbc751727169dbb4091b722c9387309d4b",
+        "observed.csv": "91855c25daa52e8cca970c6fd67a1f9658b24d717df3a2db94f9b138af257114",
+        "planned.csv": "73af93b8eb7b1b24fa7a606833ae1ff4dbeff8bec954d43f766e12f42e2818d1",
+        "raw.json": "6add1537f8d44bafac1fec17b379633deb8d7cfec73c3eb1eca3448b8dccfcc6"
+      },
+      "result": "COMPLETED",
+      "phase4_fingerprint": "a2a3dd1c01ace8dc8afd821f1916db2f176c1a1fe613c6bbdff9320f3ee56a90"
+    },
+    {
+      "run_id": "exp-20261019T034927909Z-18294891",
+      "label": "CA_PATH_A_LOW_R03",
+      "speed": "LOW",
+      "files": {
+        "aligned.json": "228e473402d35c04b4bfd2e7110604b5e3236ac6d0990037861951e0609f22db",
+        "exp1_analysis.json": "0e0ddf0011af321fd7adc4077455fa57f52548349ef488706cf0a0175ee6fd95",
+        "exp2_analysis.json": "61a110698bf3663b4f2cccb20e7b792507d18aaea08c8bb1806697f1f93bbda0",
+        "manifest.json": "5d9d63a6d13e9c0cb7a51042e145c7f18102e3e4baea25dbb47d0df60c0b544a",
+        "observed.csv": "eca261b6849e22ced86f6f9e2ba192143d429131b34f5dd5467f3d4a7f549238",
+        "planned.csv": "73af93b8eb7b1b24fa7a606833ae1ff4dbeff8bec954d43f766e12f42e2818d1",
+        "raw.json": "fce70e9578b21ef86ce98c01a05e55de18bb12406c6b1e05b8bcf1514afc77e2"
+      },
+      "result": "COMPLETED",
+      "phase4_fingerprint": "a2a3dd1c01ace8dc8afd821f1916db2f176c1a1fe613c6bbdff9320f3ee56a90"
+    },
+    {
+      "run_id": "exp-20261019T035030450Z-38a3e07f",
+      "label": "CA_PATH_A_LOW_R04",
+      "speed": "LOW",
+      "files": {
+        "aligned.json": "d5a4c01165a67be1349c90d714414e789e71a5762a3df9c5f48643d18b6307a2",
+        "exp1_analysis.json": "a70ac0b762e80489a003583ad7828e189cf6eb542609e841f8fa85e660e34aa1",
+        "exp2_analysis.json": "f47f79622a21118cbb05b4aa1944c8d4d88f9cacee0da9e772a71db87f396c44",
+        "manifest.json": "4d7a044a8642e03ca5f30b6f82ebee265539e77cc27550f34681cc0d96ce5126",
+        "observed.csv": "058069272037a233df6b19350415a6ab5752d7cea04c5bf74ca3c46b7f3f43f3",
+        "planned.csv": "73af93b8eb7b1b24fa7a606833ae1ff4dbeff8bec954d43f766e12f42e2818d1",
+        "raw.json": "00b8d2d6851fef3928eaddcfb5ce676237b1c71880abe6dbfea2bfd7586ce472"
+      },
+      "result": "COMPLETED",
+      "phase4_fingerprint": "a2a3dd1c01ace8dc8afd821f1916db2f176c1a1fe613c6bbdff9320f3ee56a90"
+    },
+    {
+      "run_id": "exp-20261019T035210434Z-7a985bdd",
+      "label": "CA_PATH_A_LOW_R05",
+      "speed": "LOW",
+      "files": {
+        "aligned.json": "1b52e023137051c50970ecb0aab149795bdff40cc2a9a4d057c5f00f441375a1",
+        "exp1_analysis.json": "ae84e36ea845be2756e3417e575486da205958561e35d64da9312fe197262920",
+        "exp2_analysis.json": "307462a9f1e7379a4cefd407c83d36534c4592002ae6e31a82f920db43275be1",
+        "manifest.json": "10d785d460f9b37c87301a701da2b3b5be332ca4538dbda77a8dd74c17049241",
+        "observed.csv": "56174c6796de1aac9a3b73aa3581f3337a7cd9d42daa6f21a634f321378c8caf",
+        "planned.csv": "73af93b8eb7b1b24fa7a606833ae1ff4dbeff8bec954d43f766e12f42e2818d1",
+        "raw.json": "2ca8b1286cb78f6b6fecfe83236f0148c982ab8685e88e66253b06b8ffe59dfc"
+      },
+      "result": "COMPLETED",
+      "phase4_fingerprint": "a2a3dd1c01ace8dc8afd821f1916db2f176c1a1fe613c6bbdff9320f3ee56a90"
+    },
+    {
+      "run_id": "exp-20261019T035311228Z-69ef5725",
+      "label": "CA_PATH_A_LOW_R06",
+      "speed": "LOW",
+      "files": {
+        "aligned.json": "a8c84fd0eaffef37b3872a2f551e24cc3895c0d90b69c137ad9d6f02e18f2e51",
+        "exp1_analysis.json": "c6357f2b5e245d147579e0254098b87d2e7ddb321a3367e27153db0cea94fc4f",
+        "exp2_analysis.json": "cf583ffba50c9a6e9591a21cdb132bf3f26aae766b6aa17b203a8021a930d5ac",
+        "manifest.json": "bc30bdd1abc14ccfc6b409e46b867b026ee77e7d5e51327364d06dd62bbfd5d9",
+        "observed.csv": "0717cf59bdc94e5ae1479dd356f478ae799a9070dc5a11dce07ac6d724a7b6c6",
+        "planned.csv": "73af93b8eb7b1b24fa7a606833ae1ff4dbeff8bec954d43f766e12f42e2818d1",
+        "raw.json": "2bbebba2a6a24e3d21a2a64a7d9e12e23330ae2d183b3ba0419a611347cd5ee2"
+      },
+      "result": "COMPLETED",
+      "phase4_fingerprint": "a2a3dd1c01ace8dc8afd821f1916db2f176c1a1fe613c6bbdff9320f3ee56a90"
+    },
+    {
+      "run_id": "exp-20261019T035430578Z-d51dab60",
+      "label": "CA_PATH_A_LOW_R07",
+      "speed": "LOW",
+      "files": {
+        "aligned.json": "b8fe34c116cb1768d2b0388b589f72bdfd69c00b1b4195de5d20c450b6562065",
+        "exp1_analysis.json": "0562c6105d3f11a7c59bb9455dcce7f669afa186ec22270477dac63ca04c7933",
+        "exp2_analysis.json": "11d5fa6d65b26dffa1425460f3a5e30fffe95ec32d6cca3232d457614805437a",
+        "manifest.json": "d6031a5e864e2eba2c12d2824e8215f4f4e1726bde33c9d8c349dc63a6be2b72",
+        "observed.csv": "3221266d14f80467b63417b0be859c02ec0d46dbed0aa8280130c01c582753a5",
+        "planned.csv": "73af93b8eb7b1b24fa7a606833ae1ff4dbeff8bec954d43f766e12f42e2818d1",
+        "raw.json": "f77e97377079a9ad42c690b5adcead0bfa2bdfe0b8658002b6ac1037d0aaad6c"
+      },
+      "result": "COMPLETED",
+      "phase4_fingerprint": "a2a3dd1c01ace8dc8afd821f1916db2f176c1a1fe613c6bbdff9320f3ee56a90"
+    },
+    {
+      "run_id": "exp-20261019T035540137Z-f5c5901e",
+      "label": "CA_PATH_A_LOW_R08",
+      "speed": "LOW",
+      "files": {
+        "aligned.json": "a7440d319b002bfa19110acc7e644ad0dfd2f9f19c3c92af963440329224f8c2",
+        "exp1_analysis.json": "b069fa13c99888789a9920730d419f2d7b8f835550188b29435b995776dbc3e3",
+        "exp2_analysis.json": "d905e6df9f44c78d41a1719e77ee4a38479cf4c0cd8207e663ca17dbe0294ca3",
+        "manifest.json": "ad16981e9c5122a58fedd8575c6ea42aad1d1c02b24bb3ee3b52cccc23d12287",
+        "observed.csv": "60e4fac7d0b579a499ddfcefe42b7caa94fc650127cfdad8a7e83e8587c4182a",
+        "planned.csv": "73af93b8eb7b1b24fa7a606833ae1ff4dbeff8bec954d43f766e12f42e2818d1",
+        "raw.json": "6ea0e2e7b979f0ff88ca14b0b6049195f514837cf087332fbe54a0e7fd014153"
+      },
+      "result": "COMPLETED",
+      "phase4_fingerprint": "a2a3dd1c01ace8dc8afd821f1916db2f176c1a1fe613c6bbdff9320f3ee56a90"
+    },
+    {
+      "run_id": "exp-20261019T035725833Z-334c1ff7",
+      "label": "CA_PATH_A_LOW_R09",
+      "speed": "LOW",
+      "files": {
+        "aligned.json": "fc02de86d2681ef385c1f4ea08623d4849704e7e4839ab2744ae61d1762187bb",
+        "exp1_analysis.json": "9a5ad61656e40aa5357d81cbb2b94221a91d884877b640f42b6aafea708deeb0",
+        "exp2_analysis.json": "55842ad394aea29fe5ac087efc314a82326cd5ee261519cc93295456e1ea32c5",
+        "manifest.json": "b4f48a6c3c97ec310f1930061716de816b8d46739ad9a30ce0f4aa516994aa4f",
+        "observed.csv": "3b0009a935bc0d6a2037daf0345586e2220f8d18be69de949a902a6ecd2754ce",
+        "planned.csv": "73af93b8eb7b1b24fa7a606833ae1ff4dbeff8bec954d43f766e12f42e2818d1",
+        "raw.json": "e56e6c7f096e16b5da870fc815e5310f8c3882adc3c8668b1d69b4702f5ba35f"
+      },
+      "result": "COMPLETED",
+      "phase4_fingerprint": "a2a3dd1c01ace8dc8afd821f1916db2f176c1a1fe613c6bbdff9320f3ee56a90"
+    },
+    {
+      "run_id": "exp-20261019T035841232Z-cd5c6dbf",
+      "label": "CA_PATH_A_LOW_R10",
+      "speed": "LOW",
+      "files": {
+        "aligned.json": "8e155c20ba00d886f3e16717ca2ad915590369304b52821ccac18bea973d4518",
+        "exp1_analysis.json": "aa19565492fef4cf611460098e0088d197ef136cb06f5237f63dd9ce7cb81e58",
+        "exp2_analysis.json": "d6dffe69de49b3606575446d81eb833bba73923e313b7b9657c3c6ff6b1632eb",
+        "manifest.json": "4663942712c911b388c52971eb3dc429b0683825df92c8c3019323f051c641df",
+        "observed.csv": "1bc0b2515f6fccef9a17abaeae960893d9fd12bc84cc3ce8cfcef95b691ff5d8",
+        "planned.csv": "73af93b8eb7b1b24fa7a606833ae1ff4dbeff8bec954d43f766e12f42e2818d1",
+        "raw.json": "b52af86c791ca9229f51b537df3d232adc9ea5e339d34cc520122ddfafc11098"
+      },
+      "result": "COMPLETED",
+      "phase4_fingerprint": "a2a3dd1c01ace8dc8afd821f1916db2f176c1a1fe613c6bbdff9320f3ee56a90"
+    }
+  ]
+}
