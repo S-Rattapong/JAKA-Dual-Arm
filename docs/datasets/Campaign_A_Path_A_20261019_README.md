@@ -71,3 +71,8 @@ Then inspect `docs/mq_reports/20261019_campaign_A_batch/summary.csv` and the 20 
 
 ## Safety / provenance
 No robot motion is commanded by this data branch, checksum verifier or MQ CLI. The original experiment run directories are left in their existing Ubuntu working tree without modification. This export was produced using a separate Git Worktree specifically to avoid staging unrelated older tracked-file deletions or modifying live robot code. The raw evidence is immutable; avoid editing raw or silently excluding failed runs.
+
+
+## Additional dataset on this branch: EXP4 loaded motion
+
+This branch also includes EXP4 Loaded Cooperative Trajectory captured 2026-10-19 (11 raw Run IDs for 10 intended repeats because R07 was used twice). See `docs/datasets/EXP4_Loaded_Trajectory_20261019_README.md` and `docs/mq_reports/20261019_exp4_loaded_batch/summary.csv`. Run `python tools/verify_exp4.py` to validate the 77 additional original files. The Campaign A counts above apply only to NOM/LOW EXP1–EXP3.

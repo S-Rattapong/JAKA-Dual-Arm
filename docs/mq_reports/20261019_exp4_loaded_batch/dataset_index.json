@@ -1,0 +1,373 @@
+{
+  "schema": "jaka-loaded-campaign-exp4/v1",
+  "collection_date": "2026-10-19",
+  "run_count": 11,
+  "distinct_label_count": 10,
+  "storage_policy": "all original evidence retained, including both R07 runs; no original raw evidence modified",
+  "canonical_r07": "UNDECIDED \u2014 choose after reviewing experiment operator notes or actual session chronology",
+  "runs": [
+    {
+      "label": "EXP4_LOADED_R01",
+      "run_id": "exp-20261019T062812023Z-e648905f",
+      "created_at": "2026-10-19T06:28:12.023Z",
+      "record_state": "CLOSED",
+      "execution_result": "COMPLETED",
+      "plan_fingerprint": "ff60b8bb3fc55bff752e9e8d4aa45f4dbfa237ff1596b9094f55f082782c2431",
+      "artifact_fingerprint": "sha256:a77991f187e813aa0380f31b2b71fb84e7a42636a2ea0088d0f097e4d2e91581",
+      "planned_duration_s": 63.072,
+      "observations": 602,
+      "planned_samples": 2629,
+      "left": {
+        "packet_count": 681,
+        "max_host_receive_gap_ms": 281.6,
+        "gap_events_gt250ms": 5
+      },
+      "right": {
+        "packet_count": 694,
+        "max_host_receive_gap_ms": 273.412,
+        "gap_events_gt250ms": 4
+      },
+      "rigid_grasp_analyzer_status": "PARTIAL",
+      "phase_synchronized_usable_fraction": 0.9006908462867013,
+      "file_sha256": {
+        "aligned.json": "5b5bde372f63f3413559fd409ead5f6ac1db1d42f1aea131e41b9820b0f8c282",
+        "exp1_analysis.json": "2fe1b476d84c48a98aea514252ea49592259fd16c08b4a26817590d523c7a08c",
+        "exp2_analysis.json": "7df5fc4bcf9a8aa145162d794069cffbd829dcf1543778cd0af60e842a997150",
+        "manifest.json": "5b5f84cf7fde9bb586363cbfbf21db441c1d6ba226082b5cdbaee1c0de503ec4",
+        "observed.csv": "af6c8b778feddf84162841c5f8aa075f8696084bc1d9fb5ce99ec22218b0fe6e",
+        "planned.csv": "c6afba9b5480be137206576ca1cbc5e03bf21cded1928e24a26aba4fe948afe8",
+        "raw.json": "5342cc5fe563f3013872b3f24119c353cd32f546267da1d813a38034ef559b18"
+      }
+    },
+    {
+      "label": "EXP4_LOADED_R02",
+      "run_id": "exp-20261019T062939247Z-4d39a187",
+      "created_at": "2026-10-19T06:29:39.247Z",
+      "record_state": "CLOSED",
+      "execution_result": "COMPLETED",
+      "plan_fingerprint": "ff60b8bb3fc55bff752e9e8d4aa45f4dbfa237ff1596b9094f55f082782c2431",
+      "artifact_fingerprint": "sha256:a77991f187e813aa0380f31b2b71fb84e7a42636a2ea0088d0f097e4d2e91581",
+      "planned_duration_s": 63.072,
+      "observations": 458,
+      "planned_samples": 2629,
+      "left": {
+        "packet_count": 686,
+        "max_host_receive_gap_ms": 479.636,
+        "gap_events_gt250ms": 21
+      },
+      "right": {
+        "packet_count": 691,
+        "max_host_receive_gap_ms": 419.88,
+        "gap_events_gt250ms": 23
+      },
+      "rigid_grasp_analyzer_status": "PARTIAL",
+      "phase_synchronized_usable_fraction": 0.9124149659863946,
+      "file_sha256": {
+        "aligned.json": "4e4366da5c6c630d91886b7af27e8d136650073b7dcc5f14ca082a5b2865e403",
+        "exp1_analysis.json": "f024c59b633766ad47d4be56cdabe82c0f657ddb864e0e86ab3b1b07a28b4e21",
+        "exp2_analysis.json": "7af109f0a8feee7adb1cb4dcf472a62a4f2328855fe1a529e2502338a6cbda2e",
+        "manifest.json": "0170f9e1c5820ed74daa4ae04933a5ca16c27fcb14643e639637f97e9369d346",
+        "observed.csv": "db630093c997e77d2e231eb215c1bc48705d61205f8488e0b0616f766d646048",
+        "planned.csv": "c6afba9b5480be137206576ca1cbc5e03bf21cded1928e24a26aba4fe948afe8",
+        "raw.json": "250b830a9bc97e645f5b4c5f9252eb8110031b0ada3906348d1626ff1355de07"
+      }
+    },
+    {
+      "label": "EXP4_LOADED_R03",
+      "run_id": "exp-20261019T063121809Z-caa00a2e",
+      "created_at": "2026-10-19T06:31:21.809Z",
+      "record_state": "CLOSED",
+      "execution_result": "COMPLETED",
+      "plan_fingerprint": "ff60b8bb3fc55bff752e9e8d4aa45f4dbfa237ff1596b9094f55f082782c2431",
+      "artifact_fingerprint": "sha256:a77991f187e813aa0380f31b2b71fb84e7a42636a2ea0088d0f097e4d2e91581",
+      "planned_duration_s": 63.072,
+      "observations": 561,
+      "planned_samples": 2629,
+      "left": {
+        "packet_count": 686,
+        "max_host_receive_gap_ms": 373.276,
+        "gap_events_gt250ms": 14
+      },
+      "right": {
+        "packet_count": 693,
+        "max_host_receive_gap_ms": 379.827,
+        "gap_events_gt250ms": 16
+      },
+      "rigid_grasp_analyzer_status": "PARTIAL",
+      "phase_synchronized_usable_fraction": 0.9336734693877551,
+      "file_sha256": {
+        "aligned.json": "ac1b9b6d03f5fc664dd097da72583f1937b80f67b692b7ce7a84e3d5aae3d7a8",
+        "exp1_analysis.json": "9d1f6f4fe5d7ff59b1b74e8e9d278bc82230d308bd2e74ab41afaa29f66994c9",
+        "exp2_analysis.json": "b7b1b3bc380853828ce98e60c48b16e107cd5215b23aa9bd42690d64edb60392",
+        "manifest.json": "e57d54ac7c8e89f0ec6e2204390735b0565968b5cc62cb6a7439c056b64781e3",
+        "observed.csv": "dcc47e4d9bc253d84495ba8817a455ab1bd37706a4c536e01793c26d047084fe",
+        "planned.csv": "c6afba9b5480be137206576ca1cbc5e03bf21cded1928e24a26aba4fe948afe8",
+        "raw.json": "79252d6349621b409c72f980c6a2b27dc23182bd44a4d3bf96c154e35cc02e19"
+      }
+    },
+    {
+      "label": "EXP4_LOADED_R04",
+      "run_id": "exp-20261019T063247091Z-0c7258cd",
+      "created_at": "2026-10-19T06:32:47.091Z",
+      "record_state": "CLOSED",
+      "execution_result": "COMPLETED",
+      "plan_fingerprint": "ff60b8bb3fc55bff752e9e8d4aa45f4dbfa237ff1596b9094f55f082782c2431",
+      "artifact_fingerprint": "sha256:a77991f187e813aa0380f31b2b71fb84e7a42636a2ea0088d0f097e4d2e91581",
+      "planned_duration_s": 63.072,
+      "observations": 452,
+      "planned_samples": 2629,
+      "left": {
+        "packet_count": 683,
+        "max_host_receive_gap_ms": 455.307,
+        "gap_events_gt250ms": 31
+      },
+      "right": {
+        "packet_count": 690,
+        "max_host_receive_gap_ms": 485.028,
+        "gap_events_gt250ms": 31
+      },
+      "rigid_grasp_analyzer_status": "PARTIAL",
+      "phase_synchronized_usable_fraction": 0.616532721010333,
+      "file_sha256": {
+        "aligned.json": "7a49aa973d7c377c39091cbaf9febe5490d3457dd293bc56cd2766870ab0a354",
+        "exp1_analysis.json": "40f7b454403fc9843a0f6577d056d3201cc8a092b23971cd728d01d93bbda22e",
+        "exp2_analysis.json": "bc9497423bb5198d9d6cda851390d76e5f7f4601557777ebef6efe98d5be532f",
+        "manifest.json": "87f26f05f97e0fdc438a7a1cc9e276d4b272de4e1db596ce5f74f83e0eb87395",
+        "observed.csv": "c1918a421a9d6e06940edeaa16fb2bba792efc77ce94b96038d0fd616c709baa",
+        "planned.csv": "c6afba9b5480be137206576ca1cbc5e03bf21cded1928e24a26aba4fe948afe8",
+        "raw.json": "1d8dcecc8895e884009e22755e23576c1cfa9d0fdf1aa976eb6a222386c3a7d1"
+      }
+    },
+    {
+      "label": "EXP4_LOADED_R05",
+      "run_id": "exp-20261019T063418665Z-3c56ebb1",
+      "created_at": "2026-10-19T06:34:18.665Z",
+      "record_state": "CLOSED",
+      "execution_result": "COMPLETED",
+      "plan_fingerprint": "ff60b8bb3fc55bff752e9e8d4aa45f4dbfa237ff1596b9094f55f082782c2431",
+      "artifact_fingerprint": "sha256:a77991f187e813aa0380f31b2b71fb84e7a42636a2ea0088d0f097e4d2e91581",
+      "planned_duration_s": 63.072,
+      "observations": 464,
+      "planned_samples": 2629,
+      "left": {
+        "packet_count": 678,
+        "max_host_receive_gap_ms": 599.298,
+        "gap_events_gt250ms": 23
+      },
+      "right": {
+        "packet_count": 695,
+        "max_host_receive_gap_ms": 593.472,
+        "gap_events_gt250ms": 24
+      },
+      "rigid_grasp_analyzer_status": "PARTIAL",
+      "phase_synchronized_usable_fraction": 0.6260162601626016,
+      "file_sha256": {
+        "aligned.json": "bbf562a9b9ae9a63fa98989e9890bebe630e3a0849fc6bbe36c47f91ac198ad3",
+        "exp1_analysis.json": "59d6bd519e525463c2c5385111e726da77d469443afb73c3cffb3a5234490497",
+        "exp2_analysis.json": "2eb2881e13daf179c4e97d712b6a2672b09efae1f1cb918db12668b2f6c9af68",
+        "manifest.json": "417ec48dc922bd8f9fc5065b1000b2d4a3e00103e6c9366776f0cd9258769c6c",
+        "observed.csv": "643e0ac1787d3293773d301d6bee51da56ec380030503177f14b8fff17bfa04e",
+        "planned.csv": "c6afba9b5480be137206576ca1cbc5e03bf21cded1928e24a26aba4fe948afe8",
+        "raw.json": "59509264b1ab8c383887fd4574eb4b124e9932588d9a38e43f444116ca0efd73"
+      }
+    },
+    {
+      "label": "EXP4_LOADED_R06",
+      "run_id": "exp-20261019T063559541Z-eb2705b2",
+      "created_at": "2026-10-19T06:35:59.541Z",
+      "record_state": "CLOSED",
+      "execution_result": "COMPLETED",
+      "plan_fingerprint": "ff60b8bb3fc55bff752e9e8d4aa45f4dbfa237ff1596b9094f55f082782c2431",
+      "artifact_fingerprint": "sha256:a77991f187e813aa0380f31b2b71fb84e7a42636a2ea0088d0f097e4d2e91581",
+      "planned_duration_s": 63.072,
+      "observations": 97,
+      "planned_samples": 2629,
+      "left": {
+        "packet_count": 680,
+        "max_host_receive_gap_ms": 629.967,
+        "gap_events_gt250ms": 22
+      },
+      "right": {
+        "packet_count": 690,
+        "max_host_receive_gap_ms": 620.894,
+        "gap_events_gt250ms": 24
+      },
+      "rigid_grasp_analyzer_status": "PARTIAL",
+      "phase_synchronized_usable_fraction": 0.9263698630136986,
+      "file_sha256": {
+        "aligned.json": "022da27390bb3cb2c176cb0f8b418ad13f53f023fe2dfb168afeba8576e7b5ed",
+        "exp1_analysis.json": "29b11c47fa703476c867fbf38e50b932d37038c936d6c06c6d47f18122dd69ee",
+        "exp2_analysis.json": "31b7615cd4e3aea6c9dcdbb0f8c72d59e3344828f304b40a6994ac2f0d0e49ae",
+        "manifest.json": "3873438ab7eb9b0981542787ab5d93e4d5efbca6b221116d7ef1172585043579",
+        "observed.csv": "80467e9fdc86d8c5d2bce94c57292ffe2d42e89c61e88221357f7bc3594c441d",
+        "planned.csv": "c6afba9b5480be137206576ca1cbc5e03bf21cded1928e24a26aba4fe948afe8",
+        "raw.json": "a91b0c5ec974f14dc718d0232e4afa847939f04374e88239decdcca70988f9f9"
+      }
+    },
+    {
+      "label": "EXP4_LOADED_R07",
+      "run_id": "exp-20261019T063733587Z-c16d24cb",
+      "created_at": "2026-10-19T06:37:33.587Z",
+      "record_state": "CLOSED",
+      "execution_result": "COMPLETED",
+      "plan_fingerprint": "ff60b8bb3fc55bff752e9e8d4aa45f4dbfa237ff1596b9094f55f082782c2431",
+      "artifact_fingerprint": "sha256:a77991f187e813aa0380f31b2b71fb84e7a42636a2ea0088d0f097e4d2e91581",
+      "planned_duration_s": 63.072,
+      "observations": 545,
+      "planned_samples": 2629,
+      "left": {
+        "packet_count": 690,
+        "max_host_receive_gap_ms": 581.556,
+        "gap_events_gt250ms": 7
+      },
+      "right": {
+        "packet_count": 692,
+        "max_host_receive_gap_ms": 587.165,
+        "gap_events_gt250ms": 7
+      },
+      "rigid_grasp_analyzer_status": "PARTIAL",
+      "phase_synchronized_usable_fraction": 0.9069565217391304,
+      "file_sha256": {
+        "aligned.json": "8a0e43427b684593fa2a5c50de1aa8a9ef84792b1ea00546440e10cfe5815905",
+        "exp1_analysis.json": "e2c417d13fdd70a706e6519f02cf8faa8e16cb1836a77029ef5e40edf7f5e8c9",
+        "exp2_analysis.json": "b1d65e4a44e4771e9e7e222cb47ae00a752c366420eb04837ecf507773388acf",
+        "manifest.json": "7c65ef1ec17292898a7643f618d44f9bc2662624cafed923d54d9571511011b7",
+        "observed.csv": "e878d15ab583646e423485b7c6a49cfd3c2acc572ac1bf9f39d5f2b3bed4fb89",
+        "planned.csv": "c6afba9b5480be137206576ca1cbc5e03bf21cded1928e24a26aba4fe948afe8",
+        "raw.json": "aa73cd63cfac281feef2013565b2a0529086ccb1b367bf5b58d1419c6bf4f0f5"
+      }
+    },
+    {
+      "label": "EXP4_LOADED_R07",
+      "run_id": "exp-20261019T063904734Z-82b10a66",
+      "created_at": "2026-10-19T06:39:04.734Z",
+      "record_state": "CLOSED",
+      "execution_result": "COMPLETED",
+      "plan_fingerprint": "ff60b8bb3fc55bff752e9e8d4aa45f4dbfa237ff1596b9094f55f082782c2431",
+      "artifact_fingerprint": "sha256:a77991f187e813aa0380f31b2b71fb84e7a42636a2ea0088d0f097e4d2e91581",
+      "planned_duration_s": 63.072,
+      "observations": 65,
+      "planned_samples": 2629,
+      "left": {
+        "packet_count": 688,
+        "max_host_receive_gap_ms": 391.338,
+        "gap_events_gt250ms": 8
+      },
+      "right": {
+        "packet_count": 696,
+        "max_host_receive_gap_ms": 366.591,
+        "gap_events_gt250ms": 8
+      },
+      "rigid_grasp_analyzer_status": "PARTIAL",
+      "phase_synchronized_usable_fraction": 0.6126126126126126,
+      "file_sha256": {
+        "aligned.json": "88683b78195b4fb83c58c81905a6f24508d0117477a08028549af2cf5a080426",
+        "exp1_analysis.json": "dd6ac2b705e02eb97a86270ad9590ab9729ff2c4014f977500abe38331fc35e8",
+        "exp2_analysis.json": "bbcbe9d9f50a12f7aa737a3d8388aac7a7a54b594dcbe0fb85389a6ac4891ede",
+        "manifest.json": "cd63bd5029ff245ec0a4aa29f395ff7d7d82aaa24e2804656cbbb31aaf71e1e2",
+        "observed.csv": "a204a70858804cf6d50d8a5e0d6490bf511efd4e09846f7e0c8731da40850afb",
+        "planned.csv": "c6afba9b5480be137206576ca1cbc5e03bf21cded1928e24a26aba4fe948afe8",
+        "raw.json": "4ceae31f9a33e2239c897f553563ae61381a6dd0ced2d1b91022b96f1a4ab83e"
+      }
+    },
+    {
+      "label": "EXP4_LOADED_R08",
+      "run_id": "exp-20261019T064117980Z-4614e6ee",
+      "created_at": "2026-10-19T06:41:17.980Z",
+      "record_state": "CLOSED",
+      "execution_result": "COMPLETED",
+      "plan_fingerprint": "ff60b8bb3fc55bff752e9e8d4aa45f4dbfa237ff1596b9094f55f082782c2431",
+      "artifact_fingerprint": "sha256:a77991f187e813aa0380f31b2b71fb84e7a42636a2ea0088d0f097e4d2e91581",
+      "planned_duration_s": 63.072,
+      "observations": 95,
+      "planned_samples": 2629,
+      "left": {
+        "packet_count": 684,
+        "max_host_receive_gap_ms": 288.903,
+        "gap_events_gt250ms": 9
+      },
+      "right": {
+        "packet_count": 692,
+        "max_host_receive_gap_ms": 297.039,
+        "gap_events_gt250ms": 8
+      },
+      "rigid_grasp_analyzer_status": "PARTIAL",
+      "phase_synchronized_usable_fraction": 0.901213171577123,
+      "file_sha256": {
+        "aligned.json": "e1b3c1ea2e9ea494830ccbe311ba3e736c436a428e0bfe5fb965bd3ada809ea3",
+        "exp1_analysis.json": "8e7f3606e7f7eeb57a881c1021de5ae7a944499d676cf7a8e038d8caea1a5ea1",
+        "exp2_analysis.json": "91ff973efe04d6b0f7282c7f2722f56f14d99cd0b92e26abbc0c1c9b93ef7ef8",
+        "manifest.json": "dbdb2f0b4da5b988f53fa9d610a6af377bc3207750fcb2e2e1944144d30fab1f",
+        "observed.csv": "7b247f7c378b0859468ce4344a91b7b01e65ff1e28cbf26ffe8f121b2c370033",
+        "planned.csv": "c6afba9b5480be137206576ca1cbc5e03bf21cded1928e24a26aba4fe948afe8",
+        "raw.json": "0af20a63b3934ad5fcc86b7eb7a9623b0067cf6153a2fdd41dc0cd036b574208"
+      }
+    },
+    {
+      "label": "EXP4_LOADED_R09",
+      "run_id": "exp-20261019T064416878Z-0c5b5a19",
+      "created_at": "2026-10-19T06:44:16.878Z",
+      "record_state": "CLOSED",
+      "execution_result": "COMPLETED",
+      "plan_fingerprint": "ff60b8bb3fc55bff752e9e8d4aa45f4dbfa237ff1596b9094f55f082782c2431",
+      "artifact_fingerprint": "sha256:a77991f187e813aa0380f31b2b71fb84e7a42636a2ea0088d0f097e4d2e91581",
+      "planned_duration_s": 63.072,
+      "observations": 531,
+      "planned_samples": 2629,
+      "left": {
+        "packet_count": 687,
+        "max_host_receive_gap_ms": 353.589,
+        "gap_events_gt250ms": 22
+      },
+      "right": {
+        "packet_count": 695,
+        "max_host_receive_gap_ms": 362.366,
+        "gap_events_gt250ms": 22
+      },
+      "rigid_grasp_analyzer_status": "PARTIAL",
+      "phase_synchronized_usable_fraction": 0.6156501726121979,
+      "file_sha256": {
+        "aligned.json": "07d0bf6fa95f4af4c3e90fb07d1f1cd391323a0278d0ed20ab93bda6fef4f2ab",
+        "exp1_analysis.json": "b15be635a826f493c7483c358a7a9ec9fd6539e50d3f7c9c06ea67f72367b7bb",
+        "exp2_analysis.json": "6bad5166f4af643f40a4f08ae06195b9b06ad557095ffbcdae9fabfaeadbd19d",
+        "manifest.json": "f7a8584d397639bebbad3a037b444ad6b3bfd03e1608535943e3f42b7faf339a",
+        "observed.csv": "02872713fc7204d970fe1ea7e3285448c282ab61736ead6c76a0906fb4a6e5b8",
+        "planned.csv": "c6afba9b5480be137206576ca1cbc5e03bf21cded1928e24a26aba4fe948afe8",
+        "raw.json": "3a2459a95e89952d1fadf7d000fec84ccfe8056d232eb4a5c064c352fea29edf"
+      }
+    },
+    {
+      "label": "EXP4_LOADED_R10",
+      "run_id": "exp-20261019T064546789Z-881cd4ad",
+      "created_at": "2026-10-19T06:45:46.789Z",
+      "record_state": "CLOSED",
+      "execution_result": "COMPLETED",
+      "plan_fingerprint": "ff60b8bb3fc55bff752e9e8d4aa45f4dbfa237ff1596b9094f55f082782c2431",
+      "artifact_fingerprint": "sha256:a77991f187e813aa0380f31b2b71fb84e7a42636a2ea0088d0f097e4d2e91581",
+      "planned_duration_s": 63.072,
+      "observations": 407,
+      "planned_samples": 2629,
+      "left": {
+        "packet_count": 692,
+        "max_host_receive_gap_ms": 465.957,
+        "gap_events_gt250ms": 42
+      },
+      "right": {
+        "packet_count": 691,
+        "max_host_receive_gap_ms": 462.425,
+        "gap_events_gt250ms": 46
+      },
+      "rigid_grasp_analyzer_status": "PARTIAL",
+      "phase_synchronized_usable_fraction": 0.5965317919075145,
+      "file_sha256": {
+        "aligned.json": "f16a4259a92c474f3f472a9012b40172d4662aa91df82576af54eab2b4651a42",
+        "exp1_analysis.json": "fb4ce03698b6a5d377402f37c09742de121d499d2913183486529e8ce9331a5a",
+        "exp2_analysis.json": "4b363bf669b953684a676843bcc666e818d325b615bfe181ca01d7ecbcad80d6",
+        "manifest.json": "8a63dea49a7c7f3e9759067beec8c470f561ea12acbb526afb21fc38ea5310f7",
+        "observed.csv": "5ab794c1318856122156896493f8bf23a371fc4640340a1632dcc4d6a6e7336a",
+        "planned.csv": "c6afba9b5480be137206576ca1cbc5e03bf21cded1928e24a26aba4fe948afe8",
+        "raw.json": "f7755c7314661fc12cc212c635290e63eb83e3ea7397d28a6892a0a3d1ccc186"
+      }
+    }
+  ]
+}
