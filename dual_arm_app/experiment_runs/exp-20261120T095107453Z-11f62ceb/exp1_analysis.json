@@ -1,0 +1,788 @@
+{
+  "actual_source_semantics": {
+    "description": "EXP2: direct Port10000 packets; v2 preserves same-frame controller-reported joint_position plus joint_actual_position and host receive timestamps; host timing is not controller acquisition time; observations retain visualization-selected actual, command, torque and execution evidence",
+    "external_metrology": false,
+    "observed_sources": [
+      "jaka_port10000_actual_feedback"
+    ]
+  },
+  "alignment_reference": "EXP-0 aligned.json using recorded Actual receive timestamps",
+  "arms": {
+    "left": {
+      "joints": [
+        {
+          "joint": "Left J1",
+          "joint_index": 0,
+          "mae_rad": 0.010649656162591793,
+          "max_abs_error_location": {
+            "observation_index": 9,
+            "time_from_start_s": 7.897107421875
+          },
+          "max_abs_error_rad": 0.025961655065598332,
+          "mean_signed_error_rad": -0.0018268138120782096,
+          "rmse_rad": 0.012371583279784883,
+          "sample_count": 20,
+          "side": "left"
+        },
+        {
+          "joint": "Left J2",
+          "joint_index": 1,
+          "mae_rad": 0.015112956984483,
+          "max_abs_error_location": {
+            "observation_index": 19,
+            "time_from_start_s": 14.490107421875
+          },
+          "max_abs_error_rad": 0.04575169870004292,
+          "mean_signed_error_rad": -0.003092923022389449,
+          "rmse_rad": 0.020012733350945548,
+          "sample_count": 20,
+          "side": "left"
+        },
+        {
+          "joint": "Left J3",
+          "joint_index": 2,
+          "mae_rad": 0.019294440732713813,
+          "max_abs_error_location": {
+            "observation_index": 19,
+            "time_from_start_s": 14.490107421875
+          },
+          "max_abs_error_rad": 0.06815210717323428,
+          "mean_signed_error_rad": 0.004499315641054003,
+          "rmse_rad": 0.027986127418075924,
+          "sample_count": 20,
+          "side": "left"
+        },
+        {
+          "joint": "Left J4",
+          "joint_index": 3,
+          "mae_rad": 0.02571005378043606,
+          "max_abs_error_location": {
+            "observation_index": 12,
+            "time_from_start_s": 11.100107421875
+          },
+          "max_abs_error_rad": 0.10110027143468825,
+          "mean_signed_error_rad": 0.0019014752494584401,
+          "rmse_rad": 0.038261410636223556,
+          "sample_count": 20,
+          "side": "left"
+        },
+        {
+          "joint": "Left J5",
+          "joint_index": 4,
+          "mae_rad": 0.03085120191475003,
+          "max_abs_error_location": {
+            "observation_index": 20,
+            "time_from_start_s": 14.927107421875
+          },
+          "max_abs_error_rad": 0.08392745575345967,
+          "mean_signed_error_rad": 0.00852927381937636,
+          "rmse_rad": 0.04151597880752307,
+          "sample_count": 20,
+          "side": "left"
+        },
+        {
+          "joint": "Left J6",
+          "joint_index": 5,
+          "mae_rad": 0.04266092258234201,
+          "max_abs_error_location": {
+            "observation_index": 19,
+            "time_from_start_s": 14.490107421875
+          },
+          "max_abs_error_rad": 0.09516022667710826,
+          "mean_signed_error_rad": -0.011424472913404735,
+          "rmse_rad": 0.051269089596767764,
+          "sample_count": 20,
+          "side": "left"
+        }
+      ],
+      "status": "PARTIAL",
+      "summary": {
+        "mae_rad": 0.02404653869288612,
+        "max_abs_error_rad": 0.10110027143468825,
+        "rmse_rad": 0.03452733333941702,
+        "sample_count": 20,
+        "scalar_value_count": 120,
+        "worst_joint_by_max_error": "Left J4",
+        "worst_joint_by_rmse": "Left J6"
+      }
+    },
+    "right": {
+      "joints": [
+        {
+          "joint": "Right J1",
+          "joint_index": 0,
+          "mae_rad": 0.008323878606096565,
+          "max_abs_error_location": {
+            "observation_index": 22,
+            "time_from_start_s": 15.355107421875
+          },
+          "max_abs_error_rad": 0.04032315082229801,
+          "mean_signed_error_rad": 0.004474332921070939,
+          "rmse_rad": 0.013692567873332532,
+          "sample_count": 21,
+          "side": "right"
+        },
+        {
+          "joint": "Right J2",
+          "joint_index": 1,
+          "mae_rad": 0.011512577031310903,
+          "max_abs_error_location": {
+            "observation_index": 13,
+            "time_from_start_s": 11.743107421875
+          },
+          "max_abs_error_rad": 0.07507991201860875,
+          "mean_signed_error_rad": -0.0008200243815726134,
+          "rmse_rad": 0.020209669373519697,
+          "sample_count": 21,
+          "side": "right"
+        },
+        {
+          "joint": "Right J3",
+          "joint_index": 2,
+          "mae_rad": 0.02456218477147921,
+          "max_abs_error_location": {
+            "observation_index": 22,
+            "time_from_start_s": 15.355107421875
+          },
+          "max_abs_error_rad": 0.07480776103446996,
+          "mean_signed_error_rad": -0.007166435893347211,
+          "rmse_rad": 0.03549492361109124,
+          "sample_count": 21,
+          "side": "right"
+        },
+        {
+          "joint": "Right J4",
+          "joint_index": 3,
+          "mae_rad": 0.03175313895811556,
+          "max_abs_error_location": {
+            "observation_index": 13,
+            "time_from_start_s": 11.743107421875
+          },
+          "max_abs_error_rad": 0.09957340759365696,
+          "mean_signed_error_rad": -0.002928166597388307,
+          "rmse_rad": 0.04206493213536549,
+          "sample_count": 21,
+          "side": "right"
+        },
+        {
+          "joint": "Right J5",
+          "joint_index": 4,
+          "mae_rad": 0.03155301343256016,
+          "max_abs_error_location": {
+            "observation_index": 13,
+            "time_from_start_s": 11.743107421875
+          },
+          "max_abs_error_rad": 0.19662655003197793,
+          "mean_signed_error_rad": 0.003886933514977799,
+          "rmse_rad": 0.05602792389056666,
+          "sample_count": 21,
+          "side": "right"
+        },
+        {
+          "joint": "Right J6",
+          "joint_index": 5,
+          "mae_rad": 0.04680503540608714,
+          "max_abs_error_location": {
+            "observation_index": 22,
+            "time_from_start_s": 15.355107421875
+          },
+          "max_abs_error_rad": 0.16007672440702203,
+          "mean_signed_error_rad": -0.01670450610349755,
+          "rmse_rad": 0.06701057576307427,
+          "sample_count": 21,
+          "side": "right"
+        }
+      ],
+      "status": "PARTIAL",
+      "summary": {
+        "mae_rad": 0.02575163803427492,
+        "max_abs_error_rad": 0.19662655003197793,
+        "rmse_rad": 0.043310527566341094,
+        "sample_count": 21,
+        "scalar_value_count": 126,
+        "worst_joint_by_max_error": "Right J5",
+        "worst_joint_by_rmse": "Right J6"
+      }
+    }
+  },
+  "combined": {
+    "mae_rad": 0.0249198822579877,
+    "max_abs_error_rad": 0.19662655003197793,
+    "rmse_rad": 0.03927221220491877,
+    "sample_count": 41,
+    "scalar_value_count": 246,
+    "status": "AVAILABLE",
+    "worst_joint_by_max_error": "Right J5",
+    "worst_joint_by_rmse": "Right J6"
+  },
+  "commanded_snapshot_role": "DISPLAY ONLY \u2014 excluded from primary EXP-1 metrics",
+  "coverage": {
+    "sides": {
+      "left": {
+        "skipped_rows": 4,
+        "skipped_status_counts": {
+          "OUT_OF_RANGE": 4
+        },
+        "total_aligned_rows": 24,
+        "usable_fraction": 0.8333333333333334,
+        "usable_rows": 20
+      },
+      "right": {
+        "skipped_rows": 3,
+        "skipped_status_counts": {
+          "OUT_OF_RANGE": 3
+        },
+        "total_aligned_rows": 24,
+        "usable_fraction": 0.875,
+        "usable_rows": 21
+      }
+    },
+    "skipped_rows": 7,
+    "skipped_status_counts": {
+      "OUT_OF_RANGE": 7
+    },
+    "total_aligned_rows": 48,
+    "usable_rows": 41
+  },
+  "error_definition": "actual_joint_rad - interpolated_planned_joint_rad",
+  "error_samples": [
+    {
+      "error_joints_rad": [
+        0.003460740739196222,
+        0.00016003893262217517,
+        -0.0006478760616361878,
+        0.002950791144410214,
+        0.0016333406671106623,
+        -0.00016704416661461607
+      ],
+      "observation_index": 2,
+      "side": "left",
+      "time_from_start_s": 0.403107421875
+    },
+    {
+      "error_joints_rad": [
+        -0.00399267272258455,
+        -0.0002482828439935858,
+        0.0008045280561210788,
+        -0.002994085004680347,
+        -0.0015070664255789623,
+        0.00018725386728801752
+      ],
+      "observation_index": 2,
+      "side": "right",
+      "time_from_start_s": 0.381107421875
+    },
+    {
+      "error_joints_rad": [
+        0.005496596290927247,
+        0.0005721171578138007,
+        -0.0018082951524076574,
+        0.004731572472806755,
+        0.003030289711064088,
+        -0.0010587030429755062
+      ],
+      "observation_index": 3,
+      "side": "left",
+      "time_from_start_s": 1.684107421875
+    },
+    {
+      "error_joints_rad": [
+        -0.0036066186796300526,
+        -0.00028348432525771017,
+        0.0012424352476247957,
+        -0.003042457711286639,
+        -0.0018643902170434323,
+        0.0008496705499871915
+      ],
+      "observation_index": 3,
+      "side": "right",
+      "time_from_start_s": 1.595107421875
+    },
+    {
+      "error_joints_rad": [
+        0.007959209789825561,
+        0.0008870868702440804,
+        -0.0030214273506616873,
+        0.006607907780432631,
+        0.004345176224109654,
+        -0.0016513523305742295
+      ],
+      "observation_index": 4,
+      "side": "left",
+      "time_from_start_s": 2.761107421875
+    },
+    {
+      "error_joints_rad": [
+        -0.004336914553249194,
+        -0.0004467692696383807,
+        0.0017370438075483552,
+        -0.003697106403997452,
+        -0.0023437055273589635,
+        0.001024650211649103
+      ],
+      "observation_index": 4,
+      "side": "right",
+      "time_from_start_s": 2.761107421875
+    },
+    {
+      "error_joints_rad": [
+        0.004837635372202165,
+        0.0007037227501268672,
+        -0.002206982165654736,
+        0.004098026665034116,
+        0.0029256095048360437,
+        -0.001241240052342829
+      ],
+      "observation_index": 5,
+      "side": "left",
+      "time_from_start_s": 3.984107421875
+    },
+    {
+      "error_joints_rad": [
+        -0.0038612264844834487,
+        -0.0005076149902505378,
+        0.001873110624722063,
+        -0.003322580558550392,
+        -0.0022685038616203634,
+        0.0010570158889664505
+      ],
+      "observation_index": 5,
+      "side": "right",
+      "time_from_start_s": 3.984107421875
+    },
+    {
+      "error_joints_rad": [
+        0.003723752278202319,
+        0.0005454985059801798,
+        -0.0019633140113466396,
+        0.0030864250052557995,
+        0.0022197115176407073,
+        -0.0010531194404050925
+      ],
+      "observation_index": 6,
+      "side": "left",
+      "time_from_start_s": 5.275107421875
+    },
+    {
+      "error_joints_rad": [
+        -0.002257059619975743,
+        -0.0003498441167857358,
+        0.0012262403915823672,
+        -0.0020249274223196334,
+        -0.0013719252949000449,
+        0.00066928253056453
+      ],
+      "observation_index": 6,
+      "side": "right",
+      "time_from_start_s": 5.274107421875
+    },
+    {
+      "error_joints_rad": [
+        -0.003338168681648934,
+        0.010868484907535003,
+        -0.03759978175783907,
+        -0.006009341454341177,
+        0.002380010454518494,
+        -0.06731499149827913
+      ],
+      "observation_index": 7,
+      "side": "left",
+      "time_from_start_s": 6.129107421875
+    },
+    {
+      "error_joints_rad": [
+        0.002366883448216228,
+        -0.006118813473515061,
+        0.022045479792693223,
+        0.004139864045369368,
+        -0.0019200130293728357,
+        -0.02846860207639823
+      ],
+      "observation_index": 7,
+      "side": "right",
+      "time_from_start_s": 6.131107421875
+    },
+    {
+      "error_joints_rad": [
+        -0.0024263288784260872,
+        0.01298190778708258,
+        -0.03853053928139949,
+        -0.005258463745276387,
+        0.0013725633483842592,
+        -0.06123613925288662
+      ],
+      "observation_index": 8,
+      "side": "left",
+      "time_from_start_s": 6.960107421875
+    },
+    {
+      "error_joints_rad": [
+        0.0016156111214633284,
+        -0.006207068507979585,
+        0.01809003156177358,
+        0.002901255513886536,
+        -0.001152916527472403,
+        -0.02127232060333384
+      ],
+      "observation_index": 8,
+      "side": "right",
+      "time_from_start_s": 6.959107421875
+    },
+    {
+      "error_joints_rad": [
+        0.025961655065598332,
+        0.00480212826794596,
+        -0.001283023832187924,
+        -0.024720926322922887,
+        0.043591550851658445,
+        0.0546452604255262
+      ],
+      "observation_index": 9,
+      "side": "left",
+      "time_from_start_s": 7.897107421875
+    },
+    {
+      "error_joints_rad": [
+        -0.007161377138181851,
+        -0.0002597666930599374,
+        0.01587522809779318,
+        -0.028442179191575434,
+        0.031005757215017304,
+        0.0723582168902337
+      ],
+      "observation_index": 9,
+      "side": "right",
+      "time_from_start_s": 7.903107421875
+    },
+    {
+      "error_joints_rad": [
+        0.020278418556025635,
+        0.008274819745338502,
+        -0.007956027149752964,
+        -0.02023590995739788,
+        0.04285948717113114,
+        0.034600258436346065
+      ],
+      "observation_index": 10,
+      "side": "left",
+      "time_from_start_s": 8.684107421875
+    },
+    {
+      "error_joints_rad": [
+        -0.004252410687371699,
+        -0.005320791292013016,
+        0.018109043085839938,
+        -0.03769413104050634,
+        0.017350650202858198,
+        0.06690108879267509
+      ],
+      "observation_index": 10,
+      "side": "right",
+      "time_from_start_s": 8.683107421875
+    },
+    {
+      "error_joints_rad": [
+        -0.011978548534416156,
+        0.0008674028445756488,
+        0.031921731116419494,
+        0.06669987740077188,
+        -0.035861405095584664,
+        0.07128467753351309
+      ],
+      "observation_index": 11,
+      "side": "left",
+      "time_from_start_s": 9.837107421875
+    },
+    {
+      "error_joints_rad": [
+        -0.0011372862533894357,
+        0.02329494035833246,
+        -0.02903232435620029,
+        0.005343387724150217,
+        -0.10435686278410117,
+        0.018462777107870032
+      ],
+      "observation_index": 11,
+      "side": "right",
+      "time_from_start_s": 9.838107421875
+    },
+    {
+      "error_joints_rad": [
+        0.010316442080555266,
+        -0.025835458999787397,
+        -0.016106656154405652,
+        -0.10110027143468825,
+        0.004465530078260449,
+        -0.06623179813742228
+      ],
+      "observation_index": 12,
+      "side": "left",
+      "time_from_start_s": 11.100107421875
+    },
+    {
+      "error_joints_rad": [
+        -0.002861463916193574,
+        -0.0346699673041746,
+        0.02782058382683017,
+        0.04333545065496258,
+        0.09159539073563971,
+        0.0056602838685830825
+      ],
+      "observation_index": 12,
+      "side": "right",
+      "time_from_start_s": 11.100107421875
+    },
+    {
+      "error_joints_rad": [
+        0.0061939733326030755,
+        -0.019424693181106012,
+        -0.010236850639750328,
+        -0.07771804287009187,
+        -0.016506208909350284,
+        -0.04963541667281712
+      ],
+      "observation_index": 13,
+      "side": "left",
+      "time_from_start_s": 11.459107421875
+    },
+    {
+      "error_joints_rad": [
+        0.0005532731934111967,
+        -0.07507991201860875,
+        0.06596552245849985,
+        0.09957340759365696,
+        0.19662655003197793,
+        -0.011370620925927444
+      ],
+      "observation_index": 13,
+      "side": "right",
+      "time_from_start_s": 11.743107421875
+    },
+    {
+      "error_joints_rad": [
+        -0.009993646377012944,
+        0.012201907711127724,
+        -0.0009867861239751807,
+        0.01362029200235626,
+        -0.029594459666677703,
+        0.03365771724346267
+      ],
+      "observation_index": 14,
+      "side": "left",
+      "time_from_start_s": 12.470107421875
+    },
+    {
+      "error_joints_rad": [
+        -0.0018118620569450572,
+        0.010718891482378368,
+        0.0007389636736330196,
+        0.020452720124352064,
+        -0.019048392731525254,
+        0.023962729042936726
+      ],
+      "observation_index": 14,
+      "side": "right",
+      "time_from_start_s": 12.462107421875
+    },
+    {
+      "error_joints_rad": [
+        -0.01481995395679947,
+        0.022753025773309732,
+        -0.004919496663139622,
+        0.011690518384273263,
+        -0.050517645301990946,
+        0.04797700809746375
+      ],
+      "observation_index": 15,
+      "side": "left",
+      "time_from_start_s": 12.917107421875
+    },
+    {
+      "error_joints_rad": [
+        -0.0024346612627962894,
+        0.015642142751312704,
+        0.0021074065835731126,
+        0.0362720544516002,
+        -0.023548646346543745,
+        0.03955060562668922
+      ],
+      "observation_index": 15,
+      "side": "right",
+      "time_from_start_s": 12.918107421875
+    },
+    {
+      "error_joints_rad": [
+        -0.014188743619108823,
+        0.02580454583962044,
+        -0.010319570251046795,
+        0.0021564294010969487,
+        -0.05429614435095784,
+        0.043689523230368704
+      ],
+      "observation_index": 16,
+      "side": "left",
+      "time_from_start_s": 13.365107421875
+    },
+    {
+      "error_joints_rad": [
+        -0.0017505331611146202,
+        0.014705533814100669,
+        0.0025912783903738745,
+        0.0429223651624957,
+        -0.015306730602474339,
+        0.042545961860388726
+      ],
+      "observation_index": 16,
+      "side": "right",
+      "time_from_start_s": 13.355107421875
+    },
+    {
+      "error_joints_rad": [
+        -0.00867714414001508,
+        0.01877765252761282,
+        -0.010364624321394178,
+        -0.003042829525057744,
+        -0.036443417629175245,
+        0.026510051722692267
+      ],
+      "observation_index": 17,
+      "side": "left",
+      "time_from_start_s": 13.810107421875
+    },
+    {
+      "error_joints_rad": [
+        -0.0009561431568535506,
+        0.013567734641493079,
+        0.002428467621777397,
+        0.04772170451716251,
+        -0.007158475445679269,
+        0.042826021439358763
+      ],
+      "observation_index": 17,
+      "side": "right",
+      "time_from_start_s": 13.795107421875
+    },
+    {
+      "error_joints_rad": [
+        -0.008665391190334493,
+        -0.02749993531517414,
+        0.04189634601579728,
+        0.03808413037472058,
+        0.04304575055678228,
+        -0.0560803530613372
+      ],
+      "observation_index": 18,
+      "side": "left",
+      "time_from_start_s": 14.235107421875
+    },
+    {
+      "error_joints_rad": [
+        0.015518595407709557,
+        0.01221453940718975,
+        -0.05587855740084846,
+        -0.03698176539835196,
+        -0.05286375081563577,
+        -0.09589240332075089
+      ],
+      "observation_index": 18,
+      "side": "right",
+      "time_from_start_s": 14.235107421875
+    },
+    {
+      "error_joints_rad": [
+        -0.016328195977605375,
+        -0.04575169870004292,
+        0.06815210717323428,
+        0.05940687207245854,
+        0.08217017283026251,
+        -0.09516022667710826
+      ],
+      "observation_index": 19,
+      "side": "left",
+      "time_from_start_s": 14.490107421875
+    },
+    {
+      "error_joints_rad": [
+        0.019464713376489584,
+        0.010388260796360349,
+        -0.0569906462444294,
+        -0.049527803237833234,
+        -0.04074769450672422,
+        -0.1067275462268622
+      ],
+      "observation_index": 19,
+      "side": "right",
+      "time_from_start_s": 14.491107421875
+    },
+    {
+      "error_joints_rad": [
+        -0.017337481273457023,
+        -0.035703573911720465,
+        0.053104279595669546,
+        0.03797033211617884,
+        0.08392745575345967,
+        -0.07768029082720346
+      ],
+      "observation_index": 20,
+      "side": "left",
+      "time_from_start_s": 14.927107421875
+    },
+    {
+      "error_joints_rad": [
+        0.031511367214700076,
+        0.008160960909373127,
+        -0.07091924265269656,
+        -0.07433798164069216,
+        -0.015034765018584029,
+        -0.1469245025716579
+      ],
+      "observation_index": 20,
+      "side": "right",
+      "time_from_start_s": 14.926107421875
+    },
+    {
+      "error_joints_rad": [
+        -0.01701109711787563,
+        -0.027843439960893557,
+        0.04286309983655756,
+        0.025012115479149166,
+        0.07583810867204552,
+        -0.062343279797501094
+      ],
+      "observation_index": 21,
+      "side": "left",
+      "time_from_start_s": 15.186107421875
+    },
+    {
+      "error_joints_rad": [
+        0.02302762645097081,
+        0.00217689798921894,
+        -0.045521985292032774,
+        -0.04723163980262446,
+        0.008324987281875362,
+        -0.09611746571868673
+      ],
+      "observation_index": 21,
+      "side": "right",
+      "time_from_start_s": 15.194107421875
+    },
+    {
+      "error_joints_rad": [
+        0.04032315082229801,
+        0.001401900672492573,
+        -0.07480776103446996,
+        -0.07485705092037254,
+        0.02721610748178005,
+        -0.16007672440702203
+      ],
+      "observation_index": 22,
+      "side": "right",
+      "time_from_start_s": 15.355107421875
+    }
+  ],
+  "experiment": "EXP-1 Trajectory Tracking Accuracy",
+  "run_id": "exp-20261120T095107453Z-11f62ceb",
+  "schema_version": "jaka-dual-arm-exp1-trajectory-tracking/v1",
+  "semantic": "ANALYSIS ONLY \u2014 NOT PHASE6 TIMING, FAULT, OR SAFETY AUTHORITY",
+  "status": "AVAILABLE"
+}
