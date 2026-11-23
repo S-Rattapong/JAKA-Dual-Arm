@@ -1,0 +1,195 @@
+{
+  "schema": "jaka-dual-arm-mq/v1",
+  "overall": "PRE_RUN_READY",
+  "historical_reference_run": "exp-20260911T082849318Z-bb3bd4b5",
+  "historical_reference_is_formal_exp_result": false,
+  "checks": [
+    {
+      "name": "run_ids_equal",
+      "passed": true,
+      "details": "exp-20260911T082849318Z-bb3bd4b5"
+    },
+    {
+      "name": "run_closed_completed",
+      "passed": true,
+      "details": {
+        "state": "CLOSED",
+        "execution": "COMPLETED"
+      }
+    },
+    {
+      "name": "v3_packet_schema",
+      "passed": true,
+      "details": "port10000-packets/v2"
+    },
+    {
+      "name": "provenance_raw_sha256",
+      "passed": true,
+      "details": {
+        "recorded": "6af415e6b89bd25345ebec2f64db6ca6521fac464a624810f9852e0b13c97e4f",
+        "current": "6af415e6b89bd25345ebec2f64db6ca6521fac464a624810f9852e0b13c97e4f"
+      }
+    },
+    {
+      "name": "provenance_manifest_sha256",
+      "passed": true,
+      "details": {
+        "recorded": "d2914611fc67b4b8bd2619056b3770f9d0cf838765cab0054aa5a5c5e773c788",
+        "current": "d2914611fc67b4b8bd2619056b3770f9d0cf838765cab0054aa5a5c5e773c788"
+      }
+    },
+    {
+      "name": "provenance_urdf_sha256",
+      "passed": true,
+      "details": {
+        "recorded": "6883f9e096f7858dc5c53f163583f194de8953d6e2f0f425aff9fd786189c4a3",
+        "current": "6883f9e096f7858dc5c53f163583f194de8953d6e2f0f425aff9fd786189c4a3"
+      }
+    },
+    {
+      "name": "analyzer_version",
+      "passed": true,
+      "details": "exp2-same-frame-phase/v3"
+    },
+    {
+      "name": "bounded_interpolation_policy",
+      "passed": true,
+      "details": 250.0
+    },
+    {
+      "name": "positive_duration",
+      "passed": true,
+      "details": 28.032
+    },
+    {
+      "name": "left_packet_quantity",
+      "passed": true,
+      "details": {
+        "packets": 286,
+        "duration_s": 28.032,
+        "min_nominal_hz": 8
+      }
+    },
+    {
+      "name": "left_joint_field_coverage",
+      "passed": true,
+      "details": {
+        "valid": 286,
+        "packets": 286
+      }
+    },
+    {
+      "name": "left_timestamps_monotonic",
+      "passed": true,
+      "details": {
+        "timestamps": 286,
+        "max_gap_ms": 166.0
+      }
+    },
+    {
+      "name": "left_sequence_monotonic",
+      "passed": true,
+      "details": {
+        "sequences": 286
+      }
+    },
+    {
+      "name": "left_receive_gap_bounded",
+      "passed": true,
+      "details": {
+        "max_gap_ms": 166.0,
+        "threshold_ms": 250
+      }
+    },
+    {
+      "name": "right_packet_quantity",
+      "passed": true,
+      "details": {
+        "packets": 288,
+        "duration_s": 28.032,
+        "min_nominal_hz": 8
+      }
+    },
+    {
+      "name": "right_joint_field_coverage",
+      "passed": true,
+      "details": {
+        "valid": 288,
+        "packets": 288
+      }
+    },
+    {
+      "name": "right_timestamps_monotonic",
+      "passed": true,
+      "details": {
+        "timestamps": 288,
+        "max_gap_ms": 147.0
+      }
+    },
+    {
+      "name": "right_sequence_monotonic",
+      "passed": true,
+      "details": {
+        "sequences": 288
+      }
+    },
+    {
+      "name": "right_receive_gap_bounded",
+      "passed": true,
+      "details": {
+        "max_gap_ms": 147.0,
+        "threshold_ms": 250
+      }
+    },
+    {
+      "name": "phase_match_status",
+      "passed": true,
+      "details": "PARTIAL"
+    },
+    {
+      "name": "phase_coverage",
+      "passed": true,
+      "details": {
+        "fraction": 0.9703703703703703,
+        "usable": 524,
+        "candidate": 540,
+        "minimum_fraction": 0.95
+      }
+    },
+    {
+      "name": "same_packet_tracking_available",
+      "passed": true,
+      "details": "AVAILABLE"
+    },
+    {
+      "name": "left_tracking_usable",
+      "passed": true,
+      "details": {
+        "joint_sample_count": 1716
+      }
+    },
+    {
+      "name": "right_tracking_usable",
+      "passed": true,
+      "details": {
+        "joint_sample_count": 1728
+      }
+    },
+    {
+      "name": "offline_regression_suite",
+      "passed": true,
+      "details": {
+        "exit_code": 0,
+        "output": ".............................................................            [100%]\n61 passed in 0.64s\n"
+      }
+    }
+  ],
+  "limitations": [
+    "Host receive timestamps are not controller sample timestamps.",
+    "Phase-matching is NOT simultaneous physical-time synchronization.",
+    "Encoder+FK is NOT external physical metrology.",
+    "Passive API snapshots do NOT prove packet-complete logging.",
+    "An EXP1–EXP4 run must pass its own V3 captured-evidence check after Execute.",
+    "Robot physical safety, workpiece payload and E-stop checks remain operator responsibilities."
+  ]
+}

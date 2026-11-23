@@ -1,0 +1,156 @@
+{
+  "active_trajectory_id": "p5-a7a29172bf754cf2b2b407a2fa9658fd",
+  "actual_source_semantics": "EXP2: direct Port10000 host receive packets; observations retain visualization-selected actual, command, torque and execution evidence",
+  "aligned_semantic": "ANALYSIS ONLY \u2014 NOT PHASE6 TIMING OR FAULT AUTHORITY",
+  "artifact_fingerprint": "sha256:abe2333bd6f9588bea971ff6ae941fac9fd3189d045004bea0701f85e3b11333",
+  "artifact_generation": 5,
+  "calibration_revision": "sha256:166665d6fc9f63aab8fab9b36b6ff92884e82874c113be1cfd9f5cd185c9fc16",
+  "created_at": "2026-09-11T06:20:05.656Z",
+  "fixture_condition": "CLEARANCE",
+  "grasp_content_revision": "sha256:919012a9b77b12017f9b8bc472abd8da1949756a9b3cf96456f1d8205f624eef",
+  "grasp_lock_generation": 3,
+  "grasp_lock_revision": "sha256:b80befb023e6ed1233868b6a4daeea7a45f234604819869a17717a584ef4c518",
+  "label": "EXP2_CLEARANCE_V2_R01",
+  "locked_grasp": {
+    "content_revision": "sha256:919012a9b77b12017f9b8bc472abd8da1949756a9b3cf96456f1d8205f624eef",
+    "left": {
+      "rpy_rad": [
+        3.137154334537217,
+        -0.0004836815449594358,
+        -1.569745006298999
+      ],
+      "translation_m": [
+        0.003722300812452506,
+        0.286060592548552,
+        -0.0014676618189996826
+      ]
+    },
+    "lock_generation": 3,
+    "lock_revision": "sha256:b80befb023e6ed1233868b6a4daeea7a45f234604819869a17717a584ef4c518",
+    "right": {
+      "rpy_rad": [
+        3.1345207676771514,
+        0.0008790604141233457,
+        1.6023837322171144
+      ],
+      "translation_m": [
+        -0.003722300812452499,
+        -0.286060592548552,
+        0.0014676618189996826
+      ]
+    }
+  },
+  "model_calibration_revision": "sha256:166665d6fc9f63aab8fab9b36b6ff92884e82874c113be1cfd9f5cd185c9fc16",
+  "notes": "Formal EXP2 CLEARANCE after direct Port10000 measurement-pipeline fix",
+  "path_type": "CUSTOM",
+  "phase5_motion_configuration": {
+    "actual_feedback_max_age_ms": 500,
+    "recovery_joint_acc_rad_s2": 0.2,
+    "recovery_joint_vel_rad_s": 0.1,
+    "servo_filter": {
+      "legacy_kp": 0.03,
+      "legacy_max_buf": 15,
+      "lpf_cutoff_hz": 0.0,
+      "mode": "LEGACY_FORESIGHT",
+      "nlf_max_acceleration_deg_s2": 0.0,
+      "nlf_max_jerk_deg_s3": 0.0,
+      "nlf_max_velocity_deg_s": 0.0
+    },
+    "servo_step_num": 3,
+    "start_match_threshold_rad": 0.01,
+    "valid": true
+  },
+  "plan_fingerprint": "61da9b56b20bf672ecc04d106b2b9a3d8487ea6906fdc7eae2a4f0acde684785",
+  "raw_semantic": "AUTHORITATIVE RECORDED EVIDENCE",
+  "recording_semantic": "OBSERVATIONAL ONLY \u2014 NO MOTION AUTHORITY",
+  "recording_started_at": "2026-09-11T06:20:09.554Z",
+  "result": {
+    "combined_state": "COMPLETED",
+    "duration_s": 28.032,
+    "raw_observation_count": 299,
+    "reason": "BOTH_DRIVERS_COMPLETED",
+    "recording_ended_at": "2026-09-11T06:20:39.644Z",
+    "recording_started_at": "2026-09-11T06:20:09.554Z",
+    "sample_counts": {
+      "actual_left": 299,
+      "actual_packets_left": 281,
+      "actual_packets_right": 284,
+      "actual_right": 299,
+      "commanded_left": 280,
+      "commanded_right": 280,
+      "observations": 299,
+      "planned": 1169,
+      "torque_left": 299,
+      "torque_right": 299
+    },
+    "status": "COMPLETED",
+    "torque_availability": {
+      "left": true,
+      "right": true
+    },
+    "trajectory_id": "p5-a7a29172bf754cf2b2b407a2fa9658fd"
+  },
+  "robot_configuration_revision": "sha256:82ae4bfc836ca225df3e860215da6afc2a920ea271d00fef8584d775e401eb98",
+  "run_id": "exp-20260911T062005656Z-24aa86b2",
+  "schema_version": "jaka-dual-arm-experiment-run/v1",
+  "speed_acceleration_profile": [
+    {
+      "acceleration_percent": 100,
+      "identifier": "W0",
+      "speed_percent": 100
+    },
+    {
+      "acceleration_percent": 100,
+      "identifier": "W1",
+      "speed_percent": 100
+    },
+    {
+      "acceleration_percent": 100,
+      "identifier": "W2",
+      "speed_percent": 100
+    },
+    {
+      "acceleration_percent": 100,
+      "identifier": "W3",
+      "speed_percent": 100
+    },
+    {
+      "acceleration_percent": 100,
+      "identifier": "W4",
+      "speed_percent": 100
+    },
+    {
+      "acceleration_percent": 100,
+      "identifier": "W5",
+      "speed_percent": 100
+    },
+    {
+      "acceleration_percent": 100,
+      "identifier": "W6",
+      "speed_percent": 100
+    },
+    {
+      "acceleration_percent": 100,
+      "identifier": "W7",
+      "speed_percent": 100
+    },
+    {
+      "acceleration_percent": 100,
+      "identifier": "W8",
+      "speed_percent": 100
+    }
+  ],
+  "state": "CLOSED",
+  "trajectory_name": "Object_Global_Plan",
+  "units": {
+    "joint_position": "radian",
+    "joint_torque": "newton_meter",
+    "rotation": "radian",
+    "time": "second",
+    "translation": "meter",
+    "wall_time": "unix_epoch_millisecond"
+  },
+  "updated_at": "2026-09-11T06:20:39.644Z",
+  "validation_generation": 5,
+  "validation_report_version": "PHASE4C_UNIFIED_VALIDATION_V3_GRASP_CALIBRATION_IDENTITY"
+}

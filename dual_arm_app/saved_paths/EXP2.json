@@ -1,0 +1,154 @@
+{
+  "schema": "jaka-dual-arm-center-path",
+  "schema_version": 1,
+  "name": "EXP2",
+  "saved_at": "2026-09-09T06:39:18+00:00",
+  "path": {
+    "waypoints": [
+      {
+        "identifier": "W0",
+        "translation_m": [
+          0.06110927715005761,
+          0.03508992253314469,
+          0.162253436489684
+        ],
+        "rpy_rad": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "speed_percent": 100.0,
+        "acceleration_percent": 100.0
+      },
+      {
+        "identifier": "W1",
+        "translation_m": [
+          0.06110927715005761,
+          0.03508992253314469,
+          0.26222843734175605
+        ],
+        "rpy_rad": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "speed_percent": 100.0,
+        "acceleration_percent": 100.0
+      },
+      {
+        "identifier": "W2",
+        "translation_m": [
+          0.225580425965372,
+          0.0350899225331447,
+          0.262228437341756
+        ],
+        "rpy_rad": [
+          0.0,
+          0.0,
+          0.2687807048071268
+        ],
+        "speed_percent": 100.0,
+        "acceleration_percent": 100.0
+      },
+      {
+        "identifier": "W3",
+        "translation_m": [
+          0.225580425965372,
+          0.11,
+          0.368846138881798
+        ],
+        "rpy_rad": [
+          0.20071286397934787,
+          0.0,
+          0.0
+        ],
+        "speed_percent": 100.0,
+        "acceleration_percent": 100.0
+      },
+      {
+        "identifier": "W4",
+        "translation_m": [
+          -0.00801557880245185,
+          -0.04,
+          0.440851624573087
+        ],
+        "rpy_rad": [
+          0.0,
+          0.2897246558310587,
+          0.0
+        ],
+        "speed_percent": 100.0,
+        "acceleration_percent": 100.0
+      },
+      {
+        "identifier": "W5",
+        "translation_m": [
+          0.301021803338651,
+          -0.08,
+          0.150810889099096
+        ],
+        "rpy_rad": [
+          -0.06283185307179587,
+          0.0,
+          -0.17802358370342158
+        ],
+        "speed_percent": 100.0,
+        "acceleration_percent": 100.0
+      },
+      {
+        "identifier": "W6",
+        "translation_m": [
+          0.301021803338651,
+          0.16,
+          0.30643789998911
+        ],
+        "rpy_rad": [
+          0.0,
+          -0.34732052114687156,
+          0.0
+        ],
+        "speed_percent": 100.0,
+        "acceleration_percent": 100.0
+      },
+      {
+        "identifier": "W7",
+        "translation_m": [
+          0.0146296683087228,
+          0.0350899225331447,
+          0.630729283526491
+        ],
+        "rpy_rad": [
+          0.0,
+          0.0,
+          0.5235987755982988
+        ],
+        "speed_percent": 100.0,
+        "acceleration_percent": 100.0
+      },
+      {
+        "identifier": "W8",
+        "translation_m": [
+          0.06110927715005761,
+          0.03508992253314469,
+          0.162253436489684
+        ],
+        "rpy_rad": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "speed_percent": 100.0,
+        "acceleration_percent": 100.0
+      }
+    ],
+    "fixed_orientation_rpy_rad": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "orientation_source": "CURRENT CENTER PREVIEW ORIENTATION",
+    "segment_duration_s": 3.0,
+    "samples_per_segment": 13,
+    "candidate_attempts_per_arm": 3
+  }
+}

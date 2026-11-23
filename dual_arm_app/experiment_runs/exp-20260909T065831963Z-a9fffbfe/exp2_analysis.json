@@ -1,0 +1,201 @@
+{
+  "actual_source_semantics": {
+    "description": "Existing visualization Actual selection: fresh dual Port10000 when available, otherwise cached ROS JointState; no SDK call",
+    "external_metrology": false,
+    "fk_source": "OFFLINE CALIBRATED WEB URDF FK",
+    "observed_sources": [
+      "ros_joint_state_cache"
+    ]
+  },
+  "center_consistency": {
+    "averaged_center": false,
+    "definition": "CENTER_FROM_LEFT - CENTER_FROM_RIGHT",
+    "ground_truth": false,
+    "orientation_angle": {
+      "max": null,
+      "max_deg": null,
+      "max_location": {
+        "observation_index": null,
+        "time_from_start_s": null
+      },
+      "mean": null,
+      "mean_deg": null,
+      "rms": null,
+      "rms_deg": null,
+      "sample_count": 0
+    },
+    "translation_axes_m": {
+      "x": {
+        "mae": null,
+        "max_abs": null,
+        "max_abs_location": {
+          "observation_index": null,
+          "time_from_start_s": null
+        },
+        "mean": null,
+        "rmse": null,
+        "sample_count": 0
+      },
+      "y": {
+        "mae": null,
+        "max_abs": null,
+        "max_abs_location": {
+          "observation_index": null,
+          "time_from_start_s": null
+        },
+        "mean": null,
+        "rmse": null,
+        "sample_count": 0
+      },
+      "z": {
+        "mae": null,
+        "max_abs": null,
+        "max_abs_location": {
+          "observation_index": null,
+          "time_from_start_s": null
+        },
+        "mean": null,
+        "rmse": null,
+        "sample_count": 0
+      }
+    },
+    "translation_magnitude_m": {
+      "max": null,
+      "max_location": {
+        "observation_index": null,
+        "time_from_start_s": null
+      },
+      "mean": null,
+      "rms": null,
+      "sample_count": 0
+    }
+  },
+  "center_disagreement_definition": "CENTER_FROM_LEFT - CENTER_FROM_RIGHT",
+  "coverage": {
+    "overlap_end_s": 24.0,
+    "overlap_start_s": 0.0,
+    "skipped_status_counts": {},
+    "skipped_synchronized_samples": 0,
+    "source_unique_actual_samples": {
+      "left": 2,
+      "right": 2
+    },
+    "synchronized_candidate_samples": 0,
+    "time_alignment": "LINEAR INTERPOLATION OF EACH RECORDED ACTUAL JOINT STREAM TO A COMMON UNION RECEIVE-TIME TIMELINE \u2014 ANALYSIS ONLY",
+    "total_observations": 195,
+    "usable_fraction": null,
+    "usable_synchronized_samples": 0
+  },
+  "error": "No paired in-range fresh Actual samples were usable for offline FK",
+  "experiment": "EXP-2 Rigid-Grasp Preservation",
+  "model_identity": {
+    "calibration_revision": "sha256:166665d6fc9f63aab8fab9b36b6ff92884e82874c113be1cfd9f5cd185c9fc16",
+    "grasp_content_revision": "sha256:bc8523dc96bc17ed774c22ce262d54cb90ef3cf8a51022fd1d4bf7dfef63b71e",
+    "grasp_lock_revision": "sha256:a5d9d104f2ce25c760574efe637b573ed33a8a1bb93bb80c481b27928eb8e542",
+    "model_calibration_revision": "sha256:166665d6fc9f63aab8fab9b36b6ff92884e82874c113be1cfd9f5cd185c9fc16",
+    "urdf": "dual_jaka_a12_web.urdf"
+  },
+  "reference_relative_pose": {
+    "definition": "L_T_R_ref = inverse(O_T_L) * O_T_R",
+    "matrix": [
+      [
+        -0.9994938802857755,
+        -0.0317947628587031,
+        0.0010374613451802762,
+        0.5720429157970175
+      ],
+      [
+        0.031780677202859056,
+        -0.9994280857598553,
+        -0.011553785133855342,
+        0.0076697229440232575
+      ],
+      [
+        0.0014042178647147075,
+        -0.011514966311303566,
+        0.9999327145978565,
+        -0.00227011347988736
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ]
+    ],
+    "translation_m": [
+      0.5720429157970175,
+      0.0076697229440232575,
+      -0.00227011347988736
+    ]
+  },
+  "relative_orientation": {
+    "angle": {
+      "max": null,
+      "max_deg": null,
+      "max_location": {
+        "observation_index": null,
+        "time_from_start_s": null
+      },
+      "mean": null,
+      "mean_deg": null,
+      "rms": null,
+      "rms_deg": null,
+      "sample_count": 0
+    },
+    "error_definition": "angle(R_ref^T * R_actual); no Euler subtraction"
+  },
+  "relative_translation": {
+    "axes_m": {
+      "x": {
+        "mae": null,
+        "max_abs": null,
+        "max_abs_location": {
+          "observation_index": null,
+          "time_from_start_s": null
+        },
+        "mean": null,
+        "rmse": null,
+        "sample_count": 0
+      },
+      "y": {
+        "mae": null,
+        "max_abs": null,
+        "max_abs_location": {
+          "observation_index": null,
+          "time_from_start_s": null
+        },
+        "mean": null,
+        "rmse": null,
+        "sample_count": 0
+      },
+      "z": {
+        "mae": null,
+        "max_abs": null,
+        "max_abs_location": {
+          "observation_index": null,
+          "time_from_start_s": null
+        },
+        "mean": null,
+        "rmse": null,
+        "sample_count": 0
+      }
+    },
+    "error_definition": "translation(L_T_R_actual) - translation(L_T_R_ref)",
+    "magnitude_m": {
+      "max": null,
+      "max_location": {
+        "observation_index": null,
+        "time_from_start_s": null
+      },
+      "mean": null,
+      "rms": null,
+      "sample_count": 0
+    }
+  },
+  "run_id": "exp-20260909T065831963Z-a9fffbfe",
+  "samples": [],
+  "schema_version": "jaka-dual-arm-exp2-rigid-grasp/v1",
+  "semantic": "ANALYSIS ONLY \u2014 ENCODER+URDF MODEL BASED \u2014 NOT EXTERNAL METROLOGY \u2014 NOT PHASE6 TIMING, FAULT, OR SAFETY AUTHORITY",
+  "status": "UNAVAILABLE"
+}

@@ -1,0 +1,304 @@
+{
+  "schema": "jaka-dual-arm-center-path",
+  "schema_version": 1,
+  "name": "PickPlace",
+  "saved_at": "2026-10-19T03:00:59+00:00",
+  "path": {
+    "waypoints": [
+      {
+        "identifier": "W0",
+        "translation_m": [
+          0.4331110714415935,
+          0.3020304027431636,
+          0.11083700989226349
+        ],
+        "rpy_rad": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "speed_percent": 100.0,
+        "acceleration_percent": 100.0
+      },
+      {
+        "identifier": "W1",
+        "translation_m": [
+          0.4339984465286985,
+          0.301702405075506,
+          -0.10562116501139507
+        ],
+        "rpy_rad": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "speed_percent": 100.0,
+        "acceleration_percent": 100.0
+      },
+      {
+        "identifier": "W2",
+        "translation_m": [
+          0.3488766275395978,
+          0.3016781719613857,
+          -0.1060951820293537
+        ],
+        "rpy_rad": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "speed_percent": 100.0,
+        "acceleration_percent": 100.0
+      },
+      {
+        "identifier": "W3",
+        "translation_m": [
+          0.3486754373631625,
+          0.30179002016275436,
+          -0.059349730988770374
+        ],
+        "rpy_rad": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "speed_percent": 100.0,
+        "acceleration_percent": 100.0
+      },
+      {
+        "identifier": "W4",
+        "translation_m": [
+          0.34855621063797826,
+          0.3017872280165791,
+          -0.02489694005776024
+        ],
+        "rpy_rad": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "speed_percent": 100.0,
+        "acceleration_percent": 100.0
+      },
+      {
+        "identifier": "W5",
+        "translation_m": [
+          0.35058006223043164,
+          0.30221877180429635,
+          0.24177121510571664
+        ],
+        "rpy_rad": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "speed_percent": 100.0,
+        "acceleration_percent": 100.0
+      },
+      {
+        "identifier": "W6",
+        "translation_m": [
+          0.3484022846263576,
+          -0.2994855486757113,
+          0.24201628010823728
+        ],
+        "rpy_rad": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "speed_percent": 100.0,
+        "acceleration_percent": 100.0
+      },
+      {
+        "identifier": "W7",
+        "translation_m": [
+          0.35,
+          -0.299868465206909,
+          -0.0197740180389006
+        ],
+        "rpy_rad": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "speed_percent": 100.0,
+        "acceleration_percent": 100.0
+      },
+      {
+        "identifier": "W8",
+        "translation_m": [
+          0.35,
+          -0.299940168986294,
+          -0.0634299489833677
+        ],
+        "rpy_rad": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "speed_percent": 100.0,
+        "acceleration_percent": 100.0
+      },
+      {
+        "identifier": "W9",
+        "translation_m": [
+          0.35,
+          -0.299979550895947,
+          -0.109804762418656
+        ],
+        "rpy_rad": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "speed_percent": 100.0,
+        "acceleration_percent": 100.0
+      },
+      {
+        "identifier": "W10",
+        "translation_m": [
+          0.3495758821007889,
+          -0.2999401689862935,
+          -0.06342994898336765
+        ],
+        "rpy_rad": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "speed_percent": 100.0,
+        "acceleration_percent": 100.0
+      },
+      {
+        "identifier": "W11",
+        "translation_m": [
+          0.3494089240412207,
+          -0.29986846520690874,
+          -0.019774018038900602
+        ],
+        "rpy_rad": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "speed_percent": 100.0,
+        "acceleration_percent": 100.0
+      },
+      {
+        "identifier": "W12",
+        "translation_m": [
+          0.3484022846263576,
+          -0.2994855486757113,
+          0.24201628010823728
+        ],
+        "rpy_rad": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "speed_percent": 100.0,
+        "acceleration_percent": 100.0
+      },
+      {
+        "identifier": "W13",
+        "translation_m": [
+          0.35058006223043164,
+          0.30221877180429635,
+          0.24177121510571664
+        ],
+        "rpy_rad": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "speed_percent": 100.0,
+        "acceleration_percent": 100.0
+      },
+      {
+        "identifier": "W14",
+        "translation_m": [
+          0.34855621063797826,
+          0.3017872280165791,
+          -0.02489694005776024
+        ],
+        "rpy_rad": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "speed_percent": 100.0,
+        "acceleration_percent": 100.0
+      },
+      {
+        "identifier": "W15",
+        "translation_m": [
+          0.3486754373631625,
+          0.30179002016275436,
+          -0.059349730988770374
+        ],
+        "rpy_rad": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "speed_percent": 100.0,
+        "acceleration_percent": 100.0
+      },
+      {
+        "identifier": "W16",
+        "translation_m": [
+          0.3488766275395978,
+          0.3016781719613857,
+          -0.1060951820293537
+        ],
+        "rpy_rad": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "speed_percent": 100.0,
+        "acceleration_percent": 100.0
+      },
+      {
+        "identifier": "W17",
+        "translation_m": [
+          0.4339984465286985,
+          0.301702405075506,
+          -0.10562116501139507
+        ],
+        "rpy_rad": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "speed_percent": 100.0,
+        "acceleration_percent": 100.0
+      },
+      {
+        "identifier": "W18",
+        "translation_m": [
+          0.4331110714415935,
+          0.3020304027431636,
+          0.11083700989226349
+        ],
+        "rpy_rad": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "speed_percent": 100.0,
+        "acceleration_percent": 100.0
+      }
+    ],
+    "fixed_orientation_rpy_rad": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "orientation_source": "CURRENT CENTER PREVIEW ORIENTATION",
+    "segment_duration_s": 3.0,
+    "samples_per_segment": 13,
+    "candidate_attempts_per_arm": 3
+  }
+}
