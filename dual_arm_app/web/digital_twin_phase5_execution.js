@@ -13,6 +13,12 @@ const STATUS_ENDPOINT = "/api/digital-twin/phase5/execution";
 const ARTIFACT_ENDPOINT = "/api/digital-twin/phase5/execution-artifact";
 const PREPARE_ENDPOINT = "/api/digital-twin/phase5/prepare";
 const EXECUTE_ENDPOINT = "/api/digital-twin/phase5/execute";
+const LOOP_STATUS_ENDPOINT = "/api/digital-twin/phase5/loop/status";
+const LOOP_START_ENDPOINT = "/api/digital-twin/phase5/loop/start";
+const LOOP_HEARTBEAT_ENDPOINT = "/api/digital-twin/phase5/loop/heartbeat";
+const LOOP_CANCEL_ENDPOINT = "/api/digital-twin/phase5/loop/cancel";
+const LOOP_LEASE_STORAGE_KEY = "jaka-phase5-supervised-loop-v1";
+const LOOP_ACTIVE_STATES = new Set(["STARTING", "RUNNING", "WAITING_FOR_GATE", "WAITING_FOR_SETTLE"]);
 const REPLAN_FROM_CURRENT_ENDPOINT = "/api/digital-twin/phase5/replan-from-current";
 const MOVE_TO_INITIAL_ENDPOINT = "/api/digital-twin/phase5/move-to-initial";
 const FROZEN_PREVIEW_SOURCE_PREFIX = "PHASE 5 FROZEN ARTIFACT PREVIEW";
@@ -44,6 +50,10 @@ const state = {
   artifactFingerprint: null,
   artifactGeneration: null,
   lastOperatorAction: "READY FOR OPERATOR",
+  loopStatus: null,
+  loopStatusRequestInFlight: false,
+  loopLastPolledMs: 0,
+  latestPhase5Ready: false,
 };
 
 function element(id) {
@@ -642,6 +652,8 @@ function applyStatus(payload) {
     execution.trajectory_id && artifact.available === true && !executionMatchesArtifact,
   );
   const executionState = execution.state || "IDLE";
+  state.latestPhase5Ready = payload.ready_to_prepare === true
+    && frozenPreviewReady && !ACTIVE_STATES.has(executionState);
   const combinedResult = execution.state === "ABORT_REQUESTED"
     ? "ABORT_REQUESTED"
     : (feedback.authoritative === true
@@ -780,10 +792,16 @@ function applyStatus(payload) {
 
   const prepareButton = element("digitalTwinPhase5Prepare");
   if (prepareButton) {
+    const repeat = state.loopStatus?.repeatability || {};
+    const sameArtifact = repeat.artifact_fingerprint === state.artifactFingerprint
+      && Number(repeat.artifact_generation) === Number(state.artifactGeneration);
+    const loopActive = LOOP_ACTIVE_STATES.has(state.loopStatus?.loop?.state);
     prepareButton.disabled = state.requestInFlight
       || !frozenPreviewReady
       || payload.ready_to_prepare !== true
-      || ACTIVE_STATES.has(execution.state);
+      || ACTIVE_STATES.has(execution.state)
+      || loopActive
+      || (selectedLoopMode() !== "once" && (!repeat.eligible || !sameArtifact));
   }
   const replanButton = element("digitalTwinPhase5ReplanFromCurrent");
   if (replanButton) {
@@ -800,12 +818,20 @@ function applyStatus(payload) {
 }
 
 async function refreshPhase5ExecutionStatus() {
+  // Browsers can restore a previous <select> value *after* module startup
+  // without dispatching "change". Reconcile against the existing status
+  // poll so Cycles and the Execute label never become out of sync.
+  if (selectedLoopMode() !== lastRenderedLoopMode
+      || (element("digitalTwinPhase5LoopCount")?.value || "2") !== lastRenderedLoopCount) {
+    showLoopConfiguration();
+  }
   if (state.statusRequestInFlight) return;
   state.statusRequestInFlight = true;
   try {
     const payload = await requestJson(STATUS_ENDPOINT);
     await ensureFrozenArtifactPreview(payload.artifact || {});
     applyStatus(payload);
+    void refreshPhase5LoopStatus();
   } catch (error) {
     setText(
       "digitalTwinPhase5Error",
@@ -818,8 +844,224 @@ async function refreshPhase5ExecutionStatus() {
   }
 }
 
+function selectedLoopMode() {
+  return element("digitalTwinPhase5LoopMode")?.value || "once";
+}
+
+function loopLease() {
+  try {
+    const data = JSON.parse(window.sessionStorage.getItem(LOOP_LEASE_STORAGE_KEY) || "null");
+    if (data && typeof data.id === "string" && typeof data.lease_token === "string") return data;
+  } catch (_error) {
+    // A blocked sessionStorage means supervised loop execution must be refused.
+  }
+  return null;
+}
+
+function removeLoopLease() {
+  try { window.sessionStorage.removeItem(LOOP_LEASE_STORAGE_KEY); } catch (_error) { /* no-op */ }
+}
+
+let lastRenderedLoopMode = null;
+let lastRenderedLoopCount = null;
+
+function showLoopConfiguration() {
+  const mode = selectedLoopMode();
+  const countValue = element("digitalTwinPhase5LoopCount")?.value || "2";
+  lastRenderedLoopMode = mode;
+  lastRenderedLoopCount = countValue;
+  const group = element("digitalTwinPhase5LoopCountGroup");
+  if (group) group.hidden = mode !== "count";
+  const report = state.loopStatus;
+  const loop = (report && report.loop) || {};
+  const repeat = (report && report.repeatability) || {};
+  const active = LOOP_ACTIVE_STATES.has(loop.state);
+  const progress = element("digitalTwinPhase5LoopProgress");
+  const cancel = element("digitalTwinPhase5LoopCancel");
+  const lease = loopLease();
+  if (cancel) {
+    cancel.disabled = !active || !lease || lease.id !== loop.id
+      || loop.cancel_after_current_requested === true;
+  }
+  const eligibility = element("digitalTwinPhase5LoopEligibility");
+  if (eligibility) {
+    if (mode === "once") {
+      eligibility.textContent = "ONCE — current single-use Prepare / Execute behavior.";
+    } else if (!report) {
+      eligibility.textContent = "CHECKING — validating joint closure and frozen artifact…";
+    } else {
+      const sameArtifact = repeat.artifact_fingerprint === state.artifactFingerprint
+        && Number(repeat.artifact_generation) === Number(state.artifactGeneration);
+      eligibility.textContent = repeat.eligible && sameArtifact
+        ? "JOINT-CLOSED — maximum start/end joint difference "
+          + Number(repeat.max_start_end_joint_delta_rad).toFixed(6) + " rad. Every cycle rechecks real Start State."
+        : "LOOP BLOCKED — " + (repeat.reason || "NO REPEATABILITY EVIDENCE")
+          + (sameArtifact ? "" : " / FROZEN ARTIFACT CHANGED");
+    }
+  }
+  if (progress) {
+    if (active || (loop.id && ["COMPLETED", "FAILED", "STOPPED", "CANCELLED"].includes(loop.state))) {
+      const n = Number(loop.completed_cycles) || 0;
+      progress.textContent = "LOOP " + (loop.state || "UNKNOWN") + " · Completed "
+        + n + (loop.mode === "forever" ? " / ∞" : " / " + loop.count)
+        + " · Current " + (loop.current_cycle || "-")
+        + (loop.reason ? " · " + loop.reason : "")
+        + (active && (!lease || lease.id !== loop.id)
+          ? " · Another tab controls this loop. Use STOP BOTH if necessary." : "");
+    } else {
+      progress.textContent = "LOOP IDLE — no repeated motion requested";
+    }
+  }
+  const btn = element("digitalTwinPhase5Prepare");
+  if (btn) {
+    const count = Number(element("digitalTwinPhase5LoopCount")?.value || 2);
+    btn.textContent = mode === "forever" ? "Execute ∞ — REAL MOTION"
+      : mode === "count" ? "Execute " + count + " cycles — REAL MOTION"
+      : "Execute — REAL MOTION";
+  }
+  if (btn && mode !== "once") {
+    const sameArtifact = repeat.artifact_fingerprint === state.artifactFingerprint
+      && Number(repeat.artifact_generation) === Number(state.artifactGeneration);
+    btn.disabled = state.requestInFlight || !state.latestPhase5Ready
+      || !repeat.eligible || !sameArtifact || active;
+  } else if (btn && active) {
+    btn.disabled = true;
+  }
+}
+
+async function refreshPhase5LoopStatus(force = false) {
+  if (state.loopStatusRequestInFlight) return;
+  const now = performance.now();
+  if (!force && now - state.loopLastPolledMs < 950) return;
+  state.loopLastPolledMs = now;
+  state.loopStatusRequestInFlight = true;
+  try {
+    const payload = await requestJson(LOOP_STATUS_ENDPOINT);
+    state.loopStatus = payload;
+    const loop = payload.loop || {};
+    const lease = loopLease();
+    if (lease && lease.id === loop.id && LOOP_ACTIVE_STATES.has(loop.state)
+        && document.visibilityState !== "hidden") {
+      const renewed = await requestJson(LOOP_HEARTBEAT_ENDPOINT, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(lease),
+      });
+      if (renewed.ok !== true) {
+        setText("digitalTwinPhase5LoopProgress", "LOOP LEASE FAILED — existing STOP BOTH available.");
+      }
+    } else if (lease && lease.id === loop.id && !LOOP_ACTIVE_STATES.has(loop.state)) {
+      removeLoopLease();
+    }
+    showLoopConfiguration();
+  } catch (error) {
+    const eligibility = element("digitalTwinPhase5LoopEligibility");
+    if (selectedLoopMode() !== "once" && eligibility) {
+      eligibility.textContent = "LOOP BLOCKED — " + (error?.message || "Backend loop status unavailable");
+    }
+    const prepare = element("digitalTwinPhase5Prepare");
+    if (selectedLoopMode() !== "once" && prepare) prepare.disabled = true;
+  } finally {
+    state.loopStatusRequestInFlight = false;
+  }
+}
+
+async function cancelPhase5LoopAfterCurrent() {
+  if (state.requestInFlight) return;
+  const lease = loopLease();
+  if (!lease) {
+    setText("digitalTwinPhase5LoopProgress", "NO OPERATOR LOOP LEASE — use STOP BOTH.");
+    return;
+  }
+  state.requestInFlight = true;
+  try {
+    const result = await requestJson(LOOP_CANCEL_ENDPOINT, {
+      method: "POST", headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(lease),
+    });
+    if (result.ok !== true) throw new Error(errorText(result, "CANCEL REJECTED"));
+    setOperatorAction("LOOP CANCEL REQUESTED — CURRENT CYCLE CONTINUES; STOP BOTH FOR IMMEDIATE STOP");
+  } catch (error) {
+    setText("digitalTwinPhase5LoopProgress", "LOOP CANCEL FAILED — " + (error?.message || error));
+  } finally {
+    state.requestInFlight = false;
+    await refreshPhase5LoopStatus(true);
+  }
+}
+
+async function executePhase5LoopRealMotion() {
+  if (state.requestInFlight) return;
+  if (!currentFrozenPreviewReady()) {
+    setText("digitalTwinPhase5Error", "LOOP BLOCKED — VERIFIED FROZEN GHOST REQUIRED");
+    return;
+  }
+  const mode = selectedLoopMode();
+  if (mode === "once") return;
+  const rawCount = element("digitalTwinPhase5LoopCount")?.value || "0";
+  const count = mode === "forever" ? 0 : Number(rawCount);
+  if (mode === "count" && (!Number.isInteger(count) || count < 2 || count > 999)) {
+    setText("digitalTwinPhase5Error", "FIXED LOOP COUNT MUST BE 2–999");
+    return;
+  }
+  const preview = state.loopStatus?.repeatability || {};
+  if (preview.eligible !== true
+      || preview.artifact_fingerprint !== state.artifactFingerprint
+      || Number(preview.artifact_generation) !== Number(state.artifactGeneration)) {
+    setText("digitalTwinPhase5Error", "LOOP BLOCKED — CLOSED FROZEN TRAJECTORY CHECK NOT READY");
+    return;
+  }
+  // A browser with unusable session storage cannot maintain a supervision lease.
+  try {
+    window.sessionStorage.setItem(LOOP_LEASE_STORAGE_KEY + "-probe", "1");
+    window.sessionStorage.removeItem(LOOP_LEASE_STORAGE_KEY + "-probe");
+  } catch (_error) {
+    setText("digitalTwinPhase5Error", "LOOP BLOCKED — sessionStorage unavailable for operator heartbeat");
+    return;
+  }
+  const message = "REAL ROBOT MOTION — supervised repetition on BOTH arms.\n\n"
+    + (mode === "forever" ? "FOREVER (until STOP, browser heartbeat loss or 60-minute safety cap)"
+      : ("FIXED: " + count + " complete cycles"))
+    + "\n\nEach iteration obtains a fresh Phase-5 Prepare authority, checks the frozen artifact"
+    + " and actual Start State. It will NOT automatically return to the start."
+    + "\n\nDo not leave this browser tab unattended. Keep STOP BOTH / E-stop ready."
+    + "\n\nConfirm start of repeated real robot motion?";
+  if (!window.confirm(message)) {
+    setOperatorAction("OPERATOR CANCELLED LOOP — NO MOTION");
+    return;
+  }
+  state.requestInFlight = true;
+  try {
+    const response = await requestJson(LOOP_START_ENDPOINT, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ mode, count, operator_confirmed: true }),
+    });
+    if (response.ok !== true || response.accepted !== true) {
+      throw new Error(errorText(response, "LOOP START REJECTED"));
+    }
+    window.sessionStorage.setItem(
+      LOOP_LEASE_STORAGE_KEY,
+      JSON.stringify({ id: response.id, lease_token: response.lease_token }),
+    );
+    setOperatorAction("SUPERVISED LOOP REQUEST ACCEPTED — " + mode.toUpperCase());
+    setText("digitalTwinPhase5Error", "SUPERVISED LOOP ACTIVE — USE STOP BOTH FOR IMMEDIATE STOP");
+    await refreshPhase5LoopStatus(true);
+  } catch (error) {
+    setText("digitalTwinPhase5Error", "LOOP BLOCKED / FAILED — " + (error?.message || error));
+    setOperatorAction("LOOP NOT ACCEPTED OR LEASE FAILED — CHECK STATUS");
+  } finally {
+    state.requestInFlight = false;
+    await refreshPhase5ExecutionStatus();
+    showLoopConfiguration();
+  }
+}
+
 async function executePhase5RealMotion() {
   if (state.requestInFlight) return;
+  if (selectedLoopMode() !== "once") {
+    await executePhase5LoopRealMotion();
+    return;
+  }
   if (!currentFrozenPreviewReady()) {
     setText("digitalTwinPhase5Error", "EXECUTE BLOCKED — PREVIEW THE CURRENT FROZEN GHOST FIRST");
     return;
@@ -1014,14 +1256,31 @@ export function bindPhase5ExecutionControls() {
   if (previewPlay) previewPlay.addEventListener("click", playFrozenArtifactPreview);
   if (previewReset) previewReset.addEventListener("click", resetFrozenArtifactPreview);
   if (prepareButton) prepareButton.addEventListener("click", executePhase5RealMotion);
+  const loopMode = element("digitalTwinPhase5LoopMode");
+  const loopCount = element("digitalTwinPhase5LoopCount");
+  const loopCancel = element("digitalTwinPhase5LoopCancel");
+  const syncLoopChoice = () => {
+    showLoopConfiguration();
+    void refreshPhase5LoopStatus(true);
+  };
+  if (loopMode) {
+    loopMode.addEventListener("change", syncLoopChoice);
+    loopMode.addEventListener("input", syncLoopChoice);
+  }
+  if (loopCount) {
+    loopCount.addEventListener("change", showLoopConfiguration);
+    loopCount.addEventListener("input", showLoopConfiguration);
+  }
+  if (loopCancel) loopCancel.addEventListener("click", cancelPhase5LoopAfterCurrent);
+  showLoopConfiguration();
   if (replanButton) replanButton.addEventListener("click", replanFromCurrent);
   if (moveButton) moveButton.addEventListener("click", moveToInitial);
   window.addEventListener("dual-arm-phase5-authority-invalidated", (event) => {
     const reason = event && event.detail ? event.detail.reason : "AUTHORITY INVALIDATED";
     clearPendingOperatorAuthority(reason);
   });
-  // Automatic work is read-only GET status + Frozen Ghost preview only;
-  // all POST endpoints remain explicit click-handler-only actions.
+  // Automatic work includes read-only status and operator heartbeat ONLY for
+  // an explicitly started, browser-supervised loop. It never starts motion itself.
   refreshPhase5ExecutionStatus();
   statusPollId = window.setInterval(refreshPhase5ExecutionStatus, STATUS_POLL_INTERVAL_MS);
 }

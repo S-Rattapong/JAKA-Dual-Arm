@@ -1,0 +1,27 @@
+#validationPanel { min-width:0; scroll-margin-top:12rem; }
+#validationPanel summary { cursor:pointer; font-weight:700; }
+#validationPanel .v-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(min(13rem,100%),1fr)); gap:.65rem; margin:.7rem 0; }
+#validationPanel label { display:grid; gap:.25rem; align-content:start; }
+#validationPanel input,#validationPanel select { box-sizing:border-box; width:100%; min-width:0; }
+#validationPanel fieldset { min-width:0; margin:.65rem 0; padding:.55rem; }
+#validationPanel .v-actions { display:flex; flex-wrap:wrap; align-items:center; gap:.45rem; margin:.6rem 0; }
+#validationPanel button { white-space:normal; }
+#validationPanel .v-card { text-align:left; padding:.7rem; }
+#validationPanel .v-scroll { overflow:auto; max-height:22rem; }
+#validationPanel pre { white-space:pre-wrap; overflow-wrap:anywhere; font-size:.85em; }
+#validationPanel img { max-width:100%; height:auto; }
+#validationPanel td { text-align:left; vertical-align:top; }
+#validationMessage { font-weight:600; overflow-wrap:anywhere; }
+#validationPanel [hidden] { display:none; }
+
+#validationPanel .v-method-card {padding:.75rem;border:1px solid var(--border-color,#4a5a63);border-radius:.55rem;min-width:0;display:flex;flex-direction:column;gap:.35rem;background:transparent;}
+#validationPanel .v-method-card .v-card {font-weight:700;text-align:left;width:100%;margin:0;}
+#validationPanel .v-method-source {font-size:.81rem;line-height:1.45;margin:0;opacity:.92;}
+#validationPanel .v-method-desc {font-size:.78rem;line-height:1.45;margin:0;opacity:.76;}
+#validationPanel .v-method-status {font-size:.79rem;border-top:1px solid var(--border-color,#4a5a63);padding-top:.45rem;line-height:1.35;margin-top:auto;}
+
+/* Full-width, independent dropdown placed after Legacy utilities. */
+#validationPanel.hmi-validation-bay { scroll-margin-top: 6rem; }
+#validationPanel.hmi-validation-bay .validation-panel-content { margin-top: 0; }
+#validationPanel.hmi-validation-bay > summary { color: var(--text); }
+#validationPanel.hmi-validation-bay > summary::marker { color: var(--accent, #76b9da); }

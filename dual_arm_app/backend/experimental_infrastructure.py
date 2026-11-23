@@ -58,6 +58,12 @@ except ImportError:
         from experimental_rigid_grasp import EXP2_SCHEMA_VERSION, EXP2_SEMANTIC, analyze_rigid_grasp, exp2_input_provenance
 
 
+try:
+    from .experimental_endpoint_evidence import EndpointCapture, driver_dispatch_summary
+except ImportError:
+    from experimental_endpoint_evidence import EndpointCapture, driver_dispatch_summary
+
+
 SCHEMA_VERSION = "jaka-dual-arm-experiment-run/v1"
 EXP2_URDF_PATH = Path(__file__).resolve().parents[1] / "web" / "assets" / "dual_jaka_a12_web.urdf"
 ALIGNMENT_SEMANTIC = "ANALYSIS ONLY — NOT PHASE6 TIMING OR FAULT AUTHORITY"
@@ -298,6 +304,10 @@ class ExperimentRunStore:
             if exp2_analysis is not None:
                 self.write_exp2_analysis(run_id, exp2_analysis)
             self._write_csv(run_dir, raw)
+
+    def write_aligned(self, run_id, aligned):
+        with self._lock:
+            self._write_json(self._run_dir(run_id, require_exists=True) / "aligned.json", aligned)
 
     def load(self, run_id: str) -> dict[str, Any]:
         with self._lock:
@@ -603,8 +613,13 @@ def align_planned_to_actual(raw: Mapping[str, Any]) -> dict[str, Any]:
 class ExperimentRecorder:
     """Single armed/active observational recorder bound after Phase5 acceptance."""
 
-    def __init__(self, store: ExperimentRunStore, *, actual_stale_after_ms: int = 500, expected_packet_period_ms: int = 100, wall_time_ms: Callable[[], int] = lambda: time.time_ns() // 1_000_000):
+    def __init__(self, store: ExperimentRunStore, *, actual_stale_after_ms: int = 500, expected_packet_period_ms: int = 100, manual_endpoint_clock: bool = False, monotonic_ns: Callable[[], int] = time.monotonic_ns, wall_time_ms: Callable[[], int] = lambda: time.time_ns() // 1_000_000):
         self.store = store
+        self._monotonic_ns = monotonic_ns
+        self._manual_endpoint_clock = manual_endpoint_clock
+        self._endpoint = None
+        self._endpoint_worker = None
+        self._terminal_feedback = None
         if expected_packet_period_ms <= 0:
             raise ValueError("expected_packet_period_ms must be positive")
         self.expected_packet_period_ms = int(expected_packet_period_ms)
@@ -682,8 +697,16 @@ class ExperimentRecorder:
             "result": {"status": "PENDING", "sample_counts": {"planned": len(planned_samples), "observations": 0, "commanded_left": 0, "commanded_right": 0, "actual_left": 0, "actual_right": 0, "torque_left": 0, "torque_right": 0}},
         }
         raw = {"schema_version": SCHEMA_VERSION, "run_id": run_id, "semantic": "AUTHORITATIVE RECORDED EVIDENCE", "planned": {"joint_order": list(JOINT_ORDER), "common_timestamps_s": list(artifact.common_timestamps_s), "samples": planned_samples}, "plan_snapshot": checked_plan, "execution": {"trajectory_id": None, "start_time_unix_ns": None}, "observations": [], "result": None}
+        endpoint = None
+        if metadata.get("endpoint_evidence", False) is not False:
+            try:
+                endpoint = EndpointCapture(metadata["endpoint_evidence"], {
+                    side: planned_samples[-1][side]["joints_rad"] for side in ("left", "right")
+                })
+            except ValueError as error:
+                raise ExperimentError(str(error)) from error
         with self._lock:
-            if self._manifest and self._manifest.get("state") in {"ARMED", "RECORDING"}:
+            if self._manifest and self._manifest.get("state") in {"ARMED", "RECORDING", "FINALIZING"}:
                 raise ExperimentError("An experiment recorder is already armed")
             raw["actual_packet_schema"] = "port10000-packets/v2"
             raw["actual_packets"] = {"left": [], "right": []}
@@ -702,6 +725,8 @@ class ExperimentRecorder:
             self.store.create(manifest, raw)
             with self._packet_lock:
                 self._manifest, self._raw = manifest, raw
+                self._endpoint = endpoint
+                self._terminal_feedback = None
             self._last_signature, self._error = None, None
         return self.state()
 
@@ -711,6 +736,10 @@ class ExperimentRecorder:
                 raise ExperimentError("Only an unbound ARMED recorder may be disarmed")
             with self._packet_lock:
                 self._manifest["state"] = "DISARMED"
+            if self._endpoint:
+                self._raw["endpoint_evidence"] = self._endpoint.snapshot("DISARMED", self._monotonic_ns())
+                with self._packet_lock:
+                    self._endpoint = None
             self._manifest["updated_at"] = _utc_iso()
             self._manifest["result"]["status"] = "DISARMED_BEFORE_EXECUTION"
             self._update_counts()
@@ -734,6 +763,8 @@ class ExperimentRecorder:
             if not isinstance(trajectory_id, str) or not trajectory_id:
                 raise ExperimentError("Accepted execution is missing trajectory_id")
             with self._packet_lock:
+                if self._endpoint:
+                    self._endpoint.bind(self._monotonic_ns())
                 self._manifest["state"] = "RECORDING"
                 self._manifest["active_trajectory_id"] = trajectory_id
                 self._manifest["recording_started_at"] = _utc_iso()
@@ -752,6 +783,8 @@ class ExperimentRecorder:
 
     def ingest_actual_packet(self, packet: Mapping[str, Any]) -> None:
         """Memory-only acquisition, independent of status polling and disk locks."""
+        capture = self._endpoint
+        delivered = self._monotonic_ns() if capture else None
         side = packet.get("side")
         if side not in ("left", "right"):
             raise ExperimentError("Invalid actual packet side")
@@ -764,7 +797,11 @@ class ExperimentRecorder:
                     "controller_joint_position_mapping", "controller_pose_semantic", "tracking_semantic"):
             checked[key] = deepcopy(packet.get(key))
         with self._packet_lock:
-            if self._manifest is None or self._manifest.get("state") not in {"ARMED", "RECORDING"}:
+            state = self._manifest.get("state") if self._manifest else None
+            if (capture and capture is self._endpoint and state in {"ARMED", "RECORDING", "FINALIZING"}
+                    and "endpoint_evidence" not in self._raw):
+                capture.append(checked, delivered, self._monotonic_ns())
+            if state not in {"ARMED", "RECORDING"}:
                 return
             if self._packet_in_execution(checked):
                 self._raw["actual_packets"][side].append(checked)
@@ -845,11 +882,82 @@ class ExperimentRecorder:
             if signature != self._last_signature:
                 self._raw["observations"].append(observation)
                 self._last_signature = signature
-                self._update_counts()
+                self._update_counts(observation)
             if feedback.get("authoritative") is True and feedback.get("terminal") is True and feedback.get("combined_state") in TERMINAL_STATES:
+                if self._endpoint:
+                    self._terminal_feedback = deepcopy(feedback)
+                    self._terminal_wall_ms = capture_ms
+                    with self._packet_lock:
+                        self._endpoint.terminal = self._monotonic_ns()
+                        self._manifest["state"] = "FINALIZING"
+                    if not self._manual_endpoint_clock:
+                        self._start_endpoint_worker()
+                    return
                 self._close(feedback)
 
-    def _update_counts(self) -> None:
+    def _start_endpoint_worker(self):
+        # Caller owns _lock. Each arm creates a distinct capture (generation).
+        worker = threading.Thread(target=self._wait_for_endpoint, args=(self._endpoint,),
+                                  name="endpoint-finalizer", daemon=True)
+        try:
+            worker.start()
+            self._endpoint_worker = worker
+        except RuntimeError as error:
+            self._error = f"Endpoint worker start failed: {error}"
+
+    def _wait_for_endpoint(self, capture):
+        while True:
+            with self._lock:
+                if capture is not self._endpoint or self._manifest["state"] != "FINALIZING":
+                    return
+                with self._packet_lock:
+                    now = self._monotonic_ns()
+                    outcome = capture.outcome(now)
+                    if outcome:
+                        self._manifest["state"] = "CLOSED"
+                if outcome:
+                    try:
+                        self._finalize_endpoint(outcome, now)
+                    finally:
+                        self._endpoint_worker = None
+                    return
+                delay = (capture.deadline - now) / 1e9
+            capture.wake_finalizer.wait(min(delay, threading.TIMEOUT_MAX))
+
+    def finalize_endpoint(self):
+        """Synchronize a ready replay tick or retry a failed worker from recorder GET."""
+        with self._lock:
+            if not self._manifest or self._manifest["state"] != "FINALIZING":
+                return
+            with self._packet_lock:
+                ready = self._endpoint.outcome(self._monotonic_ns()) is not None
+                if ready:
+                    self._endpoint.wake_finalizer.set()
+            if self._endpoint_worker is None and (ready or not self._manual_endpoint_clock):
+                self._start_endpoint_worker()
+            if not ready:
+                return
+            worker = self._endpoint_worker
+        if worker:
+            worker.join()
+
+    def _finalize_endpoint(self, outcome, now):
+        # Once frozen, callbacks never modify this run again, including retries.
+        try:
+            if "endpoint_evidence" not in self._raw:
+                evidence = self._endpoint.snapshot(outcome, now)
+                evidence["driver_dispatch_summary"] = driver_dispatch_summary(self._terminal_feedback)
+                self._raw["endpoint_evidence"] = evidence
+            self._error = "Endpoint tail timed out before both arms qualified" if outcome == "TIMEOUT" else None
+            self._close(self._terminal_feedback)
+            with self._packet_lock:
+                self._endpoint = None
+        except Exception as error:
+            self._error = f"Endpoint finalization failed: {error}"
+            with self._packet_lock:
+                self._manifest["state"] = "FINALIZING"
+
+    def _update_counts(self, observation: Mapping[str, Any] | None = None) -> None:
         observations = self._raw["observations"]
         counts = self._manifest["result"]["sample_counts"]
         counts["observations"] = len(observations)
@@ -858,24 +966,29 @@ class ExperimentRecorder:
                 counts[f"actual_packets_{side}"] = len(self._raw["actual_packets"][side])
         for kind in ("commanded", "actual", "torque"):
             for side in ("left", "right"):
-                counts[f"{kind}_{side}"] = sum(1 for sample in observations if sample[kind][side].get("valid") is True)
+                if observation is not None and observation[kind][side].get("valid") is True:
+                    counts[f"{kind}_{side}"] += 1
 
     def _close(self, feedback: Mapping[str, Any]) -> None:
         with self._packet_lock:
             self._manifest["state"] = "CLOSED"
         self._update_counts()
-        now = _utc_iso()
+        now = _utc_iso(self._terminal_wall_ms * 1_000_000) if self._terminal_feedback else _utc_iso()
         result = {"status": feedback.get("combined_state"), "combined_state": feedback.get("combined_state"), "reason": feedback.get("reason"), "trajectory_id": feedback.get("trajectory_id"), "duration_s": (feedback.get("common_timeline") or {}).get("duration_s"), "recording_started_at": self._manifest.get("recording_started_at"), "recording_ended_at": now, "raw_observation_count": len(self._raw["observations"]), "sample_counts": deepcopy(self._manifest["result"]["sample_counts"]), "torque_availability": {side: self._manifest["result"]["sample_counts"][f"torque_{side}"] > 0 for side in ("left", "right")}}
         self._manifest["updated_at"] = now
         self._manifest["result"] = result
         self._raw["result"] = deepcopy(result)
+        run_id = self._manifest["run_id"]
+        if self._endpoint:
+            self.store.update(run_id, self._manifest, self._raw)
         aligned = align_planned_to_actual(self._raw)
         # EXP-0 raw/aligned evidence is the authoritative recording product.
         # Persist it first so a derived EXP-1 analysis defect can never prevent
         # terminal evidence from being closed safely.
-        self.store.update(
-            self._manifest["run_id"], self._manifest, self._raw, aligned
-        )
+        if self._endpoint:
+            self.store.write_aligned(run_id, aligned)
+        else:
+            self.store.update(run_id, self._manifest, self._raw, aligned)
         exp1_analysis = analyze_trajectory_tracking(
             self._raw, aligned, self._manifest
         )
@@ -920,12 +1033,14 @@ class ExperimentRecorder:
         with self._lock:
             manifest = deepcopy(self._manifest)
             error = self._error
+            terminal_status = (self._terminal_feedback or {}).get("combined_state")
             with self._packet_lock:
                 packet_counts = {f"actual_packets_{side}": len(self._raw["actual_packets"][side]) for side in ("left", "right")} if self._raw else {}
         counts = deepcopy((manifest or {}).get("result", {}).get("sample_counts", {}))
         counts.update(packet_counts)
         return {
             "ok": error is None,
+            "terminal_status": (manifest or {}).get("result", {}).get("combined_state") or terminal_status,
             "schema_version": SCHEMA_VERSION,
             "state": manifest.get("state") if manifest else "IDLE",
             "run_id": manifest.get("run_id") if manifest else None,

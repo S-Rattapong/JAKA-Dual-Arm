@@ -410,7 +410,37 @@ class Phase5ExecutionCoordinator:
             "semantic": "NO MOTION — PENDING OPERATOR AUTHORITY PREPARED",
         }
 
-    def execute(self, operator_confirmed: Any) -> dict[str, Any]:
+    def execute(
+        self,
+        operator_confirmed: Any,
+        *,
+        common_start_lead_s: float | None = None,
+        acceptance_timeout_s: float | None = None,
+    ) -> dict[str, Any]:
+        # Supervised repeats may require extra time for both JAKA drivers to
+        # finish their servo-filter handshake. The ordinary Once path retains
+        # its established 2s lead and default 0.75s transport timeout.
+        # Extra time does NOT relax any identity, STOP, or safety interlock.
+        import math
+
+        lead_ns = self._common_start_lead_ns
+        if common_start_lead_s is not None:
+            if (
+                isinstance(common_start_lead_s, bool)
+                or not isinstance(common_start_lead_s, (int, float))
+                or not math.isfinite(common_start_lead_s)
+                or not 2.0 <= common_start_lead_s <= 8.0
+            ):
+                return {"ok": False, "error": "INVALID_LOOP_START_LEAD"}
+            lead_ns = int(common_start_lead_s * 1e9)
+        if acceptance_timeout_s is not None and (
+            isinstance(acceptance_timeout_s, bool)
+            or not isinstance(acceptance_timeout_s, (int, float))
+            or not math.isfinite(acceptance_timeout_s)
+            or not 0.75 <= acceptance_timeout_s <= 2.0
+        ):
+            return {"ok": False, "error": "INVALID_LOOP_ACCEPTANCE_TIMEOUT"}
+
         now_ns = self._wall_clock_ns()
         with self._lock:
             self._refresh_execution_state_locked(now_ns)
@@ -460,7 +490,7 @@ class Phase5ExecutionCoordinator:
 
         artifact = readiness["artifact"]
         trajectory_id = str(self._trajectory_id_factory())
-        start_time_unix_ns = self._wall_clock_ns() + self._common_start_lead_ns
+        start_time_unix_ns = self._wall_clock_ns() + lead_ns
         with self._lock:
             self._execution = {
                 "state": "PREPARING",
@@ -475,14 +505,17 @@ class Phase5ExecutionCoordinator:
             }
 
         try:
-            receipt = self._transport.submit_pair(
-                common_timestamps_s=artifact.common_timestamps_s,
-                left_positions_rad=artifact.left_positions_rad,
-                right_positions_rad=artifact.right_positions_rad,
-                start_time_unix_ns=start_time_unix_ns,
-                trajectory_id=trajectory_id,
-                expected_stop_generation=readiness["stop_generation"],
-            )
+            request_kwargs = {
+                "common_timestamps_s": artifact.common_timestamps_s,
+                "left_positions_rad": artifact.left_positions_rad,
+                "right_positions_rad": artifact.right_positions_rad,
+                "start_time_unix_ns": start_time_unix_ns,
+                "trajectory_id": trajectory_id,
+                "expected_stop_generation": readiness["stop_generation"],
+            }
+            if acceptance_timeout_s is not None:
+                request_kwargs["response_timeout_s"] = float(acceptance_timeout_s)
+            receipt = self._transport.submit_pair(**request_kwargs)
             final_readiness = self._evaluate_readiness()
             final_identity = (
                 final_readiness["ready"]
@@ -496,8 +529,23 @@ class Phase5ExecutionCoordinator:
                 < start_time_unix_ns - MINIMUM_ACCEPTANCE_MARGIN_NS
             )
             if not final_identity:
+                # Preserve precise evidence to distinguish a genuine gate
+                # change from an acceptance-deadline issue after both
+                # controllers have entered servo mode. Fail closed either way.
+                changed = []
+                if not final_readiness["ready"]:
+                    changed.extend(final_readiness["blocking_reasons"])
+                if final_readiness["artifact_fingerprint"] != artifact.artifact_fingerprint:
+                    changed.append("FROZEN_ARTIFACT_FINGERPRINT_CHANGED")
+                if final_readiness["artifact_generation"] != readiness["artifact_generation"]:
+                    changed.append("FROZEN_ARTIFACT_GENERATION_CHANGED")
+                if final_readiness["stop_generation"] != readiness["stop_generation"]:
+                    changed.append("STOP_GENERATION_CHANGED")
+                if self._wall_clock_ns() >= start_time_unix_ns - MINIMUM_ACCEPTANCE_MARGIN_NS:
+                    changed.append("COMMON_START_MARGIN_EXPIRED")
                 raise Phase5ExecutionTransportError(
-                    "EXECUTION_AUTHORITY_CHANGED_AFTER_DRIVER_ACCEPTANCE"
+                    "EXECUTION_AUTHORITY_CHANGED_AFTER_DRIVER_ACCEPTANCE: "
+                    + ", ".join(changed or ["UNCLASSIFIED_FINAL_GATE_FAILURE"])
                 )
         except Exception as error:
             abort_error = None

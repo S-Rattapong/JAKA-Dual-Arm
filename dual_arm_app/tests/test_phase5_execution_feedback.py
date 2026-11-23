@@ -452,13 +452,16 @@ class Phase5WebSourceTests(unittest.TestCase):
         )[0]
         self.assertIn('id="digitalTwinPhase5Stop"', phase5)
         self.assertIn('onclick="stopBoth()"', phase5)
-        automatic = controller.split("// Automatic work is read-only GET status + Frozen Ghost preview only", 1)[1]
+        automatic = controller.split("// Automatic work includes read-only status and operator heartbeat ONLY for", 1)[1]
         self.assertIn("refreshPhase5ExecutionStatus()", automatic)
         self.assertIn("STATUS_POLL_INTERVAL_MS", automatic)
         self.assertNotIn("executePhase5RealMotion()", automatic)
         self.assertNotIn('method: "POST"', automatic)
         self.assertNotIn("PREPARE_ENDPOINT", automatic)
         self.assertNotIn("EXECUTE_ENDPOINT", automatic)
+        self.assertIn('document.visibilityState !== "hidden"', controller)
+        self.assertIn("LOOP_HEARTBEAT_ENDPOINT", controller)
+        self.assertIn("LOOP_START_ENDPOINT", controller)
         self.assertIn("ARTIFACT_ENDPOINT", controller)
         self.assertIn("ensureFrozenArtifactPreview", controller)
         self.assertIn("currentFrozenPreviewReady", controller)
@@ -491,10 +494,8 @@ class Phase5WebSourceTests(unittest.TestCase):
         self.assertNotRegex(details_tag, r"\bopen(?:\s|=|$)")
         self.assertIn("digital-twin-operator-details", details_tag)
         for critical_id in (
-            "digitalTwinPhase5ArtifactStatus",
             "digitalTwinPhase5PreviewStatus",
             "digitalTwinPhase5PreviewInterlock",
-            "digitalTwinPhase5GateStatus",
             "digitalTwinPhase5SafeState",
             "digitalTwinPhase5ExecutionState",
             "digitalTwinPhase5CombinedResult",
@@ -510,6 +511,11 @@ class Phase5WebSourceTests(unittest.TestCase):
         ):
             self.assertIn(f'id="{critical_id}"', operator_summary)
             self.assertNotIn(f'id="{critical_id}"', diagnostics)
+
+        # The existing HMI intentionally puts these detailed fields under
+        # the collapsed diagnostics drawer, not the primary operator summary.
+        for diagnostic_id in ("digitalTwinPhase5ArtifactStatus", "digitalTwinPhase5GateStatus"):
+            self.assertIn(f'id="{diagnostic_id}"', diagnostics)
 
         secondary = phase5.split("More preview / status controls", 1)[1].split("</details>", 1)[0]
         for secondary_id in (

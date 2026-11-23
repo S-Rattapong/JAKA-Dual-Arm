@@ -12,7 +12,7 @@ import rclpy
 from rclpy.node import Node
 
 from fastapi import FastAPI, HTTPException
-from fastapi.responses import FileResponse
+from fastapi.responses import FileResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
@@ -345,6 +345,15 @@ except ImportError:
         )
 
 try:
+    from dual_arm_app.backend.phase5_supervised_loop import Phase5LoopSupervisor
+except ImportError:
+    try:
+        from .phase5_supervised_loop import Phase5LoopSupervisor
+    except ImportError:
+        from phase5_supervised_loop import Phase5LoopSupervisor
+
+
+try:
     from dual_arm_app.backend.phase5_execution_feedback import (
         build_phase5_execution_feedback,
     )
@@ -539,7 +548,19 @@ class DigitalTwinPhase5ExecuteRequest(BaseModel):
     operator_confirmed: bool = Field(..., strict=True)
 
 
+class DigitalTwinPhase5LoopStartRequest(BaseModel):
+    mode: Literal["count", "forever"]
+    count: int = 0
+    operator_confirmed: bool = Field(..., strict=True)
+
+
+class DigitalTwinPhase5LoopLeaseRequest(BaseModel):
+    id: str
+    lease_token: str
+
+
 class ExperimentArmRequest(BaseModel):
+    endpoint_evidence: Any = False  # Validated by the recorder before arming.
     label: str = ""
     path_type: Literal["LINEAR", "CURVED", "COMPLEX", "CUSTOM"] = "CUSTOM"
     fixture_condition: Literal["NONE", "CLEARANCE", "RIGID", "OTHER"] = "NONE"
@@ -580,6 +601,20 @@ class SequenceRunRequest(BaseModel):
     side: str = "both"
     vel: Optional[float] = None
     acc: Optional[float] = None
+
+
+try:
+    from dual_arm_app.backend.validation_api import validation_router
+    from dual_arm_app.backend.validation_store import PassiveTap
+except ModuleNotFoundError as exc:
+    if exc.name != "dual_arm_app":
+        raise
+    if __package__:
+        from .validation_api import validation_router
+        from .validation_store import PassiveTap
+    else:
+        from validation_api import validation_router
+        from validation_store import PassiveTap
 
 
 class DualJakaWebNode(Node):
@@ -749,7 +784,9 @@ class DualJakaWebNode(Node):
             expected_packet_period_ms=self.port10000_expected_period_ms,
         )
 
+        self.validation_tap = PassiveTap()
         if self.port10000_actual_feedback is not None:
+            self.port10000_actual_feedback.subscribe_packets(self.validation_tap.observe)
             self.port10000_actual_feedback.subscribe_packets(self.experiment_recorder.ingest_actual_packet)
 
         self.active_jog: Optional[Dict[str, Any]] = None
@@ -859,6 +896,16 @@ class DualJakaWebNode(Node):
             feedback_getter=self.phase5_driver_execution_feedback,
         )
 
+        self.phase5_loop_manager = Phase5LoopSupervisor(
+            coordinator=self.phase5_execution_coordinator,
+            execute_callback=lambda confirmed: self.execute_phase5_execution(
+                confirmed, supervised_repeat=True
+            ),
+            artifact_snapshot_getter=self._phase5_artifact_snapshot,
+            stop_generation_getter=lambda: self.stop_generation,
+            abort_callback=self._phase5_abort_existing_stop_path,
+        )
+
         self.jog_thread = threading.Thread(target=self.jog_loop, daemon=True)
         self.jog_thread.start()
 
@@ -875,6 +922,8 @@ class DualJakaWebNode(Node):
         self.experiment_torque_cache.update("right", getattr(msg, "data", None))
 
     def _update_digital_twin_joint_cache(self, side, msg):
+        if any(abs(v) > 0.02 for v in getattr(msg, "velocity", ())):
+            self.validation_tap.motion(side)
         received_at_ms = wall_clock_ms()
         result = normalize_joint_state_message(
             getattr(msg, "name", []),
@@ -905,6 +954,8 @@ class DualJakaWebNode(Node):
         self._update_digital_twin_robot_state_cache("right", msg)
 
     def _update_digital_twin_robot_state_cache(self, side, msg):
+        if getattr(msg, "motion_state", 0) != 0:
+            self.validation_tap.motion(side)
         normalized = normalize_robot_state_message(msg)
         with self.digital_twin_robot_state_cache_lock:
             cache = self.digital_twin_robot_state_cache[side]
@@ -1803,10 +1854,16 @@ class DualJakaWebNode(Node):
         """Capture no-expiry pending operator authority without dispatching motion."""
         return self.phase5_execution_coordinator.prepare()
 
-    def execute_phase5_execution(self, operator_confirmed):
-        """Consume explicit operator authority and remember validated sample zero."""
+    def execute_phase5_execution(self, operator_confirmed, *, supervised_repeat=False):
+        """Consume explicit authority. Loop-only handshake timing is bounded."""
         artifact, generation, _reason = self._phase5_artifact_snapshot()
-        result = self.phase5_execution_coordinator.execute(operator_confirmed)
+        options = (
+            {"common_start_lead_s": 4.0, "acceptance_timeout_s": 1.5}
+            if supervised_repeat else {}
+        )
+        result = self.phase5_execution_coordinator.execute(
+            operator_confirmed, **options
+        )
         execution = result.get("execution") if isinstance(result, dict) else None
         if (
             isinstance(result, dict)
@@ -1896,6 +1953,7 @@ class DualJakaWebNode(Node):
         )
 
     def experiment_recorder_state(self):
+        self.experiment_recorder.finalize_endpoint()
         return self.experiment_recorder.state()
 
     def disarm_experiment_recorder(self):
@@ -1934,9 +1992,8 @@ class DualJakaWebNode(Node):
         }
 
     def delete_experiment_run(self, run_id):
-        active_run_id = self.experiment_recorder.state().get("run_id")
-        active_state = self.experiment_recorder.state().get("state")
-        if run_id == active_run_id and active_state in {"ARMED", "RECORDING"}:
+        recorder = self.experiment_recorder.state()
+        if run_id == recorder["run_id"] and recorder["state"] in {"ARMED", "RECORDING", "FINALIZING"}:
             raise ExperimentError("Cannot delete an armed or recording run")
         self.experiment_store.delete(run_id)
         return {"ok": True, "deleted_run_id": run_id}
@@ -2937,6 +2994,8 @@ class DualJakaWebNode(Node):
         # Global stop latch:
         # กด STOP ครั้งเดียวต้องหยุด motion ปัจจุบัน + ยกเลิก sequence ทั้งหมด
         self.stop_generation = getattr(self, "stop_generation", 0) + 1
+        if hasattr(self, "phase5_loop_manager"):
+            self.phase5_loop_manager.on_stop()
         self.phase5_execution_coordinator.on_stop(self.stop_generation)
         self.motion_cancel_requested = True
         self.sequence_cancel_requested = True
@@ -3930,6 +3989,7 @@ spin_thread.start()
 app = FastAPI(title="Dual JAKA A12 Web Backend")
 
 app.include_router(system_control_router(node))
+app.include_router(validation_router(node.validation_tap, node.digital_twin_robot_status))
 
 _BACKEND_DIR = Path(__file__).resolve().parent
 _DUAL_ARM_APP_DIR = _BACKEND_DIR.parent
@@ -3983,6 +4043,7 @@ _D33_LAST_ACTIVITY = {
 
 _D33_MOTION_EXACT_PATHS = {
     "/api/digital-twin/phase5/execute",
+    "/api/digital-twin/phase5/loop/start",
     "/api/digital-twin/phase5/move-to-initial",
 }
 
@@ -4001,6 +4062,7 @@ _D33_MOTION_KEYWORDS = (
 )
 
 _D33_NO_MOTION_PATHS = (
+    "/api/validation/",
     "/api/experiments",
     "/api/status",
     "/api/robot/activity",
@@ -4016,6 +4078,8 @@ _D33_NO_MOTION_PATHS = (
     "/api/digital-twin/phase5/execution-transport",
     "/api/digital-twin/phase5/execution",
     "/api/digital-twin/phase5/prepare",
+    "/api/digital-twin/phase5/loop/heartbeat",
+    "/api/digital-twin/phase5/loop/cancel",
     "/api/digital-twin/phase5/replan-from-current",
     "/api/digital-twin/grasp-configuration",
     "/api/digital-twin/grasp-configuration/lock",
@@ -4120,13 +4184,59 @@ def _d33_activity_snapshot():
             data["active_commands"] = 0
             data["settling_remaining_sec"] = 0.0
 
+        # Unlike ordinary HTTP commands, a supervised loop continues running
+        # after the initiating POST has returned. Keep the HMI activity badge
+        # truthful throughout active cycle/settle periods.
+        if node.phase5_loop_manager.active():
+            data["state"] = "running"
+            data["active"] = True
+            data["last_path"] = "/api/digital-twin/phase5/loop/start"
+            data["supervised_loop_active"] = True
         data["now"] = now
         return data
+
+
+_PHASE5_LOOP_STOP_PATHS = frozenset({
+    "/api/stop", "/api/jog/stop", "/api/sequence/stop",
+})
+_PHASE5_LOOP_ARTIFACT_MUTATIONS = frozenset({
+    "/api/digital-twin/plan-object-global",
+    "/api/digital-twin/validate-trajectory",
+    "/api/digital-twin/validate-phase4",
+    "/api/digital-twin/validate-phase4-trajectory",
+    "/api/digital-twin/validate-phase4-collision",
+    "/api/digital-twin/grasp-configuration/lock",
+    "/api/digital-twin/grasp-configuration/unlock",
+    "/api/digital-twin/center-path/load",
+    "/api/digital-twin/center-path/delete",
+})
+
+
+def _phase5_loop_blocks_command(path: str, method: str, *, active: bool) -> bool:
+    if not active or method.upper() == "GET":
+        return False
+    if path in _PHASE5_LOOP_STOP_PATHS:
+        return False
+    return (
+        _d33_is_motion_command(path, method)
+        or path in _PHASE5_LOOP_ARTIFACT_MUTATIONS
+    )
 
 
 @app.middleware("http")
 async def d33_robot_activity_middleware(request, call_next):
     path = str(request.url.path)
+    if _phase5_loop_blocks_command(
+        path, request.method, active=node.phase5_loop_manager.active()
+    ):
+        return JSONResponse(
+            status_code=409,
+            content={
+                "ok": False,
+                "error": "SUPERVISED_PHASE5_LOOP_ACTIVE",
+                "detail": "Stop or cancel the loop before issuing other motion or changing the frozen artifact.",
+            },
+        )
     motion = _d33_is_motion_command(path, request.method)
     started_at = None
 
@@ -4218,27 +4328,61 @@ def api_digital_twin_phase5_execution_state():
     return node.phase5_execution_state()
 
 
+@app.get("/api/digital-twin/phase5/loop/status")
+def api_digital_twin_phase5_loop_status():
+    """Read-only cached loop state + joint closure preview, never dispatch motion."""
+    return node.phase5_loop_manager.status()
+
+
+@app.post("/api/digital-twin/phase5/loop/start")
+def api_digital_twin_phase5_loop_start(req: DigitalTwinPhase5LoopStartRequest):
+    """EXPLICIT REAL MOTION, initiated only by the operator's confirmed click."""
+    return node.phase5_loop_manager.start(
+        mode=req.mode, count=req.count, operator_confirmed=req.operator_confirmed
+    )
+
+
+@app.post("/api/digital-twin/phase5/loop/heartbeat")
+def api_digital_twin_phase5_loop_heartbeat(req: DigitalTwinPhase5LoopLeaseRequest):
+    """Refresh operator supervision lease, NO MOTION."""
+    return node.phase5_loop_manager.heartbeat(req.id, req.lease_token)
+
+
+@app.post("/api/digital-twin/phase5/loop/cancel")
+def api_digital_twin_phase5_loop_cancel(req: DigitalTwinPhase5LoopLeaseRequest):
+    """Cancel after current trajectory. Immediate stop remains STOP BOTH."""
+    return node.phase5_loop_manager.cancel_after_current(req.id, req.lease_token)
+
+
 @app.post("/api/digital-twin/phase5/prepare")
 def api_digital_twin_phase5_prepare():
     """No-motion capture of a no-expiry single-use pending operator authority."""
+    if node.phase5_loop_manager.active():
+        return {"ok": False, "error": "SUPERVISED_LOOP_ACTIVE"}
     return node.prepare_phase5_execution()
 
 
 @app.post("/api/digital-twin/phase5/execute")
 def api_digital_twin_phase5_execute(req: DigitalTwinPhase5ExecuteRequest):
     """Consume explicit confirmation and submit the frozen dual trajectory."""
+    if node.phase5_loop_manager.active():
+        return {"ok": False, "error": "SUPERVISED_LOOP_ACTIVE"}
     return node.execute_phase5_execution(req.operator_confirmed)
 
 
 @app.post("/api/digital-twin/phase5/replan-from-current")
 def api_digital_twin_phase5_replan_from_current():
     """Capture fresh cached Actual joints for the next plan; no motion."""
+    if node.phase5_loop_manager.active():
+        return {"ok": False, "error": "SUPERVISED_LOOP_ACTIVE"}
     return node.phase5_replan_from_current()
 
 
 @app.post("/api/digital-twin/phase5/move-to-initial")
 def api_digital_twin_phase5_move_to_initial():
     """Explicit real recovery motion to frozen artifact sample zero."""
+    if node.phase5_loop_manager.active():
+        return {"ok": False, "error": "SUPERVISED_LOOP_ACTIVE"}
     return node.phase5_move_to_initial()
 
 

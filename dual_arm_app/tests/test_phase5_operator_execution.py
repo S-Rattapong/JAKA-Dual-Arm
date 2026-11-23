@@ -490,7 +490,7 @@ class Phase5SourceContractTests(unittest.TestCase):
         self.assertIn('replanButton.addEventListener("click"', controller)
         self.assertIn('moveButton.addEventListener("click"', controller)
         initialization = controller.split(
-            "// Automatic work is read-only GET status + Frozen Ghost preview only", 1
+            "// Automatic work includes read-only status and operator heartbeat ONLY for", 1
         )[1]
         self.assertIn("refreshPhase5ExecutionStatus()", initialization)
         self.assertIn("ensureFrozenArtifactPreview", controller)
@@ -513,3 +513,99 @@ class Phase5SourceContractTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class Phase5SupervisedRepeatTimingRegressionTests(unittest.TestCase):
+    """Loop-only long admission window; Once must not inherit these values."""
+
+    def test_loop_start_window_is_scoped_and_has_no_motion_without_prepare(self):
+        coordinator, _state, clock, transport, aborts = make_coordinator()
+        coordinator.prepare()
+        res = coordinator.execute(
+            True, common_start_lead_s=4.0, acceptance_timeout_s=1.5
+        )
+        self.assertTrue(res["ok"], res)
+        self.assertEqual(len(transport.calls), 1)
+        self.assertEqual(
+            transport.calls[0]["start_time_unix_ns"],
+            clock.now_ns + 4_000_000_000,
+        )
+        self.assertEqual(transport.calls[0]["response_timeout_s"], 1.5)
+        self.assertEqual(aborts, [])
+
+        normal, _state, clock, once_transport, _ = make_coordinator()
+        normal.prepare()
+        result = normal.execute(True)
+        self.assertTrue(result["ok"])
+        self.assertEqual(
+            once_transport.calls[0]["start_time_unix_ns"],
+            clock.now_ns + 2_000_000_000,
+        )
+        self.assertNotIn("response_timeout_s", once_transport.calls[0])
+
+    def test_long_driver_preparation_fails_once_but_extra_lead_does_not_relax_gate(self):
+        # Simulate a driver acceptance that occurs 1.9 seconds after dispatch.
+        # Default 2-second lead then has <200 ms margin; loop-only 4s can
+        # accommodate the delay without touching execution path or speed.
+        def perform(lead):
+            coordinator, state, clock, transport, aborts = make_coordinator()
+            original_submit = transport.submit_pair
+
+            def delayed_submit(**kwargs):
+                clock.now_ns += 1_900_000_000
+                return original_submit(**kwargs)
+
+            transport.submit_pair = delayed_submit
+            coordinator.prepare()
+            response = coordinator.execute(
+                True, common_start_lead_s=lead, acceptance_timeout_s=1.5
+            )
+            return response, aborts
+
+        failure, aborts = perform(2.0)
+        self.assertFalse(failure["ok"])
+        self.assertTrue(failure["stop_requested"])
+        self.assertIn(
+            "COMMON_START_MARGIN_EXPIRED", failure["detail"]
+        )
+        self.assertEqual(aborts, ["existing-stop-path"])
+
+        success, no_aborts = perform(4.0)
+        self.assertTrue(success["ok"], success)
+        self.assertEqual(no_aborts, [])
+
+    def test_after_driver_acceptance_safety_gate_still_fails_closed_with_detail(self):
+        coordinator, state, _clock, transport, aborts = make_coordinator()
+        original = transport.submit_pair
+
+        def create_stale_actual(**kwargs):
+            reply = original(**kwargs)
+            state["start_match"] = False
+            return reply
+
+        transport.submit_pair = create_stale_actual
+        coordinator.prepare()
+        result = coordinator.execute(
+            True, common_start_lead_s=4.0, acceptance_timeout_s=1.5
+        )
+        self.assertFalse(result["ok"])
+        self.assertIn(
+            "ACTUAL_START_INTERLOCK_BLOCKED: DELTA_EXCEEDED",
+            result["detail"],
+        )
+        self.assertEqual(aborts, ["existing-stop-path"])
+
+    def test_invalid_loop_timing_never_consumes_prepare_or_dispatches(self):
+        coordinator, _state, _clock, transport, aborts = make_coordinator()
+        coordinator.prepare()
+        for values in (
+            {"common_start_lead_s": True},
+            {"common_start_lead_s": 100.0},
+            {"acceptance_timeout_s": float("nan")},
+            {"acceptance_timeout_s": 6.0},
+        ):
+            result = coordinator.execute(True, **values)
+            self.assertFalse(result["ok"])
+        self.assertEqual(transport.calls, [])
+        self.assertEqual(aborts, [])
+        self.assertTrue(coordinator.execute(True)["ok"])

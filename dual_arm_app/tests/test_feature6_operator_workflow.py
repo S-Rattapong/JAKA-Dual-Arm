@@ -174,10 +174,15 @@ class Feature6OperatorWorkflowTests(unittest.TestCase):
         self.assertIn("one explicit final browser", " ".join(self.phase5.split()))
 
     def test_feature8_cache_version_is_used_without_changing_workflow(self) -> None:
-        self.assertIn(
-            '/web-assets/digital_twin.js?v=phase6-p6-1-joint-tracking-v1',
-            self.html,
-        )
+        # Cache-busted Phase5 controls must be loaded through the SAME version
+        # as the main Digital Twin entrypoint, otherwise the browser can keep
+        # the old Execute handler while the new Fixed count HTML is visible.
+        version = "phase5-supervised-loop-count-ui-20261120-v2"
+        self.assertIn(f'/web-assets/digital_twin.js?v={version}', self.html)
+        main_js = (Path(__file__).resolve().parents[1] / "web" / "digital_twin.js").read_text(encoding="utf-8")
+        self.assertIn(f'digital_twin_phase5_execution.js?v={version}', main_js)
+        self.assertEqual(self.ids.count("digitalTwinPhase5LoopCount"), 1)
+        self.assertEqual(self.ids.count("digitalTwinPhase5LoopCountGroup"), 1)
 
 
 if __name__ == "__main__":

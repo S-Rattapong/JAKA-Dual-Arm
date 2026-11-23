@@ -215,7 +215,10 @@ class Phase5ExecutionTransportBackendTests(unittest.TestCase):
         self.assertIn('@app.post("/api/digital-twin/phase5/prepare")', backend)
         self.assertIn('@app.post("/api/digital-twin/phase5/execute")', backend)
         self.assertIn('@app.get("/api/digital-twin/phase5/execution-transport")', backend)
-        self.assertIn("Phase 5 Execution", html)
+        # Current Operator HMI labels this stage "Preview & Execute" rather
+        # than the legacy "Phase 5 Execution" heading.
+        self.assertIn('id="digitalTwinPhase5ExecutionSection"', html)
+        self.assertIn("Preview &amp; Execute", html)
         self.assertIn("bindPhase5ExecutionControls", controller)
 
     def test_motion_classification_is_phase5_endpoint_specific(self):
@@ -223,6 +226,24 @@ class Phase5ExecutionTransportBackendTests(unittest.TestCase):
         self.assertFalse(classify("/api/digital-twin/phase5/execution", "GET"))
         self.assertFalse(classify("/api/digital-twin/phase5/prepare", "POST"))
         self.assertTrue(classify("/api/digital-twin/phase5/execute", "POST"))
+        self.assertTrue(classify("/api/digital-twin/phase5/loop/start", "POST"))
+        self.assertFalse(classify("/api/digital-twin/phase5/loop/heartbeat", "POST"))
+        self.assertFalse(classify("/api/digital-twin/phase5/loop/cancel", "POST"))
+        self.assertFalse(classify("/api/digital-twin/phase5/loop/status", "GET"))
+        block = self.backend._phase5_loop_blocks_command
+        for path in ("/api/home", "/api/jog/start", "/api/waypoint/run",
+                     "/api/program/run", "/api/direct/joint_move",
+                     "/api/digital-twin/phase5/execute",
+                     "/api/digital-twin/phase5/move-to-initial",
+                     "/api/digital-twin/grasp-configuration/unlock",
+                     "/api/digital-twin/plan-object-global"):
+            self.assertTrue(block(path, "POST", active=True), path)
+            self.assertFalse(block(path, "POST", active=False), path)
+        for path in ("/api/stop", "/api/jog/stop", "/api/sequence/stop",
+                     "/api/digital-twin/phase5/loop/heartbeat",
+                     "/api/digital-twin/phase5/loop/cancel"):
+            self.assertFalse(block(path, "POST", active=True), path)
+        self.assertFalse(block("/api/status", "GET", active=True))
         self.assertTrue(classify("/api/home", "POST"))
 
 

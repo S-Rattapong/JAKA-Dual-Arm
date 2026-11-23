@@ -134,14 +134,14 @@ function renderRecorder(recorder) {
   setText("experimentRecorderError", state.recorder.error || "NONE");
   const arm = element("experimentArmRecorder");
   const disarm = element("experimentDisarmRecorder");
-  if (arm) arm.disabled = ["ARMED", "RECORDING"].includes(state.recorder.state);
+  if (arm) arm.disabled = ["ARMED", "RECORDING", "FINALIZING"].includes(state.recorder.state);
   if (disarm) disarm.disabled = state.recorder.state !== "ARMED";
 }
 
 async function refreshRecorder({ quiet = false } = {}) {
   try {
     const recorder = await requestExperiment("/recorder");
-    const wasActive = ["ARMED", "RECORDING"].includes(state.lastRecorderState);
+    const wasActive = ["ARMED", "RECORDING", "FINALIZING"].includes(state.lastRecorderState);
     renderRecorder(recorder);
     state.lastRecorderState = recorder.state || "IDLE";
     if (wasActive && recorder.state === "CLOSED") {
@@ -165,6 +165,7 @@ async function armRecorder() {
     fixture_condition: element("experimentFixtureCondition")?.value || "NONE",
     notes: element("experimentNotes")?.value || "",
     plan_snapshot: planSnapshot,
+    ...(element("experimentEndpointEvidence")?.checked ? { endpoint_evidence: {} } : {}),
   };
   try {
     const recorder = await requestExperiment("/arm", {
