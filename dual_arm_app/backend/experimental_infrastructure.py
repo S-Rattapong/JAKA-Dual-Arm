@@ -411,14 +411,35 @@ class ExperimentRunStore:
         self.write_exp2_analysis(run_id, analysis)
         return analysis
 
+    def _load_manifest_for_listing(self, run_dir: Path) -> Mapping[str, Any]:
+        """Read only manifest.json for the run list.
+
+        Listing must stay cheap: loading raw/aligned/analysis JSON of every run
+        holds the Python GIL for seconds and stalls the Port10000 receive
+        threads of the same process (reproduced offline 2026-11-23). Full
+        content validation still happens in load() when a run is opened.
+        """
+        with self._lock:
+            try:
+                manifest = json.loads((run_dir / "manifest.json").read_text(encoding="utf-8"))
+            except (OSError, json.JSONDecodeError) as error:
+                raise ExperimentError(f"Corrupt experiment run: {error}") from error
+            if not isinstance(manifest, Mapping):
+                raise ExperimentError("Corrupt experiment run: JSON roots must be objects")
+            if manifest.get("run_id") != run_dir.name:
+                raise ExperimentError("Corrupt experiment run identity")
+            for name in ("raw.json", "aligned.json"):
+                if not (run_dir / name).is_file():
+                    raise ExperimentError(f"Corrupt experiment run: missing {name}")
+            return manifest
+
     def list_runs(self) -> list[dict[str, Any]]:
         rows = []
         for path in sorted(self.root.iterdir(), reverse=True):
             if not path.is_dir() or RUN_ID_PATTERN.fullmatch(path.name) is None:
                 continue
             try:
-                data = self.load(path.name)
-                manifest = data["manifest"]
+                manifest = self._load_manifest_for_listing(path)
                 rows.append({
                     "run_id": path.name,
                     "label": manifest.get("label", ""),

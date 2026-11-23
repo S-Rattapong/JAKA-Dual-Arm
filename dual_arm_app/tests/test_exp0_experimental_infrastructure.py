@@ -173,6 +173,33 @@ class ExperimentStoreTests(unittest.TestCase):
         rows = {item["run_id"]: item for item in self.store.list_runs()}
         self.assertEqual(rows[valid_json_corrupt_id]["state"], "CORRUPT")
 
+    def test_list_runs_reads_manifest_only_and_flags_missing_payload(self):
+        # Listing must not parse raw/aligned JSON: doing so for every run held
+        # the GIL long enough to stall Port10000 receive threads after ARM.
+        run_id = self.store.generate_run_id()
+        self.store.create(base_manifest(run_id), base_raw(run_id))
+        (self.store.root / run_id / "raw.json").write_text("{not parsed by listing", encoding="utf-8")
+        rows = {item["run_id"]: item for item in self.store.list_runs()}
+        self.assertEqual(rows[run_id]["state"], "CLOSED")
+        self.assertEqual(rows[run_id]["label"], "fixture")
+        with self.assertRaises(ExperimentError):
+            self.store.load(run_id)  # full validation still happens on open
+
+        missing_id = self.store.generate_run_id()
+        self.store.create(base_manifest(missing_id), base_raw(missing_id))
+        (self.store.root / missing_id / "aligned.json").unlink()
+        rows = {item["run_id"]: item for item in self.store.list_runs()}
+        self.assertEqual(rows[missing_id]["state"], "CORRUPT")
+        self.assertIn("missing aligned.json", rows[missing_id]["warning"])
+
+        wrong_id = self.store.generate_run_id()
+        self.store.create(base_manifest(wrong_id), base_raw(wrong_id))
+        other = self.store.generate_run_id()
+        (self.store.root / wrong_id / "manifest.json").write_text(
+            '{"run_id": "%s", "state": "CLOSED"}' % other, encoding="utf-8")
+        rows = {item["run_id"]: item for item in self.store.list_runs()}
+        self.assertEqual(rows[wrong_id]["state"], "CORRUPT")
+
     def test_delete_refuses_unexpected_entries(self):
         run_id = self.store.generate_run_id()
         self.store.create(base_manifest(run_id), base_raw(run_id))
