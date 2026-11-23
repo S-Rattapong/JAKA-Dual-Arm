@@ -4622,6 +4622,63 @@
       </div>
     </section>
 
+    <section class="experiment-exp1 experiment-exp3-timebase" aria-labelledby="experimentExp3TimebaseHeading">
+      <div class="experiment-exp1-header">
+        <h3 id="experimentExp3TimebaseHeading">EXP-3 Time Base · Host-time / Phase-matched / Controller-inferred</h3>
+        <button id="experimentExp3TimebaseCompute" class="digital-twin-primary-action" type="button">Compute Time-Base Comparison — NO MOTION</button>
+      </div>
+      <div class="experiment-notice">
+        Port10000 packets have no controller timestamp. <b>Host-time</b> pairs Left/Right by host receive time
+        (jitter of tens of ms appears as error at speed). <b>Phase-matched</b> pairs by plan phase inferred from the
+        same-packet controller joint_position. <b>Controller-inferred</b> re-times each packet to that inferred sample
+        time and re-runs the host-time analysis; packets whose Actual-vs-controller tracking lag deviates from the
+        side median by more than the threshold are flagged (red markers) and shown with and without exclusion.
+        Read-only: nothing is written; disabled while the recorder is armed or recording. Model-based (encoder + URDF),
+        not external metrology, not proof of physical simultaneity.
+      </div>
+      <div class="experiment-exp1-status" aria-label="EXP-3 time-base status">
+        <span>Status<strong id="experimentExp3TimebaseStatus">NOT COMPUTED</strong></span>
+        <span>Flagged packets<strong id="experimentExp3TimebaseFlaggedCount">N/A</strong></span>
+        <span>Tracking lag L / R [ms]<strong id="experimentExp3TimebaseLag">N/A</strong></span>
+        <span>Host − controller time std L / R [ms]<strong id="experimentExp3TimebaseJitter">N/A</strong></span>
+      </div>
+      <div class="experiment-exp1-table-wrap">
+        <table class="experiment-exp1-table" aria-label="EXP-3 time-base comparison metrics">
+          <thead><tr><th>Method</th><th>Usable</th><th>|Δp| RMS [mm]</th><th>|Δp| Max [mm]</th><th>Max at [s]</th><th>Δθ RMS [deg]</th><th>Δθ Max [deg]</th></tr></thead>
+          <tbody id="experimentExp3TimebaseRows"></tbody>
+        </table>
+      </div>
+      <div class="experiment-view-controls" aria-label="EXP-3 time-base series selector">
+        <label for="experimentExp3TimebaseMetric">Series
+          <select id="experimentExp3TimebaseMetric">
+            <option value="translation">Relative translation magnitude [mm]</option>
+            <option value="orientation">Relative orientation angle [deg]</option>
+          </select>
+        </label>
+      </div>
+      <div class="experiment-exp1-detail-grid">
+        <div class="experiment-exp1-chart">
+          <h4>Time-based (x = time from start)</h4>
+          <canvas id="experimentExp3TimeChart" class="experiment-exp1-error-canvas" width="760" height="300" aria-label="EXP-3 error versus time for host-time and controller-inferred time bases"></canvas>
+          <div class="experiment-legend">
+            <span style="color:#e879f9">■ Host-time</span>
+            <span style="color:#22d3ee">■ Controller-inferred time</span>
+            <span style="color:#4ade80">■ Controller-inferred, flagged packets excluded</span>
+            <span style="color:#f87171">┆ Flagged packet</span>
+          </div>
+        </div>
+        <div class="experiment-exp1-chart">
+          <h4>Phase-based (x = inferred plan phase)</h4>
+          <canvas id="experimentExp3PhaseChart" class="experiment-exp1-error-canvas" width="760" height="300" aria-label="EXP-3 error versus inferred plan phase"></canvas>
+          <div class="experiment-legend">
+            <span style="color:#f59e0b">■ Phase-matched (persisted EXP-2 analysis)</span>
+            <span style="color:#f87171">┆ Flagged packet phase</span>
+          </div>
+        </div>
+      </div>
+      <p id="experimentExp3TimebaseFlagged" class="experiment-notice">Flagged packets: compute to list.</p>
+    </section>
+
     <h3>Experimental 3D Path Viewer</h3>
     <div class="experiment-visibility-controls" aria-label="Experimental path visibility toggles">
       <strong>Visibility:</strong>

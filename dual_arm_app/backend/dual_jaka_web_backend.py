@@ -423,6 +423,17 @@ except ImportError:
             TorqueCache,
         )
 
+try:
+    from dual_arm_app.backend.experimental_controller_timebase import analyze_controller_timebase
+    from dual_arm_app.backend.experimental_infrastructure import EXP2_URDF_PATH
+except ImportError:
+    try:
+        from .experimental_controller_timebase import analyze_controller_timebase
+        from .experimental_infrastructure import EXP2_URDF_PATH
+    except ImportError:
+        from experimental_controller_timebase import analyze_controller_timebase
+        from experimental_infrastructure import EXP2_URDF_PATH
+
 
 COORD_MODE = {
     "joint": 0,
@@ -1983,6 +1994,26 @@ class DualJakaWebNode(Node):
             "ok": True,
             "run_id": run_id,
             "exp2_analysis": self.experiment_store.analyze_exp2(run_id),
+        }
+
+    def analyze_experiment_run_timebase(self, run_id):
+        """Read-only EXP-3 host-time vs controller-inferred time comparison.
+
+        Refused while the recorder is ARMED/RECORDING/FINALIZING: the computation
+        holds the Python GIL for about a second, which would stall the Port10000
+        receive threads during acquisition. Never writes files or contacts a robot.
+        """
+        recorder = self.experiment_recorder.state()
+        if recorder.get("state") in {"ARMED", "RECORDING", "FINALIZING"}:
+            raise ExperimentError(
+                "Time-base analysis is disabled while the recorder is "
+                f"{recorder.get('state')} (it would disturb Port10000 acquisition)"
+            )
+        data = self.experiment_store.load(run_id)
+        return {
+            "ok": True,
+            "run_id": run_id,
+            "timebase": analyze_controller_timebase(data["raw"], data["manifest"], EXP2_URDF_PATH),
         }
 
     def relabel_experiment_run(self, run_id, label):
@@ -4447,6 +4478,15 @@ def api_experiment_exp2_analysis(run_id: str):
         return node.analyze_experiment_run_exp2(run_id)
     except ExperimentError as error:
         raise HTTPException(status_code=422, detail=str(error)) from error
+
+
+@app.get("/api/experiments/{run_id}/exp3-timebase")
+def api_experiment_exp3_timebase(run_id: str):
+    """Read-only EXP-3 time-base comparison; no files written, no motion."""
+    try:
+        return node.analyze_experiment_run_timebase(run_id)
+    except ExperimentError as error:
+        raise HTTPException(status_code=409, detail=str(error)) from error
 
 
 @app.patch("/api/experiments/{run_id}")

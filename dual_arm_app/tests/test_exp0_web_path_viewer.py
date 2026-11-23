@@ -132,6 +132,7 @@ class ExperimentPanelTests(unittest.TestCase):
                 "api_experiment_arm", "api_experiment_disarm", "api_experiment_load",
                 "api_experiment_export", "api_experiment_relabel", "api_experiment_delete",
                 "api_experiment_exp1_analysis", "api_experiment_exp2_analysis",
+                "api_experiment_exp3_timebase",
             },
         )
         combined = "\n".join(methods.values())

@@ -490,6 +490,7 @@ function renderExp2Analysis(analysis = state.loaded?.exp2_analysis || null) {
   setText("experimentExp2CenterOrientationMax", formatNumber(centerOrientation?.max_deg, 4));
   renderExp2AxisRows(analysis);
   drawExp2Series(analysis);
+  renderExp3Timebase();
 }
 
 async function analyzeExp2() {
@@ -581,6 +582,160 @@ function drawExp2Series(analysis = state.loaded?.exp2_analysis || null) {
   context.fillText(formatNumber(minimum, 4), 8, bottom + 4);
   context.fillText(`time ${formatNumber(minimumTime, 3)} … ${formatNumber(maximumTime, 3)} s`, left, displayHeight - 12);
   canvasLine(context, series, xScale, yScale, "#e879f9", 2);
+}
+
+const EXP3_TIMEBASE_METHODS = [
+  ["host_time", "Host-time", "#e879f9"],
+  ["controller_time", "Controller-inferred time", "#22d3ee"],
+  ["controller_time_excluding_flagged", "Controller-inferred, flagged excluded", "#4ade80"],
+];
+
+function exp3Timebase() {
+  const runId = state.loaded?.manifest?.run_id;
+  return runId && state.exp3Timebase?.runId === runId ? state.exp3Timebase.data : null;
+}
+
+function exp3FlaggedPackets(timebase) {
+  if (!timebase?.sides) return [];
+  return ["left", "right"].flatMap((side) => (timebase.sides[side]?.flagged_packets || [])
+    .map((item) => ({ ...item, side })));
+}
+
+function drawMultiSeriesChart(canvasId, seriesList, markers, xLabel, yLabel) {
+  const canvas = element(canvasId);
+  if (!canvas) return;
+  const context = canvas.getContext("2d");
+  if (!context) return;
+  const displayWidth = Math.max(320, Math.floor(canvas.clientWidth || 760));
+  const displayHeight = Math.max(220, Math.floor(canvas.clientHeight || 300));
+  const ratio = Math.min(window.devicePixelRatio || 1, 2);
+  if (canvas.width !== Math.floor(displayWidth * ratio) || canvas.height !== Math.floor(displayHeight * ratio)) {
+    canvas.width = Math.floor(displayWidth * ratio); canvas.height = Math.floor(displayHeight * ratio);
+  }
+  context.setTransform(ratio, 0, 0, ratio, 0, 0);
+  context.clearRect(0, 0, displayWidth, displayHeight);
+  context.fillStyle = "#020617";
+  context.fillRect(0, 0, displayWidth, displayHeight);
+  context.font = "12px sans-serif";
+  const left = 58, right = displayWidth - 16, top = 28, bottom = displayHeight - 38;
+  const valid = seriesList.map((item) => ({ ...item, points: (item.points || []).filter((p) => Number.isFinite(p.x) && Number.isFinite(p.y)) }))
+    .filter((item) => item.points.length);
+  if (!valid.length) {
+    context.fillStyle = "#94a3b8";
+    context.fillText("No samples available for this view.", left, top + 24);
+    return;
+  }
+  const xs = valid.flatMap((item) => item.points.map((p) => p.x));
+  const minimumX = Math.min(...xs), maximumX = Math.max(...xs);
+  const spanX = Math.max(maximumX - minimumX, 1e-9);
+  const [minimumY, maximumY] = seriesRange(valid.map((item) => item.points), [0, 1]);
+  const lowY = Math.min(0, minimumY);
+  const xScale = (value) => left + (right - left) * (value - minimumX) / spanX;
+  const yScale = (value) => top + (bottom - top) * (maximumY - value) / Math.max(maximumY - lowY, 1e-9);
+  context.strokeStyle = "#334155"; context.lineWidth = 1;
+  for (const value of [lowY, (lowY + maximumY) / 2, maximumY]) {
+    context.beginPath(); context.moveTo(left, yScale(value)); context.lineTo(right, yScale(value)); context.stroke();
+  }
+  context.setLineDash([4, 3]);
+  for (const marker of markers || []) {
+    if (!Number.isFinite(marker.x) || marker.x < minimumX || marker.x > maximumX) continue;
+    context.strokeStyle = "#f87171";
+    context.beginPath(); context.moveTo(xScale(marker.x), top); context.lineTo(xScale(marker.x), bottom); context.stroke();
+    context.fillStyle = "#f87171";
+    context.fillText(marker.label || "", xScale(marker.x) + 3, top + 10);
+  }
+  context.setLineDash([]);
+  valid.forEach((item) => canvasLine(context, item.points, xScale, yScale, item.color, item.width || 1.6));
+  context.fillStyle = "#94a3b8";
+  context.fillText(yLabel, 8, 16);
+  context.fillText(formatNumber(maximumY, 3), 8, top + 4);
+  context.fillText(formatNumber(lowY, 3), 8, bottom + 4);
+  context.fillText(`${xLabel} ${formatNumber(minimumX, 2)} … ${formatNumber(maximumX, 2)} s`, left, displayHeight - 12);
+}
+
+function renderExp3Timebase() {
+  const metric = element("experimentExp3TimebaseMetric")?.value === "orientation" ? "orientation" : "translation";
+  const yLabel = metric === "orientation" ? "Relative orientation angle [deg]" : "Relative translation |Δp| [mm]";
+  const column = metric === "orientation" ? 2 : 1;
+  const timebase = exp3Timebase();
+  const flagged = exp3FlaggedPackets(timebase);
+  const exp2 = state.loaded?.exp2_analysis || null;
+  // Time-based chart: persisted host-time samples always; controller-inferred after compute.
+  const timeSeries = [];
+  if (timebase?.methods) {
+    EXP3_TIMEBASE_METHODS.forEach(([key, label, color]) => {
+      const rows = timebase.methods[key]?.samples_t_mm_deg || [];
+      timeSeries.push({ label, color, width: key === "host_time" ? 1.2 : 1.8, points: rows.map((row) => ({ x: row[0], y: row[column] })) });
+    });
+  } else if (Array.isArray(exp2?.samples)) {
+    timeSeries.push({ label: "Host-time", color: "#e879f9", points: exp2.samples.map((s) => ({
+      x: s?.time_from_start_s,
+      y: metric === "orientation" ? s?.relative_orientation_error_deg : (s?.relative_translation_error_magnitude_m ?? NaN) * 1000,
+    })) });
+  }
+  const timeMarkers = flagged.map((item) => ({ x: item.phase_time_s + (timebase?.common_latency_ms || 0) / 1000, label: `${item.side[0].toUpperCase()}#${item.packet_index}` }));
+  drawMultiSeriesChart("experimentExp3TimeChart", timeSeries, timeMarkers, "time", yLabel);
+  // Phase-based chart: persisted phase-matched samples (no recomputation needed).
+  const phaseSamples = Array.isArray(exp2?.phase_synchronized?.samples) ? exp2.phase_synchronized.samples : [];
+  const phaseSeries = [{ label: "Phase-matched", color: "#f59e0b", width: 1.8, points: phaseSamples.map((s) => ({
+    x: s?.phase_time_s,
+    y: metric === "orientation" ? s?.relative_orientation_error_deg : (s?.relative_translation_error_magnitude_m ?? NaN) * 1000,
+  })) }];
+  const phaseMarkers = flagged.map((item) => ({ x: item.phase_time_s, label: `${item.side[0].toUpperCase()}#${item.packet_index}` }));
+  drawMultiSeriesChart("experimentExp3PhaseChart", phaseSeries, phaseMarkers, "plan phase", yLabel);
+  // Table and status.
+  const rows = element("experimentExp3TimebaseRows");
+  if (rows) {
+    const phaseTranslation = exp2?.phase_synchronized?.relative_translation?.magnitude_m;
+    const phaseOrientation = exp2?.phase_synchronized?.relative_orientation?.angle;
+    const tableRows = [];
+    if (timebase?.methods) {
+      EXP3_TIMEBASE_METHODS.forEach(([key, label]) => {
+        const m = timebase.methods[key] || {};
+        tableRows.push([label, Number.isFinite(m.usable_fraction) ? `${formatNumber(m.usable_fraction * 100, 2)} %` : "N/A",
+          formatNumber(m.translation_rms_mm, 3), formatNumber(m.translation_max_mm, 3), formatNumber(m.translation_max_time_s, 2),
+          formatNumber(m.orientation_rms_deg, 3), formatNumber(m.orientation_max_deg, 3)]);
+      });
+    }
+    if (phaseTranslation) {
+      tableRows.push(["Phase-matched (persisted)", Number.isFinite(exp2?.phase_synchronized?.coverage?.usable_fraction)
+        ? `${formatNumber(exp2.phase_synchronized.coverage.usable_fraction * 100, 2)} %` : "N/A",
+      formatNumber(phaseTranslation.rms * 1000, 3), formatNumber(phaseTranslation.max * 1000, 3),
+      formatNumber(phaseTranslation.max_location?.phase_time_s, 2),
+      formatNumber(phaseOrientation?.rms_deg, 3), formatNumber(phaseOrientation?.max_deg, 3)]);
+    }
+    rows.replaceChildren(...tableRows.map((cells) => {
+      const tr = document.createElement("tr");
+      cells.forEach((value) => { const td = document.createElement("td"); td.textContent = value; tr.appendChild(td); });
+      return tr;
+    }));
+  }
+  setText("experimentExp3TimebaseStatus", timebase ? `${timebase.status} (${timebase.schema_version})` : "NOT COMPUTED");
+  setText("experimentExp3TimebaseFlaggedCount", timebase ? `${timebase.flagged_packet_count} / ${timebase.total_packet_count} (> ${timebase.policy?.lag_outlier_threshold_ms} ms)` : "N/A");
+  setText("experimentExp3TimebaseLag", timebase ? ["left", "right"].map((s) => formatNumber(timebase.sides?.[s]?.tracking_lag_ms?.median, 1)).join(" / ") : "N/A");
+  setText("experimentExp3TimebaseJitter", timebase ? ["left", "right"].map((s) => formatNumber(timebase.sides?.[s]?.host_minus_controller_time_ms?.std, 1)).join(" / ") : "N/A");
+  setText("experimentExp3TimebaseFlagged", timebase
+    ? (flagged.length ? `Flagged packets: ${flagged.map((f) => `${f.side} #${f.packet_index} @ phase ${formatNumber(f.phase_time_s, 2)} s, lag ${formatNumber(f.tracking_lag_ms, 1)} ms (${f.deviation_ms > 0 ? "+" : ""}${formatNumber(f.deviation_ms, 1)} ms)`).join("; ")}` : "Flagged packets: none.")
+    : "Flagged packets: compute to list.");
+}
+
+async function computeExp3Timebase() {
+  const runId = state.loaded?.manifest?.run_id || selectedRunId();
+  if (!runId) return setMessage("Load an experiment run first.", true);
+  const button = element("experimentExp3TimebaseCompute");
+  if (button) button.disabled = true;
+  setText("experimentExp3TimebaseStatus", "COMPUTING…");
+  try {
+    const payload = await requestExperiment(`/${encodeURIComponent(runId)}/exp3-timebase`);
+    state.exp3Timebase = { runId, data: payload.timebase };
+    renderExp3Timebase();
+    setMessage(`EXP-3 time-base comparison ${payload.timebase?.status || "UNAVAILABLE"} for ${runId}. Read-only analysis; no robot command was sent.`);
+  } catch (error) {
+    setText("experimentExp3TimebaseStatus", "ERROR");
+    setMessage(error.message, true);
+  } finally {
+    if (button) button.disabled = false;
+  }
 }
 
 function drawExp1ErrorSeries(analysis = state.loaded?.exp1_analysis || null) {
@@ -1322,6 +1477,9 @@ function bindControls() {
   });
   element("experimentTorqueToggle")?.addEventListener("change", drawJointSeries);
   element("experimentExp2Series")?.addEventListener("change", () => drawExp2Series());
+  element("experimentExp3TimebaseCompute")?.addEventListener("click", computeExp3Timebase);
+  element("experimentExp3TimebaseMetric")?.addEventListener("change", renderExp3Timebase);
+  window.addEventListener("resize", renderExp3Timebase);
   window.addEventListener("resize", () => { drawExp1ErrorSeries(); drawExp2Series(); });
 }
 
