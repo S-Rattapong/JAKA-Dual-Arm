@@ -942,6 +942,11 @@ async function refreshPhase5LoopStatus(force = false) {
     const payload = await requestJson(LOOP_STATUS_ENDPOINT);
     state.loopStatus = payload;
     const loop = payload.loop || {};
+    // Lets the Experiment panel skip auto-loading a just-closed run during a loop.
+    window.dualArmPhase5Loop = Object.freeze({
+      active: LOOP_ACTIVE_STATES.has(loop.state),
+      state: loop.state || null,
+    });
     const lease = loopLease();
     if (lease && lease.id === loop.id && LOOP_ACTIVE_STATES.has(loop.state)
         && document.visibilityState !== "hidden") {

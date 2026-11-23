@@ -26,6 +26,14 @@ HEARTBEAT_TIMEOUT_SECONDS = 5.0
 MAX_FOREVER_SECONDS = 3600.0
 FEEDBACK_TIMEOUT_SECONDS = 5.0
 POLL_SECONDS = 0.25
+# Before each cycle's prepare/execute, the cached actual feedback used by the
+# start interlock must be continuously fresh for this window. Recording
+# finalization/ARM and HMI reloads at a cycle boundary can stall the backend
+# process for a few hundred ms (23 Nov 2026: cycle 3 was rejected with actual
+# ages 516/541 ms > 500 ms right after ARM). This only delays the next start;
+# it never relaxes the existing 500 ms start interlock.
+FRESH_FEEDBACK_WINDOW_SECONDS = 0.5
+FRESH_FEEDBACK_TIMEOUT_SECONDS = 10.0
 RUNNING_STATES = frozenset({"STARTING", "RUNNING", "WAITING_FOR_SETTLE", "WAITING_FOR_GATE"})
 
 
@@ -76,6 +84,9 @@ class Phase5LoopSupervisor:
         forever_limit_s: float = MAX_FOREVER_SECONDS,
         feedback_timeout_s: float = FEEDBACK_TIMEOUT_SECONDS,
         poll_s: float = POLL_SECONDS,
+        fresh_feedback_checker: Callable[[], dict] | None = None,
+        fresh_feedback_window_s: float = FRESH_FEEDBACK_WINDOW_SECONDS,
+        fresh_feedback_timeout_s: float = FRESH_FEEDBACK_TIMEOUT_SECONDS,
     ):
         self.arm_recording = arm_recording
         self.finish_recording = finish_recording
@@ -91,6 +102,9 @@ class Phase5LoopSupervisor:
         self.forever_limit_s = forever_limit_s
         self.feedback_timeout_s = feedback_timeout_s
         self.poll_s = poll_s
+        self.fresh_feedback_checker = fresh_feedback_checker
+        self.fresh_feedback_window_s = fresh_feedback_window_s
+        self.fresh_feedback_timeout_s = fresh_feedback_timeout_s
         self._lock = threading.RLock()
         self._wake = threading.Event()
         self._cancel_after_cycle = False
@@ -230,6 +244,44 @@ class Phase5LoopSupervisor:
         self._wake.wait(max(0.0, min(self.poll_s, seconds)))
         self._wake.clear()
 
+    def _await_fresh_feedback(self, sid: str) -> None:
+        """Block until the start-interlock feedback is fresh for a full window.
+
+        State stays WAITING_FOR_GATE (already an active state for the HMI
+        heartbeat); progress is exposed in the gate_wait field. Fails closed on
+        interlock faults or when freshness is not restored before the timeout.
+        """
+        if self.fresh_feedback_checker is None:
+            return
+        deadline = self.monotonic() + self.fresh_feedback_timeout_s
+        fresh_since = None
+        last_reason = None
+        self._update(gate_wait="FRESH_FEEDBACK")
+        while True:
+            fault = self._interlock(sid)
+            if fault:
+                raise RuntimeError(fault)
+            with self._lock:
+                if self._cancel_after_cycle:
+                    raise RuntimeError("OPERATOR_CANCELLED_BEFORE_NEXT_CYCLE")
+            try:
+                result = self.fresh_feedback_checker() or {}
+            except Exception as error:  # checker failure is never treated as fresh
+                result = {"match": False, "reason": f"FRESH_FEEDBACK_CHECK_ERROR: {error}"}
+            now = self.monotonic()
+            if result.get("match") is True:
+                if fresh_since is None:
+                    fresh_since = now
+                if now - fresh_since >= self.fresh_feedback_window_s:
+                    self._update(gate_wait=None)
+                    return
+            else:
+                fresh_since = None
+                last_reason = result.get("reason")
+            if now >= deadline:
+                raise RuntimeError("FRESH_FEEDBACK_NOT_RESTORED: " + str(last_reason or "UNKNOWN"))
+            self._wait(self.poll_s)
+
     def _worker(self, sid: str, recording=None) -> None:
         run_id = None
         active_execution = False
@@ -265,6 +317,7 @@ class Phase5LoopSupervisor:
                     self._update(recording_run_id=run_id)
                     if self._interlock(sid):
                         raise RuntimeError(self._interlock(sid))
+                self._await_fresh_feedback(sid)
                 prepared = self.coordinator.prepare()
                 if prepared.get("ok") is not True or prepared.get("motion_dispatched") is not False:
                     raise RuntimeError("REPEAT_PREPARE_REJECTED: " + str(prepared.get("error")))

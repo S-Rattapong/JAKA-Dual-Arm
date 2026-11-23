@@ -919,6 +919,7 @@ class DualJakaWebNode(Node):
             artifact_snapshot_getter=self._phase5_artifact_snapshot,
             stop_generation_getter=lambda: self.stop_generation,
             abort_callback=self._phase5_abort_existing_stop_path,
+            fresh_feedback_checker=self.phase5_start_match_state,
         )
 
         self.jog_thread = threading.Thread(target=self.jog_loop, daemon=True)

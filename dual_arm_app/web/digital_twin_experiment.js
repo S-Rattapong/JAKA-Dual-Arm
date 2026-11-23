@@ -138,6 +138,12 @@ function renderRecorder(recorder) {
   if (disarm) disarm.disabled = state.recorder.state !== "ARMED";
 }
 
+function supervisedLoopActive() {
+  // Read-only flag published by digital_twin_phase5_execution.js from its own
+  // loop-status poll; this module never calls Phase-5 endpoints.
+  return window.dualArmPhase5Loop?.active === true;
+}
+
 async function refreshRecorder({ quiet = false } = {}) {
   try {
     const recorder = await requestExperiment("/recorder");
@@ -146,7 +152,13 @@ async function refreshRecorder({ quiet = false } = {}) {
     state.lastRecorderState = recorder.state || "IDLE";
     if (wasActive && recorder.state === "CLOSED") {
       await refreshRuns({ selectRunId: recorder.run_id, quiet: true });
-      await loadRun(recorder.run_id);
+      // During a supervised loop, auto-loading the just-closed run (~10 MB) at the
+      // cycle boundary adds backend load right before the next start interlock.
+      if (supervisedLoopActive()) {
+        setMessage(`Run ${recorder.run_id} saved. Supervised loop active: open runs after the loop finishes. No robot command was sent.`);
+      } else {
+        await loadRun(recorder.run_id);
+      }
     } else if (!quiet) {
       setMessage("Recorder state refreshed. No robot command was sent.");
     }
