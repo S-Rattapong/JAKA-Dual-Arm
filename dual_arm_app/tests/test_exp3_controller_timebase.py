@@ -75,6 +75,8 @@ class ControllerTimebaseTests(unittest.TestCase):
         self.assertEqual(flagged, [("right", 10)])
         deviation = result["sides"]["right"]["flagged_packets"][0]["deviation_ms"]
         self.assertAlmostEqual(deviation, 50.0, delta=2.0)
+        self.assertEqual(result["sides"]["right"]["flagged_packets"][0]["estimated_stale_cycles_8ms"], 6)
+        self.assertIn(round(result["sides"]["right"]["flagged_packets"][0]["controller_spacing_before_ms"]), (64, 96, 128))
         self.assertAlmostEqual(result["sides"]["left"]["tracking_lag_ms"]["median"], 35.0, delta=1.0)
         self.assertEqual(len(calls), 3)  # host, controller, controller excluding flagged
         self.assertEqual(len(calls[2]["actual_packets"]["right"]), len(calls[1]["actual_packets"]["right"]) - 1)

@@ -155,10 +155,16 @@ def analyze_controller_timebase(
         for index, (value, m) in enumerate(zip(lag, fast)):
             if m and lag_median is not None and abs(value - lag_median) > lag_outlier_threshold_ms:
                 packet = packets[side][index]
+                previous = next((tau_c[j] for j in range(index - 1, -1, -1) if tau_c[j] is not None), None)
                 flagged.append({"packet_index": index,
                                 "packet_sequence_index": packet.get("packet_sequence_index"),
                                 "host_time_s": host_t[index], "phase_time_s": tau_c[index],
-                                "tracking_lag_ms": float(value), "deviation_ms": float(value - lag_median)})
+                                "tracking_lag_ms": float(value), "deviation_ms": float(value - lag_median),
+                                # Survey of 26 runs (23 Nov): deviations cluster at whole 8 ms controller
+                                # cycles, i.e. the actual field looks k cycles older than joint_position.
+                                "estimated_stale_cycles_8ms": int(round((value - lag_median) / 8.0)),
+                                "controller_spacing_before_ms": None if previous is None
+                                else float((tau_c[index] - previous) * 1000.0)})
         offsets = [h - c for h, c, m in zip(host_t, tau_c, moving) if m]
         offsets_all.extend(offsets)
         per_side[side] = {"packets": len(packets[side]), "moving_packets": int(sum(moving)),

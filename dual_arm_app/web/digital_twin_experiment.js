@@ -715,7 +715,7 @@ function renderExp3Timebase() {
   setText("experimentExp3TimebaseLag", timebase ? ["left", "right"].map((s) => formatNumber(timebase.sides?.[s]?.tracking_lag_ms?.median, 1)).join(" / ") : "N/A");
   setText("experimentExp3TimebaseJitter", timebase ? ["left", "right"].map((s) => formatNumber(timebase.sides?.[s]?.host_minus_controller_time_ms?.std, 1)).join(" / ") : "N/A");
   setText("experimentExp3TimebaseFlagged", timebase
-    ? (flagged.length ? `Flagged packets: ${flagged.map((f) => `${f.side} #${f.packet_index} @ phase ${formatNumber(f.phase_time_s, 2)} s, lag ${formatNumber(f.tracking_lag_ms, 1)} ms (${f.deviation_ms > 0 ? "+" : ""}${formatNumber(f.deviation_ms, 1)} ms)`).join("; ")}` : "Flagged packets: none.")
+    ? (flagged.length ? `Flagged packets: ${flagged.map((f) => `${f.side} #${f.packet_index} @ phase ${formatNumber(f.phase_time_s, 2)} s, lag ${formatNumber(f.tracking_lag_ms, 1)} ms (${f.deviation_ms > 0 ? "+" : ""}${formatNumber(f.deviation_ms, 1)} ms ≈ ${f.estimated_stale_cycles_8ms ?? "?"}×8 ms)`).join("; ")}` : "Flagged packets: none.")
     : "Flagged packets: compute to list.");
 }
 
