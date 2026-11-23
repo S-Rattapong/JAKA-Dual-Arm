@@ -69,6 +69,7 @@ class Phase5LoopSupervisor:
         artifact_snapshot_getter: Callable,
         stop_generation_getter: Callable[[], int],
         abort_callback: Callable[[], Any],
+        arm_recording=None, finish_recording=None, disarm_recording=None,
         monotonic: Callable[[], float] = time.monotonic,
         settle_s: float = MIN_SETTLE_SECONDS,
         heartbeat_timeout_s: float = HEARTBEAT_TIMEOUT_SECONDS,
@@ -76,6 +77,9 @@ class Phase5LoopSupervisor:
         feedback_timeout_s: float = FEEDBACK_TIMEOUT_SECONDS,
         poll_s: float = POLL_SECONDS,
     ):
+        self.arm_recording = arm_recording
+        self.finish_recording = finish_recording
+        self.disarm_recording = disarm_recording
         self.coordinator = coordinator
         self.execute_callback = execute_callback or coordinator.execute
         self.artifact_snapshot_getter = artifact_snapshot_getter
@@ -120,7 +124,7 @@ class Phase5LoopSupervisor:
                 max(0.0, self.monotonic() - self._last_heartbeat)
                 if self._last_heartbeat is not None else None
             )
-        return {"version": LOOP_VERSION, "loop": s, "repeatability": self.preview()}
+        return {"cycle_recording_available": self.arm_recording is not None, "version": LOOP_VERSION, "loop": s, "repeatability": self.preview()}
 
     def _update(self, **kwargs) -> None:
         with self._lock:
@@ -157,7 +161,9 @@ class Phase5LoopSupervisor:
             return {"ok": True, "cancel_after_current_requested": True,
                     "warning": "Current trajectory continues; use STOP BOTH for immediate stop."}
 
-    def start(self, *, mode: str, count: int, operator_confirmed: Any) -> dict:
+    def start(self, *, mode: str, count: int, operator_confirmed: Any, recording=None) -> dict:
+        if recording is not None and (mode != "count" or not self.arm_recording):
+            return {"ok": False, "error": "FIXED_CYCLE_RECORDING_UNAVAILABLE"}
         if operator_confirmed is not True:
             return {"ok": False, "error": "EXPLICIT_OPERATOR_CONFIRMATION_REQUIRED"}
         if mode not in ("count", "forever") or isinstance(count, bool) or not isinstance(count, int):
@@ -198,7 +204,7 @@ class Phase5LoopSupervisor:
                 "last_driver_result": None,
             }
             self._thread = threading.Thread(
-                target=self._worker, args=(sid,), name="phase5-supervised-loop", daemon=True
+                target=self._worker, args=(sid, recording), name="phase5-supervised-loop", daemon=True
             )
             self._thread.start()
             return {"ok": True, "accepted": True, "id": sid,
@@ -224,7 +230,8 @@ class Phase5LoopSupervisor:
         self._wake.wait(max(0.0, min(self.poll_s, seconds)))
         self._wake.clear()
 
-    def _worker(self, sid: str) -> None:
+    def _worker(self, sid: str, recording=None) -> None:
+        run_id = None
         active_execution = False
         try:
             while True:
@@ -249,6 +256,15 @@ class Phase5LoopSupervisor:
                         status.get("blocking_reasons") or ["UNKNOWN"]))
                 if self._interlock(sid):
                     raise RuntimeError(self._interlock(sid))
+                if recording is not None:
+                    prefix = recording.get("label") or "Experiment"
+                    label = f"{prefix} Run{current:02d}"
+                    armed = self.arm_recording({**recording, "label": label,
+                        "loop_cycle": {"session_id": sid, "index": current, "count": self._session["count"]}})
+                    run_id = armed["run_id"]
+                    self._update(recording_run_id=run_id)
+                    if self._interlock(sid):
+                        raise RuntimeError(self._interlock(sid))
                 prepared = self.coordinator.prepare()
                 if prepared.get("ok") is not True or prepared.get("motion_dispatched") is not False:
                     raise RuntimeError("REPEAT_PREPARE_REJECTED: " + str(prepared.get("error")))
@@ -303,6 +319,15 @@ class Phase5LoopSupervisor:
                     if self.monotonic() - last_authoritative >= self.feedback_timeout_s:
                         raise RuntimeError("DRIVER_FEEDBACK_TIMEOUT")
                     self._wait(self.poll_s)
+                if run_id:
+                    deadline = self.monotonic() + 60
+                    while not self.finish_recording(run_id, trajectory_id, result):
+                        fault = self._interlock(sid)
+                        if fault or self.monotonic() >= deadline:
+                            raise RuntimeError(fault or "RECORDER_FINALIZATION_TIMEOUT")
+                        self._wait(self.poll_s)
+                    self._update(saved_cycles=current)
+                    run_id = None
                 with self._lock:
                     self._session["completed_cycles"] += 1
                     self._session["last_completed_trajectory_id"] = trajectory_id
@@ -335,6 +360,11 @@ class Phase5LoopSupervisor:
                     self.abort_callback()
                 except Exception as abort_error:
                     reason += "; STOP_BOTH_ERROR=" + str(abort_error)
+            if run_id:
+                try:
+                    self.disarm_recording(run_id)
+                except Exception as cleanup_error:
+                    reason += "; RECORDER_CLEANUP_ERROR=" + str(cleanup_error)
             self._update(state="STOPPED" if "STOP" in reason or "CANCELLED" in reason
                          else "FAILED", reason=reason, trajectory_id=None)
         finally:

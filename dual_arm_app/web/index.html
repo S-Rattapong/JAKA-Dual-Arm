@@ -4286,6 +4286,7 @@
           <label for="digitalTwinPhase5LoopCount" id="digitalTwinPhase5LoopCountGroup" hidden>Cycles
             <input type="number" id="digitalTwinPhase5LoopCount" min="2" max="999" step="1" value="2" />
           </label>
+          <label id="loopRecordingGroup" hidden><input type="checkbox" id="loopRecordEach" /> Record each cycle separately</label>
           <button id="digitalTwinPhase5LoopCancel" class="stop" type="button" disabled>
             Stop after current cycle
           </button>
@@ -6057,12 +6058,12 @@ init();
 
 
 <script type="module" src="/web-assets/operator_system_control.js?v=split-system-control-v1"></script>
-<script type="module" src="/web-assets/digital_twin.js?v=phase5-supervised-loop-count-ui-20261120-v2"></script>
+<script type="module" src="/web-assets/digital_twin.js?v=cycle-recording-1"></script>
 <script type="module" src="/web-assets/digital_twin_live_source.js?v=feature5-live-mirror-switch-v1"></script>
 <script type="module" src="/web-assets/digital_twin_robot_status_source.js"></script>
 <script type="module" src="/web-assets/digital_twin_tcp_source.js"></script>
 <script type="module" src="/web-assets/validation.js"></script>
-<script type="module" src="/web-assets/digital_twin_experiment.js?v=exp2-v1"></script>
+<script type="module" src="/web-assets/digital_twin_experiment.js?v=cycle-recording-1"></script>
 
 </body>
 </html>

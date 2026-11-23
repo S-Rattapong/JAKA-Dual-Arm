@@ -729,6 +729,8 @@ class ExperimentRecorder:
         with self._lock:
             if self._manifest and self._manifest.get("state") in {"ARMED", "RECORDING", "FINALIZING"}:
                 raise ExperimentError("An experiment recorder is already armed")
+            if metadata.get("loop_cycle"):
+                manifest["loop_cycle"] = deepcopy(metadata["loop_cycle"])
             raw["actual_packet_schema"] = "port10000-packets/v2"
             raw["actual_packets"] = {"left": [], "right": []}
             raw["actual_packet_semantics"] = {
@@ -751,8 +753,26 @@ class ExperimentRecorder:
             self._last_signature, self._error = None, None
         return self.state()
 
-    def disarm(self) -> dict[str, Any]:
+    def finish_loop_cycle(self, run_id, trajectory_id, terminal, actual, torque):
+        self.observe(terminal, actual, torque)
+        status = self.state()
+        if status["run_id"] != run_id or status["active_trajectory_id"] != trajectory_id:
+            raise ExperimentError(f"Recorder binding mismatch for {run_id}")
+        if not status["ok"]:
+            raise ExperimentError(f"Recorder {run_id}: {status['error']}")
+        if status["state"] == "FINALIZING":
+            return False
+        if status["state"] != "CLOSED" or status["terminal_status"] != "COMPLETED":
+            raise ExperimentError(f"Recording {run_id} did not close successfully")
+        return True
+
+    def disarm(self, expected_run_id=None) -> dict[str, Any]:
         with self._lock:
+            if expected_run_id is not None and (not self._manifest or
+                    self._manifest["run_id"] != expected_run_id or self._manifest["state"] != "ARMED"):
+                return {}
+            if expected_run_id is None and self._manifest and self._manifest.get("loop_cycle") and self._manifest["state"] == "ARMED":
+                raise ExperimentError("The supervised loop owns this recorder")
             if self._manifest is None or self._manifest.get("state") != "ARMED":
                 raise ExperimentError("Only an unbound ARMED recorder may be disarmed")
             with self._packet_lock:

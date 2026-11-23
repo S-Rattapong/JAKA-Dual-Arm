@@ -871,6 +871,8 @@ function showLoopConfiguration() {
   lastRenderedLoopMode = mode;
   lastRenderedLoopCount = countValue;
   const group = element("digitalTwinPhase5LoopCountGroup");
+  const recordingGroup = element("loopRecordingGroup");
+  if (recordingGroup) recordingGroup.hidden = mode !== "count";
   if (group) group.hidden = mode !== "count";
   const report = state.loopStatus;
   const loop = (report && report.loop) || {};
@@ -904,6 +906,7 @@ function showLoopConfiguration() {
       const n = Number(loop.completed_cycles) || 0;
       progress.textContent = "LOOP " + (loop.state || "UNKNOWN") + " · Completed "
         + n + (loop.mode === "forever" ? " / ∞" : " / " + loop.count)
+        + (loop.saved_cycles != null ? " · Saved " + loop.saved_cycles : "")
         + " · Current " + (loop.current_cycle || "-")
         + (loop.reason ? " · " + loop.reason : "")
         + (active && (!lease || lease.id !== loop.id)
@@ -1018,9 +1021,16 @@ async function executePhase5LoopRealMotion() {
     setText("digitalTwinPhase5Error", "LOOP BLOCKED — sessionStorage unavailable for operator heartbeat");
     return;
   }
+  const record = mode === "count" && element("loopRecordEach")?.checked;
+  if (record && (!state.loopStatus?.cycle_recording_available || !window.dualArmExperimentViewer?.recordingOptions)) {
+    setText("digitalTwinPhase5Error", "Per-cycle recorder unavailable. Check backend and page versions.");
+    return;
+  }
+  const recording = record ? window.dualArmExperimentViewer.recordingOptions() : null;
   const message = "REAL ROBOT MOTION — supervised repetition on BOTH arms.\n\n"
     + (mode === "forever" ? "FOREVER (until STOP, browser heartbeat loss or 60-minute safety cap)"
       : ("FIXED: " + count + " complete cycles"))
+    + (record ? "\nRecord each cycle separately using Experiment Recorder settings." : "")
     + "\n\nEach iteration obtains a fresh Phase-5 Prepare authority, checks the frozen artifact"
     + " and actual Start State. It will NOT automatically return to the start."
     + "\n\nDo not leave this browser tab unattended. Keep STOP BOTH / E-stop ready."
@@ -1034,7 +1044,7 @@ async function executePhase5LoopRealMotion() {
     const response = await requestJson(LOOP_START_ENDPOINT, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ mode, count, operator_confirmed: true }),
+      body: JSON.stringify({ mode, count, operator_confirmed: true, ...(record ? { recording } : {}) }),
     });
     if (response.ok !== true || response.accepted !== true) {
       throw new Error(errorText(response, "LOOP START REJECTED"));

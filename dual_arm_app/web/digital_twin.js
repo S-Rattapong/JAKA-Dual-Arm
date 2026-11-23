@@ -103,7 +103,7 @@ import {
 } from "./digital_twin_phase4_unified_validation.js";
 import {
   bindPhase5ExecutionControls,
-} from "./digital_twin_phase5_execution.js?v=phase5-supervised-loop-count-ui-20261120-v2";
+} from "./digital_twin_phase5_execution.js?v=cycle-recording-1";
 import {
   MODEL_CALIBRATION_MISMATCH,
   requestCalibrationRevisionState,

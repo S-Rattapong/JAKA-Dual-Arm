@@ -559,12 +559,6 @@ class DigitalTwinPhase5ExecuteRequest(BaseModel):
     operator_confirmed: bool = Field(..., strict=True)
 
 
-class DigitalTwinPhase5LoopStartRequest(BaseModel):
-    mode: Literal["count", "forever"]
-    count: int = 0
-    operator_confirmed: bool = Field(..., strict=True)
-
-
 class DigitalTwinPhase5LoopLeaseRequest(BaseModel):
     id: str
     lease_token: str
@@ -577,6 +571,13 @@ class ExperimentArmRequest(BaseModel):
     fixture_condition: Literal["NONE", "CLEARANCE", "RIGID", "OTHER"] = "NONE"
     notes: str = ""
     plan_snapshot: Any = None
+
+
+class DigitalTwinPhase5LoopStartRequest(BaseModel):
+    mode: Literal["count", "forever"]
+    count: int = 0
+    operator_confirmed: bool = Field(..., strict=True)
+    recording: Optional[ExperimentArmRequest] = None
 
 
 class ExperimentRelabelRequest(BaseModel):
@@ -908,6 +909,9 @@ class DualJakaWebNode(Node):
         )
 
         self.phase5_loop_manager = Phase5LoopSupervisor(
+            arm_recording=self.arm_experiment_recorder,
+            finish_recording=self.finish_loop_recording,
+            disarm_recording=self.experiment_recorder.disarm,
             coordinator=self.phase5_execution_coordinator,
             execute_callback=lambda confirmed: self.execute_phase5_execution(
                 confirmed, supervised_repeat=True
@@ -1961,6 +1965,11 @@ class DualJakaWebNode(Node):
             },
             robot_configuration=self.cfg,
             grasp_snapshot=locked.as_payload() if locked is not None else None,
+        )
+
+    def finish_loop_recording(self, run_id, trajectory_id, terminal):
+        return self.experiment_recorder.finish_loop_cycle(
+            run_id, trajectory_id, terminal, self.digital_twin_joint_status(), self.experiment_torque_cache.snapshot()
         )
 
     def experiment_recorder_state(self):
@@ -4369,7 +4378,8 @@ def api_digital_twin_phase5_loop_status():
 def api_digital_twin_phase5_loop_start(req: DigitalTwinPhase5LoopStartRequest):
     """EXPLICIT REAL MOTION, initiated only by the operator's confirmed click."""
     return node.phase5_loop_manager.start(
-        mode=req.mode, count=req.count, operator_confirmed=req.operator_confirmed
+        mode=req.mode, count=req.count, operator_confirmed=req.operator_confirmed,
+        recording=req.recording.dict() if req.recording is not None else None,
     )
 
 

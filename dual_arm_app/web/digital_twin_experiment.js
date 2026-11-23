@@ -157,9 +157,9 @@ async function refreshRecorder({ quiet = false } = {}) {
   }
 }
 
-async function armRecorder() {
+function recordingOptions() {
   const planSnapshot = currentPlanSnapshot();
-  const payload = {
+  return {
     label: element("experimentLabel")?.value || "",
     path_type: element("experimentPathType")?.value || "CUSTOM",
     fixture_condition: element("experimentFixtureCondition")?.value || "NONE",
@@ -167,6 +167,10 @@ async function armRecorder() {
     plan_snapshot: planSnapshot,
     ...(element("experimentEndpointEvidence")?.checked ? { endpoint_evidence: {} } : {}),
   };
+}
+
+async function armRecorder() {
+  const payload = recordingOptions();
   try {
     const recorder = await requestExperiment("/arm", {
       method: "POST",
@@ -1503,6 +1507,7 @@ function initialize() {
   refreshRecorder({ quiet: true });
   window.setInterval(() => refreshRecorder({ quiet: true }), 1000);
   window.dualArmExperimentViewer = Object.freeze({
+    recordingOptions,
     refreshRuns,
     loadRun,
     fitAll,
